@@ -5,6 +5,7 @@ var DEFAULT_SETTINGS = {
   file_exclusions: "",
   header_exclusions: "",
   path_only: "",
+  show_full_path: false,
 };
 
 class SmartConnectionsPlugin extends Obsidian.Plugin {
@@ -41,6 +42,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     await this.loadSettings();
     // re-render view if set to true (for example, after adding API key)
     if(rerender) {
+      this.nearest_cache = {};
       await this.render_note_connections();
     }
   }
@@ -421,7 +423,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       view.set_message(nearest);
     }else{
       // set nearest connections
-      view.set_nearest(nearest);
+      view.set_nearest(nearest, this.settings.show_full_path);
     }
     // get object keys of render_log
     const render_log_keys = Object.keys(this.render_log);
@@ -613,7 +615,16 @@ class SmartConnectionsView extends Obsidian.ItemView {
     // add loading text
     container.createEl("div", { cls: "scLoadingText", text: message });
   }
-  set_nearest(nearest) {
+  render_link_text(link, show_full_path=false) {
+    // if show full path is true, return link
+    if (show_full_path) {
+      return link;
+    }
+    // get file name
+    const file_name = link.split("/").pop();
+    return file_name;
+  }
+  set_nearest(nearest, show_full_path=false) {
     // get container element
     const container = this.containerEl.children[1];
     // clear container
@@ -622,6 +633,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     const list = container.createEl("ol", { cls: "scList" });
     for (let i = 0; i < nearest.length; i++) {
       const item = list.createEl("li", { cls: "scListItem" });
+      const link_text = this.render_link_text(nearest[i].link, show_full_path);
       // internal link to note open note in new pane
       if(nearest[i].link.indexOf("#") > -1) {
         // WORKAROUND for link not working if a sub-section is linked 
@@ -629,7 +641,8 @@ class SmartConnectionsView extends Obsidian.ItemView {
           cls: "scLink",
           href: `obsidian://open?vault=${this.app.vault.getName()}&file=${nearest[i].link}`,
           // replace first # with line break
-          text: nearest[i].link,
+          text: link_text,
+          title: nearest[i].link,
         });
       }else{
         item.createEl("a", {
@@ -637,7 +650,8 @@ class SmartConnectionsView extends Obsidian.ItemView {
           //href: `obsidian://open?vault=${this.app.vault.getName()}&file=${nearest[i].link}`,
           href: nearest[i].link,
           // replace first # with line break
-          text: nearest[i].link,
+          text: link_text,
+          title: nearest[i].link,
         });
         // trigger click event on link
         item.addEventListener("click", (event) => {
@@ -712,6 +726,11 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     new Obsidian.Setting(containerEl).setName("header_exclusions").setDesc("'Excluded header' matchers separated by a comma. Works for 'blocks' only.").addText((text) => text.setPlaceholder("drawings,prompts/logs").setValue(this.plugin.settings.header_exclusions).onChange(async (value) => {
       this.plugin.settings.header_exclusions = value;
       await this.plugin.saveSettings();
+    }));
+    // toggle showing full path in view
+    new Obsidian.Setting(containerEl).setName("show_full_path").setDesc("Show full path in view.").addToggle((toggle) => toggle.setValue(this.plugin.settings.show_full_path).onChange(async (value) => {
+      this.plugin.settings.show_full_path = value;
+      await this.plugin.saveSettings(true);
     }));
 
   }
