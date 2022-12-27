@@ -634,41 +634,48 @@ class SmartConnectionsView extends Obsidian.ItemView {
     for (let i = 0; i < nearest.length; i++) {
       const item = list.createEl("li", { cls: "scListItem" });
       const link_text = this.render_link_text(nearest[i].link, show_full_path);
-      // internal link to note open note in new pane
-      if(nearest[i].link.indexOf("#") > -1) {
-        // WORKAROUND for link not working if a sub-section is linked 
-        item.createEl("a", {
-          cls: "scLink",
-          href: `obsidian://open?vault=${this.app.vault.getName()}&file=${nearest[i].link}`,
-          // replace first # with line break
-          text: link_text,
-          title: nearest[i].link,
-        });
-      }else{
-        item.createEl("a", {
-          cls: "scLink",
-          //href: `obsidian://open?vault=${this.app.vault.getName()}&file=${nearest[i].link}`,
-          href: nearest[i].link,
-          // replace first # with line break
-          text: link_text,
-          title: nearest[i].link,
-        });
-        // trigger click event on link
-        item.addEventListener("click", (event) => {
-          // get target file from link path
-          const targetFile = this.app.metadataCache.getFirstLinkpathDest(nearest[i].link, "");
-          //console.log(targetFile);
-          // get most recent leaf
-          let leaf = this.app.workspace.getMostRecentLeaf();
-          if(event.ctrlKey || event.metaKey){
-            // open in new pane
-            leaf = this.app.workspace.getLeaf('tab');
-            leaf.openFile(targetFile);
-          }else{
-            leaf.openFile(targetFile);
-          }
-        });
-      }
+      item.createEl("a", {
+        cls: "scLink",
+        href: nearest[i].link,
+        text: link_text,
+        title: nearest[i].link,
+      });
+      // trigger click event on link
+      item.addEventListener("click", async (event) => {
+        // get target file from link path
+        // if sub-section is linked, open file and scroll to sub-section
+        let targetFile;
+        let heading;
+        if(nearest[i].link.indexOf("#") > -1){
+          // remove after # from link
+          targetFile = this.app.metadataCache.getFirstLinkpathDest(nearest[i].link.split("#")[0], "");
+          // console.log(targetFile);
+          const target_file_cache = this.app.metadataCache.getFileCache(targetFile);
+          // console.log(target_file_cache);
+          // get heading
+          const heading_text = nearest[i].link.split("#").pop();
+          // get heading from headings in file cache
+          heading = target_file_cache.headings.find(h => h.heading === heading_text);
+          // console.log(heading);
+        }else{
+          targetFile = this.app.metadataCache.getFirstLinkpathDest(nearest[i].link, "");
+        }
+        // get most recent leaf
+        let leaf = this.app.workspace.getMostRecentLeaf();
+        if(event.ctrlKey || event.metaKey){
+          // open in new pane
+          leaf = this.app.workspace.getLeaf('tab');
+          await leaf.openFile(targetFile);
+        }else{
+          await leaf.openFile(targetFile);
+        }
+        if(heading){
+          let { editor } = leaf.view;
+          const pos = {line: heading.position.start.line, ch: 0};
+          editor.setCursor(pos);
+          editor.scrollIntoView({to: pos, from: pos}, true);
+        }
+      });
       // trigger hover event on link
       item.addEventListener("mouseover", (event) => {
         this.app.workspace.trigger("hover-link", {
