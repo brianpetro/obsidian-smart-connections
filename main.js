@@ -266,7 +266,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     let embed_input = `${embed_file.path}`;
     let batch_promises = [];
     if(!path_only){
-      embed_input += `\n`;
       console.log(embed_file.path);
       // get file from path
       const note_file = await this.app.vault.getAbstractFileByPath(embed_file.path);
@@ -276,7 +275,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       const note_sections = this.extractSectionsCompact(note_contents);
       // console.log(note_sections);
       // if note has more than one section (if only one then its same as full-content)
-      if(note_sections.length > 0) {
+      if(note_sections.length > 1) {
         // for each section in file
         console.log("Sections: " + note_sections.length);
         // batch block embeddings
@@ -300,7 +299,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
               continue;
             }
           }
-
+          
           // build embeddings key
           const embeddings_key = embed_file.path+note_sections[j].path;
           // skip if embeddings key already exists and block mtime is greater than or equal to file mtime
@@ -314,33 +313,39 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           batch_promises.push(this.get_embeddings(embeddings_key, note_sections[j].text, embed_file.stat.mtime));
         }
       }
-
+      
       // if file length is less than 8000 use full file contents
       // else if file length is greater than 8000 build embed_input from file headings
       const token_estimate = note_contents.length/4;
-      // console.log(token_estimate);
+      //console.log('token estimate: ' + token_estimate);
+      embed_input += `\n`;
       if(token_estimate < 8000) {
         embed_input += note_contents
       }else{ 
         const note_meta_cache = this.app.metadataCache.getFileCache(note_file);
-        // console.log(note_meta_cache);
         // for each heading in file
-        let note_headings = "";
-        for (let j = 0; j < note_meta_cache.headings.length; j++) {
-          // get heading level
-          const heading_level = note_meta_cache.headings[j].level;
-          // get heading text
-          const heading_text = note_meta_cache.headings[j].heading;
-          // build markdown heading
-          let md_heading = "";
-          for (let k = 0; k < heading_level; k++) {
-            md_heading += "#";
+        if(typeof note_meta_cache.headings === "undefined") {
+          console.log("no headings found, using first chunk of file instead");
+          embed_input += note_contents.substring(0, 30000);
+          // console.log("chuck len: " + embed_input.length);
+        }else{
+          let note_headings = "";
+          for (let j = 0; j < note_meta_cache.headings.length; j++) {
+            // get heading level
+            const heading_level = note_meta_cache.headings[j].level;
+            // get heading text
+            const heading_text = note_meta_cache.headings[j].heading;
+            // build markdown heading
+            let md_heading = "";
+            for (let k = 0; k < heading_level; k++) {
+              md_heading += "#";
+            }
+            // add heading to note_headings
+            note_headings += `${md_heading} ${heading_text}\n`;
           }
-          // add heading to note_headings
-          note_headings += `${md_heading} ${heading_text}\n`;
+          //console.log(note_headings);
+          embed_input += note_headings
         }
-        //console.log(note_headings);
-        embed_input += note_headings
       }
     }
 
@@ -389,6 +394,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       return requestResults.data[0].embedding;
     } catch (error) {
       console.log(error);
+      // console.log(usedParams);
+      // console.log(usedParams.input.length);
       return null; 
     }
   }
