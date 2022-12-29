@@ -16,6 +16,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.files = [];
     this.nearest_cache = {};
     this.render_log = {};
+    this.render_log.files_embedded = 0;
+    this.render_log.exclusions_logs = {};
     this.file_exclusions = [];
     this.header_exclusions = [];
     this.path_only = [];
@@ -127,7 +129,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // batch embeddings
     let batch_promises = [];
     for (let i = 0; i < this.files.length; i++) {
-      // skip if file already has embedding and embedding.mtime is greater than file.mtime
+      // skip if file already has embedding and embedding.mtime is greater than or equal to file.mtime
       if((this.embeddings[this.files[i].path]) && (this.embeddings[this.files[i].path].mtime >= this.files[i].stat.mtime)) {
         // log skipping file
         //console.log("skipping file (mtime)");
@@ -138,17 +140,14 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       for(let j = 0; j < this.file_exclusions.length; j++) {
         if(this.files[i].path.indexOf(this.file_exclusions[j]) > -1) {
           skip = true;
-          // console.log("skipping file with exclusion: " + this.file_exclusions[j]);
-          // increment render_log for skipped file
           this.log_exclusion(this.file_exclusions[j]);
           // break out of loop
           break;
         }
       }
       if(skip) {
-        continue;
+        continue; // to next file
       }
-      // get_file_embeddings() for current file
       try {
         // push promise to batch_promises
         batch_promises.push(this.get_file_embeddings(this.files[i], false));
@@ -216,17 +215,17 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // loaded embeddings from file
       this.embeddings = JSON.parse(embeddings_file);
     } catch (error) {
-      console.log(error);
       // retry if error up to 3 times
       if(retries < 3) {
         console.log("retrying load_embeddings_file()");
         // increase wait time between retries
         await new Promise(r => setTimeout(r, 1000+(3000*retries)));
-        this.embeddings = await this.load_embeddings_file(retries+1);
+        return await this.load_embeddings_file(retries+1);
       }else{
         console.log("failed to load embeddings file, creating new file");
         await this.init_embeddings_file();
       }
+      // console.log(error);
     }
     return this.embeddings;
   }
@@ -252,6 +251,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   // get embeddings for embed_input
   async get_file_embeddings(embed_file, save=true) {
+    this.render_log.files_embedded++;
     // embed on file.name/title only if path_only path matcher specified in settings
     let path_only = false;
     for(let j = 0; j < this.path_only.length; j++) {
@@ -266,7 +266,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     let embed_input = `${embed_file.path}`;
     let batch_promises = [];
     if(!path_only){
-      console.log(embed_file.path);
+      //console.log(embed_file.path);
       // get file from path
       const note_file = await this.app.vault.getAbstractFileByPath(embed_file.path);
       // console.log(note_file);
@@ -277,7 +277,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // if note has more than one section (if only one then its same as full-content)
       if(note_sections.length > 1) {
         // for each section in file
-        console.log("Sections: " + note_sections.length);
+        //console.log("Sections: " + note_sections.length);
         // batch block embeddings
         for (let j = 0; j < note_sections.length; j++) {
           // console.log(note_sections[j].path);
@@ -371,7 +371,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
   }
 
-  async request_embedding_from_input(embed_input) {
+  async request_embedding_from_input(embed_input, retries = 0) {
     const usedParams = {
       model: "text-embedding-ada-002",
       input: embed_input,
@@ -393,6 +393,15 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       this.render_log.token_usage = (this.render_log.token_usage || 0) + requestResults.usage.total_tokens;
       return requestResults.data[0].embedding;
     } catch (error) {
+      // retry request if error is 429
+      if(error.status === 429){ 
+        if(retries < 3) {
+          console.log("retrying request (429)");
+          return await this.request_embedding_from_input(embed_input, retries+1);
+        }
+      }else{
+        console.log("erroneous embed input: " + embed_input);
+      }
       console.log(error);
       // console.log(usedParams);
       // console.log(usedParams.input.length);
@@ -433,17 +442,28 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       view.set_nearest(nearest, this.settings.show_full_path);
     }
     // get object keys of render_log
+    this.output_render_log();
+  }
+  output_render_log() {
     const render_log_keys = Object.keys(this.render_log);
     // if render_log_keys length is greater than 0
-    if(render_log_keys.length > 0) {
+    if (render_log_keys.length > 0) {
       // for each key in render_log_keys
       for (let i = 0; i < render_log_keys.length; i++) {
-        console.log(render_log_keys[i] + ": " + this.render_log[render_log_keys[i]]);
+        if(render_log_keys[i] === "exclusions_logs") {
+          // JSON.stringify(this.render_log[render_log_keys[i]])
+          console.log(render_log_keys[i] + ": " + JSON.stringify(this.render_log[render_log_keys[i]]));
+        }else{
+          console.log(render_log_keys[i] + ": " + this.render_log[render_log_keys[i]]);
+        }
       }
       // clear render_log
       this.render_log = {};
+      this.render_log.files_embedded = 0;
+      this.render_log.exclusions_logs = {};
     }
   }
+
   // find connections by most similar to current note by cosine similarity
   async find_note_connections(current_note=null) {
     if(!current_note) {
@@ -474,11 +494,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // skip files where path contains any exclusions
       for(let j = 0; j < this.file_exclusions.length; j++) {
         if(current_note.path.indexOf(this.file_exclusions[j]) > -1) {
-          // console.log("skipping file with exclusion: " + this.file_exclusions[j]);
-          // create render_log object of exlusions with number of times skipped as value
-          const exclusion = this.log_exclusion(this.file_exclusions[j]);
-          // break out of loop
-          return exclusion;
+          this.log_exclusion(this.file_exclusions[j]);
+          // break out of loop and finish here
+          return "excluded";
         }
       }
       // get from cache if mtime is same
@@ -520,10 +538,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     return nearest;
   }
   
+  // create render_log object of exlusions with number of times skipped as value
   log_exclusion(exclusion) {
-    const exclusion_key = "Skipping file with exclusion: " + exclusion;
-    this.render_log[exclusion_key] = (this.render_log[exclusion_key] || 0) + 1;
-    return exclusion_key;
+    // increment render_log for skipped file
+    this.render_log.exclusions_logs[exclusion] = (this.render_log.exclusions_logs[exclusion] || 0) + 1;
   }
 
   // update status bar
