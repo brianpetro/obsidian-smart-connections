@@ -155,7 +155,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         console.log(error);
       }
       // if batch_promises length is 10
-      if(batch_promises.length > 10) {
+      if(batch_promises.length > 3) {
         // wait for all promises to resolve
         await Promise.all(batch_promises);
         // clear batch_promises
@@ -279,6 +279,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         // for each section in file
         //console.log("Sections: " + note_sections.length);
         // batch block embeddings
+        let batch_embeddings_keys = [];
+        let batch_embeddings_inputs = [];
+        let batch_embeddings_mtimes = [];
         for (let j = 0; j < note_sections.length; j++) {
           // console.log(note_sections[j].path);
           // skip if section length is less than N characters
@@ -311,7 +314,27 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           // get embeddings for block 
           // add block_embeddings to embeddings
           batch_promises.push(this.get_embeddings(embeddings_key, note_sections[j].text, embed_file.stat.mtime));
+          if(batch_promises.length >= 10) {
+            await Promise.all(batch_promises);
+            batch_promises = [];
+          }
+          
+          // batch embedding API calls
+          // batch_embeddings_keys.push(embeddings_key);
+          // batch_embeddings_inputs.push(note_sections[j].text);
+          // batch_embeddings_mtimes.push(embed_file.stat.mtime);
+          // if(batch_embeddings_keys.length >= 10) {
+            // batch_promises.push(this.get_embeddings_batch(batch_embeddings_keys, batch_embeddings_inputs, batch_embeddings_mtimes));
+          //   await this.get_embeddings_batch(batch_embeddings_keys, batch_embeddings_inputs, batch_embeddings_mtimes);
+          //   batch_embeddings_keys = [];
+          //   batch_embeddings_inputs = [];
+          //   batch_embeddings_mtimes = [];
+          // }
         }
+        // run last batch
+        // if(batch_embeddings_keys.length > 0) {
+        //   await this.get_embeddings_batch(batch_embeddings_keys, batch_embeddings_inputs, batch_embeddings_mtimes);
+        // }
       }
       
       // if file length is less than 8000 use full file contents
@@ -371,6 +394,21 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
   }
 
+  async get_embeddings_batch(embeddings_keys, embed_inputs, embed_file_mtimes) {
+    const values = await this.request_embedding_from_input(embed_inputs);
+    if(!values) {
+      return;
+    }
+    for(let i = 0; i < values.length; i++) {
+      const embeddings_key = embeddings_keys[i];
+      const embed_file_mtime = embed_file_mtimes[i];
+      const value = values[i];
+      this.embeddings[embeddings_key] = {};
+      this.embeddings[embeddings_key].values = value;
+      this.embeddings[embeddings_key].mtime = embed_file_mtime;
+    }
+  }
+
   async request_embedding_from_input(embed_input, retries = 0) {
     const usedParams = {
       model: "text-embedding-ada-002",
@@ -396,13 +434,15 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // retry request if error is 429
       if(error.status === 429){ 
         if(retries < 3) {
-          console.log("retrying request (429)");
+          console.log("retrying request (429) in 1 second...");
+          // wait 1 second before retrying
+          await new Promise(r => setTimeout(r, 1000));
           return await this.request_embedding_from_input(embed_input, retries+1);
         }
       }else{
-        console.log("erroneous embed input: " + embed_input);
+        //console.log("erroneous embed input: " + embed_input);
+        console.log(error);
       }
-      console.log(error);
       // console.log(usedParams);
       // console.log(usedParams.input.length);
       return null; 
