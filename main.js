@@ -337,12 +337,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         // }
       }
       
-      // if file length is less than 8000 use full file contents
-      // else if file length is greater than 8000 build embed_input from file headings
-      const token_estimate = note_contents.length/4;
-      //console.log('token estimate: ' + token_estimate);
+      // if file length is less than ~8000 tokens use full file contents
+      // else if file length is greater than 8000 tokens build embed_input from file headings
       embed_input += `\n`;
-      if(token_estimate < 8000) {
+      if(note_contents.length < 32000) {
         embed_input += note_contents
       }else{ 
         const note_meta_cache = this.app.metadataCache.getFileCache(note_file);
@@ -368,6 +366,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           }
           //console.log(note_headings);
           embed_input += note_headings
+          if(embed_input.length > 30000) {
+            embed_input = embed_input.substring(0, 30000);
+          }
         }
       }
     }
@@ -440,7 +441,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           return await this.request_embedding_from_input(embed_input, retries+1);
         }
       }else{
-        //console.log("erroneous embed input: " + embed_input);
+        console.log("embed input length: "+ embed_input.length);
+        // console.log("erroneous embed input: " + embed_input);
         console.log(error);
       }
       // console.log(usedParams);
@@ -635,7 +637,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       if (line.startsWith('#')) {
         // push the current section to the sections array unless last line was a also a header
         if(i > 0 && !lines[i-1].startsWith('#')){
-        sections.push({text: section.trim(), path: section_path});
+          output_section();
         }
         // get the header level
         const level = line.split('#').length - 1;
@@ -653,10 +655,17 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       }
       // if last line then push the current section to the sections array
       if(i === lines.length - 1){
-        sections.push({text: section.trim(), path: section_path});
+        output_section();
       }
     }
     return sections;
+
+    function output_section() {
+      if (section.length > 30000) {
+        section = section.substring(0, 30000);
+      }
+      sections.push({ text: section.trim(), path: section_path });
+    }
   }
 
 }
