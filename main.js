@@ -99,14 +99,22 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.embeddings = await this.load_embeddings_file();
 
     // activate view
-    this.activateView();
+    if (this.app.workspace.layoutReady) {
+      await this.activateView();
+    }else{
+      this.registerEvent(this.app.workspace.on("layout-ready", this.activateView.bind(this)));
+    }
 
   }
 
   async activateView() {
-    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE);
+    if (this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE).length) {
+      console.log("view already open");
+      return;
+    }
 
-    await this.app.workspace.getRightLeaf(false).setViewState({
+    const right_leaf = this.app.workspace.getRightLeaf(false);
+    await right_leaf.setViewState({
       type: SMART_CONNECTIONS_VIEW_TYPE,
       active: true,
     });
