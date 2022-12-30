@@ -1,8 +1,6 @@
 # Smart Connections
 
-Smart Connections helps you prevent rework by increasing awareness of your vault's most relevant notes. 
-
-A plugin for [Obsidian](https://obsidian.md/) that uses AI to make smart connections between notes in your vault.
+Smart Connections uses AI to help you prevent rework by increasing awareness of your [Obsidian](https://obsidian.md/) vault's most relevant notes in real time. 
 
 ## Features
 
@@ -41,4 +39,4 @@ Inspired by the ['Similar mems' feature from Mem.ai](https://get.mem.ai/mem-x), 
 
 
 ## Under the hood
-The plugin integrates [OpenAI Embeddings](https://beta.openai.com/docs/guides/embeddings), a technology from the organization behind ChatGPT, to use AI that finds connections between notes in real-time. Instead of matching keywords, the AI interprets your notes as 1,536-dimension vectors!
+The plugin integrates [OpenAI Embeddings](https://beta.openai.com/docs/guides/embeddings), a technology from the organization behind ChatGPT, to use AI that finds connections between notes. Instead of matching keywords, the AI interprets your notes as 1,536-dimension vectors!
