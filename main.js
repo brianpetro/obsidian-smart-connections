@@ -21,6 +21,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.file_exclusions = [];
     this.header_exclusions = [];
     this.path_only = [];
+    this.view = null;
   }
 
   async loadSettings() {
@@ -87,9 +88,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         defaultMod: true,
     });
 
+    // runs when file is opened
     this.registerEvent(this.app.workspace.on('file-open', async (file) => {
       // console.log(file);
-      // run when file is opened
       await this.render_note_connections(file);
     }));
 
@@ -119,9 +120,13 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       active: true,
     });
 
-    this.app.workspace.revealLeaf(
-      this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE)[0]
-    );
+    for (let leaf of this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE)) {
+      this.app.workspace.revealLeaf(leaf);
+      if (leaf.view instanceof SmartConnectionsView) {
+        this.view = leaf.view;
+        break;
+      }
+    }
 
     // render view
     await this.render_note_connections();
@@ -449,6 +454,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           return await this.request_embedding_from_input(embed_input, retries+1);
         }
       }else{
+        console.log("first line of embed: " + embed_input.substring(0, embed_input.indexOf("\n")));
         console.log("embed input length: "+ embed_input.length);
         // console.log("erroneous embed input: " + embed_input);
         console.log(error);
@@ -465,31 +471,38 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
      * better view management based on recommendations in plugin-review.md
      * source: https://github.com/obsidianmd/obsidian-releases/blob/master/plugin-review.md#avoid-managing-references-to-custom-views
     */
-    let view = null;
-    for (let leaf of this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE)) {
-      if (leaf.view instanceof SmartConnectionsView) {
-        view = leaf.view;
-        break;
-      }
-    }
-    if(!view) {
+    if(!this.view) {
       console.log("no active view, open smart connections view to render connections");
       return;
     }
     // if API key is not set then update view message
     if(!this.settings.api_key) {
-      view.set_message("API key is required to render connections");
+      this.view.set_message("API key is required to render connections");
       return;
     }
     // immediately set view to loading
-    view.set_message("Making smart connections...");
+    this.view.set_message("Making smart connections...");
+    // if file is not tfile then get active file
+    if(!file || !(file instanceof Obsidian.TFile)) {
+      // get current note
+      file = await this.app.workspace.getActiveFile();
+      // if still no current note then return
+      if(!file) {
+        return this.view.set_message("No active file");
+      }
+      // console.log("current note from getActiveFile: " + file.path);
+    }
+    // return if file type is not markdown
+    if(file.extension !== "md") {
+      return this.view.set_message("Smart Connections only works with Markdown files.");
+    }
     const nearest = await this.find_note_connections(file);
     // if nearest is a string then update view message
     if(typeof nearest === "string") {
-      view.set_message(nearest);
+      this.view.set_message(nearest);
     }else{
       // set nearest connections
-      view.set_nearest(nearest, this.settings.show_full_path);
+      this.view.set_nearest(nearest, this.settings.show_full_path);
     }
     // get object keys of render_log
     this.output_render_log();
@@ -516,15 +529,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   // find connections by most similar to current note by cosine similarity
   async find_note_connections(current_note=null) {
-    if(!current_note) {
-      // get current note
-      current_note = await this.app.workspace.getActiveFile();
-      // if still no current note then return
-      if(!current_note) {
-        return "no note";
-      }
-      console.log("current note from getActiveFile: " + current_note.path);
-    }
     // if in this.nearest_cache then set to nearest
     // else get nearest
     let nearest = [];
@@ -795,12 +799,15 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     } = this;
     containerEl.empty();
     containerEl.createEl("h2", {
-      text: "Settings for OpenAI."
+      text: "OpenAI Settings"
     });
     new Obsidian.Setting(containerEl).setName("api_key").setDesc("api_key").addText((text) => text.setPlaceholder("Enter your api_key").setValue(this.plugin.settings.api_key).onChange(async (value) => {
       this.plugin.settings.api_key = value;
       await this.plugin.saveSettings(true);
     }));
+    containerEl.createEl("h2", {
+      text: "Exclusions"
+    });
     // list file exclusions
     new Obsidian.Setting(containerEl).setName("file_exclusions").setDesc("'Excluded file' matchers separated by a comma.").addText((text) => text.setPlaceholder("drawings,prompts/logs").setValue(this.plugin.settings.file_exclusions).onChange(async (value) => {
       this.plugin.settings.file_exclusions = value;
@@ -816,6 +823,9 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       this.plugin.settings.header_exclusions = value;
       await this.plugin.saveSettings();
     }));
+    containerEl.createEl("h2", {
+      text: "Display"
+    });
     // toggle showing full path in view
     new Obsidian.Setting(containerEl).setName("show_full_path").setDesc("Show full path in view.").addToggle((toggle) => toggle.setValue(this.plugin.settings.show_full_path).onChange(async (value) => {
       this.plugin.settings.show_full_path = value;
