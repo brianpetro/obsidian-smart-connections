@@ -116,12 +116,19 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       console.log("view already open");
       return;
     }
+    for (let leaf of this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE)) {
+      if (leaf.view instanceof SmartConnectionsView) {
+        this.view = leaf.view;
+        console.log("found view, setting to this.view")
+        return;
+      }
+    }
+    console.log("view not found, creating new view");
     const right_leaf = this.app.workspace.getRightLeaf(false);
     await right_leaf.setViewState({
       type: SMART_CONNECTIONS_VIEW_TYPE,
       active: true,
-    });
-    
+    }); 
     for (let leaf of this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE)) {
       this.app.workspace.revealLeaf(leaf);
       if (leaf.view instanceof SmartConnectionsView) {
