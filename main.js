@@ -71,55 +71,57 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       id: "smart-connections-view",
       name: "View: Open Smart Connections Pane!",
       callback: () => {
-        this.activateView();
+        this.activate_view();
       }
     });
     // get all files in vault
-    // this.files = this.app.vault.getMarkdownFiles();
     this.addSettingTab(new SmartConnectionsSettingsTab(this.app, this));
 
+    // runs when file is opened
+    this.registerEvent(this.app.workspace.on('file-open', (file) => {
+      this.render_note_connections(file);
+    }));
+
+    // register view type
+    this.activate_view();
+    // if layout is not ready, register events instead to improve start-up time
+    if (this.app.workspace.layoutReady) {
+      await this.load_embeddings_file();
+      await this.open_view();
+    } else {
+      console.log("layout not ready, waiting to complete load");
+      this.registerEvent(this.app.workspace.on("layout-ready", this.open_view.bind(this)));
+      this.registerEvent(this.app.workspace.on("layout-ready", this.load_embeddings_file.bind(this)));
+    }
+
+    if (!this.app.workspace.layoutReady) {
+      return
+    }
+
+  }
+  
+  activate_view() {
     this.registerView(
       SMART_CONNECTIONS_VIEW_TYPE,
       (leaf) => new SmartConnectionsView(leaf)
     );
-
     this.app.workspace.registerHoverLinkSource(SMART_CONNECTIONS_VIEW_TYPE, {
         display: 'Smart Connections Files',
         defaultMod: true,
     });
-
-    // runs when file is opened
-    this.registerEvent(this.app.workspace.on('file-open', async (file) => {
-      // console.log(file);
-      await this.render_note_connections(file);
-    }));
-
-    // init embeddings file
-    await this.init_embeddings_file();
-    // load embeddings
-    this.embeddings = await this.load_embeddings_file();
-
-    // activate view
-    if (this.app.workspace.layoutReady) {
-      await this.activateView();
-    }else{
-      this.registerEvent(this.app.workspace.on("layout-ready", this.activateView.bind(this)));
-    }
-
   }
-
-  async activateView() {
-    if (this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE).length) {
+    
+  async open_view() {
+    if (this.view) {
       console.log("view already open");
       return;
     }
-
     const right_leaf = this.app.workspace.getRightLeaf(false);
     await right_leaf.setViewState({
       type: SMART_CONNECTIONS_VIEW_TYPE,
       active: true,
     });
-
+    
     for (let leaf of this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE)) {
       this.app.workspace.revealLeaf(leaf);
       if (leaf.view instanceof SmartConnectionsView) {
@@ -127,7 +129,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         break;
       }
     }
-
     // render view
     await this.render_note_connections();
   }
@@ -233,14 +234,14 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         console.log("retrying load_embeddings_file()");
         // increase wait time between retries
         await new Promise(r => setTimeout(r, 1000+(3000*retries)));
-        return await this.load_embeddings_file(retries+1);
+        await this.load_embeddings_file(retries+1);
       }else{
         console.log("failed to load embeddings file, creating new file");
         await this.init_embeddings_file();
       }
       // console.log(error);
     }
-    return this.embeddings;
+    // return this.embeddings;
   }
   
   async init_embeddings_file() {
