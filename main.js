@@ -1,6 +1,8 @@
-var Obsidian = require("obsidian");
+const Obsidian = require("obsidian");
+// require built-in crypto module
+const crypto = require("crypto");
 
-var DEFAULT_SETTINGS = {
+const DEFAULT_SETTINGS = {
   api_key: "",
   file_exclusions: "",
   header_exclusions: "",
@@ -58,13 +60,20 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       icon: "pencil_icon",
       hotkeys: [],
       // editorCallback: async (editor) => {
-      callback: async () => {
-        // clear nearest_cache
-        this.nearest_cache = {};
-        console.log("Cleared nearest_cache");
-        this.updateStatusBar(`Finding note connections... `);
-        await this.render_note_connections();
-        this.updateStatusBar(`Finding note connections complete!`);
+      editorCallback: async (editor) => {
+        if(editor.somethingSelected()) {
+          // get selected text
+          let selected_text = editor.getSelection();
+          // render connections from selected text
+          await this.render_note_connections(selected_text);
+        } else {
+          // clear nearest_cache
+          this.nearest_cache = {};
+          console.log("Cleared nearest_cache");
+          this.updateStatusBar(`Finding note connections... `);
+          await this.render_note_connections();
+          this.updateStatusBar(`Finding note connections complete!`);
+        }
       }
     });
     this.addCommand({
@@ -79,6 +88,19 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
     // runs when file is opened
     this.registerEvent(this.app.workspace.on('file-open', (file) => {
+      // return if file type is not markdown
+      if(file.extension !== "md") {
+        // if file is 'canvas' and length of current view content is greater than 300 then return
+        if((file.extension === "canvas") && (this.view.containerEl.children[1].innerHTML.length > 300)) {
+          // prevents clearing view of search results when still on the same canvas
+          console.log("prevented clearing view of search results when still on the same canvas")
+          return;
+        }
+        return this.view.set_message([
+          "File: "+file.name
+          ,"Smart Connections only works with Markdown files."
+        ]);
+      }
       this.render_note_connections(file);
     }));
 
@@ -436,6 +458,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       this.embeddings[embeddings_key] = {};
       this.embeddings[embeddings_key].values = values;
       this.embeddings[embeddings_key].mtime = embed_file_mtime;
+      // md5 hash of embed_input using built in crypto module
+      this.embeddings[embeddings_key].hash = crypto.createHash('md5').update(embed_input).digest("hex");
     }
   }
 
@@ -496,7 +520,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
   }
 
-  async render_note_connections(file=null) {
+  async render_note_connections(context=null) {
     //const view = this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE)[0].view;
     /**
      * better view management based on recommendations in plugin-review.md
@@ -511,33 +535,72 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       this.view.set_message("API key is required to render connections");
       return;
     }
-    // immediately set view to loading
-    this.view.set_message("Making smart connections...");
+    /**
+     * Begin highlighted-text-level search
+     */
+    if(typeof context === "string") {
+      const highlighted_text = context;
+      // get embedding for highlighted text
+      const highlighted_text_embedding = await this.request_embedding_from_input(highlighted_text);
+      let nearest = this.find_nearest_embedding(highlighted_text_embedding);
+
+      // render results in view with first 100 characters of highlighted text
+      // truncate highlighted text to 100 characters
+      const nearest_context = `Selection: "${highlighted_text.length > 100 ? highlighted_text.substring(0, 100) + "..." : highlighted_text}"`;
+      this.view.set_nearest(nearest, nearest_context);
+      return;
+
+    }
+
+    /** 
+     * Begin file-level search
+     */    
     // if file is not tfile then get active file
-    if(!file || !(file instanceof Obsidian.TFile)) {
-      // get current note
-      file = await this.app.workspace.getActiveFile();
-      // if still no current note then return
-      if(!file) {
-        return this.view.set_message("No active file");
+    if(context instanceof Obsidian.TFile) {
+      const file = context;
+      const nearest = await this.find_note_connections(file);
+      // if nearest is a string then update view message
+      if(typeof nearest === "string") {
+        this.view.set_message(nearest);
+      }else{
+        // set nearest connections
+        this.view.set_nearest(nearest, "File: "+file.name);
       }
+      // get object keys of render_log
+      this.output_render_log();
+    }else{
+      // get current note
+      // file = await this.app.workspace.getActiveFile();
+      // if still no current note then return
+      // if(!file) {
+      return this.view.set_message("No active file");
+      // }
       // console.log("current note from getActiveFile: " + file.path);
     }
-    // return if file type is not markdown
-    if(file.extension !== "md") {
-      return this.view.set_message("Smart Connections only works with Markdown files.");
-    }
-    const nearest = await this.find_note_connections(file);
-    // if nearest is a string then update view message
-    if(typeof nearest === "string") {
-      this.view.set_message(nearest);
-    }else{
-      // set nearest connections
-      this.view.set_nearest(nearest, this.settings.show_full_path);
-    }
-    // get object keys of render_log
-    this.output_render_log();
   }
+  find_nearest_embedding(input_vector, current_note=null) {
+    let nearest = [];
+    const embeddings_keys = Object.keys(this.embeddings);
+    for (let i = 0; i < embeddings_keys.length; i++) {
+      if(current_note && embeddings_keys[i].startsWith(current_note.path)) {
+        // skip matching to current note
+        continue;
+      }
+      nearest.push({
+        link: embeddings_keys[i],
+        similarity: this.computeCosineSimilarity(input_vector, this.embeddings[embeddings_keys[i]].values)
+      });
+    }
+    // sort array by cosine similarity
+    nearest.sort(function (a, b) {
+      return b.similarity - a.similarity;
+    });
+    // console.log(nearest);
+    // limit to N nearest connections
+    nearest = nearest.slice(0, 200);
+    return nearest;
+  }
+
   output_render_log() {
     const render_log_keys = Object.keys(this.render_log);
     // if render_log_keys length is greater than 0
@@ -560,6 +623,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   // find connections by most similar to current note by cosine similarity
   async find_note_connections(current_note=null) {
+    // immediately set view to loading
+    this.view.set_message("Making smart connections...");
     // if in this.nearest_cache then set to nearest
     // else get nearest
     let nearest = [];
@@ -572,7 +637,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       await this.get_all_embeddings();
       // console.log(this.embeddings);
       // get keys of embeddings JSON
-      const embeddings_keys = Object.keys(this.embeddings);
       // get current note
       // console.log(current_note);
 
@@ -593,27 +657,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         await this.get_file_embeddings(current_note);
       }
       current_note_embedding_values = this.embeddings[current_note.path].values;
-  
+      
       // compute cosine similarity between current note and all other notes via embeddings
-      // for (let i = 0; i < this.files.length; i++) {
-      for (let i = 0; i < embeddings_keys.length; i++) {
-        // if current note starts with the current note path, skip
-        if(embeddings_keys[i].startsWith(current_note.path)) {
-          continue;
-        }
-        // push cosine similarity between current note and other note to array with other note path
-        nearest.push({
-          link: embeddings_keys[i], 
-          similarity: this.computeCosineSimilarity(current_note_embedding_values, this.embeddings[embeddings_keys[i]].values)
-        });
-      }
-      // sort array by cosine similarity
-      nearest.sort(function(a, b) {
-        return b.similarity - a.similarity;
-      });
-      // console.log(nearest);
-      // limit to N nearest connections
-      nearest = nearest.slice(0, 200);
+      nearest = this.find_nearest_embedding(current_note_embedding_values, current_note);
   
       // save to this.nearest_cache
       this.nearest_cache[current_note.path] = nearest;
@@ -749,16 +795,20 @@ class SmartConnectionsView extends Obsidian.ItemView {
     const file_name = link.split("/").pop();
     return file_name;
   }
-  set_nearest(nearest, show_full_path=false) {
+  set_nearest(nearest, nearest_context=null) {
     // get container element
     const container = this.containerEl.children[1];
     // clear container
     container.empty();
+    // if highlighted text is not null, create p element with highlighted text
+    if (nearest_context) {
+      container.createEl("p", { cls: "sc-context", text: nearest_context });
+    }
     // create list of nearest notes
     const list = container.createEl("ol", { cls: "scList" });
     for (let i = 0; i < nearest.length; i++) {
       const item = list.createEl("li", { cls: "scListItem" });
-      const link_text = this.render_link_text(nearest[i].link, show_full_path);
+      const link_text = this.render_link_text(nearest[i].link, this.plugin.settings.show_full_path);
       item.createEl("a", {
         cls: "scLink",
         href: nearest[i].link,
@@ -813,12 +863,15 @@ class SmartConnectionsView extends Obsidian.ItemView {
       });
 
     }
-    // render "Smart Connections" text fixed in the bottom right corner
-    container.createEl("p", { cls: "sc_brand", text: "Smart Connections" });
+    this.render_brand(container);
+  }
+  // render "Smart Connections" text fixed in the bottom right corner
+  render_brand(container) {
+    container.createEl("p", { cls: "sc-brand", text: "Smart Connections" });
     // insert .sc_brand css
     const style = document.createElement("style");
     style.innerHTML = `
-      .sc_brand {
+      .sc-brand {
         position: fixed;
         bottom: 0;
         right: 0;
@@ -830,7 +883,6 @@ class SmartConnectionsView extends Obsidian.ItemView {
     `;
     // append style to container
     container.appendChild(style);
-
   }
 
   // render buttons: "create" and "retry" for loading embeddings.json file
