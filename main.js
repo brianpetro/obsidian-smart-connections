@@ -86,8 +86,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.activate_view();
     // if layout is not ready, register events instead to improve start-up time
     if (this.app.workspace.layoutReady) {
-      await this.load_embeddings_file();
       await this.open_view();
+      await this.load_embeddings_file();
     } else {
       console.log("layout not ready, waiting to complete load");
       this.registerEvent(this.app.workspace.on("layout-ready", this.open_view.bind(this)));
@@ -103,7 +103,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   activate_view() {
     this.registerView(
       SMART_CONNECTIONS_VIEW_TYPE,
-      (leaf) => new SmartConnectionsView(leaf)
+      (leaf) => new SmartConnectionsView(leaf, this)
     );
     this.app.workspace.registerHoverLinkSource(SMART_CONNECTIONS_VIEW_TYPE, {
         display: 'Smart Connections Files',
@@ -137,7 +137,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       }
     }
     // render view
-    await this.render_note_connections();
+    //await this.render_note_connections();
   }
   
   // get embeddings for all files
@@ -197,8 +197,35 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   async save_embeddings_to_file() {
+    const embeddings = JSON.stringify(this.embeddings);
+    // check if embeddings file exists
+    const embeddings_file_exists = await this.app.vault.adapter.exists(".smart-connections/embeddings.json");
+    // if embeddings file exists then check if new embeddings file size is significantly smaller than existing embeddings file size
+    if(embeddings_file_exists) {
+      // esitmate file size of embeddings
+      const new_file_size = embeddings.length;
+      // get existing file size
+      const existing_file_size = await this.app.vault.adapter.stat(".smart-connections/embeddings.json").then((stat) => stat.size);
+      console.log("new file size: "+new_file_size);
+      console.log("existing file size: "+existing_file_size);
+      // if new file size is significantly smaller than existing file size then throw error
+      if(new_file_size < existing_file_size * 0.5) {
+        // show warning message including file sizes
+        const warning_message = [
+          "Warning: New embeddings file size is significantly smaller than existing embeddings file size.", 
+          "Aborting to prevent possible loss of embeddings data.",
+          "New file size: "+new_file_size+" bytes.",
+          "Existing file size: "+existing_file_size+" bytes.",
+          "Restarting Obsidian may fix this."
+        ];
+        this.view.set_message(warning_message);
+        // save embeddings to file named unsaved-embeddings.json
+        await this.app.vault.adapter.write(".smart-connections/unsaved-embeddings.json", embeddings);
+        throw new Error("Error: New embeddings file size is significantly smaller than existing embeddings file size. Aborting to prevent possible loss of embeddings data.");
+      }
+    }
     // first check if embeddings file exists
-    await this.app.vault.adapter.write(".smart-connections/embeddings.json", JSON.stringify(this.embeddings));
+    await this.app.vault.adapter.write(".smart-connections/embeddings.json", embeddings);
   }
 
   clean_up_embeddings() {
@@ -228,6 +255,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   async load_embeddings_file(retries=0) {
+    // set message
+    this.view.set_message("Loading embeddings file...");
     try {
       // get embeddings file contents from root of vault
       const embeddings_file = await this.app.vault.adapter.read(".smart-connections/embeddings.json");
@@ -235,20 +264,22 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       console.log("loaded embeddings from file");
       // loaded embeddings from file
       this.embeddings = JSON.parse(embeddings_file);
+      // set message
+      this.view.set_message("Embeddings file loaded.");
     } catch (error) {
       // retry if error up to 3 times
       if(retries < 3) {
         console.log("retrying load_embeddings_file()");
         // increase wait time between retries
-        await new Promise(r => setTimeout(r, 1000+(3000*retries)));
+        await new Promise(r => setTimeout(r, 1000+(1000*retries)));
         await this.load_embeddings_file(retries+1);
       }else{
-        console.log("failed to load embeddings file, creating new file");
-        await this.init_embeddings_file();
+        // console.log("failed to load embeddings file, creating new file");
+        // await this.init_embeddings_file();
+        console.log("failed to load embeddings file, prompting user to bulk embed");
+        this.view.render_embeddings_buttons();
       }
-      // console.log(error);
     }
-    // return this.embeddings;
   }
   
   async init_embeddings_file() {
@@ -692,8 +723,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
 const SMART_CONNECTIONS_VIEW_TYPE = "smart-connections-view";
 class SmartConnectionsView extends Obsidian.ItemView {
-  constructor(leaf) {
+  constructor(leaf, plugin) {
     super(leaf);
+    this.plugin = plugin;
   }
   getViewType() {
     return SMART_CONNECTIONS_VIEW_TYPE;
@@ -706,8 +738,15 @@ class SmartConnectionsView extends Obsidian.ItemView {
     const container = this.containerEl.children[1];
     // clear container
     container.empty();
-    // add loading text
-    container.createEl("div", { cls: "scLoadingText", text: message });
+    // if mesage is an array, loop through and create a new p element for each message
+    if (Array.isArray(message)) {
+      for (let i = 0; i < message.length; i++) {
+        container.createEl("p", { cls: "sc_message", text: message[i] });
+      }
+    }else{
+      // create p element with message
+      container.createEl("p", { cls: "sc_message", text: message });
+    }
   }
   render_link_text(link, show_full_path=false) {
     // if show full path is true, return link
@@ -782,6 +821,40 @@ class SmartConnectionsView extends Obsidian.ItemView {
       });
 
     }
+  }
+
+  // render buttons: "create" and "retry" for loading embeddings.json file
+  render_embeddings_buttons() {
+    // get container element
+    const container = this.containerEl.children[1];
+    // clear container
+    container.empty();
+    // create heading that says "Embeddings file not found"
+    container.createEl("h2", { cls: "scHeading", text: "Embeddings file not found" });
+    // create div for buttons
+    const button_div = container.createEl("div", { cls: "scButtonDiv" });
+    // create "create" button
+    const create_button = button_div.createEl("button", { cls: "scButton", text: "Create embeddings.json" });
+    // note that creating embeddings.json file will trigger bulk embedding and may take a while
+    button_div.createEl("p", { cls: "scButtonNote", text: "Warning: Creating embeddings.json file will trigger bulk embedding and may take a while" });
+    // create "retry" button
+    const retry_button = button_div.createEl("button", { cls: "scButton", text: "Retry" });
+    // try to load embeddings.json file again
+    button_div.createEl("p", { cls: "scButtonNote", text: "If embeddings.json file already exists, click 'Retry' to load it" });
+
+    // add click event to "create" button
+    create_button.addEventListener("click", async (event) => {
+      // create embeddings.json file
+      await this.plugin.init_embeddings_file();
+      // reload view
+      await this.plugin.render_note_connections();
+    });
+
+    // add click event to "retry" button
+    retry_button.addEventListener("click", async (event) => {
+      // reload embeddings.json file
+      await this.plugin.load_embeddings_file();
+    });
   }
 
   async onOpen() {
