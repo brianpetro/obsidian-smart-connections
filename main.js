@@ -88,6 +88,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
     // runs when file is opened
     this.registerEvent(this.app.workspace.on('file-open', (file) => {
+      // if no file is open, return
+      if(!file) {
+        // console.log("no file open, returning");
+        return;
+      }
       // return if file type is not markdown
       if(file.extension !== "md") {
         // if file is 'canvas' and length of current view content is greater than 300 then return
