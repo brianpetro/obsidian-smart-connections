@@ -88,14 +88,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     if (this.app.workspace.layoutReady) {
       await this.open_view();
       await this.load_embeddings_file();
+      await this.render_note_connections();
     } else {
       console.log("layout not ready, waiting to complete load");
       this.registerEvent(this.app.workspace.on("layout-ready", this.open_view.bind(this)));
       this.registerEvent(this.app.workspace.on("layout-ready", this.load_embeddings_file.bind(this)));
-    }
-
-    if (!this.app.workspace.layoutReady) {
-      return
     }
 
   }
@@ -136,8 +133,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         break;
       }
     }
-    // render view
-    //await this.render_note_connections();
   }
   
   // get embeddings for all files
@@ -206,8 +201,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       const new_file_size = embeddings.length;
       // get existing file size
       const existing_file_size = await this.app.vault.adapter.stat(".smart-connections/embeddings.json").then((stat) => stat.size);
-      console.log("new file size: "+new_file_size);
-      console.log("existing file size: "+existing_file_size);
+      // console.log("new file size: "+new_file_size);
+      // console.log("existing file size: "+existing_file_size);
       // if new file size is significantly smaller than existing file size then throw error
       if(new_file_size < existing_file_size * 0.5) {
         // show warning message including file sizes
@@ -233,7 +228,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // console.log("key: "+key);
       // if no key starts with file path
       if(!this.files.find(file => key.startsWith(file.path))) {
-      // if (!this.files.find(file => file.path === key)) {
         // delete key if it doesn't exist
         delete this.embeddings[key];
         console.log("deleting (deleted file): " + key);
@@ -274,8 +268,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         await new Promise(r => setTimeout(r, 1000+(1000*retries)));
         await this.load_embeddings_file(retries+1);
       }else{
-        // console.log("failed to load embeddings file, creating new file");
-        // await this.init_embeddings_file();
         console.log("failed to load embeddings file, prompting user to bulk embed");
         this.view.render_embeddings_buttons();
       }
@@ -331,9 +323,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         // for each section in file
         //console.log("Sections: " + note_sections.length);
         // batch block embeddings
-        let batch_embeddings_keys = [];
-        let batch_embeddings_inputs = [];
-        let batch_embeddings_mtimes = [];
+        // let batch_embeddings_keys = [];
+        // let batch_embeddings_inputs = [];
+        // let batch_embeddings_mtimes = [];
         for (let j = 0; j < note_sections.length; j++) {
           // console.log(note_sections[j].path);
           // skip if section length is less than N characters
@@ -821,6 +813,24 @@ class SmartConnectionsView extends Obsidian.ItemView {
       });
 
     }
+    // render "Smart Connections" text fixed in the bottom right corner
+    container.createEl("p", { cls: "sc_brand", text: "Smart Connections" });
+    // insert .sc_brand css
+    const style = document.createElement("style");
+    style.innerHTML = `
+      .sc_brand {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        margin: 0;
+        padding: 0.5em;
+        font-size: 0.77rem;
+        background-color: var(--titlebar-background);
+      }
+    `;
+    // append style to container
+    container.appendChild(style);
+
   }
 
   // render buttons: "create" and "retry" for loading embeddings.json file

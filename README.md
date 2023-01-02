@@ -6,6 +6,8 @@ Smart Connections uses AI to help you prevent rework by increasing awareness of 
 
 Inspired by the ['Similar mems' feature from Mem.ai](https://get.mem.ai/mem-x), this plugin uses AI to find similar notes in your vault and display them in real time.
 
+![](./smart-connections-demo-1.gif)
+
 ## Installation
 
 1. Install the plugin from the community plugins tab in Obsidian.
