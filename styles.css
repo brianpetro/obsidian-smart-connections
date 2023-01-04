@@ -13,3 +13,8 @@
   font-size: 0.77rem;
   background-color: var(--titlebar-background);
 }
+.sc-context {
+  color: var(--nav-item-color);
+  font-size: var(--nav-item-size);
+  margin: 0.5em 0.5em 1em;
+}
