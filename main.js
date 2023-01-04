@@ -14,7 +14,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   // constructor
   constructor() {
     super(...arguments);
-    this.embeddings = {};
+    this.embeddings = null;
     this.files = [];
     this.nearest_cache = {};
     this.render_log = {};
@@ -245,9 +245,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         await this.app.vault.adapter.write(".smart-connections/unsaved-embeddings.json", embeddings);
         throw new Error("Error: New embeddings file size is significantly smaller than existing embeddings file size. Aborting to prevent possible loss of embeddings data.");
       }
+    }else{
+      await this.init_embeddings_file();
+      await this.save_embeddings_to_file();
     }
-    // first check if embeddings file exists
-    await this.app.vault.adapter.write(".smart-connections/embeddings.json", embeddings);
   }
 
   clean_up_embeddings() {
@@ -297,6 +298,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       }else{
         console.log("failed to load embeddings file, prompting user to bulk embed");
         this.view.render_embeddings_buttons();
+        throw new Error("Error: Prompting user to create a new embeddings file or retry.");
       }
     }
   }
@@ -540,6 +542,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       this.view.set_message("API key is required to render connections");
       return;
     }
+    if(!this.embeddings){
+      await this.load_embeddings_file();
+    }
     /**
      * Begin highlighted-text-level search
      */
@@ -561,27 +566,25 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
      * Begin file-level search
      */    
     // if file is not tfile then get active file
-    if(context instanceof Obsidian.TFile) {
-      const file = context;
-      const nearest = await this.find_note_connections(file);
-      // if nearest is a string then update view message
-      if(typeof nearest === "string") {
-        this.view.set_message(nearest);
-      }else{
-        // set nearest connections
-        this.view.set_nearest(nearest, "File: "+file.name);
-      }
-      // get object keys of render_log
-      this.output_render_log();
-    }else{
+    let file = context;
+    if(!(file instanceof Obsidian.TFile)) {
       // get current note
-      // file = await this.app.workspace.getActiveFile();
+      file = await this.app.workspace.getActiveFile();
       // if still no current note then return
-      // if(!file) {
-      return this.view.set_message("No active file");
-      // }
-      // console.log("current note from getActiveFile: " + file.path);
+      if(!file) {
+        return this.view.set_message("No active file");
+      }
     }
+    const nearest = await this.find_note_connections(file);
+    // if nearest is a string then update view message
+    if(typeof nearest === "string") {
+      this.view.set_message(nearest);
+    }else{
+      // set nearest connections
+      this.view.set_nearest(nearest, "File: "+file.name);
+    }
+    // get object keys of render_log
+    this.output_render_log();
   }
   find_nearest_embedding(input_vector, current_note=null) {
     let nearest = [];
