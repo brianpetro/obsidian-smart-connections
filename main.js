@@ -594,24 +594,23 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   output_render_log() {
-    const render_log_keys = Object.keys(this.render_log);
-    // if render_log_keys length is greater than 0
-    if (render_log_keys.length > 0) {
-      // for each key in render_log_keys
-      for (let i = 0; i < render_log_keys.length; i++) {
-        if(["exclusions_logs", "files"].indexOf(render_log_keys[i]) > -1) {
-          // JSON.stringify(this.render_log[render_log_keys[i]])
-          console.log(render_log_keys[i] + ": " + JSON.stringify(this.render_log[render_log_keys[i]]));
-        }else{
-          console.log(render_log_keys[i] + ": " + this.render_log[render_log_keys[i]]);
-        }
-      }
-      // clear render_log
-      this.render_log = {};
-      this.render_log.files_embedded = 0;
-      // this.render_log.files = [];
-      this.render_log.exclusions_logs = {};
+    if (this.render_log.files_embedded === 0) {
+      return;
+    }else{
+      console.log("files embedded: " + this.render_log.files_embedded);
     }
+    // get object keys of render_log.exclusions_logs
+    const exclusions_logs_keys = Object.keys(this.render_log.exclusions_logs);
+    // if exclusions_logs_keys length is greater than 0
+    if (exclusions_logs_keys.length > 0) {
+      // stringify exclusions_logs
+      console.log("exclusions_logs: " + JSON.stringify(this.render_log.exclusions_logs));
+    }
+    // clear render_log
+    this.render_log = {};
+    this.render_log.files_embedded = 0;
+    // this.render_log.files = [];
+    this.render_log.exclusions_logs = {};
   }
 
   // find connections by most similar to current note by cosine similarity
