@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS = {
   header_exclusions: "",
   path_only: "",
   show_full_path: false,
+  log_render: false,
 };
 
 class SmartConnectionsPlugin extends Obsidian.Plugin {
@@ -18,6 +19,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.nearest_cache = {};
     this.render_log = {};
     this.render_log.files_embedded = 0;
+    this.render_log.token_usage = 0;
     // this.render_log.files = [];
     this.render_log.exclusions_logs = {};
     this.file_exclusions = [];
@@ -461,7 +463,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // add embedding key to render_log
     // this.render_log.files.push(embeddings_key);
     // add token usage to render_log
-    this.render_log.token_usage = (this.render_log.token_usage || 0) + requestResults.usage.total_tokens;
+    this.render_log.token_usage += requestResults.usage.total_tokens;
     const values = requestResults.data[0].embedding;
     if(values) {
       this.embeddings[embeddings_key] = {};
@@ -594,21 +596,19 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   output_render_log() {
-    if (this.render_log.files_embedded === 0) {
-      return;
-    }else{
-      console.log("files embedded: " + this.render_log.files_embedded);
-    }
-    // get object keys of render_log.exclusions_logs
-    const exclusions_logs_keys = Object.keys(this.render_log.exclusions_logs);
-    // if exclusions_logs_keys length is greater than 0
-    if (exclusions_logs_keys.length > 0) {
-      // stringify exclusions_logs
-      console.log("exclusions_logs: " + JSON.stringify(this.render_log.exclusions_logs));
+    // if settings.log_render is true
+    if(this.settings.log_render) {
+      if (this.render_log.files_embedded === 0) {
+        return;
+      }else{
+        // pretty print this.render_log to console
+        console.log(JSON.stringify(this.render_log, null, 2));
+      }
     }
     // clear render_log
     this.render_log = {};
     this.render_log.files_embedded = 0;
+    this.render_log.token_usage = 0;
     // this.render_log.files = [];
     this.render_log.exclusions_logs = {};
   }
@@ -946,6 +946,11 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     // toggle showing full path in view
     new Obsidian.Setting(containerEl).setName("show_full_path").setDesc("Show full path in view.").addToggle((toggle) => toggle.setValue(this.plugin.settings.show_full_path).onChange(async (value) => {
       this.plugin.settings.show_full_path = value;
+      await this.plugin.saveSettings(true);
+    }));
+    // toggle log_render
+    new Obsidian.Setting(containerEl).setName("log_render").setDesc("Log render details to console (includes token_usage).").addToggle((toggle) => toggle.setValue(this.plugin.settings.log_render).onChange(async (value) => {
+      this.plugin.settings.log_render = value;
       await this.plugin.saveSettings(true);
     }));
 
