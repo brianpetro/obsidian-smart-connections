@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS = {
   show_full_path: false,
   log_render: false,
 };
+const MAX_EMBED_STRING_LENGTH = 25000;
 
 class SmartConnectionsPlugin extends Obsidian.Plugin {
   // constructor
@@ -442,7 +443,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         // for each heading in file
         if(typeof note_meta_cache.headings === "undefined") {
           // console.log("no headings found, using first chunk of file instead");
-          embed_input += note_contents.substring(0, 30000);
+          embed_input += note_contents.substring(0, MAX_EMBED_STRING_LENGTH);
           // console.log("chuck len: " + embed_input.length);
         }else{
           let note_headings = "";
@@ -461,8 +462,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           }
           //console.log(note_headings);
           embed_input += note_headings
-          if(embed_input.length > 30000) {
-            embed_input = embed_input.substring(0, 30000);
+          if(embed_input.length > MAX_EMBED_STRING_LENGTH) {
+            embed_input = embed_input.substring(0, MAX_EMBED_STRING_LENGTH);
           }
         }
       }
@@ -795,8 +796,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     return sections;
 
     function output_section() {
-      if (section.length > 30000) {
-        section = section.substring(0, 30000);
+      if (section.length > MAX_EMBED_STRING_LENGTH) {
+        section = section.substring(0, MAX_EMBED_STRING_LENGTH);
       }
       sections.push({ text: section.trim(), path: section_path });
     }
