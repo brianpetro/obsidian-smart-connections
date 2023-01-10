@@ -418,7 +418,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           // skip if embeddings key already exists and block mtime is greater than or equal to file mtime
           if((this.embeddings[embeddings_key]) && (this.embeddings[embeddings_key].mtime >= embed_file.stat.mtime)) {
             // log skipping file
-            console.log("skipping block (mtime)");
+            // console.log("skipping block (mtime)");
             continue;
           }
           // get embeddings for block 
