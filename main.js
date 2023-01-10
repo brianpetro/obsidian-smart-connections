@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const DEFAULT_SETTINGS = {
   api_key: "",
   file_exclusions: "",
+  folder_exclusions: "",
   header_exclusions: "",
   path_only: "",
   show_full_path: false,
@@ -31,15 +32,37 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     // load file exclusions if not blank
     if(this.settings.file_exclusions && this.settings.file_exclusions.length > 0) {
-      this.file_exclusions = this.settings.file_exclusions.split(",");
+      // split file exclusions into array and trim whitespace
+      this.file_exclusions = this.settings.file_exclusions.split(",").map((file) => {
+        return file.trim();
+      });
+    }
+    // load folder exclusions if not blank
+    if(this.settings.folder_exclusions && this.settings.folder_exclusions.length > 0) {
+      // add slash to end of folder name if not present
+      const folder_exclusions = this.settings.folder_exclusions.split(",").map((folder) => {
+        // trim whitespace
+        folder = folder.trim();
+        if(folder.slice(-1) !== "/") {
+          return folder + "/";
+        } else {
+          return folder;
+        }
+      });
+      // merge folder exclusions with file exclusions
+      this.file_exclusions = this.file_exclusions.concat(folder_exclusions);
     }
     // load header exclusions if not blank
     if(this.settings.header_exclusions && this.settings.header_exclusions.length > 0) {
-      this.header_exclusions = this.settings.header_exclusions.split(",");
+      this.header_exclusions = this.settings.header_exclusions.split(",").map((header) => {
+        return header.trim();
+      });
     }
     // load path_only if not blank
     if(this.settings.path_only && this.settings.path_only.length > 0) {
-      this.path_only = this.settings.path_only.split(",");
+      this.path_only = this.settings.path_only.split(",").map((path) => {
+        return path.trim();
+      });
     }
   }
   async saveSettings(rerender=false) {
@@ -974,6 +997,11 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     // list file exclusions
     new Obsidian.Setting(containerEl).setName("file_exclusions").setDesc("'Excluded file' matchers separated by a comma.").addText((text) => text.setPlaceholder("drawings,prompts/logs").setValue(this.plugin.settings.file_exclusions).onChange(async (value) => {
       this.plugin.settings.file_exclusions = value;
+      await this.plugin.saveSettings();
+    }));
+    // list folder exclusions
+    new Obsidian.Setting(containerEl).setName("folder_exclusions").setDesc("'Excluded folder' matchers separated by a comma.").addText((text) => text.setPlaceholder("drawings,prompts/logs").setValue(this.plugin.settings.folder_exclusions).onChange(async (value) => {
+      this.plugin.settings.folder_exclusions = value;
       await this.plugin.saveSettings();
     }));
     // list path only matchers
