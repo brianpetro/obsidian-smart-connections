@@ -463,19 +463,27 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // add embedding key to render_log
     // this.render_log.files.push(embeddings_key);
     // add token usage to render_log
-    this.render_log.token_usage += requestResults.usage.total_tokens;
-    const values = requestResults.data[0].embedding;
-    if(values) {
-      this.embeddings[embeddings_key] = {};
-      this.embeddings[embeddings_key].values = values;
-      this.embeddings[embeddings_key].mtime = embed_file_mtime;
-      // md5 hash of embed_input using built in crypto module
-      this.embeddings[embeddings_key].hash = crypto.createHash('md5').update(embed_input).digest("hex");
-      this.embeddings[embeddings_key].tokens = requestResults.usage.total_tokens;
+    // if requestResults is not null
+    if(requestResults){
+      this.render_log.token_usage += requestResults.usage.total_tokens;
+      const values = requestResults.data[0].embedding;
+      if(values) {
+        this.embeddings[embeddings_key] = {};
+        this.embeddings[embeddings_key].values = values;
+        this.embeddings[embeddings_key].mtime = embed_file_mtime;
+        // md5 hash of embed_input using built in crypto module
+        this.embeddings[embeddings_key].hash = crypto.createHash('md5').update(embed_input).digest("hex");
+        this.embeddings[embeddings_key].tokens = requestResults.usage.total_tokens;
+      }
     }
   }
 
   async request_embedding_from_input(embed_input, retries = 0) {
+    // check if embed_input is a string
+    if(typeof embed_input !== "string") {
+      console.log("embed_input is not a string");
+      return null;
+    }
     const usedParams = {
       model: "text-embedding-ada-002",
       input: embed_input,
@@ -490,8 +498,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         "Authorization": `Bearer ${this.settings.api_key}`
       }
     };
+    let resp;
     try {
-      return JSON.parse(await (0, Obsidian.request)(reqParams));
+      resp = await (0, Obsidian.request)(reqParams)
+      return JSON.parse(resp);
     } catch (error) {
       // retry request if error is 429
       if(error.status === 429){ 
@@ -502,6 +512,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           return await this.request_embedding_from_input(embed_input, retries+1);
         }
       }else{
+        if(error.status === 400){
+          new Obsidian.Notice("OpenAI API Error: see console logs for more details");
+          // log full error to console
+          console.log(resp);
+        }
         // console.log("first line of embed: " + embed_input.substring(0, embed_input.indexOf("\n")));
         // console.log("embed input length: "+ embed_input.length);
         // console.log("erroneous embed input: " + embed_input);
@@ -538,6 +553,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       const highlighted_text = context;
       // get embedding for highlighted text
       const highlighted_text_embedding = await this.request_embedding_from_input(highlighted_text);
+      // if highlighted text embedding is null then return
+      if(!highlighted_text_embedding) {
+        new Obsidian.Notice("Error getting embedding for highlighted text");
+        return;
+      }
       let nearest = this.find_nearest_embedding(highlighted_text_embedding);
 
       // render results in view with first 100 characters of highlighted text
@@ -681,6 +701,32 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     } else {
       return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
+  }
+  // compute centroid of array of vectors
+  computeCentroid(vectors) {
+    // type check vectors is array of arrays of numbers
+    // if(!Array.isArray(vectors)) {
+    //   throw new Error("vectors is not an array");
+    // }
+    // if(!Array.isArray(vectors[0])) {
+    //   throw new Error("vectors is not an array of arrays");
+    // }
+    // if(typeof vectors[0][0] !== "number") {
+    //   throw new Error("vectors is not an array of arrays of numbers");
+    // }
+    let centroid = [];
+    for (let i = 0; i < vectors[0].length; i++) {
+      centroid.push(0);
+    }
+    for (let i = 0; i < vectors.length; i++) {
+      for (let j = 0; j < vectors[i].length; j++) {
+        centroid[j] += vectors[i][j];
+      }
+    }
+    for (let i = 0; i < centroid.length; i++) {
+      centroid[i] = centroid[i] / vectors.length;
+    }
+    return centroid;
   }
 
   extractSectionsCompact(markdown){
