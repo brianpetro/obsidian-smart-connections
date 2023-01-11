@@ -316,13 +316,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           // DEPRECATED - currently included to prevent existing embeddings from being refreshed all at once
           // check if file_key.mtime is greater than key.mtime
           // check if both mtime values exist
-          if(this.embeddings[file_key].mtime && this.embeddings[key].mtime && (this.embeddings[file_key].mtime > this.embeddings[key].mtime)) {
+          if(this.embeddings[file_key] && this.embeddings[file_key].mtime && this.embeddings[key].mtime && (this.embeddings[file_key].mtime > this.embeddings[key].mtime)) {
             // delete key
             delete this.embeddings[key];
             this.render_log.deleted_embeddings++;
             // console.log("deleting (stale block - mtime): " + key);
           }
-          
         }
       }
     }
