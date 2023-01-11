@@ -238,7 +238,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // console.log(this.embeddings);
     // wait for all promises to resolve
     await Promise.all(batch_promises);
-
     // write embeddings JSON to file
     await this.save_embeddings_to_file();
   }
@@ -385,6 +384,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   async get_file_embeddings(embed_file, save=true) {
     let batch_promises = [];
     let file_hashes = [];
+    let processed_since_last_save = 0;
     // intiate file_file_embed_input by removing .md and converting file path to breadcrumbs (" > ")
     let file_embed_input = embed_file.path.replace(".md", "");
     file_embed_input = file_embed_input.replace(/\//g, " > ");
@@ -469,11 +469,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         // get embeddings for block 
         // add block_embeddings to embeddings
         batch_promises.push(this.get_embeddings(embeddings_key, block_embed_input, embed_file.stat.mtime, embed_hash));
-        if(batch_promises.length >= 10) {
-          await Promise.all(batch_promises);
-          batch_promises = [];
+        if(batch_promises.length > 4) {
+          await process_batch();
         }
-        
       }
     }
     
@@ -579,12 +577,21 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
 
     // wait for all promises to resolve
-    await Promise.all(batch_promises);
-    // log embedding
-    // console.log("embedding: " + embed_file.path);
-    if(save) {
-      // write embeddings JSON to file
-      await this.save_embeddings_to_file();
+    await process_batch();
+
+    async function process_batch() {
+      await Promise.all(batch_promises);
+      processed_since_last_save += batch_promises.length;
+      // log embedding
+      // console.log("embedding: " + embed_file.path);
+      if (save || (processed_since_last_save >= 30)) {
+        // write embeddings JSON to file
+        await this.save_embeddings_to_file();
+        // reset processed_since_last_save
+        processed_since_last_save = 0;
+      }
+      // reset batch_promises
+      batch_promises = [];
     }
   }
   
