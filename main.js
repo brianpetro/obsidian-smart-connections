@@ -659,11 +659,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           return await this.request_embedding_from_input(embed_input, retries+1);
         }
       }else{
-        if(error.status === 400){
-          new Obsidian.Notice("OpenAI API Error: see console logs for more details");
-          // log full error to console
-          console.log(resp);
-        }
+        // log full error to console
+        console.log(resp);
         // console.log("first line of embed: " + embed_input.substring(0, embed_input.indexOf("\n")));
         // console.log("embed input length: "+ embed_input.length);
         // console.log("erroneous embed input: " + embed_input);
