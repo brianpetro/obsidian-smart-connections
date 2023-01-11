@@ -802,14 +802,22 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           return "excluded";
         }
       }
-      // get from cache if mtime is same
+      // get from cache if mtime is same and values are not empty
       let current_note_embedding_values = [];
-      if((this.embeddings[current_note.path]) && (this.embeddings[current_note.path].mtime >= current_note.stat.mtime)) {
-        // log skipping file
+      if (!this.embeddings[current_note.path] 
+        || !(this.embeddings[current_note.path].mtime >= current_note.stat.mtime) 
+        || !this.embeddings[current_note.path].values 
+        || !Array.isArray(this.embeddings[current_note.path].values) 
+        || !(this.embeddings[current_note.path].values.length > 0)
+        ) {
+          // console.log("getting current")
+          await this.get_file_embeddings(current_note);
+        }else{
+        // skipping get file embeddings because nothing has changed
         //console.log("skipping file (mtime)");
-      }else{
-        // console.log("getting current")
-        await this.get_file_embeddings(current_note);
+      }
+      if(!this.embeddings[current_note.path] || !this.embeddings[current_note.path].values) {
+        return "Error getting embeddings for: "+current_note.path;
       }
       current_note_embedding_values = this.embeddings[current_note.path].values;
       
