@@ -397,7 +397,18 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         // add block_embeddings to embeddings
         batch_promises.push(this.get_embeddings(embeddings_key, block_embed_input, embed_file.stat.mtime, embed_hash));
         if(batch_promises.length > 4) {
-          await process_batch();
+          await Promise.all(batch_promises);
+          processed_since_last_save += batch_promises.length;
+          // log embedding
+          // console.log("embedding: " + embed_file.path);
+          if (processed_since_last_save >= 30) {
+            // write embeddings JSON to file
+            await this.save_embeddings_to_file();
+            // reset processed_since_last_save
+            processed_since_last_save = 0;
+          }
+          // reset batch_promises
+          batch_promises = [];
         }
       }
     }
@@ -498,21 +509,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
 
     // wait for all promises to resolve
-    await process_batch();
-
-    async function process_batch() {
-      await Promise.all(batch_promises);
-      processed_since_last_save += batch_promises.length;
-      // log embedding
-      // console.log("embedding: " + embed_file.path);
-      if (save || (processed_since_last_save >= 30)) {
-        // write embeddings JSON to file
-        await this.save_embeddings_to_file();
-        // reset processed_since_last_save
-        processed_since_last_save = 0;
-      }
-      // reset batch_promises
-      batch_promises = [];
+    await Promise.all(batch_promises);
+    // log embedding
+    // console.log("embedding: " + embed_file.path);
+    if (save) {
+      // write embeddings JSON to file
+      await this.save_embeddings_to_file();
     }
   }
   
