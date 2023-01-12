@@ -917,6 +917,16 @@ class SmartConnectionsView extends Obsidian.ItemView {
           linktext: nearest[i].link,
         });
       });
+      // drag-on
+      // currently only works with full-file links
+      item.setAttr('draggable', 'true');
+      item.addEventListener('dragstart', (event) => {
+        const file_path = nearest[i].link.split("#")[0];
+        const file = this.app.metadataCache.getFirstLinkpathDest(file_path, '');
+        const dragManager = this.app.dragManager;
+        const dragData = dragManager.dragFile(event, file);
+        dragManager.onDragStart(event, dragData);
+      });
 
     }
     this.render_brand(container);
@@ -994,9 +1004,13 @@ class SmartConnectionsView extends Obsidian.ItemView {
         defaultMod: true,
     });
 
+    this.app.workspace.onLayoutReady(this.initialize.bind(this));
+    
+  }
+  
+  async initialize() {
     await this.load_embeddings_file();
     await this.render_note_connections();
-
   }
 
   async onClose() {
