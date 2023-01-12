@@ -1,5 +1,6 @@
 .sc-list .tree-item-self {
   display: block;
+  cursor: pointer;
 }
 .sc-list .tree-item-self small {
   color: var(--color-gray-40);
