@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS = {
   show_full_path: false,
   log_render: false,
   log_render_files: false,
+  skip_sections: false,
 };
 const MAX_EMBED_STRING_LENGTH = 25000;
 
@@ -76,7 +77,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // re-render view if set to true (for example, after adding API key)
     if(rerender) {
       this.nearest_cache = {};
-      await this.render_note_connections();
+      await this.make_connections();
     }
   }
   async onload() {
@@ -89,23 +90,16 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       hotkeys: [],
       // editorCallback: async (editor) => {
       editorCallback: async (editor) => {
-        // get view
-        let view = this.get_view();
-        if(!view) {
-          // open view if not open
-          await this.open_view();
-          view = this.get_view();
-        }
         if(editor.somethingSelected()) {
           // get selected text
           let selected_text = editor.getSelection();
           // render connections from selected text
-          await view.render_note_connections(selected_text);
+          await this.make_connections(selected_text);
         } else {
-          // clear nearest_cache
+          // clear nearest_cache on manual call to make connections
           this.nearest_cache = {};
           // console.log("Cleared nearest_cache");
-          await view.render_note_connections();
+          await this.make_connections();
         }
       }
     });
@@ -125,6 +119,16 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // initialize when layout is ready
     this.app.workspace.onLayoutReady(this.initialize.bind(this));
 
+  }
+
+  async make_connections(selected_text=null) {
+    let view = this.get_view();
+    if (!view) {
+      // open view if not open
+      await this.open_view();
+      view = this.get_view();
+    }
+    await view.render_note_connections(selected_text);
   }
 
   async initialize() {
@@ -306,12 +310,28 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       console.log("embeddings file already exists: .smart-connections/embeddings.json");
     }
   }
+  // force refresh embeddings file but first rename existing embeddings file to .smart-connections/embeddings-YYYY-MM-DD.json
+  async force_refresh_embeddings_file() {
+    // get current datetime as unix timestamp
+    let current_datetime = Math.floor(Date.now() / 1000);
+    // rename existing embeddings file to .smart-connections/embeddings-YYYY-MM-DD.json
+    await this.app.vault.adapter.rename(".smart-connections/embeddings.json", ".smart-connections/embeddings-"+current_datetime+".json");
+    // create new embeddings file
+    await this.app.vault.adapter.write(".smart-connections/embeddings.json", "{}");
+    new Obsidian.Notice("Smart Connections: embeddings file Force Refreshed, making new connections...");
+    // clear this.embeddings
+    this.embeddings = null;
+    this.embeddings = {};
+    // trigger making new connections
+    await this.get_all_embeddings();
+    this.output_render_log();
+    new Obsidian.Notice("Smart Connections: embeddings file Force Refreshed, new connections made.");
+  }
 
   // get embeddings for embed_input
   async get_file_embeddings(embed_file, save=true) {
     let batch_promises = [];
     let file_hashes = [];
-    let processed_since_last_save = 0;
     // intiate file_file_embed_input by removing .md and converting file path to breadcrumbs (" > ")
     let file_embed_input = embed_file.path.replace(".md", "");
     file_embed_input = file_embed_input.replace(/\//g, " > ");
@@ -341,6 +361,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // console.log(note_file);
     // get file contents
     const note_contents = await this.app.vault.cachedRead(note_file);
+    let processed_since_last_save = 0;
     const note_sections = this.extractSectionsCompact(note_contents, note_file.path);
     // console.log(note_sections);
     // if note has more than one section (if only one then its same as full-content)
@@ -606,8 +627,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     let nearest = [];
     const embeddings_keys = Object.keys(this.embeddings);
     for (let i = 0; i < embeddings_keys.length; i++) {
+      // if this.settings.skip_sections is true and embeddings_keys[i] contains "#" then skip
+      if(this.settings.skip_sections && (embeddings_keys[i].indexOf("#") !== -1)) {
+        continue;
+      }
+      // skip matching to current note
       if(current_note && embeddings_keys[i].startsWith(current_note.path)) {
-        // skip matching to current note
         continue;
       }
       nearest.push({
@@ -723,6 +748,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   extractSectionsCompact(markdown, file_path){
+    // if this.settings.skip_sections is true then return empty array
+    if(this.settings.skip_sections) {
+      return [];
+    }
     // split the markdown into lines
     const lines = markdown.split('\n');
     // initialize the sections array
@@ -1107,6 +1136,9 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       this.plugin.settings.show_full_path = value;
       await this.plugin.saveSettings(true);
     }));
+    containerEl.createEl("h2", {
+      text: "Advanced"
+    });
     // toggle log_render
     new Obsidian.Setting(containerEl).setName("log_render").setDesc("Log render details to console (includes token_usage).").addToggle((toggle) => toggle.setValue(this.plugin.settings.log_render).onChange(async (value) => {
       this.plugin.settings.log_render = value;
@@ -1116,6 +1148,19 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     new Obsidian.Setting(containerEl).setName("log_render_files").setDesc("Log embedded objects paths with log render (for debugging).").addToggle((toggle) => toggle.setValue(this.plugin.settings.log_render_files).onChange(async (value) => {
       this.plugin.settings.log_render_files = value;
       await this.plugin.saveSettings(true);
+    }));
+    // toggle skip_sections
+    new Obsidian.Setting(containerEl).setName("skip_sections").setDesc("Skips making connections to specific sections within notes. Warning: reduces usefulness for large files and requires 'Force Refresh' for sections to work in the future.").addToggle((toggle) => toggle.setValue(this.plugin.settings.skip_sections).onChange(async (value) => {
+      this.plugin.settings.skip_sections = value;
+      await this.plugin.saveSettings(true);
+    }));
+    // force refresh button
+    new Obsidian.Setting(containerEl).setName("force_refresh").setDesc("WARNING: DO NOT use unless you know what you are doing! This will delete all of your current embeddings from OpenAI and trigger reprocessing of your entire vault!").addButton((button) => button.setButtonText("Force Refresh").onClick(async () => {
+      // confirm
+      if (confirm("Are you sure you want to Force Refresh? By clicking yes you confirm that you understand the consequences of this action.")) {
+        // force refresh
+        await this.plugin.force_refresh_embeddings_file();
+      }
     }));
 
   }
