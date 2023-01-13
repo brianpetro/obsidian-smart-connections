@@ -840,6 +840,22 @@ class SmartConnectionsView extends Obsidian.ItemView {
   getDisplayText() {
     return "Smart Connections Files";
   }
+
+  getIcon() {
+    return "smart-connections";
+  }
+
+
+  addIcon(){
+    Obsidian.addIcon("smart-connections", `<path d="M50,20 L80,40 L80,60 L50,100" stroke="currentColor" stroke-width="4" fill="none"/>
+    <path d="M30,50 L55,70" stroke="currentColor" stroke-width="5" fill="none"/>
+    <circle cx="50" cy="20" r="9" fill="currentColor"/>
+    <circle cx="80" cy="40" r="9" fill="currentColor"/>
+    <circle cx="80" cy="70" r="9" fill="currentColor"/>
+    <circle cx="50" cy="100" r="9" fill="currentColor"/>
+    <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
+  }
+
   set_message(message) {
     const container = this.containerEl.children[1];
     // clear container
@@ -954,7 +970,12 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
   // render "Smart Connections" text fixed in the bottom right corner
   render_brand(container) {
-    container.createEl("p", { cls: "sc-brand", text: "Smart Connections" });
+    // brand container
+    const brand_container = container.createEl("div", { cls: "sc-brand" });
+    // add text
+    // add SVG signal icon using getIcon
+    Obsidian.setIcon(brand_container, "smart-connections");
+    brand_container.createEl("p", { cls: "", text: "Smart Connections" });
   }
 
   // render buttons: "create" and "retry" for loading embeddings.json file
@@ -1030,6 +1051,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
   
   async initialize() {
+    this.addIcon();
     await this.load_embeddings_file();
     await this.render_note_connections();
   }

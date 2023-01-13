@@ -9,10 +9,16 @@
   position: fixed;
   bottom: 0;
   right: 0;
-  margin: 0;
-  padding: 0.5em;
-  font-size: 0.77rem;
   background-color: var(--titlebar-background);
+}
+.sc-brand > svg, .sc-brand > p {
+  display: inline;
+  margin: 0 0.1rem 0 0.3rem;
+  font-size: 0.77rem;
+  line-height: 1;
+  color: var(--tab-text-color-focused-active-current);
+  height: 0.88rem;
+  width: auto;
 }
 .sc-context {
   color: var(--nav-item-color);
