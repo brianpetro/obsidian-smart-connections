@@ -133,6 +133,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   async initialize() {
     await this.open_view();
+    await this.add_to_gitignore();
   }
 
   async open_view() {
@@ -158,6 +159,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   async get_all_embeddings() {
     // get all files in vault
     const files = await this.app.vault.getMarkdownFiles();
+    this.render_log.total_files = files.length;
     this.clean_up_embeddings(files);
     // batch embeddings
     let batch_promises = [];
@@ -298,6 +300,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // create folder
       await this.app.vault.adapter.mkdir(".smart-connections");
       console.log("created folder: .smart-connections");
+      // if .gitignore file exists then add .smart-connections to .gitignore
+      await this.add_to_gitignore();
     }else{
       console.log("folder already exists: .smart-connections");
     }
@@ -310,6 +314,22 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       console.log("embeddings file already exists: .smart-connections/embeddings.json");
     }
   }
+  // add .smart-connections to .gitignore to prevent issues with large, frequently updated embeddings file(s)
+  async add_to_gitignore() {
+    if(!(await this.app.vault.adapter.exists(".gitignore"))) {
+      return; // if .gitignore doesn't exist then don't add .smart-connections to .gitignore
+    }
+    let gitignore_file = await this.app.vault.adapter.read(".gitignore");
+    // if .smart-connections not in .gitignore
+    if (gitignore_file.indexOf(".smart-connections") < 0) {
+      // add .smart-connections to .gitignore
+      let add_to_gitignore = "\n\n# Ignore Smart Connections folder because embeddings file is large and updated frequently";
+      add_to_gitignore += "\n.smart-connections";
+      await this.app.vault.adapter.write(".gitignore", gitignore_file + add_to_gitignore);
+      console.log("added .smart-connections to .gitignore");
+    }
+  }
+
   // force refresh embeddings file but first rename existing embeddings file to .smart-connections/embeddings-YYYY-MM-DD.json
   async force_refresh_embeddings_file() {
     // get current datetime as unix timestamp
@@ -626,6 +646,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   find_nearest_embedding(input_vector, current_note=null) {
     let nearest = [];
     const embeddings_keys = Object.keys(this.embeddings);
+    this.render_log.total_embeddings = embeddings_keys.length;
     for (let i = 0; i < embeddings_keys.length; i++) {
       // if this.settings.skip_sections is true and embeddings_keys[i] contains "#" then skip
       if(this.settings.skip_sections && (embeddings_keys[i].indexOf("#") !== -1)) {
