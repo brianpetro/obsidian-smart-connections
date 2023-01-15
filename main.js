@@ -642,6 +642,17 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       return null; 
     }
   }
+  async test_api_key() {
+    const embed_input = "This is a test of the OpenAI API.";
+    const resp = await this.request_embedding_from_input(embed_input);
+    if(resp && resp.usage) {
+      console.log("API key is valid");
+      return true;
+    }else{
+      console.log("API key is invalid");
+      return false;
+    }
+  }
 
   find_nearest_embedding(input_vector, current_note=null) {
     let nearest = [];
@@ -1159,8 +1170,18 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       text: "OpenAI Settings"
     });
     new Obsidian.Setting(containerEl).setName("api_key").setDesc("api_key").addText((text) => text.setPlaceholder("Enter your api_key").setValue(this.plugin.settings.api_key).onChange(async (value) => {
-      this.plugin.settings.api_key = value;
+      this.plugin.settings.api_key = value.trim();
       await this.plugin.saveSettings(true);
+    }));
+    // add a button to test the API key is working
+    new Obsidian.Setting(containerEl).setName("Test API Key").setDesc("Test API Key").addButton((button) => button.setButtonText("Test API Key").onClick(async () => {
+      // test API key
+      const resp = await this.plugin.test_api_key();
+      if(resp) {
+        new Obsidian.Notice("API key is valid");
+      }else{
+        new Obsidian.Notice("API key is not working as expected!");
+      }
     }));
     containerEl.createEl("h2", {
       text: "Exclusions"
