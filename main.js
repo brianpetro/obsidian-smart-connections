@@ -27,6 +27,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.render_log = {};
     this.render_log.deleted_embeddings = 0;
     this.render_log.exclusions_logs = {};
+    this.render_log.failed_embeddings = [];
     this.render_log.files = [];
     this.render_log.new_embeddings = 0;
     this.render_log.token_usage = 0;
@@ -69,6 +70,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         return path.trim();
       });
     }
+    // load failed files
+    await this.load_failed_files();
   }
   async saveSettings(rerender=false) {
     await this.saveData(this.settings);
@@ -170,6 +173,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         //console.log("skipping file (mtime)");
         continue;
       }
+      // check if file is in failed_files
+      if(this.settings.failed_files.indexOf(files[i].path) > -1) {
+        // log skipping file
+        console.log("skipping previously failed file, use button in settings to retry");
+        continue;
+      }
       // skip files where path contains any exclusions
       let skip = false;
       for(let j = 0; j < this.file_exclusions.length; j++) {
@@ -207,6 +216,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     await Promise.all(batch_promises);
     // write embeddings JSON to file
     await this.save_embeddings_to_file();
+    // if render_log.failed_embeddings then update failed_embeddings.txt
+    if(this.render_log.failed_embeddings.length > 0) {
+      await this.save_failed_embeddings();
+    }
   }
 
   async save_embeddings_to_file() {
@@ -252,6 +265,62 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       await this.save_embeddings_to_file();
     }
   }
+  // save failed embeddings to file from render_log.failed_embeddings
+  async save_failed_embeddings () {
+    // write failed_embeddings to file one line per failed embedding
+    let failed_embeddings = [];
+    // if file already exists then read it
+    const failed_embeddings_file_exists = await this.app.vault.adapter.exists(".smart-connections/failed-embeddings.txt");
+    if(failed_embeddings_file_exists) {
+      failed_embeddings = await this.app.vault.adapter.read(".smart-connections/failed-embeddings.txt");
+      // split failed_embeddings into array
+      failed_embeddings = failed_embeddings.split("\r\n");
+    }
+    // merge failed_embeddings with render_log.failed_embeddings
+    failed_embeddings = failed_embeddings.concat(this.render_log.failed_embeddings);
+    // remove duplicates
+    failed_embeddings = [...new Set(failed_embeddings)];
+    // sort failed_embeddings array alphabetically
+    failed_embeddings.sort();
+    // convert failed_embeddings array to string
+    failed_embeddings = failed_embeddings.join("\r\n");
+    // write failed_embeddings to file
+    await this.app.vault.adapter.write(".smart-connections/failed-embeddings.txt", failed_embeddings);
+    // reload failed_embeddings to prevent retrying failed files until explicitly requested
+    await this.load_failed_files();
+  }
+  // load failed files from failed-embeddings.txt
+  async load_failed_files () {
+    // check if failed-embeddings.txt exists
+    const failed_embeddings_file_exists = await this.app.vault.adapter.exists(".smart-connections/failed-embeddings.txt");
+    if(!failed_embeddings_file_exists) {
+      this.settings.failed_files = [];
+      console.log("No failed files.");
+      return;
+    }
+    // read failed-embeddings.txt
+    const failed_embeddings = await this.app.vault.adapter.read(".smart-connections/failed-embeddings.txt");
+    // split failed_embeddings into array and remove empty lines
+    const failed_embeddings_array = failed_embeddings.split("\r\n");
+    // split at '#' and reduce into unique file paths
+    const failed_files = failed_embeddings_array.map(embedding => embedding.split("#")[0]).reduce((unique, item) => unique.includes(item) ? unique : [...unique, item], []);
+    // return failed_files
+    this.settings.failed_files = failed_files;
+    // console.log(failed_files);
+  }
+  // retry failed embeddings
+  async retry_failed_files () {
+    // remove failed files from failed_files
+    this.settings.failed_files = [];
+    // if failed-embeddings.txt exists then delete it
+    const failed_embeddings_file_exists = await this.app.vault.adapter.exists(".smart-connections/failed-embeddings.txt");
+    if(failed_embeddings_file_exists) {
+      await this.app.vault.adapter.remove(".smart-connections/failed-embeddings.txt");
+    }
+    // run get all embeddings
+    await this.get_all_embeddings();
+  }
+
 
   // check if key from embeddings exists in files
   clean_up_embeddings(files) {
@@ -561,6 +630,13 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   
   async get_embeddings(embeddings_key, embed_input, embed_file_mtime, embed_hash=null) {
     const requestResults = await this.request_embedding_from_input(embed_input);
+    // if requestResults is null then return
+    if(!requestResults) {
+      console.log("failed embedding: " + embeddings_key);
+      // log failed file names to render_log
+      this.render_log.failed_embeddings.push(embeddings_key);
+      return;
+    }
     // if requestResults is not null
     if(requestResults){
       // add embedding key to render_log
@@ -597,9 +673,16 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   async request_embedding_from_input(embed_input, retries = 0) {
+    // (FOR TESTING) test fail process by forcing fail
+    // return null;
     // check if embed_input is a string
     if(typeof embed_input !== "string") {
       console.log("embed_input is not a string");
+      return null;
+    }
+    // check if embed_input is empty
+    if(embed_input.length === 0) {
+      console.log("embed_input is empty");
       return null;
     }
     const usedParams = {
@@ -622,21 +705,20 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       return JSON.parse(resp);
     } catch (error) {
       // retry request if error is 429
-      if(error.status === 429){ 
-        if(retries < 3) {
-          console.log("retrying request (429) in 1 second...");
-          // wait 1 second before retrying
-          await new Promise(r => setTimeout(r, 1000));
-          return await this.request_embedding_from_input(embed_input, retries+1);
-        }
-      }else{
-        // log full error to console
-        console.log(resp);
-        // console.log("first line of embed: " + embed_input.substring(0, embed_input.indexOf("\n")));
-        // console.log("embed input length: "+ embed_input.length);
-        // console.log("erroneous embed input: " + embed_input);
-        console.log(error);
+      if((error.status === 429) && (retries < 3)) {
+        retries++;
+        // exponential backoff
+        const backoff = Math.pow(retries, 2);
+        console.log(`retrying request (429) in ${backoff} seconds...`);
+        await new Promise(r => setTimeout(r, 1000 * backoff));
+        return await this.request_embedding_from_input(embed_input, retries);
       }
+      // log full error to console
+      console.log(resp);
+      // console.log("first line of embed: " + embed_input.substring(0, embed_input.indexOf("\n")));
+      // console.log("embed input length: "+ embed_input.length);
+      // console.log("erroneous embed input: " + embed_input);
+      console.log(error);
       // console.log(usedParams);
       // console.log(usedParams.input.length);
       return null; 
@@ -692,10 +774,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         console.log(JSON.stringify(this.render_log, null, 2));
       }
     }
+
     // clear render_log
     this.render_log = {};
     this.render_log.deleted_embeddings = 0;
     this.render_log.exclusions_logs = {};
+    this.render_log.failed_embeddings = [];
     this.render_log.files = [];
     this.render_log.new_embeddings = 0;
     this.render_log.token_usage = 0;
@@ -1124,6 +1208,11 @@ class SmartConnectionsView extends Obsidian.ItemView {
       // set nearest connections
       this.set_nearest(nearest, "File: "+file.name);
     }
+
+    // if render_log.failed_embeddings then update failed_embeddings.txt
+    if(this.plugin.render_log.failed_embeddings.length > 0) {
+      await this.plugin.save_failed_embeddings();
+    }
     // get object keys of render_log
     this.plugin.output_render_log();
   }
@@ -1232,7 +1321,17 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       this.plugin.settings.skip_sections = value;
       await this.plugin.saveSettings(true);
     }));
+    // list previously failed files
+    containerEl.createEl("h3", {
+      text: "Previously failed files"
+    });
+    let failed_list = containerEl.createEl("div");
+    this.draw_failed_files_list(failed_list);
+
     // force refresh button
+    containerEl.createEl("h3", {
+      text: "Force Refresh"
+    });
     new Obsidian.Setting(containerEl).setName("force_refresh").setDesc("WARNING: DO NOT use unless you know what you are doing! This will delete all of your current embeddings from OpenAI and trigger reprocessing of your entire vault!").addButton((button) => button.setButtonText("Force Refresh").onClick(async () => {
       // confirm
       if (confirm("Are you sure you want to Force Refresh? By clicking yes you confirm that you understand the consequences of this action.")) {
@@ -1241,6 +1340,37 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       }
     }));
 
+  }
+  draw_failed_files_list(failed_list) {
+    failed_list.empty();
+    if(this.plugin.settings.failed_files.length > 0) {
+      // add message that these files will be skipped until manually retried
+      failed_list.createEl("p", {
+        text: "The following files failed to process and will be skipped until manually retried."
+      });
+      let list = failed_list.createEl("ul");
+      for (let failed_file of this.plugin.settings.failed_files) {
+        list.createEl("li", {
+          text: failed_file
+        });
+      }
+      // add button to retry failed files only
+      new Obsidian.Setting(failed_list).setName("retry_failed_files").setDesc("Retry failed files only").addButton((button) => button.setButtonText("Retry failed files only").onClick(async () => {
+        // clear failed_list element
+        failed_list.empty();
+        // set "retrying" text
+        failed_list.createEl("p", {
+          text: "Retrying failed files..."
+        });
+        await this.plugin.retry_failed_files();
+        // redraw failed files list
+        this.draw_failed_files_list(failed_list);
+      }));
+    }else{
+      failed_list.createEl("p", {
+        text: "No failed files"
+      });
+    }
   }
 }
 
