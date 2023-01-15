@@ -47,11 +47,25 @@ Inspired by the ['Similar mems' feature from Mem.ai](https://get.mem.ai/mem-x), 
 - `Heading Exclusions` - Enter a comma-separated list of headings to exclude. Smart Connections will exclude 'Blocks' with headings that match the Heading Exclusions from the search. 
 	- For example, use this if you have a commonly occurring "Archive" section in many files and do not want the contents to be included when making smart connections.  
 	- This only applies to 'blocks' and does not change the content used for matching entire files.
+- `Show Full Path` - Show the full path of the file in the Smart Connections Pane. If turned off, only the file name will be shown.
+
+### Settings (Advanced)
 - `Log Render` - this will print logs containing details about the embedding process.
+- `Log Render Files` - this will print logs containing details about the files that are being processed.
 - `Skip Sections` - skips making connections to specific sections within your notes. This feature is not recommended but may be helpful in some situations, like debugging.
+- `Previously Failed Files` - this will show a list of previously failed files. You can retry the failed files by clicking the "Retry" button.
+- `Force Refresh` - this will force the plugin to recalculate the embeddings for all files in your vault. This plugin is designed so that you SHOULD NOT need to use this feature.
+
+## Error handling
+- If you encounter an error, please open an issue on the [GitHub repository](https://github.com/brianpetro/obsidian-smart-connections/issues).
+- Failed requests due to rate limitting will be retried up to 3 times using exponential backoff, then the plugin will stop trying to process the file.
+- After the 3rd failed request, the plugin will save the failed request to a file called `failed-embeddings.txt` in the `.smart-connections` folder in your vault. 
+- You can manually retry the failed files using the "Retry" button in the settings.
 
 ## Under the hood
 The plugin integrates [OpenAI Embeddings](https://beta.openai.com/docs/guides/embeddings), a technology from the organization behind ChatGPT, to use AI that finds connections between notes. Instead of matching keywords, the AI interprets your notes as 1,536-dimension vectors!
+
+*Note: This does mean that your notes are sent to OpenAI's servers to be processed and are subject to their [Terms of Service](https://openai.com/terms).* The `File Exclusions` and `Folder Exclusions` settings are designed to help you control which notes are processed.
 
 ## Developing Add-ons (Coming soon!)
 - This plugin is designed to manage the vector interpretation ("embeddings") of the notes in your vaults. The requirements for managing this can be extensive.
