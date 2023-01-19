@@ -890,7 +890,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       current_note_embedding_vec = this.embeddings[curr_key].vec;
       
       // compute cosine similarity between current note and all other notes via embeddings
-      nearest = this.find_nearest_embedding(current_note_embedding_vec, current_note);
+      nearest = this.find_nearest_embedding(current_note_embedding_vec, curr_key);
   
       // save to this.nearest_cache
       this.nearest_cache[curr_key] = nearest;
