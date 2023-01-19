@@ -808,8 +808,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         // TODO: consider using presence of meta.file to skip files (faster checking?)
       }
       if(to_key){
-        if(to_key===from_keys[i]) continue; // skip matching to current note
-        if(to_key===this.embeddings[from_keys[i]].meta.file) continue; // skip if to_key matches meta.file
+        if(to_key==from_keys[i]) continue; // skip matching to current note
+        if(to_key==this.embeddings[from_keys[i]].meta.file) continue; // skip if to_key matches meta.file
       }
       nearest.push({
         link: this.embeddings[from_keys[i]].meta.path,
