@@ -695,7 +695,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     if(!requestResults) {
       console.log("failed embedding: " + key);
       // log failed file names to render_log
-      this.render_log.failed_embeddings.push(key);
+      this.render_log.failed_embeddings.push(meta.path);
       return;
     }
     // if requestResults is not null
