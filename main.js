@@ -20,6 +20,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   constructor() {
     super(...arguments);
     this.embeddings = null;
+    this.embeddings_external = null;
     this.file_exclusions = [];
     this.header_exclusions = [];
     this.nearest_cache = {};
@@ -816,6 +817,15 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         similarity: this.computeCosineSimilarity(to_vec, this.embeddings[from_keys[i]].vec)
       });
     }
+    // handle external links
+    if(this.embeddings_external){
+      for(let i = 0; i < this.embeddings_external.length; i++) {
+        nearest.push({
+          link: this.embeddings_external[i].meta.path,
+          similarity: this.computeCosineSimilarity(to_vec, this.embeddings_external[i].vec)
+        });
+      }
+    }
     // sort array by cosine similarity
     nearest.sort(function (a, b) {
       return b.similarity - a.similarity;
@@ -1058,6 +1068,25 @@ class SmartConnectionsView extends Obsidian.ItemView {
     }
   }
   render_link_text(link, show_full_path=false) {
+    /**
+     * Begin external links
+     */
+    // if starts with http
+    if (link.startsWith("http")) {
+      // remove http(s)://
+      link = link.replace(/(^\w+:|^)\/\//, "");
+      // separate domain from path
+      link = link.split("/");
+      // wrap domain in <small> and add line break
+      link[0] = `<small>${link[0]}</small><br>`;
+      // join back together
+      link = link.join("");
+      // return
+      return link;
+    }
+    /**
+     * Begin internal links
+     */
     // if show full path is false, remove file path
     if (!show_full_path) {
       link = link.split("/").pop();
@@ -1094,11 +1123,27 @@ class SmartConnectionsView extends Obsidian.ItemView {
       const link_text = this.render_link_text(nearest[i].link, this.plugin.settings.show_full_path);
       const link = item.createEl("a", {
         cls: "tree-item-self search-result-file-title is-clickable",
-        // href: nearest[i].link,
+        href: nearest[i].link,
         // text: link_text,
         title: nearest[i].link,
       });
       link.innerHTML = link_text;
+      /**
+       * Begin external link handling
+       */
+      if (nearest[i].link.startsWith("http")) {
+        item.setAttr('draggable', 'true');
+        item.addEventListener('dragstart', (event) => {
+          const dragManager = this.app.dragManager;
+          const drag_data = {title: nearest[i].link, source: nearest[i].link};
+          dragManager.onDragStart(event, drag_data);
+          return;
+        });
+        continue; // ends here for external links
+      }
+      /**
+       * Begin internal link handling
+       */
       // trigger click event on link
       item.addEventListener("click", async (event) => {
         // get target file from link path
@@ -1145,9 +1190,9 @@ class SmartConnectionsView extends Obsidian.ItemView {
       // currently only works with full-file links
       item.setAttr('draggable', 'true');
       item.addEventListener('dragstart', (event) => {
+        const dragManager = this.app.dragManager;
         const file_path = nearest[i].link.split("#")[0];
         const file = this.app.metadataCache.getFirstLinkpathDest(file_path, '');
-        const dragManager = this.app.dragManager;
         const dragData = dragManager.dragFile(event, file);
         dragManager.onDragStart(event, dragData);
       });
@@ -1344,6 +1389,13 @@ class SmartConnectionsView extends Obsidian.ItemView {
         this.render_embeddings_buttons();
         throw new Error("Error: Prompting user to create a new embeddings file or retry.");
       }
+    }
+    // if embeddings-external.json exists then load it
+    // separate object to prevent double-saving to embeddings-2.json
+    if(await this.app.vault.adapter.exists(".smart-connections/embeddings-external.json")) {
+      const embeddings_file = await this.app.vault.adapter.read(".smart-connections/embeddings-external.json");
+      this.plugin.embeddings_external = JSON.parse(embeddings_file);
+      console.log("loaded embeddings-external.json");
     }
   }
 
