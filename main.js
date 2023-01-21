@@ -704,7 +704,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // add embedding key to render_log
       if(this.settings.log_render){
         if(this.settings.log_render_files){
-          this.render_log.files.push(meta.path);
+          this.render_log.files.push(meta);
         }
         this.render_log.new_embeddings++;
         // add token usage to render_log
@@ -821,7 +821,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     if(this.embeddings_external){
       for(let i = 0; i < this.embeddings_external.length; i++) {
         nearest.push({
-          link: this.embeddings_external[i].meta.path,
+          link: this.embeddings_external[i].meta,
           similarity: this.computeCosineSimilarity(to_vec, this.embeddings_external[i].vec)
         });
       }
@@ -950,7 +950,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // initialize the block string
     let block = '';
     let block_headings = '';
-    let block_path = '';
+    let block_path = file_path;
     // current headers array
     let currentHeaders = [];
     // remode .md file extension and convert file_path to breadcrumb formatting
@@ -1069,22 +1069,6 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
   render_link_text(link, show_full_path=false) {
     /**
-     * Begin external links
-     */
-    // if starts with http
-    if (link.startsWith("http")) {
-      // remove http(s)://
-      link = link.replace(/(^\w+:|^)\/\//, "");
-      // separate domain from path
-      link = link.split("/");
-      // wrap domain in <small> and add line break
-      link[0] = `<small>${link[0]}</small><br>`;
-      // join back together
-      link = link.join("");
-      // return
-      return link;
-    }
-    /**
      * Begin internal links
      */
     // if show full path is false, remove file path
@@ -1107,6 +1091,14 @@ class SmartConnectionsView extends Obsidian.ItemView {
     }
     return link;
   }
+  render_external_link_elm(meta){
+    // remove http(s)://
+    let domain = meta.path.replace(/(^\w+:|^)\/\//, "");
+    // separate domain from path
+    domain = domain.split("/")[0];
+    // wrap domain in <small> and add line break
+    return `<small>${domain}</small><br>${meta.title}`;
+  }
   set_nearest(nearest, nearest_context=null) {
     // get container element
     const container = this.containerEl.children[1];
@@ -1119,31 +1111,38 @@ class SmartConnectionsView extends Obsidian.ItemView {
     // create list of nearest notes
     const list = container.createEl("div", { cls: "sc-list" });
     for (let i = 0; i < nearest.length; i++) {
+      /**
+       * Begin external link handling
+       */
+      // if link is an object (indicates v2 logic)
+      if (typeof nearest[i].link === "object") {
+        const meta = nearest[i].link;
+        if (meta.path.startsWith("http")) {
+          const item = list.createEl("div", { cls: "search-result" });
+          const link = item.createEl("a", {
+            cls: "tree-item-self search-result-file-title is-clickable",
+            href: meta.path,
+            title: meta.title,
+          });
+          link.innerHTML = this.render_external_link_elm(meta);
+          item.setAttr('draggable', 'true');
+          continue; // ends here for external links
+        }
+        // TODO (TEMP)
+        continue; // not currently handling v2 logic for internal links
+      }
+      /**
+       * Begin internal link handling
+      */
       const item = list.createEl("div", { cls: "search-result" });
       const link_text = this.render_link_text(nearest[i].link, this.plugin.settings.show_full_path);
       const link = item.createEl("a", {
         cls: "tree-item-self search-result-file-title is-clickable",
-        href: nearest[i].link,
+        // href: nearest[i].link,
         // text: link_text,
         title: nearest[i].link,
       });
       link.innerHTML = link_text;
-      /**
-       * Begin external link handling
-       */
-      if (nearest[i].link.startsWith("http")) {
-        item.setAttr('draggable', 'true');
-        item.addEventListener('dragstart', (event) => {
-          const dragManager = this.app.dragManager;
-          const drag_data = {title: nearest[i].link, source: nearest[i].link};
-          dragManager.onDragStart(event, drag_data);
-          return;
-        });
-        continue; // ends here for external links
-      }
-      /**
-       * Begin internal link handling
-       */
       // trigger click event on link
       item.addEventListener("click", async (event) => {
         // get target file from link path
@@ -1194,6 +1193,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
         const file_path = nearest[i].link.split("#")[0];
         const file = this.app.metadataCache.getFirstLinkpathDest(file_path, '');
         const dragData = dragManager.dragFile(event, file);
+        // console.log(dragData);
         dragManager.onDragStart(event, dragData);
       });
 
@@ -1394,7 +1394,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     // separate object to prevent double-saving to embeddings-2.json
     if(await this.app.vault.adapter.exists(".smart-connections/embeddings-external.json")) {
       const embeddings_file = await this.app.vault.adapter.read(".smart-connections/embeddings-external.json");
-      this.plugin.embeddings_external = JSON.parse(embeddings_file);
+      this.plugin.embeddings_external = JSON.parse(embeddings_file).embeddings;
       console.log("loaded embeddings-external.json");
     }
   }
