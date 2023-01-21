@@ -168,6 +168,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // batch embeddings
     let batch_promises = [];
     for (let i = 0; i < files.length; i++) {
+      // skip if path contains a #
+      if(files[i].path.indexOf("#") > -1) {
+        // console.log("skipping file '"+files[i].path+"' (path contains #)");
+        this.log_exclusion("path contains #");
+        continue;
+      }
       const curr_key = crypto.createHash("md5").update(files[i].path).digest("hex");
       // skip if file already has embedding and embedding.mtime is greater than or equal to file.mtime
       if((this.embeddings[curr_key]) && (this.embeddings[curr_key].meta.mtime >= files[i].stat.mtime)) {
@@ -965,7 +971,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // if line does not start with #
       // or if line starts with # and second character is a word or number indicating a "tag"
       // then add to block
-      if (!line.startsWith('#') || /\w|\d/.test(line[1])) {
+      if (!line.startsWith('#') || (['#',' '].indexOf(line[1]) < 0)){
         block += "\n" + line;
         continue;
       }
