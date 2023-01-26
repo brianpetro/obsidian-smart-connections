@@ -1,10 +1,14 @@
 # Smart Connections
 [Introducing Smart Connections](https://wfhbrian.com/introducing-obsidian-smart-connections/), the AI-powered plugin for [Obsidian](https://obsidian.md/) that helps you save time and stay organized by connecting you to the most relevant notes in your vault in real-time.
 
-## Features
 Inspired by the ['Similar mems' feature from Mem.ai](https://get.mem.ai/mem-x), this plugin uses AI to find similar notes in your vault and display them in real time.
 
 ![](./smart-connections-demo-2.gif)
+
+## External Connections
+Coming soon: See connections to external content!
+
+Currently taking requests for which external content you would like connected. Please comment on [this issue](https://github.com/brianpetro/obsidian-smart-connections/issues/27) with your suggestions.
 
 ## Installation
 1. Install the plugin from the community plugins tab in Obsidian.
