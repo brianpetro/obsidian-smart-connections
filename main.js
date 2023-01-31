@@ -1109,57 +1109,6 @@ class SmartConnectionsView extends Obsidian.ItemView {
     // wrap domain in <small> and add line break
     return `<small>${domain}</small><br>${meta.title}`;
   }
-  set_nearest_og(nearest, nearest_context=null) {
-    // get container element
-    const container = this.containerEl.children[1];
-    // clear container
-    container.empty();
-    // if highlighted text is not null, create p element with highlighted text
-    if (nearest_context) {
-      container.createEl("p", { cls: "sc-context", text: nearest_context });
-    }
-    // create list of nearest notes
-    const list = container.createEl("div", { cls: "sc-list" });
-    for (let i = 0; i < nearest.length; i++) {
-      const curr = nearest[i];
-      /**
-       * Begin external link handling
-       */
-      // if link is an object (indicates v2 logic)
-      if (typeof curr.link === "object") {
-        const meta = curr.link;
-        if (meta.path.startsWith("http")) {
-          const item = list.createEl("div", { cls: "search-result" });
-          const link = item.createEl("a", {
-            cls: "tree-item-self search-result-file-title is-clickable",
-            href: meta.path,
-            title: meta.title,
-          });
-          link.innerHTML = this.render_external_link_elm(meta);
-          item.setAttr('draggable', 'true');
-          continue; // ends here for external links
-        }
-        // TODO (TEMP)
-        continue; // not currently handling v2 logic for internal links
-      }
-      /**
-       * Begin internal link handling
-      */
-      const item = list.createEl("div", { cls: "search-result" });
-      const link_text = this.render_link_text(curr.link, this.plugin.settings.show_full_path);
-      const link = item.createEl("a", {
-        cls: "tree-item-self search-result-file-title is-clickable",
-        // href: curr.link,
-        // text: link_text,
-        title: curr.link,
-      });
-      link.innerHTML = link_text;
-      // trigger click event on link
-      this.add_link_listeners(item, curr, list);
-
-    }
-    this.render_brand(container);
-  }
 
   add_link_listeners(item, curr, list) {
     item.addEventListener("click", async (event) => {
@@ -1221,8 +1170,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
 
   /**
-   * UPDATE VIEW
-   * - TODO re-add toggle fullpath
+   * UPDATED VIEW
    */
   set_nearest(nearest, nearest_context=null) {
     // get container element
@@ -1241,7 +1189,10 @@ class SmartConnectionsView extends Obsidian.ItemView {
       const curr = nearest[i];
       const link = curr.link;
       // skip if link is an object (indicates external logic)
-      if (typeof link === "object") continue;
+      if (typeof link === "object"){
+        nearest_by_file[link.path] = [curr];
+        continue;
+      }
       if(link.indexOf("#") > -1){
         const file_path = link.split("#")[0];
         if(!nearest_by_file[file_path]){
@@ -1260,6 +1211,28 @@ class SmartConnectionsView extends Obsidian.ItemView {
     const keys = Object.keys(nearest_by_file);
     for (let i = 0; i < keys.length; i++) {
       const file = nearest_by_file[keys[i]];
+      /**
+       * Begin external link handling
+       */
+      // if link is an object (indicates v2 logic)
+      if (typeof file[0].link === "object") {
+        const curr = file[0];
+        const meta = curr.link;
+        if (meta.path.startsWith("http")) {
+          const item = list.createEl("div", { cls: "search-result" });
+          const link = item.createEl("a", {
+            cls: "tree-item-self search-result-file-title is-clickable",
+            href: meta.path,
+            title: meta.title,
+          });
+          link.innerHTML = this.render_external_link_elm(meta);
+          item.setAttr('draggable', 'true');
+          continue; // ends here for external links
+        }
+      }
+      /**
+       * Handles Internal
+       */
       let file_link_text;
       if(this.plugin.settings.show_full_path){
         const pcs = file[0].link.split("/");
@@ -1316,6 +1289,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
         this.add_link_listeners(file_link, file[0], item);
       }
     }
+    this.render_brand(container);
   }
   // render "Smart Connections" text fixed in the bottom right corner
   render_brand(container) {
