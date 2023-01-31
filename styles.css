@@ -1,5 +1,4 @@
 .sc-list .tree-item-self {
-  display: block;
   cursor: pointer;
 }
 .sc-list .tree-item-self small {
@@ -24,4 +23,27 @@
   color: var(--nav-item-color);
   font-size: var(--nav-item-size);
   margin: 0.5em 0.5em 1em;
+}
+.sc-list > .sc-collapsed ul {
+  display: none;
+}
+.sc-list > .sc-collapsed span svg {
+  transform: rotate(-90deg);
+}
+.sc-list > :not(.sc-collapsed) span svg {
+  transform: rotate(0deg);
+}
+.sc-list > div span svg {
+  height: auto;
+  margin: auto 0.5em auto 0;
+}
+.sc-list > div > span {
+  display: inline-flex;
+  width: 100%;
+}
+.sc-list > div > ul {
+  margin: 0;
+}
+.sc-list > div > a {
+  display: block;
 }

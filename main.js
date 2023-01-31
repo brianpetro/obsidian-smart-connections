@@ -1098,6 +1098,10 @@ class SmartConnectionsView extends Obsidian.ItemView {
     return link;
   }
   render_external_link_elm(meta){
+    if(meta.source) {
+      if(meta.source === "Gmail") meta.source = "📧 Gmail";
+      return `<small>${meta.source}</small><br>${meta.title}`;
+    }
     // remove http(s)://
     let domain = meta.path.replace(/(^\w+:|^)\/\//, "");
     // separate domain from path
@@ -1105,7 +1109,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     // wrap domain in <small> and add line break
     return `<small>${domain}</small><br>${meta.title}`;
   }
-  set_nearest(nearest, nearest_context=null) {
+  set_nearest_og(nearest, nearest_context=null) {
     // get container element
     const container = this.containerEl.children[1];
     // clear container
@@ -1117,12 +1121,13 @@ class SmartConnectionsView extends Obsidian.ItemView {
     // create list of nearest notes
     const list = container.createEl("div", { cls: "sc-list" });
     for (let i = 0; i < nearest.length; i++) {
+      const curr = nearest[i];
       /**
        * Begin external link handling
        */
       // if link is an object (indicates v2 logic)
-      if (typeof nearest[i].link === "object") {
-        const meta = nearest[i].link;
+      if (typeof curr.link === "object") {
+        const meta = curr.link;
         if (meta.path.startsWith("http")) {
           const item = list.createEl("div", { cls: "search-result" });
           const link = item.createEl("a", {
@@ -1141,70 +1146,176 @@ class SmartConnectionsView extends Obsidian.ItemView {
        * Begin internal link handling
       */
       const item = list.createEl("div", { cls: "search-result" });
-      const link_text = this.render_link_text(nearest[i].link, this.plugin.settings.show_full_path);
+      const link_text = this.render_link_text(curr.link, this.plugin.settings.show_full_path);
       const link = item.createEl("a", {
         cls: "tree-item-self search-result-file-title is-clickable",
-        // href: nearest[i].link,
+        // href: curr.link,
         // text: link_text,
-        title: nearest[i].link,
+        title: curr.link,
       });
       link.innerHTML = link_text;
       // trigger click event on link
-      item.addEventListener("click", async (event) => {
-        // get target file from link path
-        // if sub-section is linked, open file and scroll to sub-section
-        let targetFile;
-        let heading;
-        if(nearest[i].link.indexOf("#") > -1){
-          // remove after # from link
-          targetFile = this.app.metadataCache.getFirstLinkpathDest(nearest[i].link.split("#")[0], "");
-          // console.log(targetFile);
-          const target_file_cache = this.app.metadataCache.getFileCache(targetFile);
-          // console.log(target_file_cache);
-          // get heading
-          const heading_text = nearest[i].link.split("#").pop();
-          // get heading from headings in file cache
-          heading = target_file_cache.headings.find(h => h.heading === heading_text);
-          // console.log(heading);
-        }else{
-          targetFile = this.app.metadataCache.getFirstLinkpathDest(nearest[i].link, "");
-        }
-        // properly handle if the meta/ctrl key is pressed
-        const mod = Obsidian.Keymap.isModEvent(event);
-        // get most recent leaf
-        let leaf = this.app.workspace.getLeaf(mod);
-        await leaf.openFile(targetFile);
-        if(heading){
-          let { editor } = leaf.view;
-          const pos = {line: heading.position.start.line, ch: 0};
-          editor.setCursor(pos);
-          editor.scrollIntoView({to: pos, from: pos}, true);
-        }
-      });
-      // trigger hover event on link
-      item.addEventListener("mouseover", (event) => {
-        this.app.workspace.trigger("hover-link", {
-          event,
-          source: SMART_CONNECTIONS_VIEW_TYPE,
-          hoverParent: list,
-          targetEl: item,
-          linktext: nearest[i].link,
-        });
-      });
-      // drag-on
-      // currently only works with full-file links
-      item.setAttr('draggable', 'true');
-      item.addEventListener('dragstart', (event) => {
-        const dragManager = this.app.dragManager;
-        const file_path = nearest[i].link.split("#")[0];
-        const file = this.app.metadataCache.getFirstLinkpathDest(file_path, '');
-        const dragData = dragManager.dragFile(event, file);
-        // console.log(dragData);
-        dragManager.onDragStart(event, dragData);
-      });
+      this.add_link_listeners(item, curr, list);
 
     }
     this.render_brand(container);
+  }
+
+  add_link_listeners(item, curr, list) {
+    item.addEventListener("click", async (event) => {
+      await this.handle_click(curr, event);
+    });
+    // trigger hover event on link
+    item.addEventListener("mouseover", (event) => {
+      this.app.workspace.trigger("hover-link", {
+        event,
+        source: SMART_CONNECTIONS_VIEW_TYPE,
+        hoverParent: list,
+        targetEl: item,
+        linktext: curr.link,
+      });
+    });
+    // drag-on
+    // currently only works with full-file links
+    item.setAttr('draggable', 'true');
+    item.addEventListener('dragstart', (event) => {
+      const dragManager = this.app.dragManager;
+      const file_path = curr.link.split("#")[0];
+      const file = this.app.metadataCache.getFirstLinkpathDest(file_path, '');
+      const dragData = dragManager.dragFile(event, file);
+      // console.log(dragData);
+      dragManager.onDragStart(event, dragData);
+    });
+  }
+
+  // get target file from link path
+  // if sub-section is linked, open file and scroll to sub-section
+  async handle_click(curr, event) {
+    let targetFile;
+    let heading;
+    if (curr.link.indexOf("#") > -1) {
+      // remove after # from link
+      targetFile = this.app.metadataCache.getFirstLinkpathDest(curr.link.split("#")[0], "");
+      // console.log(targetFile);
+      const target_file_cache = this.app.metadataCache.getFileCache(targetFile);
+      // console.log(target_file_cache);
+      // get heading
+      const heading_text = curr.link.split("#").pop();
+      // get heading from headings in file cache
+      heading = target_file_cache.headings.find(h => h.heading === heading_text);
+      // console.log(heading);
+    } else {
+      targetFile = this.app.metadataCache.getFirstLinkpathDest(curr.link, "");
+    }
+    // properly handle if the meta/ctrl key is pressed
+    const mod = Obsidian.Keymap.isModEvent(event);
+    // get most recent leaf
+    let leaf = this.app.workspace.getLeaf(mod);
+    await leaf.openFile(targetFile);
+    if (heading) {
+      let { editor } = leaf.view;
+      const pos = { line: heading.position.start.line, ch: 0 };
+      editor.setCursor(pos);
+      editor.scrollIntoView({ to: pos, from: pos }, true);
+    }
+  }
+
+  /**
+   * UPDATE VIEW
+   * - TODO re-add toggle fullpath
+   */
+  set_nearest(nearest, nearest_context=null) {
+    // get container element
+    const container = this.containerEl.children[1];
+    // clear container
+    container.empty();
+    // if highlighted text is not null, create p element with highlighted text
+    if (nearest_context) {
+      container.createEl("p", { cls: "sc-context", text: nearest_context });
+    }
+    // create list of nearest notes
+    const list = container.createEl("div", { cls: "sc-list" });
+    // group nearest by file
+    const nearest_by_file = {};
+    for (let i = 0; i < nearest.length; i++) {
+      const curr = nearest[i];
+      const link = curr.link;
+      // skip if link is an object (indicates external logic)
+      if (typeof link === "object") continue;
+      if(link.indexOf("#") > -1){
+        const file_path = link.split("#")[0];
+        if(!nearest_by_file[file_path]){
+          nearest_by_file[file_path] = [];
+        }
+        nearest_by_file[file_path].push(nearest[i]);
+      }else{
+        if(!nearest_by_file[link]){
+          nearest_by_file[link] = [];
+        }
+        // always add to front of array
+        nearest_by_file[link].unshift(nearest[i]);
+      }
+    }
+    // for each file
+    const keys = Object.keys(nearest_by_file);
+    for (let i = 0; i < keys.length; i++) {
+      const file = nearest_by_file[keys[i]];
+      let file_link_text;
+      if(this.plugin.settings.show_full_path){
+        const pcs = file[0].link.split("/");
+        file_link_text = pcs[pcs.length - 1];
+        const path = pcs.slice(0, pcs.length - 1).join("/");
+        file_link_text = `<small>${path}</small><br>${file_link_text}`;
+      }else{
+        file_link_text = file[0].link.split("/").pop();
+      }
+      // if file has multiple links, insert collapsible list toggle button
+      if (file.length > 1) {
+        const item = list.createEl("div", { cls: "search-result sc-collapsed" });
+        const toggle = item.createEl("span", { cls: "tree-item-self is-clickable" });
+        // insert right triangle svg icon as toggle button in span
+        Obsidian.setIcon(toggle, "right-triangle"); // must come before adding other elms else overwrites
+        const file_link = toggle.createEl("a", {
+          cls: "search-result-file-title",
+          title: file[0].link,
+        });
+        file_link.innerHTML = file_link_text;
+        // add link listeners to file link
+        this.add_link_listeners(file_link, file[0], toggle);
+        toggle.addEventListener("click", (event) => {
+          // find parent containing class search-result
+          let parent = event.target;
+          while (!parent.classList.contains("search-result")) {
+            parent = parent.parentElement;
+          }
+          parent.classList.toggle("sc-collapsed");
+        });
+        // create list of block links
+        const file_link_list = item.createEl("ul");
+        // for each link in file
+        for (let j = 0; j < file.length; j++) {
+          // skip first link (already added)
+          if (j === 0) continue;
+          const block = file[j];
+          const block_link = file_link_list.createEl("li", {
+            cls: "tree-item-self search-result-file-title is-clickable",
+            title: block.link,
+          });
+          block_link.innerHTML = block.link.split("#").pop();
+          // add link listeners to block link
+          this.add_link_listeners(block_link, block, file_link_list);
+        }
+      }else{
+        const item = list.createEl("div", { cls: "search-result" });
+        const file_link = item.createEl("a", {
+          cls: "tree-item-self search-result-file-title is-clickable",
+          title: file[0].link,
+        });
+        file_link.innerHTML = file_link_text;
+        // add link listeners to file link
+        this.add_link_listeners(file_link, file[0], item);
+      }
+    }
   }
   // render "Smart Connections" text fixed in the bottom right corner
   render_brand(container) {
@@ -1402,6 +1513,17 @@ class SmartConnectionsView extends Obsidian.ItemView {
       const embeddings_file = await this.app.vault.adapter.read(".smart-connections/embeddings-external.json");
       this.plugin.embeddings_external = JSON.parse(embeddings_file).embeddings;
       console.log("loaded embeddings-external.json");
+    }
+    // if embeddings-external-2.json exists then load it
+    if(await this.app.vault.adapter.exists(".smart-connections/embeddings-external-2.json")) {
+      const embeddings_file = await this.app.vault.adapter.read(".smart-connections/embeddings-external-2.json");
+      // merge with existing embeddings_external if it exists
+      if(this.plugin.embeddings_external) {
+        this.plugin.embeddings_external = [...this.plugin.embeddings_external, ...JSON.parse(embeddings_file).embeddings];
+      }else{
+        this.plugin.embeddings_external = JSON.parse(embeddings_file).embeddings;
+      }
+      console.log("loaded embeddings-external-2.json");
     }
   }
 
