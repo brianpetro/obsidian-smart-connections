@@ -1311,6 +1311,10 @@ class SmartConnectionsView extends Obsidian.ItemView {
       }else{
         file_link_text = file[0].link.split("/").pop();
       }
+      // remove file extension if .md
+      if(file_link_text.indexOf(".md") > -1){
+        file_link_text = file_link_text.replace(/\.md$/, ""); // remove .md if at end of string
+      }
       // if file has multiple links, insert collapsible list toggle button
       if (file.length > 1) {
         const item = list.createEl("div", { cls: "search-result sc-collapsed" });
