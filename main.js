@@ -12,6 +12,7 @@ const DEFAULT_SETTINGS = {
   log_render: false,
   log_render_files: false,
   skip_sections: false,
+  results_count: 50,
 };
 const MAX_EMBED_STRING_LENGTH = 25000;
 
@@ -465,7 +466,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     await this.app.vault.adapter.write(".smart-connections/embeddings-2.json", JSON.stringify(embeddings_2_json));
   }
 
-
   // add .smart-connections to .gitignore to prevent issues with large, frequently updated embeddings file(s)
   async add_to_gitignore() {
     if(!(await this.app.vault.adapter.exists(".gitignore"))) {
@@ -838,7 +838,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     });
     // console.log(nearest);
     // limit to N nearest connections
-    nearest = nearest.slice(0, 200);
+    nearest = nearest.slice(0, this.settings.results_count);
     return nearest;
   }
 
@@ -1013,7 +1013,76 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       blocks.push({ text: block.trim(), path: block_path });
     }
   }
-
+  // reverse-retrieve block given path
+  async block_retriever(path, limit=null) {
+    // return if no # in path
+    if (path.indexOf('#') < 0) {
+      console.log("not a block path: "+path);
+      return false;
+    }
+    let block = [];
+    let block_headings = path.split('#').slice(1);
+    let currentHeaders = [];
+    let begin_line = 0;
+    let i = 0;
+    // get file path from path
+    const file_path = path.split('#')[0];
+    // get file
+    const file = this.app.vault.getAbstractFileByPath(file_path);
+    if(!(file instanceof Obsidian.TFile)) {
+      console.log("not a file: "+file_path);
+      return false;
+    }
+    // get file contents
+    const file_contents = await this.app.vault.cachedRead(file);
+    // split the file contents into lines
+    const lines = file_contents.split('\n');
+    // loop through the lines
+    for (i = 0; i < lines.length; i++) {
+      // get the line
+      const line = lines[i];
+      // if line does not start with #
+      // or if line starts with # and second character is a word or number indicating a "tag"
+      // then continue to next line
+      if (!line.startsWith('#') || (['#',' '].indexOf(line[1]) < 0)){
+        continue;
+      }
+      /**
+       * BEGIN Heading parsing
+       * - likely a heading if made it this far
+       */
+      // get the heading text
+      const heading_text = line.replace(/#/g, '').trim();
+      // continue if heading text is not in block_headings
+      const heading_index = block_headings.indexOf(heading_text);
+      if (heading_index < 0) continue;
+      // if currentHeaders.length !== heading_index then we have a mismatch
+      if (currentHeaders.length !== heading_index) continue;
+      // push the heading text to the currentHeaders array
+      currentHeaders.push(heading_text);
+      // if currentHeaders.length === block_headings.length then we have a match
+      if (currentHeaders.length === block_headings.length) {
+        begin_line = i + 1;
+        break; // break out of loop
+      }
+    }
+    // if no begin_line then return false
+    if (begin_line === 0) return false;
+    // iterate through lines starting at begin_line
+    for (i = begin_line; i < lines.length; i++) {
+      if((typeof limit === "number") && (block.length > limit)){
+        block.push("...");
+        break;
+      }
+      const line = lines[i];
+      if (!line.startsWith('#') || (['#',' '].indexOf(line[1]) < 0)){
+        block.push(line);
+        continue;
+      }
+      break; // ends at the next header
+    }
+    return block.join("\n").trim();
+  }
   // iterate through blocks and skip if block_headings contains this.header_exclusions
   validate_headings(block_headings) {
     let valid = true;
@@ -1172,7 +1241,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
   /**
    * UPDATED VIEW
    */
-  set_nearest(nearest, nearest_context=null) {
+  async set_nearest(nearest, nearest_context=null) {
     // get container element
     const container = this.containerEl.children[1];
     // clear container
@@ -1262,6 +1331,9 @@ class SmartConnectionsView extends Obsidian.ItemView {
             parent = parent.parentElement;
           }
           parent.classList.toggle("sc-collapsed");
+          
+          // TODO: if block container is empty, render markdown from block retriever
+
         });
         // create list of block links
         const file_link_list = item.createEl("ul");
@@ -1275,6 +1347,9 @@ class SmartConnectionsView extends Obsidian.ItemView {
             title: block.link,
           });
           block_link.innerHTML = block.link.split("#").pop();
+          const block_container = block_link.createEl("div");
+          // TODO: move to rendering on expanding section (toggle collapsed)
+          Obsidian.MarkdownRenderer.renderMarkdown((await this.plugin.block_retriever(block.link, 10)), block_container, block.link, void 0);
           // add link listeners to block link
           this.add_link_listeners(block_link, block, file_link_list);
         }

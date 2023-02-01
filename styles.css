@@ -47,3 +47,6 @@
 .sc-list > div > a {
   display: block;
 }
+.sc-list > div > ul > li {
+  display: block;
+}
