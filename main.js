@@ -502,7 +502,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   // get embeddings for embed_input
   async get_file_embeddings(curr_file, save=true) {
-    let batch_promises = [];
+    // let batch_promises = [];
+    let req_batch = [];
     let blocks = [];
     // initiate curr_file_key from md5(curr_file.path)
     const curr_file_key = crypto.createHash('md5').update(curr_file.path).digest('hex');
@@ -521,10 +522,15 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
     // return early if path_only
     if(path_only) {
-      await this.get_embeddings(curr_file_key, file_embed_input, {
+      // await this.get_embeddings(curr_file_key, file_embed_input, {
+      //   mtime: curr_file.stat.mtime,
+      //   path: curr_file.path,
+      // });
+      req_batch.push([curr_file_key, file_embed_input, {
         mtime: curr_file.stat.mtime,
         path: curr_file.path,
-      });
+      }]);
+      await this.get_embeddings_batch(req_batch);
       return;
     }
 
@@ -568,15 +574,38 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         }
         // get embeddings for block 
         // add block_embeddings to embeddings
-        batch_promises.push(this.get_embeddings(block_key, block_embed_input, {
+        // batch_promises.push(this.get_embeddings(block_key, block_embed_input, {
+        //   mtime: curr_file.stat.mtime, 
+        //   hash: block_hash, 
+        //   file: curr_file_key,
+        //   path: note_sections[j].path,
+        // }));
+        // if(batch_promises.length > 4) {
+        //   await Promise.all(batch_promises);
+        //   processed_since_last_save += batch_promises.length;
+        //   // log embedding
+        //   // console.log("embedding: " + curr_file.path);
+        //   if (processed_since_last_save >= 30) {
+        //     // write embeddings JSON to file
+        //     await this.save_embeddings_to_file();
+        //     // reset processed_since_last_save
+        //     processed_since_last_save = 0;
+        //   }
+        //   // reset batch_promises
+        //   batch_promises = [];
+        // }
+
+        // create req_batch for batching requests
+        req_batch.push([block_key, block_embed_input, {
           mtime: curr_file.stat.mtime, 
           hash: block_hash, 
           file: curr_file_key,
           path: note_sections[j].path,
-        }));
-        if(batch_promises.length > 4) {
-          await Promise.all(batch_promises);
-          processed_since_last_save += batch_promises.length;
+        }]);
+        if(req_batch.length > 9) {
+          // add batch to batch_promises
+          await this.get_embeddings_batch(req_batch);
+          processed_since_last_save += req_batch.length;
           // log embedding
           // console.log("embedding: " + curr_file.path);
           if (processed_since_last_save >= 30) {
@@ -585,8 +614,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
             // reset processed_since_last_save
             processed_since_last_save = 0;
           }
-          // reset batch_promises
-          batch_promises = [];
+          // reset req_batch
+          req_batch = [];
         }
       }
     }
@@ -600,7 +629,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     /**
      * TODO: improve/refactor the following "large file reduce to headings" logic
      */
-    if(note_contents.length < 32000) {
+    if(note_contents.length < MAX_EMBED_STRING_LENGTH) {
       file_embed_input += note_contents
     }else{ 
       const note_meta_cache = this.app.metadataCache.getFileCache(curr_file);
@@ -669,7 +698,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       if(has_blocks && (blocks.length > 0)) {
         meta.blocks = blocks;
       }
-      batch_promises.push(this.get_embeddings(curr_file_key, file_embed_input, meta));
+      // batch_promises.push(this.get_embeddings(curr_file_key, file_embed_input, meta));
+      req_batch.push([curr_file_key, file_embed_input, meta]);
     }else{
       if(has_blocks && (blocks.length > 0)) {
         // multiply by 2 because implies we saved token spending on blocks(sections), too
@@ -682,12 +712,19 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // console.log("skipping cached file");
     }
     // if batch_promises is empty then return
-    if(batch_promises.length === 0) {
-      return;
-    }
+    // if(batch_promises.length === 0) {
+    //   return;
+    // }
 
     // wait for all promises to resolve
-    await Promise.all(batch_promises);
+    // await Promise.all(batch_promises);
+
+    if(req_batch.length === 0) {
+      return;
+    }
+    // send batch request
+    await this.get_embeddings_batch(req_batch);
+
     // log embedding
     // console.log("embedding: " + curr_file.path);
     if (save) {
@@ -725,6 +762,49 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       }
     }
   }
+
+  async get_embeddings_batch(req_batch) {
+    // if req_batch is empty then return
+    if(req_batch.length === 0) return;
+    // create arrary of embed_inputs from req_batch[i][1]
+    const embed_inputs = req_batch.map((req) => req[1]);
+    // request embeddings from embed_inputs
+    const requestResults = await this.request_embedding_from_input(embed_inputs);
+    // if requestResults is null then return
+    if(!requestResults) {
+      console.log("failed embedding batch");
+      // log failed file names to render_log
+      this.render_log.failed_embeddings = [...this.render_log.failed_embeddings, ...req_batch.map((req) => req[2].path)];
+      return;
+    }
+    // if requestResults is not null
+    if(requestResults){
+      // add embedding key to render_log
+      if(this.settings.log_render){
+        if(this.settings.log_render_files){
+          this.render_log.files = [...this.render_log.files, ...req_batch.map((req) => req[2].path)];
+        }
+        this.render_log.new_embeddings += req_batch.length;
+        // add token usage to render_log
+        this.render_log.token_usage += requestResults.usage.total_tokens;
+      }
+      // console.log(requestResults.data.length);
+      // loop through requestResults.data
+      for(let i = 0; i < requestResults.data.length; i++) {
+        const vec = requestResults.data[i].embedding;
+        const index = requestResults.data[i].index;
+        if(vec) {
+          const key = req_batch[index][0];
+          const meta = req_batch[index][2];
+          this.embeddings[key] = {};
+          this.embeddings[key].vec = vec;
+          this.embeddings[key].meta = meta;
+          // this.embeddings[key].meta.tokens = requestResults.usage.total_tokens;
+        }
+      }
+    }
+  }
+
   
   // md5 hash of embed_input using built in crypto module
   get_embed_hash(embed_input) {
@@ -743,10 +823,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // (FOR TESTING) test fail process by forcing fail
     // return null;
     // check if embed_input is a string
-    if(typeof embed_input !== "string") {
-      console.log("embed_input is not a string");
-      return null;
-    }
+    // if(typeof embed_input !== "string") {
+    //   console.log("embed_input is not a string");
+    //   return null;
+    // }
     // check if embed_input is empty
     if(embed_input.length === 0) {
       console.log("embed_input is empty");
@@ -784,6 +864,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       console.log(resp);
       // console.log("first line of embed: " + embed_input.substring(0, embed_input.indexOf("\n")));
       // console.log("embed input length: "+ embed_input.length);
+      // if(Array.isArray(embed_input)) {
+      //   console.log(embed_input.map((input) => input.length));
+      // }
       // console.log("erroneous embed input: " + embed_input);
       console.log(error);
       // console.log(usedParams);
@@ -958,7 +1041,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // remove .md file extension and convert file_path to breadcrumb formatting
     const file_breadcrumbs = file_path.replace('.md', '').replace(/\//g, ' > ');
     // initialize the block string
-    let block = file_breadcrumbs;
+    let block = '';
     let block_headings = '';
     let block_path = file_path;
 
@@ -978,6 +1061,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         if(line === '- [ ] ') continue;
         // skip if line is empty bullet
         if(line === '- ') continue;
+        // if currentHeaders is empty skip (only blocks with headers, otherwise block.path conflicts with file.path)
+        if(currentHeaders.length === 0) continue;
         // add line to block
         block += "\n" + line;
         continue;
@@ -1011,6 +1096,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     function output_block() {
       // breadcrumbs length (first line of block)
       const breadcrumbs_length = block.indexOf("\n") + 1;
+      // console.log(breadcrumbs_length);
       // skip if block length is less than N characters
       if((block.length - breadcrumbs_length) < 50) {
         return;
