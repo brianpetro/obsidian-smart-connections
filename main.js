@@ -164,6 +164,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   async get_all_embeddings() {
     // get all files in vault
     const files = await this.app.vault.getMarkdownFiles();
+    // get open files to skip if file is currently open
+    const open_files = this.app.workspace.getLeavesOfType("markdown").map((leaf) => leaf.view.file);
     this.render_log.total_files = files.length;
     this.clean_up_embeddings(files);
     // batch embeddings
@@ -200,6 +202,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       }
       if(skip) {
         continue; // to next file
+      }
+      // check if file is open
+      if(open_files.indexOf(files[i]) > -1) {
+        // console.log("skipping file (open)");
+        continue;
       }
       try {
         // push promise to batch_promises
