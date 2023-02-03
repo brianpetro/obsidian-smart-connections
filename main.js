@@ -953,14 +953,14 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     const lines = markdown.split('\n');
     // initialize the blocks array
     const blocks = [];
-    // initialize the block string
-    let block = '';
-    let block_headings = '';
-    let block_path = file_path;
     // current headers array
     let currentHeaders = [];
-    // remode .md file extension and convert file_path to breadcrumb formatting
+    // remove .md file extension and convert file_path to breadcrumb formatting
     const file_breadcrumbs = file_path.replace('.md', '').replace(/\//g, ' > ');
+    // initialize the block string
+    let block = file_breadcrumbs;
+    let block_headings = '';
+    let block_path = file_path;
 
     let last_heading_line = 0;
     let i = 0;
@@ -972,6 +972,13 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // or if line starts with # and second character is a word or number indicating a "tag"
       // then add to block
       if (!line.startsWith('#') || (['#',' '].indexOf(line[1]) < 0)){
+        // skip if line is empty
+        if(line === '') continue;
+        // skip if line is empty checkbox
+        if(line === '- [ ] ') continue;
+        // skip if line is empty bullet
+        if(line === '- ') continue;
+        // add line to block
         block += "\n" + line;
         continue;
       }
@@ -981,7 +988,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
        */
       last_heading_line = i;
       // push the current block to the blocks array unless last line was a also a header
-      if(i > 0 && (last_heading_line !== (i-1)) && this.validate_headings(block_headings)) {
+      if(i > 0 && (last_heading_line !== (i-1)) && (block.indexOf("\n") > -1) && this.validate_headings(block_headings)) {
         output_block();
       }
       // get the header level
@@ -998,14 +1005,17 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       block_path = file_path + block_headings;
     }
     // handle remaining after loop
-    if((last_heading_line !== (i-1)) && this.validate_headings(block_headings)) output_block();
+    if((last_heading_line !== (i-1)) && (block.indexOf("\n") > -1) && this.validate_headings(block_headings)) output_block();
     return blocks;
 
     function output_block() {
+      // breadcrumbs length (first line of block)
+      const breadcrumbs_length = block.indexOf("\n") + 1;
       // skip if block length is less than N characters
-      if(block.length < 100) {
+      if((block.length - breadcrumbs_length) < 50) {
         return;
       }
+      // console.log(block);
       // trim block to max length
       if (block.length > MAX_EMBED_STRING_LENGTH) {
         block = block.substring(0, MAX_EMBED_STRING_LENGTH);
