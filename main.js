@@ -965,9 +965,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       nearest = this.nearest_cache[curr_key];
       // console.log("nearest from cache");
     }else{
-      // get all embeddings
-      await this.get_all_embeddings();
-      // console.log("got all embeddings");
       // skip files where path contains any exclusions
       for(let j = 0; j < this.file_exclusions.length; j++) {
         if(current_note.path.indexOf(this.file_exclusions[j]) > -1) {
@@ -976,6 +973,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           return "excluded";
         }
       }
+      // get all embeddings
+      await this.get_all_embeddings();
       // get from cache if mtime is same and values are not empty
       let current_note_embedding_vec = [];
       if (!this.embeddings[curr_key] 
