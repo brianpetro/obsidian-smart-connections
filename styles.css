@@ -50,3 +50,13 @@
 .sc-list > div > ul > li {
   display: block;
 }
+
+.sc-top-bar button {
+  position: fixed;
+  right: 1.33em;
+  top: 1.33em;
+}
+.sc-top-bar .search-input-container {
+  width: calc(100% - var(--size-4-8));
+  margin: 4px auto;
+}
