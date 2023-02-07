@@ -29,9 +29,9 @@ Currently taking requests for which external content you would like connected. P
 - The cost of the initial processing is proportional to the number of notes in your vault. Without any exclusions configured in the settings, the amount of tokens used in the initial processing is approximately 2X the total number of "tokens" in your entire vault. A rough calculation for this is `the total number of characters in the vault` divided by `2`. For example, if your vault contains 100,000 characters, then the initial processing will cost approximately 50,000 tokens. The current token cost is $0.0004 per 1,000 tokens (as of [2021-08-01](https://openai.com/api/pricing/)) which is estimated to be ~$1 USD for 3,000 pages (assuming 800 tokens per page).
 
 ## Features
-- Highlight to find Smart Connections
-	- Highlighted text will be used to find Smart Connections when you run the "Find Smart Connections" command
 - Smart Connections View
+	- Notes with multiple matching blocks can be expanded to show the matching blocks.
+	- Search feature that uses embeddings to search for notes in your vault.
 	- You can click on a note to open it in the current pane or hold down the `ctrl` or `cmd` to open it in a new pane.
 	- To preview the notes in the Smart Connections Pane, you can hold down the `ctrl` or `cmd` key to preview the note while hovering over it.
 	- You can drag and drop a link from the to become a link in your note or open it as a new tab.
@@ -39,6 +39,10 @@ Currently taking requests for which external content you would like connected. P
 	- Smart Connections plugin will use 'blocks' of text in your notes to find the most relevant connections.
 	- Currently, a 'block' is a section of text that is separated by a heading. 
 		- For example, if you have a note that contains the following text: `# Header 1\nThis is a block of text.\n# Header 2\nThis is another block of text`, then the plugin will search for similar blocks of text in addition to making smart connections with similar files.
+- Highlight to find Smart Connections
+	- Highlighted text will be used to find Smart Connections when you run the "Find Smart Connections" command
+
+![](./search-feature.png)
 
 ## Limitations
 - The plugin is currently a desktop-only plugin.
