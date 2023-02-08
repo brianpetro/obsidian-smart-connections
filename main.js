@@ -20,6 +20,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   // constructor
   constructor() {
     super(...arguments);
+    this.api = null;
     this.embeddings = null;
     this.embeddings_external = null;
     this.file_exclusions = [];
@@ -124,6 +125,31 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // initialize when layout is ready
     this.app.workspace.onLayoutReady(this.initialize.bind(this));
 
+    /**
+     * EXPERIMENTAL
+     * - window-based API access
+     * - code-block rendering
+     */
+    this.api = new SmartConnectionsApi(this.app, this);
+    // register API to global window object
+    (window["SmartConnectionsApi"] = this.api) && this.register(() => delete window["SmartConnectionsApi"]);
+
+    // code-block renderer
+    this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this));
+
+  }
+  async render_code_block (contents, container, component) {
+    const nearest = await this.api.search(contents);
+    if (nearest.length) {
+      const list = container.createEl("ul");
+      list.addClass("smart-connections-list");
+      for (const item of nearest) {
+        const el = list.createEl("li", {
+          cls: "smart-connections-item",
+          text: item.link
+        });
+      }
+    }
   }
 
   async make_connections(selected_text=null) {
@@ -188,6 +214,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       if(this.settings.failed_files.indexOf(files[i].path) > -1) {
         // log skipping file
         console.log("skipping previously failed file, use button in settings to retry");
+        Obsidian.Notice("Skipping previously failed file, use button in settings to retry");
         continue;
       }
       // skip files where path contains any exclusions
@@ -1430,9 +1457,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
         file_link_text = file[0].link.split("/").pop();
       }
       // remove file extension if .md
-      if (file_link_text.indexOf(".md") > -1) {
-        file_link_text = file_link_text.replace(/\.md$/, ""); // remove .md if at end of string
-      }
+      file_link_text = file_link_text.replace(".md", "").replace(/#/g, " > ");
       // if file has multiple links, insert collapsible list toggle button
       if (file.length > 1) {
         const item = list.createEl("div", { cls: "search-result sc-collapsed" });
@@ -1468,7 +1493,8 @@ class SmartConnectionsView extends Obsidian.ItemView {
             cls: "tree-item-self search-result-file-title is-clickable",
             title: block.link,
           });
-          block_link.innerHTML = block.link.split("#").pop();
+          const block_context = this.render_block_context(block);
+          block_link.innerHTML = `<small>${block_context}</small>`;
           const block_container = block_link.createEl("div");
           // TODO: move to rendering on expanding section (toggle collapsed)
           Obsidian.MarkdownRenderer.renderMarkdown((await this.plugin.block_retriever(block.link, 10)), block_container, block.link, void 0);
@@ -1486,6 +1512,28 @@ class SmartConnectionsView extends Obsidian.ItemView {
         this.add_link_listeners(file_link, file[0], item);
       }
     }
+  }
+
+  render_block_context(block) {
+    const block_headings = block.link.split(".md")[1].split("#");
+    // starting with the last heading first, iterate through headings
+    let block_context = "";
+    for (let i = block_headings.length - 1; i >= 0; i--) {
+      if(block_context.length > 0) {
+        block_context = ` > ${block_context}`;
+      }
+      block_context = block_headings[i] + block_context;
+      // if block context is longer than N characters, break
+      if (block_context.length > 100) {
+        break;
+      }
+    }
+    // remove leading > if exists
+    if (block_context.startsWith(" > ")) {
+      block_context = block_context.slice(3);
+    }
+    return block_context;
+
   }
 
   initiate_top_bar(container, nearest_context) {
@@ -1548,11 +1596,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
             this.search(search_term, true);
           }, 700);
         }
-        // if escape key is pressed
-        else if (event.key === "Escape") {
-        }
-      }
-      );
+      });
     });
   }
 
@@ -1708,17 +1752,10 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
 
   async search(search_text, results_only=false) {
-    const resp = await this.plugin.request_embedding_from_input(search_text);
-    if (resp && resp.data && resp.data[0] && resp.data[0].embedding) {
-      let nearest = this.plugin.find_nearest_embedding(resp.data[0].embedding);
-      // render results in view with first 100 characters of highlighted text
-      // truncate highlighted text to 100 characters
-      const nearest_context = `Selection: "${search_text.length > 100 ? search_text.substring(0, 100) + "..." : search_text}"`;
-      this.set_nearest(nearest, nearest_context, results_only);
-    } else {
-      // resp is null, undefined, or missing data
-      new Obsidian.Notice("Error getting embedding");
-    }
+    const nearest = await this.plugin.api.search(search_text);
+    // render results in view with first 100 characters of search text
+    const nearest_context = `Selection: "${search_text.length > 100 ? search_text.substring(0, 100) + "..." : search_text}"`;
+    this.set_nearest(nearest, nearest_context, results_only);
   }
 
   async load_embeddings_file(retries=0) {
@@ -1775,6 +1812,25 @@ class SmartConnectionsView extends Obsidian.ItemView {
       }
       console.log("loaded embeddings-external-2.json");
     }
+  }
+
+}
+
+class SmartConnectionsApi {
+  constructor(app, plugin) {
+    this.app = app;
+    this.plugin = plugin;
+  }
+  async search (search_text) {
+    let nearest = [];
+    const resp = await this.plugin.request_embedding_from_input(search_text);
+    if (resp && resp.data && resp.data[0] && resp.data[0].embedding) {
+      nearest = this.plugin.find_nearest_embedding(resp.data[0].embedding);
+    } else {
+      // resp is null, undefined, or missing data
+      new Obsidian.Notice("Error getting embedding");
+    }
+    return nearest;
   }
 
 }
