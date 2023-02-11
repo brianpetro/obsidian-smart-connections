@@ -215,7 +215,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       if(this.settings.failed_files.indexOf(files[i].path) > -1) {
         // log skipping file
         console.log("skipping previously failed file, use button in settings to retry");
-        Obsidian.Notice("Smart Connections: Skipping previously failed file, use button in settings to retry");
+        new Obsidian.Notice("Smart Connections: Skipping previously failed file, use button in settings to retry");
         continue;
       }
       // skip files where path contains any exclusions
