@@ -214,7 +214,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       if(this.settings.failed_files.indexOf(files[i].path) > -1) {
         // log skipping file
         console.log("skipping previously failed file, use button in settings to retry");
-        Obsidian.Notice("Skipping previously failed file, use button in settings to retry");
+        Obsidian.Notice("Smart Connections: Skipping previously failed file, use button in settings to retry");
         continue;
       }
       // skip files where path contains any exclusions
@@ -1828,7 +1828,7 @@ class SmartConnectionsApi {
       nearest = this.plugin.find_nearest_embedding(resp.data[0].embedding);
     } else {
       // resp is null, undefined, or missing data
-      new Obsidian.Notice("Error getting embedding");
+      new Obsidian.Notice("Smart Connections: Error getting embedding");
     }
     return nearest;
   }
@@ -1857,9 +1857,9 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       // test API key
       const resp = await this.plugin.test_api_key();
       if(resp) {
-        new Obsidian.Notice("API key is valid");
+        new Obsidian.Notice("Smart Connections: API key is valid");
       }else{
-        new Obsidian.Notice("API key is not working as expected!");
+        new Obsidian.Notice("Smart Connections: API key is not working as expected!");
       }
     }));
     containerEl.createEl("h2", {
