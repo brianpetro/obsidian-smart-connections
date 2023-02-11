@@ -33,6 +33,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.render_log.failed_embeddings = [];
     this.render_log.files = [];
     this.render_log.new_embeddings = 0;
+    this.render_log.skipped_low_delta = {};
     this.render_log.token_usage = 0;
     this.render_log.tokens_saved_by_cache = 0;
   }
@@ -588,12 +589,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         // console.log(note_sections[j].path);
         // get block key from block.path (contains both file.path and header path)
         const block_key = crypto.createHash('md5').update(note_sections[j].path).digest('hex');
+        blocks.push(block_key);
         let block_hash; // set hash of block_embed_input in correct scope
         if (this.embeddings[block_key] && this.embeddings[block_key].meta) {
+          // add hash to blocks to prevent empty blocks triggering full-file embedding
           // skip if embeddings key already exists and block mtime is greater than or equal to file mtime
           if (this.embeddings[block_key].meta.mtime >= curr_file.stat.mtime) {
-            // add hash to blocks to prevent empty blocks triggering full-file embedding
-            blocks.push(block_key);
             // log skipping file
             // console.log("skipping block (mtime)");
             continue;
@@ -654,54 +655,79 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         }
       }
     }
+    // if req_batch is not empty
+    if(req_batch.length > 0) {
+      // process remaining req_batch
+      await this.get_embeddings_batch(req_batch);
+      req_batch = [];
+      processed_since_last_save += req_batch.length;
+    }
     
     /**
      * BEGIN File "full note" embedding
      */
+    let skip = false;
+    // get current note file size
+    const curr_file_size = curr_file.stat.size;
+    // get file size from this.embeddings
+    let prev_file_size = 0;
+    if (this.embeddings[curr_file_key] && this.embeddings[curr_file_key].meta && this.embeddings[curr_file_key].meta.size) {
+      prev_file_size = this.embeddings[curr_file_key].meta.size;
+      // if curr file size is less than 10% different from prev file size
+      const file_delta_pct = Math.round((Math.abs(curr_file_size - prev_file_size) / curr_file_size) * 100);
+      if(file_delta_pct < 10) {
+        // skip embedding
+        // console.log("skipping file (size) " + curr_file.path);
+        this.render_log.skipped_low_delta[curr_file.name] = file_delta_pct + "%";
+        skip = true;
+      }
+    }
+
     // if file length is less than ~8000 tokens use full file contents
     // else if file length is greater than 8000 tokens build file_embed_input from file headings
     file_embed_input += `:\n`;
     /**
      * TODO: improve/refactor the following "large file reduce to headings" logic
      */
-    if(note_contents.length < MAX_EMBED_STRING_LENGTH) {
-      file_embed_input += note_contents
-    }else{ 
-      const note_meta_cache = this.app.metadataCache.getFileCache(curr_file);
-      // for each heading in file
-      if(typeof note_meta_cache.headings === "undefined") {
-        // console.log("no headings found, using first chunk of file instead");
-        file_embed_input += note_contents.substring(0, MAX_EMBED_STRING_LENGTH);
-        // console.log("chuck len: " + file_embed_input.length);
-      }else{
-        let note_headings = "";
-        for (let j = 0; j < note_meta_cache.headings.length; j++) {
-          // get heading level
-          const heading_level = note_meta_cache.headings[j].level;
-          // get heading text
-          const heading_text = note_meta_cache.headings[j].heading;
-          // build markdown heading
-          let md_heading = "";
-          for (let k = 0; k < heading_level; k++) {
-            md_heading += "#";
+    if(!skip){
+      if(note_contents.length < MAX_EMBED_STRING_LENGTH) {
+        file_embed_input += note_contents
+      }else{ 
+        const note_meta_cache = this.app.metadataCache.getFileCache(curr_file);
+        // for each heading in file
+        if(typeof note_meta_cache.headings === "undefined") {
+          // console.log("no headings found, using first chunk of file instead");
+          file_embed_input += note_contents.substring(0, MAX_EMBED_STRING_LENGTH);
+          // console.log("chuck len: " + file_embed_input.length);
+        }else{
+          let note_headings = "";
+          for (let j = 0; j < note_meta_cache.headings.length; j++) {
+            // get heading level
+            const heading_level = note_meta_cache.headings[j].level;
+            // get heading text
+            const heading_text = note_meta_cache.headings[j].heading;
+            // build markdown heading
+            let md_heading = "";
+            for (let k = 0; k < heading_level; k++) {
+              md_heading += "#";
+            }
+            // add heading to note_headings
+            note_headings += `${md_heading} ${heading_text}\n`;
           }
-          // add heading to note_headings
-          note_headings += `${md_heading} ${heading_text}\n`;
-        }
-        //console.log(note_headings);
-        file_embed_input += note_headings
-        if(file_embed_input.length > MAX_EMBED_STRING_LENGTH) {
-          file_embed_input = file_embed_input.substring(0, MAX_EMBED_STRING_LENGTH);
+          //console.log(note_headings);
+          file_embed_input += note_headings
+          if(file_embed_input.length > MAX_EMBED_STRING_LENGTH) {
+            file_embed_input = file_embed_input.substring(0, MAX_EMBED_STRING_LENGTH);
+          }
         }
       }
     }
 
     // skip embedding full file if blocks is not empty and all hashes are present in this.embeddings
     // better than hashing file_embed_input because more resilient to inconsequential changes (whitespace between headings)
-    let skip = false;
     let file_hash = this.get_embed_hash(file_embed_input);
     const existing_hash = (this.embeddings[curr_file_key] && this.embeddings[curr_file_key].meta) ? this.embeddings[curr_file_key].meta.hash : null;
-    if(existing_hash) {
+    if(!skip && existing_hash) {
       if(file_hash === existing_hash) {
         skip = true;
       }
@@ -712,8 +738,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // if blocks is equal to existing_blocks
       if(blocks.length === existing_blocks.length) {
         skip = true;
-        // TODO remove this TEMP ONLY sort to that's implemented in to facilitate migration without significant re-embedding
-        blocks.sort(); 
         for(let j = 0; j < blocks.length; j++) {
           // triggers re-embedding if blocks were re-ordered
           if(blocks[j] !== existing_blocks[j]) {
@@ -979,6 +1003,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.render_log.failed_embeddings = [];
     this.render_log.files = [];
     this.render_log.new_embeddings = 0;
+    this.render_log.skipped_low_delta = {};
     this.render_log.token_usage = 0;
     this.render_log.tokens_saved_by_cache = 0;
   }
@@ -1452,7 +1477,8 @@ class SmartConnectionsView extends Obsidian.ItemView {
         const pcs = file[0].link.split("/");
         file_link_text = pcs[pcs.length - 1];
         const path = pcs.slice(0, pcs.length - 1).join("/");
-        file_link_text = `<small>${path}</small><br>${file_link_text}`;
+        const file_similarity_pct = Math.round(file[0].similarity * 100) + "%";
+        file_link_text = `<small>${path} | ${file_similarity_pct}</small><br>${file_link_text}`;
       } else {
         file_link_text = file[0].link.split("/").pop();
       }
@@ -1494,7 +1520,8 @@ class SmartConnectionsView extends Obsidian.ItemView {
             title: block.link,
           });
           const block_context = this.render_block_context(block);
-          block_link.innerHTML = `<small>${block_context}</small>`;
+          const block_similarity_pct = Math.round(block.similarity * 100) + "%";
+          block_link.innerHTML = `<small>${block_context} | ${block_similarity_pct}</small>`;
           const block_container = block_link.createEl("div");
           // TODO: move to rendering on expanding section (toggle collapsed)
           Obsidian.MarkdownRenderer.renderMarkdown((await this.plugin.block_retriever(block.link, 10)), block_container, block.link, void 0);
