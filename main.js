@@ -126,14 +126,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // initialize when layout is ready
     this.app.workspace.onLayoutReady(this.initialize.bind(this));
 
-    /**
-     * EXPERIMENTAL
-     * - window-based API access
-     * - code-block rendering
-     */
-    this.api = new SmartConnectionsApi(this.app, this);
-    // register API to global window object
-    (window["SmartConnectionsApi"] = this.api) && this.register(() => delete window["SmartConnectionsApi"]);
 
     // code-block renderer
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this));
@@ -1679,6 +1671,16 @@ class SmartConnectionsView extends Obsidian.ItemView {
     this.addIcon();
     await this.load_embeddings_file();
     await this.render_note_connections();
+
+    /**
+     * EXPERIMENTAL
+     * - window-based API access
+     * - code-block rendering
+     */
+    this.plugin.api = new SmartConnectionsApi(this.app, this.plugin, this);
+    // register API to global window object
+    (window["SmartConnectionsApi"] = this.plugin.api) && this.register(() => delete window["SmartConnectionsApi"]);
+
   }
 
   async onClose() {
@@ -1787,32 +1789,34 @@ class SmartConnectionsView extends Obsidian.ItemView {
         throw new Error("Error: Prompting user to create a new embeddings file or retry.");
       }
     }
-    // if embeddings-external.json exists then load it
-    // separate object to prevent double-saving to embeddings-2.json
-    if(await this.app.vault.adapter.exists(".smart-connections/embeddings-external.json")) {
-      const embeddings_file = await this.app.vault.adapter.read(".smart-connections/embeddings-external.json");
-      this.plugin.embeddings_external = JSON.parse(embeddings_file).embeddings;
-      console.log("loaded embeddings-external.json");
-    }
-    // if embeddings-external-2.json exists then load it
-    if(await this.app.vault.adapter.exists(".smart-connections/embeddings-external-2.json")) {
-      const embeddings_file = await this.app.vault.adapter.read(".smart-connections/embeddings-external-2.json");
-      // merge with existing embeddings_external if it exists
-      if(this.plugin.embeddings_external) {
-        this.plugin.embeddings_external = [...this.plugin.embeddings_external, ...JSON.parse(embeddings_file).embeddings];
-      }else{
-        this.plugin.embeddings_external = JSON.parse(embeddings_file).embeddings;
+    // if embeddings-external-X.json exists then load it
+    const files_list = await this.app.vault.adapter.list(".smart-connections");
+    console.log(files_list);
+    if(files_list.files){
+      console.log("loading external embeddings");
+      // get all embeddings-external-X.json files
+      const external_files = files_list.files.filter(file => file.indexOf("embeddings-external") !== -1);
+      for(let i = 0; i < external_files.length; i++) {
+        const embeddings_file = await this.app.vault.adapter.read(external_files[i]);
+        // merge with existing embeddings_external if it exists
+        if(this.plugin.embeddings_external) {
+          this.plugin.embeddings_external = [...this.plugin.embeddings_external, ...JSON.parse(embeddings_file).embeddings];
+        }else{
+          this.plugin.embeddings_external = JSON.parse(embeddings_file).embeddings;
+        }
+        console.log("loaded "+external_files[i]);
       }
-      console.log("loaded embeddings-external-2.json");
     }
+
   }
 
 }
 
 class SmartConnectionsApi {
-  constructor(app, plugin) {
+  constructor(app, plugin, view) {
     this.app = app;
     this.plugin = plugin;
+    this.view = view;
   }
   async search (search_text) {
     let nearest = [];
@@ -1825,7 +1829,12 @@ class SmartConnectionsApi {
     }
     return nearest;
   }
-
+  // trigger reload of embeddings file
+  async reload_embeddings_file() {
+    await this.view.load_embeddings_file();
+    await this.view.render_note_connections();
+  }
+  
 }
 
 class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
