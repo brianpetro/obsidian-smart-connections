@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS = {
   header_exclusions: "",
   path_only: "",
   show_full_path: false,
+  expanded_view: true,
   log_render: false,
   log_render_files: false,
   skip_sections: false,
@@ -1425,6 +1426,10 @@ class SmartConnectionsView extends Obsidian.ItemView {
       // create list element
       list = container.createEl("div", { cls: "sc-list" });
     }
+    let search_result_class = "search-result";
+    // if settings expanded_view is false, add sc-collapsed class
+    if(!this.plugin.settings.expanded_view) search_result_class += " sc-collapsed";
+
     // group nearest by file
     const nearest_by_file = {};
     for (let i = 0; i < nearest.length; i++) {
@@ -1476,14 +1481,16 @@ class SmartConnectionsView extends Obsidian.ItemView {
        * Handles Internal
        */
       let file_link_text;
+      const file_similarity_pct = Math.round(file[0].similarity * 100) + "%";
       if (this.plugin.settings.show_full_path) {
         const pcs = file[0].link.split("/");
         file_link_text = pcs[pcs.length - 1];
         const path = pcs.slice(0, pcs.length - 1).join("/");
-        const file_similarity_pct = Math.round(file[0].similarity * 100) + "%";
         file_link_text = `<small>${path} | ${file_similarity_pct}</small><br>${file_link_text}`;
       } else {
         file_link_text = file[0].link.split("/").pop();
+        // add similarity percentage
+        file_link_text += ' | ' + file_similarity_pct;
       }
 
 
@@ -1505,8 +1512,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
 
       // remove file extension if .md
       file_link_text = file_link_text.replace(".md", "").replace(/#/g, " > ");
-      // const item = list.createEl("div", { cls: "search-result sc-collapsed" });
-      const item = list.createEl("div", { cls: "search-result" });
+      const item = list.createEl("div", { cls: search_result_class });
       const toggle = item.createEl("span", { cls: "tree-item-self is-clickable" });
       // insert right triangle svg icon as toggle button in span
       Obsidian.setIcon(toggle, "right-triangle"); // must come before adding other elms else overwrites
@@ -1834,32 +1840,6 @@ class SmartConnectionsView extends Obsidian.ItemView {
     /** 
      * Begin file-level search
      */    
-    // if file is not tfile then get active file
-    // let file = context;
-    // if(!(file instanceof Obsidian.TFile)) {
-    //   // get current note
-    //   file = await this.app.workspace.getActiveFile();
-    //   // if still no current note then return
-    //   if(!file) {
-    //     return this.set_message("No active file");
-    //   }
-    // }
-    // // console.log("rendering connections for file: "+file.name);
-    // const nearest = await this.plugin.find_note_connections(file);
-    // // if nearest is a string then update view message
-    // if (typeof nearest === "string") {
-    //   this.set_message(nearest);
-    // } else {
-    //   // set nearest connections
-    //   this.set_nearest(nearest, "File: " + file.name);
-    // }
-
-    // // if render_log.failed_embeddings then update failed_embeddings.txt
-    // if (this.plugin.render_log.failed_embeddings.length > 0) {
-    //   await this.plugin.save_failed_embeddings();
-    // }
-    // // get object keys of render_log
-    // this.plugin.output_render_log();
     this.nearest = null;
     this.interval_count = 0;
     this.rendering = false;
@@ -2068,6 +2048,11 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     // toggle showing full path in view
     new Obsidian.Setting(containerEl).setName("show_full_path").setDesc("Show full path in view.").addToggle((toggle) => toggle.setValue(this.plugin.settings.show_full_path).onChange(async (value) => {
       this.plugin.settings.show_full_path = value;
+      await this.plugin.saveSettings(true);
+    }));
+    // toggle expanded view by default
+    new Obsidian.Setting(containerEl).setName("expanded_view").setDesc("Expanded view by default.").addToggle((toggle) => toggle.setValue(this.plugin.settings.expanded_view).onChange(async (value) => {
+      this.plugin.settings.expanded_view = value;
       await this.plugin.saveSettings(true);
     }));
     containerEl.createEl("h2", {
