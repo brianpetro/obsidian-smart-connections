@@ -12,7 +12,7 @@ const DEFAULT_SETTINGS = {
   log_render: false,
   log_render_files: false,
   skip_sections: false,
-  results_count: 50,
+  results_count: 30,
 };
 const MAX_EMBED_STRING_LENGTH = 25000;
 
@@ -126,6 +126,14 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // initialize when layout is ready
     this.app.workspace.onLayoutReady(this.initialize.bind(this));
 
+    // /**
+    //  * EXPERIMENTAL
+    //  * - window-based API access
+    //  * - code-block rendering
+    //  */
+    // this.api = new SmartConnectionsApi(this.app, this);
+    // // register API to global window object
+    // (window["SmartConnectionsApi"] = this.api) && this.register(() => delete window["SmartConnectionsApi"]);
 
     // code-block renderer
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this));
@@ -152,7 +160,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       await this.open_view();
       view = this.get_view();
     }
-    await view.render_note_connections(selected_text);
+    await view.render_connections(selected_text);
   }
 
   async initialize() {
@@ -1066,19 +1074,27 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     let last_heading_line = 0;
     let i = 0;
     // loop through the lines
+    let is_code = false;
     for (i = 0; i < lines.length; i++) {
       // get the line
       const line = lines[i];
+      // if line begins with three backticks then toggle is_code
+      if(line.indexOf('```') === 0) {
+        is_code = !is_code;
+      }
+      // if is_code is true then add line with preceding tab and continue
+      if(is_code) {
+        block += "\n\t" + line;
+        continue;
+      }
       // if line does not start with #
       // or if line starts with # and second character is a word or number indicating a "tag"
       // then add to block
       if (!line.startsWith('#') || (['#',' '].indexOf(line[1]) < 0)){
         // skip if line is empty
         if(line === '') continue;
-        // skip if line is empty checkbox
-        if(line === '- [ ] ') continue;
-        // skip if line is empty bullet
-        if(line === '- ') continue;
+        // skip if line is empty bullet or checkbox
+        if(['- ', '- [ ] '].indexOf(line) > -1) continue;
         // if currentHeaders is empty skip (only blocks with headers, otherwise block.path conflicts with file.path)
         if(currentHeaders.length === 0) continue;
         // add line to block
@@ -1153,9 +1169,20 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // split the file contents into lines
     const lines = file_contents.split('\n');
     // loop through the lines
+    let is_code = false;
     for (i = 0; i < lines.length; i++) {
       // get the line
       const line = lines[i];
+      // if line begins with three backticks then toggle is_code
+      if(line.indexOf('```') === 0) {
+        is_code = !is_code;
+      }
+      // if is_code is true then add line with preceding tab and continue
+      if(is_code) {
+        continue;
+      }
+      // skip if line is empty bullet or checkbox
+      if(['- ', '- [ ] '].indexOf(line) > -1) continue;
       // if line does not start with #
       // or if line starts with # and second character is a word or number indicating a "tag"
       // then continue to next line
@@ -1184,17 +1211,35 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // if no begin_line then return false
     if (begin_line === 0) return false;
     // iterate through lines starting at begin_line
+    is_code = false;
     for (i = begin_line; i < lines.length; i++) {
       if((typeof limit === "number") && (block.length > limit)){
         block.push("...");
-        break;
+        break; // ends when limit is reached
       }
-      const line = lines[i];
-      if (!line.startsWith('#') || (['#',' '].indexOf(line[1]) < 0)){
-        block.push(line);
+      let line = lines[i];
+      if ((line.indexOf('#') === 0) && (['#',' '].indexOf(line[1]) !== -1)){
+        break; // ends when encountering next header
+      }
+
+      // validate/format
+      // if line is empty, skip
+      if (line.length === 0) continue;
+      // limit length of line to N characters
+      if (line.length > 100) {
+        line = line.slice(0, 100) + "...";
+      }
+      // if line is a code block, skip
+      if (line.startsWith("```")) {
+        is_code = !is_code;
         continue;
       }
-      break; // ends at the next header
+      if (is_code){
+        // add tab to beginning of line
+        line = "\t"+line;
+      }
+      // add line to block
+      block.push(line);
     }
     return block.join("\n").trim();
   }
@@ -1219,6 +1264,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
   constructor(leaf, plugin) {
     super(leaf);
     this.plugin = plugin;
+    this.nearest = null;
   }
   getViewType() {
     return SMART_CONNECTIONS_VIEW_TYPE;
@@ -1353,7 +1399,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     }
   }
 
-  async set_nearest(nearest, nearest_context=null, results_only=false) {
+  set_nearest(nearest, nearest_context=null, results_only=false) {
     // get container element
     const container = this.containerEl.children[1];
     // if results only is false, clear container and initiate top bar
@@ -1363,8 +1409,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
       this.initiate_top_bar(container, nearest_context);
     }
     // update results
-    await this.update_results(container, nearest);
-    this.render_brand(container);
+    this.update_results(container, nearest);
   }
   // create list of nearest notes
   async update_results(container, nearest) {
@@ -1440,53 +1485,12 @@ class SmartConnectionsView extends Obsidian.ItemView {
       } else {
         file_link_text = file[0].link.split("/").pop();
       }
-      // remove file extension if .md
-      file_link_text = file_link_text.replace(".md", "").replace(/#/g, " > ");
-      // if file has multiple links, insert collapsible list toggle button
-      if (file.length > 1) {
-        const item = list.createEl("div", { cls: "search-result sc-collapsed" });
-        const toggle = item.createEl("span", { cls: "tree-item-self is-clickable" });
-        // insert right triangle svg icon as toggle button in span
-        Obsidian.setIcon(toggle, "right-triangle"); // must come before adding other elms else overwrites
-        const file_link = toggle.createEl("a", {
-          cls: "search-result-file-title",
-          title: file[0].link,
-        });
-        file_link.innerHTML = file_link_text;
-        // add link listeners to file link
-        this.add_link_listeners(file_link, file[0], toggle);
-        toggle.addEventListener("click", (event) => {
-          // find parent containing class search-result
-          let parent = event.target;
-          while (!parent.classList.contains("search-result")) {
-            parent = parent.parentElement;
-          }
-          parent.classList.toggle("sc-collapsed");
 
-          // TODO: if block container is empty, render markdown from block retriever
-        });
-        // create list of block links
-        const file_link_list = item.createEl("ul");
-        // for each link in file
-        for (let j = 0; j < file.length; j++) {
-          // skip first link (already added)
-          if (j === 0)
-            continue;
-          const block = file[j];
-          const block_link = file_link_list.createEl("li", {
-            cls: "tree-item-self search-result-file-title is-clickable",
-            title: block.link,
-          });
-          const block_context = this.render_block_context(block);
-          const block_similarity_pct = Math.round(block.similarity * 100) + "%";
-          block_link.innerHTML = `<small>${block_context} | ${block_similarity_pct}</small>`;
-          const block_container = block_link.createEl("div");
-          // TODO: move to rendering on expanding section (toggle collapsed)
-          Obsidian.MarkdownRenderer.renderMarkdown((await this.plugin.block_retriever(block.link, 10)), block_container, block.link, void 0);
-          // add link listeners to block link
-          this.add_link_listeners(block_link, block, file_link_list);
-        }
-      } else {
+
+        
+      // skip contents rendering if incompatible file type
+      // ex. not markdown or contains '.excalidraw'
+      if((file[0].link.indexOf(".md") === -1) || (file[0].link.indexOf(".excalidraw") > -1)) {
         const item = list.createEl("div", { cls: "search-result" });
         const file_link = item.createEl("a", {
           cls: "tree-item-self search-result-file-title is-clickable",
@@ -1495,8 +1499,127 @@ class SmartConnectionsView extends Obsidian.ItemView {
         file_link.innerHTML = file_link_text;
         // add link listeners to file link
         this.add_link_listeners(file_link, file[0], item);
+        continue;
+      }
+
+
+      // remove file extension if .md
+      file_link_text = file_link_text.replace(".md", "").replace(/#/g, " > ");
+      // const item = list.createEl("div", { cls: "search-result sc-collapsed" });
+      const item = list.createEl("div", { cls: "search-result" });
+      const toggle = item.createEl("span", { cls: "tree-item-self is-clickable" });
+      // insert right triangle svg icon as toggle button in span
+      Obsidian.setIcon(toggle, "right-triangle"); // must come before adding other elms else overwrites
+      const file_link = toggle.createEl("a", {
+        cls: "search-result-file-title",
+        title: file[0].link,
+      });
+      file_link.innerHTML = file_link_text;
+      // add link listeners to file link
+      this.add_link_listeners(file_link, file[0], toggle);
+      toggle.addEventListener("click", (event) => {
+        // find parent containing class search-result
+        let parent = event.target;
+        while (!parent.classList.contains("search-result")) {
+          parent = parent.parentElement;
+        }
+        parent.classList.toggle("sc-collapsed");
+        // TODO: if block container is empty, render markdown from block retriever
+      });
+      const file_link_list = item.createEl("ul");
+      // for each link in file
+      for (let j = 0; j < file.length; j++) {
+        // if is a block (has # in link)
+        if(file[j].link.indexOf("#") > -1) {
+          const block = file[j];
+          const block_link = file_link_list.createEl("li", {
+            cls: "tree-item-self search-result-file-title is-clickable",
+            title: block.link,
+          });
+          // skip block context if file.length === 1 because already added
+          if(file.length > 1) {
+            const block_context = this.render_block_context(block);
+            const block_similarity_pct = Math.round(block.similarity * 100) + "%";
+            block_link.innerHTML = `<small>${block_context} | ${block_similarity_pct}</small>`;
+          }
+          const block_container = block_link.createEl("div");
+          // TODO: move to rendering on expanding section (toggle collapsed)
+          Obsidian.MarkdownRenderer.renderMarkdown((await this.plugin.block_retriever(block.link, 10)), block_container, block.link, void 0);
+          // add link listeners to block link
+          this.add_link_listeners(block_link, block, file_link_list);
+        }else{
+          // get first ten lines of file
+          const file_link_list = item.createEl("ul");
+          const block_link = file_link_list.createEl("li", {
+            cls: "tree-item-self search-result-file-title is-clickable",
+            title: file[0].link,
+          });
+          const block_container = block_link.createEl("div");
+          const this_file = this.app.vault.getAbstractFileByPath(file[0].link);
+          // use cachedRead to get the first 10 lines of the file
+          const file_content = await this.app.vault.cachedRead(this_file);
+          const file_lines = file_content.split("\n");
+          let first_ten_lines = [];
+          let is_code = false;
+          for (let i = 0; first_ten_lines.length < 10; i++) {
+            let line = file_lines[i];
+            // if line is undefined, break
+            if (typeof line === 'undefined') break;
+            // if line is empty, skip
+            if (line.length === 0) continue;
+            // limit length of line to N characters
+            if (line.length > 100) {
+              line = line.slice(0, 100) + "...";
+            }
+            // skip if line is empty bullet or checkbox
+            if(['- ', '- [ ] '].indexOf(line) > -1) continue;
+            // if line is a code block, skip
+            if (line.indexOf("```") === 0) {
+              is_code = !is_code;
+              continue;
+            }
+            if (is_code) {
+              // if is code, add tab to beginning of line
+              line = "\t" + line;
+            }
+            // if line is a heading
+            if (line_is_heading(line)) {
+              // look at last line in first_ten_lines to see if it is a heading
+              // note: uses last in first_ten_lines, instead of look ahead in file_lines, because..
+              // ...next line may be excluded from first_ten_lines by previous if statements
+              if((first_ten_lines.length > 0) && line_is_heading(first_ten_lines[first_ten_lines.length - 1])) {
+                // if last line is a heading, remove it
+                first_ten_lines.pop();
+              }
+            }
+            // add line to first_ten_lines
+            first_ten_lines.push(line);
+          }
+          // for each line in first_ten_lines, apply view-specific formatting
+          for(let i = 0; i < first_ten_lines.length; i++) {
+            // if line is a heading
+            if (line_is_heading(first_ten_lines[i])) {
+              // if this is the last line in first_ten_lines
+              if(i === first_ten_lines.length - 1) {
+                // remove the last line if it is a heading
+                first_ten_lines.pop();
+                break;
+              }
+              // remove heading syntax to improve readability in small space
+              first_ten_lines[i] = first_ten_lines[i].replace(/#+/, "");
+              // wrap line in bold and add line break
+              first_ten_lines[i] = `\n**${first_ten_lines[i]}**`;
+            }
+          }
+          // join first ten lines into string
+          first_ten_lines = first_ten_lines.join("\n");
+          Obsidian.MarkdownRenderer.renderMarkdown(first_ten_lines, block_container, file[0].link, void 0);
+          this.add_link_listeners(block_link, file[0], file_link_list);
+
+        }
       }
     }
+    this.render_brand(container);
   }
 
   render_block_context(block) {
@@ -1619,7 +1742,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
       // create embeddings.json file
       await this.plugin.init_embeddings_file();
       // reload view
-      await this.render_note_connections();
+      await this.render_connections();
     });
 
     // add click event to "retry" button
@@ -1655,7 +1778,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
           ,"Smart Connections only works with Markdown files."
         ]);
       }
-      this.render_note_connections(file);
+      this.render_connections(file);
     }));
 
     this.app.workspace.registerHoverLinkSource(SMART_CONNECTIONS_VIEW_TYPE, {
@@ -1670,7 +1793,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
   async initialize() {
     this.addIcon();
     await this.load_embeddings_file();
-    await this.render_note_connections();
+    await this.render_connections();
 
     /**
      * EXPERIMENTAL
@@ -1688,7 +1811,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     this.plugin.view = null;
   }
 
-  async render_note_connections(context=null) {
+  async render_connections(context=null) {
     // if API key is not set then update view message
     if(!this.plugin.settings.api_key) {
       this.set_message("An OpenAI API key is required to make Smart Connections");
@@ -1712,31 +1835,83 @@ class SmartConnectionsView extends Obsidian.ItemView {
      * Begin file-level search
      */    
     // if file is not tfile then get active file
-    let file = context;
-    if(!(file instanceof Obsidian.TFile)) {
-      // get current note
-      file = await this.app.workspace.getActiveFile();
-      // if still no current note then return
-      if(!file) {
-        return this.set_message("No active file");
-      }
-    }
-    // console.log("rendering connections for file: "+file.name);
-    const nearest = await this.plugin.find_note_connections(file);
-    // if nearest is a string then update view message
-    if(typeof nearest === "string") {
-      this.set_message(nearest);
-    }else{
-      // set nearest connections
-      this.set_nearest(nearest, "File: "+file.name);
-    }
+    // let file = context;
+    // if(!(file instanceof Obsidian.TFile)) {
+    //   // get current note
+    //   file = await this.app.workspace.getActiveFile();
+    //   // if still no current note then return
+    //   if(!file) {
+    //     return this.set_message("No active file");
+    //   }
+    // }
+    // // console.log("rendering connections for file: "+file.name);
+    // const nearest = await this.plugin.find_note_connections(file);
+    // // if nearest is a string then update view message
+    // if (typeof nearest === "string") {
+    //   this.set_message(nearest);
+    // } else {
+    //   // set nearest connections
+    //   this.set_nearest(nearest, "File: " + file.name);
+    // }
 
-    // if render_log.failed_embeddings then update failed_embeddings.txt
-    if(this.plugin.render_log.failed_embeddings.length > 0) {
-      await this.plugin.save_failed_embeddings();
+    // // if render_log.failed_embeddings then update failed_embeddings.txt
+    // if (this.plugin.render_log.failed_embeddings.length > 0) {
+    //   await this.plugin.save_failed_embeddings();
+    // }
+    // // get object keys of render_log
+    // this.plugin.output_render_log();
+    this.nearest = null;
+    this.interval_count = 0;
+    this.rendering = false;
+    this.file = context;
+    // if this.interval is set then clear it
+    if(this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
     }
-    // get object keys of render_log
-    this.plugin.output_render_log();
+    // set interval to check if nearest is set
+    this.interval = setInterval(() => {
+      if(!this.rendering){
+        if(this.file instanceof Obsidian.TFile) {
+          this.rendering = true;
+          this.render_note_connections(this.file);
+        }else{
+          // get current note
+          this.file = this.app.workspace.getActiveFile();
+          // if still no current note then return
+          if(!this.file && this.count > 1) {
+            clearInterval(this.interval);
+            this.set_message("No active file");
+            return; 
+          }
+        }
+      }else{
+        if(this.nearest) {
+          clearInterval(this.interval);
+          // if nearest is a string then update view message
+          if (typeof this.nearest === "string") {
+            this.set_message(this.nearest);
+          } else {
+            // set nearest connections
+            this.set_nearest(this.nearest, "File: " + this.file.name);
+          }
+          // if render_log.failed_embeddings then update failed_embeddings.txt
+          if (this.plugin.render_log.failed_embeddings.length > 0) {
+            this.plugin.save_failed_embeddings();
+          }
+          // get object keys of render_log
+          this.plugin.output_render_log();
+          return; 
+        }else{
+          this.interval_count++;
+          this.set_message("Making Smart Connections..."+this.interval_count);
+        }
+      }
+    }, 500);
+  }
+
+  async render_note_connections(file) {
+    this.nearest = await this.plugin.find_note_connections(file);
   }
 
   clear_auto_searcher() {
@@ -1832,7 +2007,7 @@ class SmartConnectionsApi {
   // trigger reload of embeddings file
   async reload_embeddings_file() {
     await this.view.load_embeddings_file();
-    await this.view.render_note_connections();
+    await this.view.render_connections();
   }
   
 }
@@ -1964,6 +2139,10 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       });
     }
   }
+}
+
+function line_is_heading(line) {
+  return (line.indexOf("#") === 0) && (['#', ' '].indexOf(line[1]) !== -1);
 }
 
 module.exports = SmartConnectionsPlugin;

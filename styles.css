@@ -36,6 +36,7 @@
 .sc-list > div span svg {
   height: auto;
   margin: auto 0.5em auto 0;
+  flex: none;
 }
 .sc-list > div > span {
   display: inline-flex;
