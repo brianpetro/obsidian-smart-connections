@@ -1062,7 +1062,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // split the markdown into lines
     const lines = markdown.split('\n');
     // initialize the blocks array
-    const blocks = [];
+    let blocks = [];
     // current headers array
     let currentHeaders = [];
     // remove .md file extension and convert file_path to breadcrumb formatting
@@ -1074,20 +1074,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
     let last_heading_line = 0;
     let i = 0;
+    let block_headings_list = [];
     // loop through the lines
-    let is_code = false;
     for (i = 0; i < lines.length; i++) {
       // get the line
       const line = lines[i];
-      // if line begins with three backticks then toggle is_code
-      if(line.indexOf('```') === 0) {
-        is_code = !is_code;
-      }
-      // if is_code is true then add line with preceding tab and continue
-      if(is_code) {
-        block += "\n\t" + line;
-        continue;
-      }
       // if line does not start with #
       // or if line starts with # and second character is a word or number indicating a "tag"
       // then add to block
@@ -1122,22 +1113,29 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       block = file_breadcrumbs;
       block += ": " + currentHeaders.map(header => header.header).join(' > ');
       block_headings = "#"+currentHeaders.map(header => header.header).join('#');
+      // if block_headings is already in block_headings_list then add a number to the end
+      if(block_headings_list.indexOf(block_headings) > -1) {
+        let count = 1;
+        while(block_headings_list.indexOf(`${block_headings}{${count}}`) > -1) {
+          count++;
+        }
+        block_headings = `${block_headings}{${count}}`;
+      }
+      block_headings_list.push(block_headings);
       block_path = file_path + block_headings;
     }
     // handle remaining after loop
     if((last_heading_line !== (i-1)) && (block.indexOf("\n") > -1) && this.validate_headings(block_headings)) output_block();
+    // remove any blocks that are too short (length < 50)
+    blocks = blocks.filter(b => b.length > 50);
+    // console.log(blocks);
+    // return the blocks array
     return blocks;
 
     function output_block() {
       // breadcrumbs length (first line of block)
       const breadcrumbs_length = block.indexOf("\n") + 1;
-      // console.log(breadcrumbs_length);
       const block_length = block.length - breadcrumbs_length;
-      // skip if block length is less than N characters
-      if(block_length < 50) {
-        return;
-      }
-      // console.log(block);
       // trim block to max length
       if (block.length > MAX_EMBED_STRING_LENGTH) {
         block = block.substring(0, MAX_EMBED_STRING_LENGTH);
@@ -1154,7 +1152,16 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
     let block = [];
     let block_headings = path.split('#').slice(1);
+    // if path ends with number in curly braces
+    let heading_occurrence = 0;
+    if(block_headings[block_headings.length-1].indexOf('{') > -1) {
+      // get the occurrence number
+      heading_occurrence = parseInt(block_headings[block_headings.length-1].split('{')[1].replace('}', ''));
+      // remove the occurrence from the last heading
+      block_headings[block_headings.length-1] = block_headings[block_headings.length-1].split('{')[0];
+    }
     let currentHeaders = [];
+    let occurrence_count = 0;
     let begin_line = 0;
     let i = 0;
     // get file path from path
@@ -1205,8 +1212,21 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       currentHeaders.push(heading_text);
       // if currentHeaders.length === block_headings.length then we have a match
       if (currentHeaders.length === block_headings.length) {
-        begin_line = i + 1;
-        break; // break out of loop
+        // if heading_occurrence is defined then increment occurrence_count
+        if(heading_occurrence === 0) {
+          // set begin_line to i + 1
+          begin_line = i + 1;
+          break; // break out of loop
+        }
+        // if occurrence_count !== heading_occurrence then continue
+        if(occurrence_count === heading_occurrence){
+          begin_line = i + 1;
+          break; // break out of loop
+        }
+        occurrence_count++;
+        // reset currentHeaders
+        currentHeaders.pop();
+        continue;
       }
     }
     // if no begin_line then return false
@@ -1380,9 +1400,28 @@ class SmartConnectionsView extends Obsidian.ItemView {
       const target_file_cache = this.app.metadataCache.getFileCache(targetFile);
       // console.log(target_file_cache);
       // get heading
-      const heading_text = curr.link.split("#").pop();
-      // get heading from headings in file cache
-      heading = target_file_cache.headings.find(h => h.heading === heading_text);
+      let heading_text = curr.link.split("#").pop();
+      // if heading text contains a curly brace, get the number inside the curly braces as occurence
+      let occurence = 1;
+      if (heading_text.indexOf("{") > -1) {
+        // get occurence
+        occurence = parseInt(heading_text.split("{")[1].split("}")[0]);
+        // remove occurence from heading text
+        heading_text = heading_text.split("{")[0];
+      }
+      // get headings from file cache
+      const headings = target_file_cache.headings;
+      // get headings with the same depth and text as the link
+      for(let i = 0; i < headings.length; i++) {
+        if (headings[i].heading === heading_text) {
+          // if occurence is 0, set heading and break
+          if(occurence === 0) {
+            heading = headings[i];
+            break;
+          }
+          occurence--; // decrement occurence
+        }
+      }
       // console.log(heading);
     } else {
       targetFile = this.app.metadataCache.getFirstLinkpathDest(curr.link, "");
@@ -1562,6 +1601,8 @@ class SmartConnectionsView extends Obsidian.ItemView {
           });
           const block_container = block_link.createEl("div");
           const this_file = this.app.vault.getAbstractFileByPath(file[0].link);
+          // if file is not found, skip
+          if (!(this_file instanceof Obsidian.TAbstractFile)) continue;
           // use cachedRead to get the first 10 lines of the file
           const file_content = await this.app.vault.cachedRead(this_file);
           const file_lines = file_content.split("\n");
@@ -1577,6 +1618,8 @@ class SmartConnectionsView extends Obsidian.ItemView {
             if (line.length > 100) {
               line = line.slice(0, 100) + "...";
             }
+            // if line is "---", skip
+            if (line === "---") continue;
             // skip if line is empty bullet or checkbox
             if(['- ', '- [ ] '].indexOf(line) > -1) continue;
             // if line is a code block, skip
