@@ -1658,8 +1658,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
               }
               // remove heading syntax to improve readability in small space
               first_ten_lines[i] = first_ten_lines[i].replace(/#+/, "");
-              // wrap line in bold and add line break
-              first_ten_lines[i] = `\n**${first_ten_lines[i]}**`;
+              first_ten_lines[i] = `\n${first_ten_lines[i]}:`;
             }
           }
           // join first ten lines into string
