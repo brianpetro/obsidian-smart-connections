@@ -1365,16 +1365,6 @@ class SmartConnectionsView extends Obsidian.ItemView {
     item.addEventListener("click", async (event) => {
       await this.handle_click(curr, event);
     });
-    // trigger hover event on link
-    item.addEventListener("mouseover", (event) => {
-      this.app.workspace.trigger("hover-link", {
-        event,
-        source: SMART_CONNECTIONS_VIEW_TYPE,
-        hoverParent: list,
-        targetEl: item,
-        linktext: curr.link,
-      });
-    });
     // drag-on
     // currently only works with full-file links
     item.setAttr('draggable', 'true');
@@ -1385,6 +1375,18 @@ class SmartConnectionsView extends Obsidian.ItemView {
       const dragData = dragManager.dragFile(event, file);
       // console.log(dragData);
       dragManager.onDragStart(event, dragData);
+    });
+    // if curr.link contains curly braces, return (incompatible with hover-link)
+    if (curr.link.indexOf("{") > -1) return;
+    // trigger hover event on link
+    item.addEventListener("mouseover", (event) => {
+      this.app.workspace.trigger("hover-link", {
+        event,
+        source: SMART_CONNECTIONS_VIEW_TYPE,
+        hoverParent: list,
+        targetEl: item,
+        linktext: curr.link,
+      });
     });
   }
 
