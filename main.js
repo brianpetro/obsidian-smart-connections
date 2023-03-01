@@ -268,10 +268,16 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   async save_embeddings_to_file() {
-    if(this.render_log.new_embeddings === 0) {
-      // console.log("no files embedded, skipping save_embeddings_to_file");
-      return;
-    }
+    /**
+     * TODO better logic to reduce uneccessary writes to embeddings file
+     * - temorary disable this logic to address file save issues
+     */
+    // if(this.render_log.new_embeddings === 0) {
+    //   // console.log("no files embedded, skipping save_embeddings_to_file");
+    //   return;
+    // }
+    // this.last_embed_time = Date.now();
+
     const embeddings = JSON.stringify(this.embeddings);
     // check if embeddings file exists
     const embeddings_file_exists = await this.app.vault.adapter.exists(".smart-connections/embeddings-2.json");
@@ -2174,6 +2180,24 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       let log = test_file_writing_results.createEl("p");
       log.innerHTML = resp;
     }));
+    // manual save button
+    containerEl.createEl("h3", {
+      text: "Manual Save"
+    });
+    let manual_save_results = containerEl.createEl("div");
+    new Obsidian.Setting(containerEl).setName("manual_save").setDesc("Save current embeddings").addButton((button) => button.setButtonText("Manual Save").onClick(async () => {
+      // confirm
+      if (confirm("Are you sure you want to save your current embeddings?")) {
+        // save
+        try{
+          await this.plugin.save_embeddings_to_file();
+          manual_save_results.innerHTML = "Embeddings saved successfully.";
+        }catch(e){
+          manual_save_results.innerHTML = "Embeddings failed to save. Error: " + e;
+        }
+      }
+    }));
+
     // list previously failed files
     containerEl.createEl("h3", {
       text: "Previously failed files"
