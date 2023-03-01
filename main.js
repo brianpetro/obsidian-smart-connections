@@ -334,6 +334,37 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // reload failed_embeddings to prevent retrying failed files until explicitly requested
     await this.load_failed_files();
   }
+  // test writing file to check if file system is read-only
+  async test_file_writing () {
+    // wrap in try catch to prevent error from crashing plugin
+    let log = "Begin test:";
+    try {
+      // check if test file already exists
+      const test_file_exists = await this.app.vault.adapter.exists(".smart-connections/embeddings-test.json");
+      // if test file exists then delete it
+      if(test_file_exists) {
+        await this.app.vault.adapter.remove(".smart-connections/embeddings-test.json");
+      }
+      // write test file
+      await this.app.vault.adapter.write(".smart-connections/embeddings-test.json", "test");
+      // update test file
+      if(this.embeddings){
+        await this.app.vault.adapter.write(".smart-connections/embeddings-test.json", JSON.stringify(this.embeddings));
+      }else{
+        log += "<br>No embeddings to test, writing test content to file."
+        await this.app.vault.adapter.write(".smart-connections/embeddings-test.json", "test2");
+      }
+      // delete test file
+      // await this.app.vault.adapter.remove(".smart-connections/embeddings-test.json");
+      // return "File writing test passed."
+      log += "<br>File writing test passed.";
+    }catch(error) {
+      // return error message
+      log += "<br>File writing test failed: "+error;
+    }
+    return log;
+  }
+  
   // load failed files from failed-embeddings.txt
   async load_failed_files () {
     // check if failed-embeddings.txt exists
@@ -1286,6 +1317,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     super(leaf);
     this.plugin = plugin;
     this.nearest = null;
+    this.load_wait = null;
   }
   getViewType() {
     return SMART_CONNECTIONS_VIEW_TYPE;
@@ -1818,7 +1850,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
       // return if file type is not markdown
       if(file.extension !== "md") {
         // if file is 'canvas' and length of current view content is greater than 300 then return
-        if((file.extension === "canvas") && (container.innerHTML.length > 300)) {
+        if((file.extension === "canvas") && (container.innerHTML.length > 1000)) {
           // prevents clearing view of search results when still on the same canvas
           // console.log("prevented clearing view of search results when still on the same canvas")
           return;
@@ -1828,7 +1860,15 @@ class SmartConnectionsView extends Obsidian.ItemView {
           ,"Smart Connections only works with Markdown files."
         ]);
       }
-      this.render_connections(file);
+      // run render_connections after 1 second to allow for file to load
+      if(this.load_wait){
+        clearTimeout(this.load_wait);
+      }
+      this.load_wait = setTimeout(() => {
+        this.render_connections(file);
+        this.load_wait = null;
+      }, 1000);
+        
     }));
 
     this.app.workspace.registerHoverLinkSource(SMART_CONNECTIONS_VIEW_TYPE, {
@@ -2116,6 +2156,23 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     new Obsidian.Setting(containerEl).setName("skip_sections").setDesc("Skips making connections to specific sections within notes. Warning: reduces usefulness for large files and requires 'Force Refresh' for sections to work in the future.").addToggle((toggle) => toggle.setValue(this.plugin.settings.skip_sections).onChange(async (value) => {
       this.plugin.settings.skip_sections = value;
       await this.plugin.saveSettings(true);
+    }));
+    // test file writing by creating a test file, then writing additional data to the file, and returning any error text if it fails
+    containerEl.createEl("h3", {
+      text: "Test File Writing"
+    });
+    // container for displaying test file writing results
+    let test_file_writing_results = containerEl.createEl("div");
+    new Obsidian.Setting(containerEl).setName("test_file_writing").setDesc("Test File Writing").addButton((button) => button.setButtonText("Test File Writing").onClick(async () => {
+      test_file_writing_results.empty();
+      test_file_writing_results.createEl("p", {
+        text: "Testing file writing..."
+      });
+      // test file writing
+      const resp = await this.plugin.test_file_writing();
+      test_file_writing_results.empty();
+      let log = test_file_writing_results.createEl("p");
+      log.innerHTML = resp;
     }));
     // list previously failed files
     containerEl.createEl("h3", {
