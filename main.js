@@ -167,8 +167,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   async initialize() {
-    await this.open_view();
-    await this.add_to_gitignore();
+    this.add_to_gitignore();
   }
 
   async open_view() {
