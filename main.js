@@ -14,6 +14,7 @@ const DEFAULT_SETTINGS = {
   log_render_files: false,
   skip_sections: false,
   results_count: 30,
+  view_open: true,
 };
 const MAX_EMBED_STRING_LENGTH = 25000;
 
@@ -167,10 +168,16 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   async initialize() {
+    // if this settings.view_open is true, open view on startup
+    if(this.settings.view_open) {
+      this.open_view();
+    }
     this.add_to_gitignore();
   }
 
   async open_view() {
+    this.settings.view_open = true;
+    this.saveSettings();
     this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE);
     await this.app.workspace.getRightLeaf(false).setViewState({
       type: SMART_CONNECTIONS_VIEW_TYPE,
@@ -1458,7 +1465,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
       // get heading
       let heading_text = curr.link.split("#").pop();
       // if heading text contains a curly brace, get the number inside the curly braces as occurence
-      let occurence = 1;
+      let occurence = 0;
       if (heading_text.indexOf("{") > -1) {
         // get occurence
         occurence = parseInt(heading_text.split("{")[1].split("}")[0]);
@@ -1921,6 +1928,8 @@ class SmartConnectionsView extends Obsidian.ItemView {
   async onClose() {
     this.app.workspace.unregisterHoverLinkSource(SMART_CONNECTIONS_VIEW_TYPE);
     this.plugin.view = null;
+    this.plugin.settings.view_open = false;
+    this.plugin.saveSettings();
   }
 
   async render_connections(context=null) {
