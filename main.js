@@ -15,8 +15,11 @@ const DEFAULT_SETTINGS = {
   skip_sections: false,
   results_count: 30,
   view_open: true,
+  version: "",
 };
 const MAX_EMBED_STRING_LENGTH = 25000;
+
+const VERSION = "1.2.8";
 
 class SmartConnectionsPlugin extends Obsidian.Plugin {
   // constructor
@@ -172,12 +175,19 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     if(this.settings.view_open) {
       this.open_view();
     }
+    // on new version
+    if(this.settings.version !== VERSION) {
+      // update version
+      this.settings.version = VERSION;
+      // save settings
+      await this.saveSettings();
+      // open view
+      this.open_view();
+    }
     this.add_to_gitignore();
   }
 
   async open_view() {
-    this.settings.view_open = true;
-    this.saveSettings();
     this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE);
     await this.app.workspace.getRightLeaf(false).setViewState({
       type: SMART_CONNECTIONS_VIEW_TYPE,
@@ -1928,8 +1938,6 @@ class SmartConnectionsView extends Obsidian.ItemView {
   async onClose() {
     this.app.workspace.unregisterHoverLinkSource(SMART_CONNECTIONS_VIEW_TYPE);
     this.plugin.view = null;
-    this.plugin.settings.view_open = false;
-    this.plugin.saveSettings();
   }
 
   async render_connections(context=null) {
@@ -2168,6 +2176,11 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     // toggle expanded view by default
     new Obsidian.Setting(containerEl).setName("expanded_view").setDesc("Expanded view by default.").addToggle((toggle) => toggle.setValue(this.plugin.settings.expanded_view).onChange(async (value) => {
       this.plugin.settings.expanded_view = value;
+      await this.plugin.saveSettings(true);
+    }));
+    // toggle view_open on Obsidian startup
+    new Obsidian.Setting(containerEl).setName("view_open").setDesc("Open view on Obsidian startup.").addToggle((toggle) => toggle.setValue(this.plugin.settings.view_open).onChange(async (value) => {
+      this.plugin.settings.view_open = value;
       await this.plugin.saveSettings(true);
     }));
     containerEl.createEl("h2", {
