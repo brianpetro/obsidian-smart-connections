@@ -42,6 +42,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.render_log.skipped_low_delta = {};
     this.render_log.token_usage = 0;
     this.render_log.tokens_saved_by_cache = 0;
+    this.retry_notice_timeout = null;
     this.save_timeout = null;
   }
 
@@ -234,7 +235,14 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       if(this.settings.failed_files.indexOf(files[i].path) > -1) {
         // log skipping file
         // console.log("skipping previously failed file, use button in settings to retry");
-        new Obsidian.Notice("Smart Connections: Skipping previously failed file, use button in settings to retry");
+        // use setTimeout to prevent multiple notices
+        if(this.retry_notice_timeout) {
+          clearTimeout(this.retry_notice_timeout);
+          this.retry_notice_timeout = null;
+        }
+        this.retry_notice_timeout = setTimeout(() => {
+          new Obsidian.Notice("Smart Connections: Skipping previously failed file, use button in settings to retry");
+        }, 3000);
         continue;
       }
       // skip files where path contains any exclusions
@@ -1065,7 +1073,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         }
       }
       // get all embeddings
-      await this.get_all_embeddings();
+      // await this.get_all_embeddings();
+      // wrap get all in setTimeout to allow for UI to update
+      setTimeout(() => {
+        this.get_all_embeddings()
+      }, 3000);
       // get from cache if mtime is same and values are not empty
       let current_note_embedding_vec = [];
       if (!this.embeddings[curr_key] 
@@ -2010,7 +2022,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
           this.set_message("Making Smart Connections..."+this.interval_count);
         }
       }
-    }, 500);
+    }, 10);
   }
 
   async render_note_connections(file) {
