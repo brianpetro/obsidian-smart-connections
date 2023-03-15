@@ -128,7 +128,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // open chat command
     this.addCommand({
       id: "smart-connections-chat",
-      name: "Open: Smart Connections Chat",
+      name: "Open: Smart Chat Conversation",
       callback: () => {
         this.open_chat();
       }
@@ -2428,6 +2428,17 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     let chat_input = this.chat_container.createDiv("sc-chat-form");
     // create textarea
     let textarea = chat_input.createEl("textarea", {cls: "sc-chat-input"});
+    // add event listener to listen for shift+enter
+    chat_input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && e.shiftKey) {
+        // get text from textarea
+        let user_input = textarea.value;
+        // clear textarea
+        textarea.value = "";
+        // initiate response from assistant
+        this.initialize_response(user_input);
+      }
+    });    
     // create button
     let button = chat_input.createEl("button", { cls: "send-button" });
     button.innerHTML = "Send";
@@ -2437,18 +2448,18 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       let user_input = textarea.value;
       // clear textarea
       textarea.value = "";
-      // render message
-      this.render_message(user_input, "user");
-      this.append_chatml(user_input, "user");
-      // after 200 ms render "..."
-      setTimeout(() => {
-        this.render_message("...", "assistant");
-      }, 200);
       // initiate response from assistant
       this.initialize_response(user_input);
     });
   }
   async initialize_response(user_input) {
+    // render message
+    this.render_message(user_input, "user");
+    this.append_chatml(user_input, "user");
+    // after 200 ms render "..."
+    setTimeout(() => {
+      this.render_message("...", "assistant");
+    }, 200);
     // if does not include keywords referring to one's own notes, then just use chatgpt and return
     if(!this.contains_self_referential_keywords(user_input)) {
       this.request_chatgpt_completion();

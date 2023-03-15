@@ -1,16 +1,70 @@
-# Smart Connections
+# Smart Connections: AI-Powered Note Connections for Obsidian
 [Introducing Smart Connections](https://wfhbrian.com/introducing-obsidian-smart-connections/), the AI-powered plugin for [Obsidian](https://obsidian.md/) that helps you save time and stay organized by connecting you to the most relevant notes in your vault in real-time.
 
-Inspired by the ['Similar mems' feature from Mem.ai](https://get.mem.ai/mem-x), this plugin uses AI to find similar notes in your vault and display them in real time.
+## Features
+### Smart Chat: Transform Your Notes into Interactive Conversations
+Enhance your note-taking experience with **Smart Chat**, a plugin that turns your notes into an AI-powered interactive chat. Retrieve information, clarify concepts, and explore ideas by engaging in a conversation with your notes.
+
+![](./smart-connections-chat-backstory.gif)
+
+#### How Smart Chat Works
+- To access Smart Chat, open the command palette and select "Smart Connections: Open Smart Chat." If you already have the Smart View pane open, you can also access the Smart Chat by clicking the message icon in the top right.
+- In the Smart Chat pane, type your question or message and hit Send or use the shortcut `Shift+Enter`.
+- The AI will analyze your notes and provide a relevant response based on the content in your vault.
+	- **Note**: Currently, to trigger a search of your notes, you must use a self-referential pronoun (ex. I, me, my, mine, we, us, our, ours).
+- You can continue the conversation by replying to the response or asking follow-up questions.
+
+#### Chat Features
+- **Context-aware responses**: Smart Chat understands the context of your notes, providing responses that are accurate and relevant to your specific content.
+- **Natural language processing**: The AI-powered feature interprets and responds to your questions in a conversational manner, simulating a chat with a real person.
+- **Multilingual support**: Smart Chat can understand and respond to queries in multiple languages, allowing you to interact with your notes in your preferred language.
+ 
+![](./smart-connections-chat-who-am-i.gif)
+
+##### Coming soon!
+- **Note linking**: If a response references a specific note in your vault, Smart Chat will provide a link to that note for quick access.
+- **Current-note chat**: Have a conversation based on a specific note instead of the entire vault.
+
+#### Benefits of Smart Chat
+- **Efficient Information Retrieval**: Quickly access specific information in your notes without having to search and browse through numerous files.
+- **Improved Knowledge Retention**: Engaging with your notes through a conversational interface helps reinforce your understanding and recall of the material.
+- **Creative Exploration**: Discover new connections and insights as you interact with your notes, fostering an environment for brainstorming and idea generation.
+
+#### Limitations
+- The quality of the responses depends on the content and organization of your notes. Ensure your notes are well-structured and comprehensive for the best experience.
+- Smart Chat may occasionally provide incorrect or irrelevant responses due to the limitations of AI understanding. In such cases, rephrase your question or provide more context for better results.
+
+### Smart View
 
 ![](./smart-connections-demo-2.gif)
 
-## External Connections
-Coming soon: See connections to external content!
+- Notes with multiple matching blocks can be expanded to show the matching blocks.
+- Search feature that uses embeddings to search for notes in your vault.
+- You can click on a note to open it in the current pane or hold down the `ctrl` or `cmd` to open it in a new pane.
+- To preview the notes in the Smart Connections Pane, you can hold down the `ctrl` or `cmd` key to preview the note while hovering over it.
+- You can drag and drop a link from the to become a link in your note or open it as a new tab.
+
+### External Connections
+**Coming soon:** See connections to external content!
 
 Currently taking requests for which external content you would like connected. Please comment on [this issue](https://github.com/brianpetro/obsidian-smart-connections/issues/27) with your suggestions.
 
+### Section 'block' matching
+- Smart Connections plugin will use 'blocks' of text in your notes to find the most relevant connections.
+- Currently, a 'block' is a section of text that is separated by a heading.
+    - For example, if you have a note that contains the following text: `# Header 1\nThis is a block of text.\n# Header 2\nThis is another block of text`, then the plugin will search for similar blocks of text in addition to making smart connections with similar files.
+
+### Highlight to find Smart Connections
+
+- Highlighted text will be used to find Smart Connections when you run the "Find Smart Connections" command
+
+![](./search-feature.png)
+
 ## Installation
+
+![](./obsidian-community-smart-connections-install.png)
+
+### Instructions
 1. Install the plugin from the community plugins tab in Obsidian.
 2. Create an account at [OpenAI](https://beta.openai.com/) and retrieve your API key from the [API Keys](https://beta.openai.com/account/api-keys) page.
 3. Open the plugin settings and enter your API key.
@@ -18,7 +72,7 @@ Currently taking requests for which external content you would like connected. P
 **Note:** The plugin will not work without an OpenAI API key.
 
 ## How it works
-- The Smart Connections Pane is opened when you activate the plugin. You can also open it from the command palette with the "View: Open Smart Connections Pane" command.
+- The Smart Connections Pane is opened when you activate the plugin. You can also open it from the command palette with the "Open: View Smart Connections" command.
 - Each time you open a note, the plugin will search for similar notes in your vault and display them in the Smart Connections Pane (sidebar). The Smart Connections Pane will display the most similar notes first using the cosine similarity of the note's embeddings.
 - The plugin will only search for similar notes in the current vault. It will not search for similar notes in other vaults.
 
@@ -28,24 +82,9 @@ Currently taking requests for which external content you would like connected. P
 - The plugin will only process notes that are in the current vault. It will not process notes in other vaults.
 - The cost of the initial processing is proportional to the number of notes in your vault. Without any exclusions configured in the settings, the amount of tokens used in the initial processing is approximately 2X the total number of "tokens" in your entire vault. A rough calculation for this is `the total number of characters in the vault` divided by `2`. For example, if your vault contains 100,000 characters, then the initial processing will cost approximately 50,000 tokens. The current token cost is $0.0004 per 1,000 tokens (as of [2021-08-01](https://openai.com/api/pricing/)) which is estimated to be ~$1 USD for 3,000 pages (assuming 800 tokens per page).
 
-## Features
-- Smart Connections View
-	- Notes with multiple matching blocks can be expanded to show the matching blocks.
-	- Search feature that uses embeddings to search for notes in your vault.
-	- You can click on a note to open it in the current pane or hold down the `ctrl` or `cmd` to open it in a new pane.
-	- To preview the notes in the Smart Connections Pane, you can hold down the `ctrl` or `cmd` key to preview the note while hovering over it.
-	- You can drag and drop a link from the to become a link in your note or open it as a new tab.
-- Section 'block' matching
-	- Smart Connections plugin will use 'blocks' of text in your notes to find the most relevant connections.
-	- Currently, a 'block' is a section of text that is separated by a heading. 
-		- For example, if you have a note that contains the following text: `# Header 1\nThis is a block of text.\n# Header 2\nThis is another block of text`, then the plugin will search for similar blocks of text in addition to making smart connections with similar files.
-- Highlight to find Smart Connections
-	- Highlighted text will be used to find Smart Connections when you run the "Find Smart Connections" command
-
-![](./search-feature.png)
-
 ## Limitations
 - The plugin is currently a desktop-only plugin.
+  - **Coming soon**: mobile-support for the _Smart Chat_ feature.
 
 ## Settings
 - `API Key` - Enter your OpenAI API key.
@@ -75,7 +114,32 @@ The plugin integrates [OpenAI Embeddings](https://beta.openai.com/docs/guides/em
 
 *Note: This does mean that your notes are sent to OpenAI's servers to be processed and are subject to their [Terms of Service](https://openai.com/terms).* The `File Exclusions` and `Folder Exclusions` settings are designed to help you control which notes are processed.
 
-## Developing Add-ons (Coming soon!)
+## Developing Add-ons
+- **Coming soon**: Use Smart Connections in your plugin! Prevent the headaches of managing vector storage and save your users money by reusing their existing embeddings.
+	- **Note**: This feature is currently in beta. Create a GitHub issue if you want to learn how to use the beta version of this feature.
 - This plugin is designed to manage the vector interpretation ("embeddings") of the notes in your vaults. The requirements for managing this can be extensive.
 - While there are many ways to interpret the vector relationships and make them useful this plugin is focused on delivering the core capabilities required to utilize such a system.
-- [ ] TODO make the plugins API for finding relevant content available for re-use by other plugins.
+
+## About the Author: WFH Brian
+WFH Brian is an entrepreneur and consultant specializing in the AI space. With years of experience and a deep understanding of the latest advancements in AI, he is committed to helping businesses navigate the rapidly changing AI landscape.
+
+Brian's expertise and services include:
+
+### AI Tutoring and Education
+Brian offers tutoring to help individuals and businesses gain confidence in their understanding of AI technologies and their potential impact on their industry. By the end of the tutoring, you will be able to confidently discuss AI advancements and evaluate their value for your business.
+
+### Prompt Development Workshop
+Brian can help you improve your existing proprietary prompts or develop new employee productivity prompts to maximize the utilization of AI tools like ChatGPT. The workshop focuses on understanding scenarios where prompts are utilized, creating test scenarios, designing and testing prompts, and educating employees about prompt usage.
+
+### AI Strategy Consulting
+With Brian's AI strategy consulting, you can transform your idea for using AI in your business into a concrete plan. The consulting process involves discussing your idea, identifying necessary AI components, and designing an AI system that you can implement.
+
+### AI Transformation Consulting
+Brian provides comprehensive AI transformation consulting, including identifying and implementing AI technologies to transform business processes and improve customer experiences. He offers customized solutions tailored to each client's unique needs and is committed to delivering tangible results and ROI.
+
+#### Executive Accelerator
+For a focused and efficient consultation, consider the 90-minute "Executive Accelerator" strategy development call. This call covers aspects of your business that might be improved with AI and helps you identify the most impactful technologies to use.
+
+**Special Offer**: Interested in additional coaching, consulting, or support? Ask about a 100% rebate for the Executive Accelerator session when you accept a proposal for additional coaching, consultation, or support.
+
+By using the Smart Connections plugin, you're not only benefiting from Brian's expertise in the AI space but also opening the door to a range of services that can help you and your business excel in the age of AI. To learn more about these services or book a session with Brian, visit his website at [wfhbrian.com](https://wfhbrian.com/).
