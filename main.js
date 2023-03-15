@@ -125,11 +125,21 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         this.open_view();
       }
     });
+    // open chat command
+    this.addCommand({
+      id: "smart-connections-chat",
+      name: "Open: Smart Connections Chat",
+      callback: () => {
+        this.open_chat();
+      }
+    });
     // get all files in vault
     this.addSettingTab(new SmartConnectionsSettingsTab(this.app, this));
 
-    // register view type
+    // register main view type
     this.registerView(SMART_CONNECTIONS_VIEW_TYPE, (leaf) => (new SmartConnectionsView(leaf, this)));
+    // register chat view type
+    this.registerView(SMART_CONNECTIONS_CHAT_VIEW_TYPE, (leaf) => (new SmartConnectionsChatView(leaf, this)));
 
     // initialize when layout is ready
     this.app.workspace.onLayoutReady(this.initialize.bind(this));
@@ -172,6 +182,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   async initialize() {
+    this.addIcon();
     // if this settings.view_open is true, open view on startup
     if(this.settings.view_open) {
       this.open_view();
@@ -186,6 +197,16 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       this.open_view();
     }
     this.add_to_gitignore();
+  }
+
+  addIcon(){
+    Obsidian.addIcon("smart-connections", `<path d="M50,20 L80,40 L80,60 L50,100" stroke="currentColor" stroke-width="4" fill="none"/>
+    <path d="M30,50 L55,70" stroke="currentColor" stroke-width="5" fill="none"/>
+    <circle cx="50" cy="20" r="9" fill="currentColor"/>
+    <circle cx="80" cy="40" r="9" fill="currentColor"/>
+    <circle cx="80" cy="70" r="9" fill="currentColor"/>
+    <circle cx="50" cy="100" r="9" fill="currentColor"/>
+    <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
   }
 
   async open_view() {
@@ -205,6 +226,17 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         return leaf.view;
       }
     }
+  }
+  // open chat view
+  async open_chat() {
+    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE);
+    await this.app.workspace.getRightLeaf(false).setViewState({
+      type: SMART_CONNECTIONS_CHAT_VIEW_TYPE,
+      active: true,
+    });
+    this.app.workspace.revealLeaf(
+      this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE)[0]
+    );
   }
   
   // get embeddings for all files
@@ -1226,7 +1258,13 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
   }
   // reverse-retrieve block given path
-  async block_retriever(path, limit=null) {
+  async block_retriever(path, limits={}) {
+    limits = {
+      lines: null,
+      chars_per_line: null,
+      max_chars: null,
+      ...limits
+    }
     // return if no # in path
     if (path.indexOf('#') < 0) {
       console.log("not a block path: "+path);
@@ -1315,22 +1353,28 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     if (begin_line === 0) return false;
     // iterate through lines starting at begin_line
     is_code = false;
+    // character accumulator
+    let char_count = 0;
     for (i = begin_line; i < lines.length; i++) {
-      if((typeof limit === "number") && (block.length > limit)){
+      if((typeof line_limit === "number") && (block.length > line_limit)){
         block.push("...");
-        break; // ends when limit is reached
+        break; // ends when line_limit is reached
       }
       let line = lines[i];
       if ((line.indexOf('#') === 0) && (['#',' '].indexOf(line[1]) !== -1)){
         break; // ends when encountering next header
       }
-
+      // if char_count is greater than N, skip
+      if (limits.max_chars && char_count > limits.max_chars) {
+        block.push("...");
+        break;
+      }
       // validate/format
       // if line is empty, skip
       if (line.length === 0) continue;
       // limit length of line to N characters
-      if (line.length > 100) {
-        line = line.slice(0, 100) + "...";
+      if (limits.chars_per_line && line.length > limits.chars_per_line) {
+        line = line.slice(0, limits.chars_per_line) + "...";
       }
       // if line is a code block, skip
       if (line.startsWith("```")) {
@@ -1343,6 +1387,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       }
       // add line to block
       block.push(line);
+      // increment char_count
+      char_count += line.length;
+    }
+    // close code block if open
+    if (is_code) {
+      block.push("```");
     }
     return block.join("\n").trim();
   }
@@ -1383,20 +1433,12 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
 
 
-  addIcon(){
-    Obsidian.addIcon("smart-connections", `<path d="M50,20 L80,40 L80,60 L50,100" stroke="currentColor" stroke-width="4" fill="none"/>
-    <path d="M30,50 L55,70" stroke="currentColor" stroke-width="5" fill="none"/>
-    <circle cx="50" cy="20" r="9" fill="currentColor"/>
-    <circle cx="80" cy="40" r="9" fill="currentColor"/>
-    <circle cx="80" cy="70" r="9" fill="currentColor"/>
-    <circle cx="50" cy="100" r="9" fill="currentColor"/>
-    <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
-  }
-
   set_message(message) {
     const container = this.containerEl.children[1];
     // clear container
     container.empty();
+    // initiate top bar
+    this.initiate_top_bar(container);
     // if mesage is an array, loop through and create a new p element for each message
     if (Array.isArray(message)) {
       for (let i = 0; i < message.length; i++) {
@@ -1674,7 +1716,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
           }
           const block_container = block_link.createEl("div");
           // TODO: move to rendering on expanding section (toggle collapsed)
-          Obsidian.MarkdownRenderer.renderMarkdown((await this.plugin.block_retriever(block.link, 10)), block_container, block.link, void 0);
+          Obsidian.MarkdownRenderer.renderMarkdown((await this.plugin.block_retriever(block.link, {lines: 10, max_chars: 1000})), block_container, block.link, void 0);
           // add link listeners to block link
           this.add_link_listeners(block_link, block, file_link_list);
         }else{
@@ -1777,7 +1819,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
 
   }
 
-  initiate_top_bar(container, nearest_context) {
+  initiate_top_bar(container, nearest_context=null) {
     let top_bar;
     // if top bar already exists, empty it
     if ((container.children.length > 0) && (container.children[0].classList.contains("sc-top-bar"))) {
@@ -1791,6 +1833,15 @@ class SmartConnectionsView extends Obsidian.ItemView {
     if (nearest_context) {
       top_bar.createEl("p", { cls: "sc-context", text: nearest_context });
     }
+    // add chat button
+    const chat_button = top_bar.createEl("button", { cls: "sc-chat-button" });
+    // add icon to chat button
+    Obsidian.setIcon(chat_button, "message-square");
+    // add click listener to chat button
+    chat_button.addEventListener("click", () => {
+      // open chat
+      this.plugin.open_chat();
+    });
     // add search button
     const search_button = top_bar.createEl("button", { cls: "sc-search-button" });
     // add icon to search button
@@ -1825,7 +1876,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
         // get search term
         const search_term = input.value;
         // if enter key is pressed
-        if (event.key === "Enter") {
+        if (event.key === "Enter" && search_term !== "") {
           this.search(search_term);
         }
         // if any other key is pressed and input is not empty then wait 500ms and make_connections
@@ -1932,7 +1983,6 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
   
   async initialize() {
-    this.addIcon();
     await this.load_embeddings_file();
     await this.render_connections();
 
@@ -2303,6 +2353,305 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
 
 function line_is_heading(line) {
   return (line.indexOf("#") === 0) && (['#', ' '].indexOf(line[1]) !== -1);
+}
+
+const SMART_CONNECTIONS_CHAT_VIEW_TYPE = "smart-connections-chat-view";
+const INITIAL_MESSAGE = "Hi, I'm ChatGPT with access to your notes via Smart Connections. Ask me a question about your notes and I'll try to answer it.";
+class SmartConnectionsChatView extends Obsidian.ItemView {
+  constructor(leaf, plugin) {
+    super(leaf);
+    this.plugin = plugin;
+    this.chat_container = null;
+    this.chat_box = null;
+    this.message_container = null;
+    this.current_chat_ml = [];
+    this.last_from = null;
+    this.last_msg = null;
+  }
+  getDisplayText() {
+    return "Smart Connections Chat";
+  }
+  getIcon() {
+    return "message-square";
+  }
+  getViewType() {
+    return SMART_CONNECTIONS_CHAT_VIEW_TYPE;
+  }
+  onOpen() {
+    this.containerEl.empty();
+    this.chat_container = this.containerEl.createDiv("sc-chat-container");
+    // render plus sign for clear button
+    this.render_top_bar();
+    // render chat messages container
+    this.render_chat_box();
+    // render chat input
+    this.render_chat_input();
+    this.render_brand(this.containerEl);
+    // render initial message from assistant
+    this.render_message(INITIAL_MESSAGE, "assistant");
+  }
+  onClose() {
+  }
+  // render plus sign for clear button
+  render_top_bar() {
+    // create container for clear button
+    let top_bar_container = this.chat_container.createDiv("sc-top-bar-container");
+    // create button to open view
+    // TODO: make button to open other view
+    // create clear button
+    let clear_button = top_bar_container.createEl("button", { cls: "clear-button" });
+    clear_button.innerHTML = "+";
+    // add event listener to button
+    clear_button.addEventListener("click", () => {
+      // clear chat box
+      this.new_chat();
+    });
+  }
+  new_chat() {
+    // clear chat box
+    this.message_container.empty();
+    // clear current chat ml
+    this.current_chat_ml = [];
+    // render initial message from assistant
+    this.render_message(INITIAL_MESSAGE, "assistant");
+  }
+  // render chat messages container
+  render_chat_box() {
+    // create container for chat messages
+    this.chat_box = this.chat_container.createDiv("sc-chat-box");
+    // create container for message
+    this.message_container = this.chat_box.createDiv("sc-message-container");
+  }
+  // render chat textarea and button
+  render_chat_input() {
+    // create container for chat input
+    let chat_input = this.chat_container.createDiv("sc-chat-form");
+    // create textarea
+    let textarea = chat_input.createEl("textarea", {cls: "sc-chat-input"});
+    // create button
+    let button = chat_input.createEl("button", { cls: "send-button" });
+    button.innerHTML = "Send";
+    // add event listener to button
+    button.addEventListener("click", () => {
+      // get text from textarea
+      let user_input = textarea.value;
+      // clear textarea
+      textarea.value = "";
+      // render message
+      this.render_message(user_input, "user");
+      this.append_chatml(user_input, "user");
+      // after 200 ms render "..."
+      setTimeout(() => {
+        this.render_message("...", "assistant");
+      }, 200);
+      // initiate response from assistant
+      this.initialize_response(user_input);
+    });
+  }
+  async initialize_response(user_input) {
+    // if does not include keywords referring to one's own notes, then just use chatgpt and return
+    if(!this.contains_self_referential_keywords(user_input)) {
+      this.request_chatgpt_completion();
+      return;
+    }
+    // get hyde
+    const context = await this.get_hyde_context(user_input);
+    // get user input with added context
+    const context_input = this.build_context_input(context);
+    console.log(context_input);
+    const chatml = [
+      {
+        role: "system",
+        content: context_input
+      },
+      {
+        role: "user",
+        content: user_input
+      }
+    ];
+    this.request_chatgpt_completion({messages: chatml});
+  }
+  
+  contains_self_referential_keywords(user_input) {
+    const kw_regex = /\b(my|I|me|mine|our|ours|us|we)\b/gi;
+    const matches = user_input.match(kw_regex);
+    if(matches) return true;
+    return false;
+  }
+
+  // build context input
+  build_context_input(context) {
+    let input = `Anticipate the type of answer desired by the user. Imagine the following ${context.length} notes were written by the user and contain all the necessary information to answer the user's question. Begin responses with "Based on your notes..."`;
+    for(let i = 0; i < context.length; i++) {
+      input += `\n---BEGIN #${i+1}---\n${context[i].text}\n---END #${i+1}---`;
+    }
+    return input;
+  }
+
+  // render message
+  render_message(message, from="assistant", append_last=false) {
+    if(append_last && this.last_from === from) {
+      if(this.last_msg.innerHTML === '...') this.last_msg.innerHTML = '';
+      // append to last message
+      this.last_msg.innerHTML += message;
+    }else{
+      // set last from
+      this.last_from = from;
+      // create message
+      let message_el = this.message_container.createDiv(`sc-message ${from}`);
+      // create message content
+      this.last_msg = message_el.createDiv("sc-message-content");
+      // set message text
+      this.last_msg.innerHTML = message;
+    }
+    // scroll to bottom
+    this.message_container.scrollTop = this.message_container.scrollHeight;
+  }
+  async request_chatgpt_completion(opts={}) {
+    opts = {
+      model: 'gpt-3.5-turbo',
+      messages: this.current_chat_ml,
+      max_tokens: 250,
+      temperature: 0.3,
+      top_p: 1,
+      presence_penalty: 0,
+      frequency_penalty: 0,
+      stream: true,
+      stop: null,
+      n: 1,
+      // logit_bias: logit_bias,
+      ...opts
+    }
+    console.log(opts.messages);
+    try{
+      const response = await (0, Obsidian.requestUrl)({
+        url: `https://api.openai.com/v1/chat/completions`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.plugin.settings.api_key}`,
+          "Content-Type": "application/json"
+        },
+        contentType: "application/json",
+        body: JSON.stringify(opts),
+        throw: false
+      });
+      console.log(response);
+      if(!opts.stream) {
+        return JSON.parse(response.text).choices[0].message.content;
+      }
+      try {
+        const json = response.json;
+        if (json && json.error) {
+          console.log("JSON Error");
+          console.log(json.error);
+          new Obsidian.Notice(`Smart Connections ChatGPT Error :: ${json.error.message}`);
+          throw new Error(JSON.stringify(json.error));
+        }
+      } catch (err) {
+        if (err instanceof SyntaxError) {
+          console.log("Syntax Error");
+          console.log(err);
+        } else {
+          console.log(err);
+          throw new Error(err);
+        }
+      }
+      const resp = response.text;
+      const resp_lines = resp.split("\n\n");
+      if(resp_lines.length == 0) {
+        throw new Error("Smart Connections :: No response from ChatGPT");
+      }
+      for(let i = 0; i < resp_lines.length; i++) {
+        resp_lines[i] = resp_lines[i].split("data: ")[1];
+      }
+      let full_str = "";
+      for(let i = 0; i < resp_lines.length; i++) {
+        const resp_line = resp_lines[i];
+        if(resp_line && resp_line.indexOf("[DONE]") === -1) {
+          const resp_json = JSON.parse(resp_line);
+          const delta = resp_json.choices[0].delta.content;
+          if(delta) {
+            if(delta === "`"){
+              this.render_message("...", "assistant", true); // remove?
+            }else{
+              this.render_message(delta, "assistant", true);
+            }
+            await new Promise(r => setTimeout(r, 88));
+            full_str += delta;
+          }
+        }
+      }
+      console.log(full_str);
+      this.append_chatml(full_str, "assistant");
+      return;
+    }catch(err){
+      new Obsidian.Notice(`Smart Connections API Error :: ${err}`);
+    }
+  }
+  append_chatml(message, from="assistant") {
+    this.current_chat_ml.push({
+      role: from,
+      content: message
+    });
+    return this.current_chat_ml;
+  }
+
+  async get_hyde_context(user_input) {
+    // count current chat ml messages to determine 'question' or 'chat log' wording
+    // let subject = "question";
+    // if(this.current_chat_ml.length > 1) {
+    //   subject = "chat log";
+    // }
+    const hyd_input = `Respond in the form of a hypothetical note written by the user. The note may contain paragraphs, lists, or checklists in markdown format with no headings. Please respond with one hypothetical note and abstain from any other commentary. Use the format: PARENT FOLDER NAME > CHILD FOLDER NAME > FILE NAME > HEADING 1 > HEADING 2 > HEADING 3: HYPOTHETICAL NOTE CONTENTS.`;
+    // complete
+    const chatml = [
+      {
+        role: "system",
+        content: hyd_input 
+      },
+      {
+        role: "user",
+        content: user_input
+      }
+    ];
+    const hyd = await this.request_chatgpt_completion({
+      messages: chatml,
+      stream: false,
+      temperature: 0,
+      max_tokens: 150,
+    });
+    // this.render_message(hyd, "assistant", true);
+    // search for nearest based on hyd
+    const nearest = await this.plugin.api.search(hyd);
+    // console.log(nearest);
+    // get the top 3 results excluding files (must have a # in the link)
+    let top = [];
+    const MAX_SOURCES = 10; // 10 * 1000 (max chars) = 10,000 chars (must be under ~16,000 chars or 4K tokens) 
+    for(let i = 0; i < nearest.length; i++) {
+      if(top.length >= MAX_SOURCES) break;
+      if((typeof nearest[i].link === 'string') && nearest[i].link.indexOf("#") !== -1){
+        const block_content = await this.plugin.block_retriever(nearest[i].link, {max_chars: 1000});
+        const breadcrumbs = nearest[i].link.replace(/#/g, " > ").replace(".md", "").replace(/\//g, " > ");
+        top.push({
+          link: nearest[i].link,
+          text: `${breadcrumbs}\n${block_content}`
+        });
+      }
+    }
+    console.log(top);
+    return top;
+  }
+  
+  // render "Smart Connections" text fixed in the bottom right corner
+  render_brand(container) {
+    // brand container
+    const brand_container = container.createEl("div", { cls: "sc-brand" });
+    // add text
+    // add SVG signal icon using getIcon
+    Obsidian.setIcon(brand_container, "smart-connections");
+    brand_container.createEl("p", { cls: "", text: "Smart Connections" });
+  }
+
 }
 
 module.exports = SmartConnectionsPlugin;
