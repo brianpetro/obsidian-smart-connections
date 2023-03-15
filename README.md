@@ -120,26 +120,18 @@ The plugin integrates [OpenAI Embeddings](https://beta.openai.com/docs/guides/em
 - This plugin is designed to manage the vector interpretation ("embeddings") of the notes in your vaults. The requirements for managing this can be extensive.
 - While there are many ways to interpret the vector relationships and make them useful this plugin is focused on delivering the core capabilities required to utilize such a system.
 
-## About the Author: WFH Brian
-WFH Brian is an entrepreneur and consultant specializing in the AI space. With years of experience and a deep understanding of the latest advancements in AI, he is committed to helping businesses navigate the rapidly changing AI landscape.
+## About the Author
+WFH Brian is an entrepreneur and consultant with extensive experience in artificial intelligence (AI) systems. Passionate about helping businesses unlock the potential of AI, he offers a range of services designed to make AI accessible and impactful for organizations of all sizes.
 
-Brian's expertise and services include:
+[![](./wfh-brian-ai-header.jpg)](https://wfhbrian.com/build-with-ai/)
 
 ### AI Tutoring and Education
-Brian offers tutoring to help individuals and businesses gain confidence in their understanding of AI technologies and their potential impact on their industry. By the end of the tutoring, you will be able to confidently discuss AI advancements and evaluate their value for your business.
+Brian's AI tutoring and education services transform clients from being anxious about AI's impact on their businesses to feeling confident and capable of harnessing its potential. He demystifies the latest AI advancements, enabling clients to make informed decisions, actively engage in AI-related discussions, and identify areas where AI can add value to their businesses.
 
 ### Prompt Development Workshop
-Brian can help you improve your existing proprietary prompts or develop new employee productivity prompts to maximize the utilization of AI tools like ChatGPT. The workshop focuses on understanding scenarios where prompts are utilized, creating test scenarios, designing and testing prompts, and educating employees about prompt usage.
+Maximize the benefits of AI tools like ChatGPT with Brian's prompt development workshops. He works closely with clients to optimize their proprietary prompts, streamline workflows, and enhance overall productivity. By identifying and improving key areas, Brian ensures clients make the most of the available AI technologies.
 
 ### AI Strategy Consulting
-With Brian's AI strategy consulting, you can transform your idea for using AI in your business into a concrete plan. The consulting process involves discussing your idea, identifying necessary AI components, and designing an AI system that you can implement.
+For businesses seeking to adopt AI, Brian provides comprehensive AI strategy consulting services. From conceptualizing ideas to developing actionable plans, his expert guidance covers all aspects of AI transformation. Brian's commitment to delivering tangible results and ROI ensures clients can confidently navigate the AI landscape.
 
-### AI Transformation Consulting
-Brian provides comprehensive AI transformation consulting, including identifying and implementing AI technologies to transform business processes and improve customer experiences. He offers customized solutions tailored to each client's unique needs and is committed to delivering tangible results and ROI.
-
-#### Executive Accelerator
-For a focused and efficient consultation, consider the 90-minute "Executive Accelerator" strategy development call. This call covers aspects of your business that might be improved with AI and helps you identify the most impactful technologies to use.
-
-**Special Offer**: Interested in additional coaching, consulting, or support? Ask about a 100% rebate for the Executive Accelerator session when you accept a proposal for additional coaching, consultation, or support.
-
-By using the Smart Connections plugin, you're not only benefiting from Brian's expertise in the AI space but also opening the door to a range of services that can help you and your business excel in the age of AI. To learn more about these services or book a session with Brian, visit his website at [wfhbrian.com](https://wfhbrian.com/).
+To discover more about WFH Brian's services or to book a consultation, please visit [his website](https://wfhbrian.com/services). Don't miss the opportunity to take your business to new heights with expert AI insights from WFH Brian. If you find Smart Connections valuable, spread the word and help others benefit from his expertise as well!
