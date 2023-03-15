@@ -5,7 +5,7 @@
 ### Smart Chat: Transform Your Notes into Interactive Conversations
 Enhance your note-taking experience with **Smart Chat**, a plugin that turns your notes into an AI-powered interactive chat. Retrieve information, clarify concepts, and explore ideas by engaging in a conversation with your notes.
 
-![](./smart-connections-chat-backstory.gif)
+![](./smart-connections-chat-who-am-i.gif)
 
 #### How Smart Chat Works
 - To access Smart Chat, open the command palette and select "Smart Connections: Open Smart Chat." If you already have the Smart View pane open, you can also access the Smart Chat by clicking the message icon in the top right.
@@ -19,7 +19,7 @@ Enhance your note-taking experience with **Smart Chat**, a plugin that turns you
 - **Natural language processing**: The AI-powered feature interprets and responds to your questions in a conversational manner, simulating a chat with a real person.
 - **Multilingual support**: Smart Chat can understand and respond to queries in multiple languages, allowing you to interact with your notes in your preferred language.
  
-![](./smart-connections-chat-who-am-i.gif)
+![](./smart-connections-chat-backstory.gif)
 
 ##### Coming soon!
 - **Note linking**: If a response references a specific note in your vault, Smart Chat will provide a link to that note for quick access.
