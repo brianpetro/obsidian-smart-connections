@@ -19,6 +19,9 @@
   height: 0.88rem;
   width: auto;
 }
+.sc-brand > svg, .sc-brand > p > a {
+  color: var(--tab-text-color-focused-active-current);
+}
 .sc-context {
   color: var(--nav-item-color);
   font-size: var(--nav-item-size);

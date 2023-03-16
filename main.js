@@ -144,14 +144,14 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // initialize when layout is ready
     this.app.workspace.onLayoutReady(this.initialize.bind(this));
 
-    // /**
-    //  * EXPERIMENTAL
-    //  * - window-based API access
-    //  * - code-block rendering
-    //  */
-    // this.api = new SmartConnectionsApi(this.app, this);
-    // // register API to global window object
-    // (window["SmartConnectionsApi"] = this.api) && this.register(() => delete window["SmartConnectionsApi"]);
+    /**
+     * EXPERIMENTAL
+     * - window-based API access
+     * - code-block rendering
+     */
+    this.api = new ScSearchApi(this.app, this);
+    // register API to global window object
+    (window["SmartSearchApi"] = this.api) && this.register(() => delete window["SmartSearchApi"]);
 
     // code-block renderer
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this));
@@ -1410,6 +1410,21 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
     return valid;
   }
+  // render "Smart Connections" text fixed in the bottom right corner
+  render_brand(container) {
+    // brand container
+    const brand_container = container.createEl("div", { cls: "sc-brand" });
+    // add text
+    // add SVG signal icon using getIcon
+    Obsidian.setIcon(brand_container, "smart-connections");
+    const brand_p = brand_container.createEl("p");
+    brand_p.createEl("a", {
+      cls: "",
+      text: "Smart Connections",
+      href: "https://wfhbrian.com/introducing-smart-chat-transform-your-obsidian-notes-into-interactive-ai-powered-conversations/?utm_source=plugin",
+      target: "_blank"
+    });
+  }
 }
 
 const SMART_CONNECTIONS_VIEW_TYPE = "smart-connections-view";
@@ -1794,7 +1809,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
         }
       }
     }
-    this.render_brand(container);
+    this.plugin.render_brand(container);
   }
 
   render_block_context(block) {
@@ -1892,16 +1907,6 @@ class SmartConnectionsView extends Obsidian.ItemView {
     });
   }
 
-  // render "Smart Connections" text fixed in the bottom right corner
-  render_brand(container) {
-    // brand container
-    const brand_container = container.createEl("div", { cls: "sc-brand" });
-    // add text
-    // add SVG signal icon using getIcon
-    Obsidian.setIcon(brand_container, "smart-connections");
-    brand_container.createEl("p", { cls: "", text: "Smart Connections" });
-  }
-
   // render buttons: "create" and "retry" for loading embeddings.json file
   render_embeddings_buttons() {
     // get container element
@@ -1991,9 +1996,9 @@ class SmartConnectionsView extends Obsidian.ItemView {
      * - window-based API access
      * - code-block rendering
      */
-    this.plugin.api = new SmartConnectionsApi(this.app, this.plugin, this);
+    this.api = new SmartConnectionsViewApi(this.app, this.plugin, this);
     // register API to global window object
-    (window["SmartConnectionsApi"] = this.plugin.api) && this.register(() => delete window["SmartConnectionsApi"]);
+    (window["SmartConnectionsViewApi"] = this.api) && this.register(() => delete window["SmartConnectionsViewApi"]);
 
   }
 
@@ -2087,7 +2092,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
 
   async search(search_text, results_only=false) {
-    const nearest = await this.plugin.api.search(search_text);
+    const nearest = await this.api.search(search_text);
     // render results in view with first 100 characters of search text
     const nearest_context = `Selection: "${search_text.length > 100 ? search_text.substring(0, 100) + "..." : search_text}"`;
     this.set_nearest(nearest, nearest_context, results_only);
@@ -2152,11 +2157,26 @@ class SmartConnectionsView extends Obsidian.ItemView {
 
 }
 
-class SmartConnectionsApi {
+class SmartConnectionsViewApi {
   constructor(app, plugin, view) {
     this.app = app;
     this.plugin = plugin;
     this.view = view;
+  }
+  async search (search_text) {
+    return await this.plugin.api.search(search_text);
+  }
+  // trigger reload of embeddings file
+  async reload_embeddings_file() {
+    await this.view.load_embeddings_file();
+    await this.view.render_connections();
+  }
+  
+}
+class ScSearchApi {
+  constructor(app, plugin) {
+    this.app = app;
+    this.plugin = plugin;
   }
   async search (search_text) {
     let nearest = [];
@@ -2169,12 +2189,6 @@ class SmartConnectionsApi {
     }
     return nearest;
   }
-  // trigger reload of embeddings file
-  async reload_embeddings_file() {
-    await this.view.load_embeddings_file();
-    await this.view.render_connections();
-  }
-  
 }
 
 class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
@@ -2386,7 +2400,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.render_chat_box();
     // render chat input
     this.render_chat_input();
-    this.render_brand(this.containerEl);
+    this.plugin.render_brand(this.containerEl);
     // render initial message from assistant
     this.render_message(INITIAL_MESSAGE, "assistant");
   }
@@ -2629,7 +2643,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       messages: chatml,
       stream: false,
       temperature: 0,
-      max_tokens: 150,
+      max_tokens: 100,
     });
     // this.render_message(hyd, "assistant", true);
     // search for nearest based on hyd
@@ -2651,16 +2665,6 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     }
     console.log(top);
     return top;
-  }
-  
-  // render "Smart Connections" text fixed in the bottom right corner
-  render_brand(container) {
-    // brand container
-    const brand_container = container.createEl("div", { cls: "sc-brand" });
-    // add text
-    // add SVG signal icon using getIcon
-    Obsidian.setIcon(brand_container, "smart-connections");
-    brand_container.createEl("p", { cls: "", text: "Smart Connections" });
   }
 
 }
