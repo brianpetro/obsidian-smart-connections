@@ -2483,7 +2483,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     const context = await this.get_hyde_context(user_input);
     // get user input with added context
     const context_input = this.build_context_input(context);
-    console.log(context_input);
+    // console.log(context_input);
     const chatml = [
       {
         role: "system",
@@ -2547,7 +2547,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       // logit_bias: logit_bias,
       ...opts
     }
-    console.log(opts.messages);
+    // console.log(opts.messages);
     try{
       const response = await (0, Obsidian.requestUrl)({
         url: `https://api.openai.com/v1/chat/completions`,
@@ -2627,7 +2627,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // if(this.current_chat_ml.length > 1) {
     //   subject = "chat log";
     // }
-    const hyd_input = `Respond in the form of a hypothetical note written by the user. The note may contain paragraphs, lists, or checklists in markdown format with no headings. Please respond with one hypothetical note and abstain from any other commentary. Use the format: PARENT FOLDER NAME > CHILD FOLDER NAME > FILE NAME > HEADING 1 > HEADING 2 > HEADING 3: HYPOTHETICAL NOTE CONTENTS.`;
+    const hyd_input = `Anticipate what the user is seeking. Respond in the form of a hypothetical note written by the user. The note may contain statements as paragraphs, lists, or checklists in markdown format with no headings. Please respond with one hypothetical note and abstain from any other commentary. Use the format: PARENT FOLDER NAME > CHILD FOLDER NAME > FILE NAME > HEADING 1 > HEADING 2 > HEADING 3: HYPOTHETICAL NOTE CONTENTS.`;
     // complete
     const chatml = [
       {
@@ -2646,6 +2646,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       max_tokens: 100,
     });
     // this.render_message(hyd, "assistant", true);
+    // console.log(hyd);
     // search for nearest based on hyd
     const nearest = await this.plugin.api.search(hyd);
     // console.log(nearest);
@@ -2654,16 +2655,31 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     const MAX_SOURCES = 10; // 10 * 1000 (max chars) = 10,000 chars (must be under ~16,000 chars or 4K tokens) 
     for(let i = 0; i < nearest.length; i++) {
       if(top.length >= MAX_SOURCES) break;
-      if((typeof nearest[i].link === 'string') && nearest[i].link.indexOf("#") !== -1){
+      if((typeof nearest[i].link === 'string') && nearest[i].link.indexOf("#") !== -1){ // is block
         const block_content = await this.plugin.block_retriever(nearest[i].link, {max_chars: 1000});
         const breadcrumbs = nearest[i].link.replace(/#/g, " > ").replace(".md", "").replace(/\//g, " > ");
         top.push({
           link: nearest[i].link,
           text: `${breadcrumbs}\n${block_content}`
         });
+      }else if(typeof nearest[i].link === 'string'){ // is file
+        const this_file = this.app.vault.getAbstractFileByPath(nearest[i].link);
+        // if file is not found, skip
+        if (!(this_file instanceof Obsidian.TAbstractFile)) continue;
+        // use cachedRead to get the first 10 lines of the file
+        const file_content = await this.app.vault.cachedRead(this_file);
+        // get first 1000 chars
+        const file_content_1000 = file_content.substring(0, 1000);
+        // generate breadcrumbs
+        const breadcrumbs = nearest[i].link.replace(".md", "").replace(/\//g, " > ");
+        // add to top
+        top.push({
+          link: nearest[i].link,
+          text: `${breadcrumbs}\n${file_content_1000}`
+        });
       }
     }
-    console.log(top);
+    // console.log(top);
     return top;
   }
 
