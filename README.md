@@ -148,4 +148,4 @@ Maximize the benefits of AI tools like ChatGPT with Brian's prompt development w
 ### AI Strategy Consulting
 For businesses seeking to adopt AI, Brian provides comprehensive AI strategy consulting services. From conceptualizing ideas to developing actionable plans, his expert guidance covers all aspects of AI transformation. Brian's commitment to delivering tangible results and ROI ensures clients can confidently navigate the AI landscape.
 
-To discover more about WFH Brian's services or to book a consultation, please visit [his website](https://wfhbrian.com/services). Don't miss the opportunity to take your business to new heights with expert AI insights from WFH Brian. If you find Smart Connections valuable, spread the word and help others benefit from his expertise as well!
+To discover more about WFH Brian's services or to book a consultation, please visit [his website](https://wfhbrian.com/build-with-ai/). Don't miss the opportunity to take your business to new heights with expert AI insights from WFH Brian. If you find Smart Connections valuable, spread the word and help others benefit from his expertise as well!
