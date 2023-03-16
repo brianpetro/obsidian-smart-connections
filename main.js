@@ -97,6 +97,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
   }
   async onload() {
+    this.addIcon();
     await this.loadSettings();
     console.log("loading plugin");
     this.addCommand({
@@ -183,7 +184,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   async initialize() {
-    this.addIcon();
     // if this settings.view_open is true, open view on startup
     if(this.settings.view_open) {
       this.open_view();
