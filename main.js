@@ -2227,6 +2227,7 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
         this.plugin.settings.smart_chat_model = value;
         await this.plugin.saveSettings();
       });
+      dropdown.setValue(this.plugin.settings.smart_chat_model);
     });
     containerEl.createEl("h2", {
       text: "Exclusions"
