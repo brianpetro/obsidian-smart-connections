@@ -3,7 +3,7 @@
 
 ## Features
 ### Smart Chat: Transform Your Notes into Interactive Conversations
-Enhance your note-taking experience with **Smart Chat**, a plugin that turns your notes into an AI-powered interactive chat. Retrieve information, clarify concepts, and explore ideas by engaging in a conversation with your notes.
+Enhance your note-taking experience with [Smart Chat](https://wfhbrian.com/introducing-smart-chat-transform-your-obsidian-notes-into-interactive-ai-powered-conversations/), a plugin that turns your notes into an AI-powered interactive chat. Retrieve information, clarify concepts, and explore ideas by engaging in a conversation with your notes.
 
 ![](./smart-connections-chat-who-am-i.gif)
 
@@ -129,10 +129,9 @@ The plugin integrates [OpenAI Embeddings](https://beta.openai.com/docs/guides/em
 - ["Has amazing potential to unlock lots of new info that can be added to your vault"](https://github.com/brianpetro/obsidian-smart-connections/issues/19#issue-1533699525:~:text=has%20amazing%20potential%20to%20unlock%20lots%20of%20new%20info%20that%20can%20be%20added%20to%20your%20vault)
 - ["Great plugin!"](https://github.com/brianpetro/obsidian-smart-connections/issues/1#issue-1511238131:~:text=Dec%2026%2C%202022-,Great%20plugin!,-My%20request%20is)
 - ["Loving the plugin so far!"](https://github.com/brianpetro/obsidian-smart-connections/issues/2#issue-1511288845:~:text=Loving%20the%20plugin%20so%20far!)
-- [Smart Connections is so cool. I'm noticing similarities between notes that talk about the same thing but don't share any words.](https://discord.com/channels/686053708261228577/694233507500916796/1065057689949982870#:~:text=Smart%20Connections%20plugin%3F%20It%27s%20so%20cool.%20I%27m%20noticing%20similarities%20between%20notes%20that%20talk%20about%20the%20same%20thing%20but%20don%27t%20share%20any%20words.)
-- [Thanks for doing this. I love the idea to have OpenAI help look through my notes to find connections ](https://github.com/brianpetro/obsidian-smart-connections/issues/47#issue-1609765217:~:text=Thanks%20for%20doing%20this.%20I%20love%20the%20idea%20to%20have%20OpenAI%20help%20look%20through%20my%20notes%20to%20find%20connections.)
-- [I love this extension so much. So many potential features by the way.](https://github.com/brianpetro/obsidian-smart-connections/issues/48#issuecomment-1459929611:~:text=I%20love%20this%20extension%0Aso%20much.%20So%20many%20potential%20features%20by%20the%20way.)
-
+- ["Smart Connections is so cool. I'm noticing similarities between notes that talk about the same thing but don't share any words."](https://discord.com/channels/686053708261228577/694233507500916796/1065057689949982870#:~:text=Smart%20Connections%20plugin%3F%20It%27s%20so%20cool.%20I%27m%20noticing%20similarities%20between%20notes%20that%20talk%20about%20the%20same%20thing%20but%20don%27t%20share%20any%20words.)
+- ["Thanks for doing this. I love the idea to have OpenAI help look through my notes to find connections"](https://github.com/brianpetro/obsidian-smart-connections/issues/47#issue-1609765217:~:text=Thanks%20for%20doing%20this.%20I%20love%20the%20idea%20to%20have%20OpenAI%20help%20look%20through%20my%20notes%20to%20find%20connections.)
+- ["I love this extension so much. So many potential features by the way."](https://github.com/brianpetro/obsidian-smart-connections/issues/48#issuecomment-1459929611:~:text=I%20love%20this%20extension%0Aso%20much.%20So%20many%20potential%20features%20by%20the%20way.)
 
 ## About the Author
 WFH Brian is an entrepreneur and consultant with extensive experience in artificial intelligence (AI) systems. Passionate about helping businesses unlock the potential of AI, he offers a range of services designed to make AI accessible and impactful for organizations of all sizes.
