@@ -13,6 +13,7 @@ const DEFAULT_SETTINGS = {
   log_render: false,
   log_render_files: false,
   skip_sections: false,
+  smart_chat_model: "gpt-3.5-turbo",
   results_count: 30,
   view_open: true,
   version: "",
@@ -2218,6 +2219,15 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
         new Obsidian.Notice("Smart Connections: API key is not working as expected!");
       }
     }));
+    // add dropdown to select the model
+    new Obsidian.Setting(containerEl).setName("Smart Chat Model").setDesc("Select a model to use with Smart Chat.").addDropdown((dropdown) => {
+      dropdown.addOption("gpt-3.5-turbo", "gpt-3.5-turbo");
+      dropdown.addOption("gpt-4", "gpt-4 (limited access)");
+      dropdown.onChange(async (value) => {
+        this.plugin.settings.smart_chat_model = value;
+        await this.plugin.saveSettings();
+      });
+    });
     containerEl.createEl("h2", {
       text: "Exclusions"
     });
@@ -2517,9 +2527,13 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
   render_message(message, from="assistant", append_last=false) {
     if(append_last && this.last_from === from) {
       if(this.last_msg.innerHTML === '...') this.last_msg.innerHTML = '';
+      this.current_message_raw += message;
+      this.last_msg.innerHTML = '';
+      Obsidian.MarkdownRenderer.renderMarkdown(this.current_message_raw, this.last_msg, '?no-dataview', void 0);
       // append to last message
-      this.last_msg.innerHTML += message;
+      // this.last_msg.innerHTML += message;
     }else{
+      this.current_message_raw = '';
       // set last from
       this.last_from = from;
       // create message
@@ -2527,14 +2541,15 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       // create message content
       this.last_msg = message_el.createDiv("sc-message-content");
       // set message text
-      this.last_msg.innerHTML = message;
+      // this.last_msg.innerHTML = message;
+      Obsidian.MarkdownRenderer.renderMarkdown(message, this.last_msg, '?no-dataview', void 0);
     }
     // scroll to bottom
     this.message_container.scrollTop = this.message_container.scrollHeight;
   }
   async request_chatgpt_completion(opts={}) {
     opts = {
-      model: 'gpt-3.5-turbo',
+      model: this.plugin.settings.smart_chat_model,
       messages: this.current_chat_ml,
       max_tokens: 250,
       temperature: 0.3,

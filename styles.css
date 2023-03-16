@@ -121,6 +121,9 @@
 .sc-message-content {
   margin: 0;
 }
+.sc-message-content p {
+  margin: 10px;
+}
 
 .sc-chat-form {
   display: flex;
