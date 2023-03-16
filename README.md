@@ -15,6 +15,7 @@ Enhance your note-taking experience with [Smart Chat](https://wfhbrian.com/intro
 - You can continue the conversation by replying to the response or asking follow-up questions.
 
 #### Chat Features
+- **GPT-4 Support**: State-of-the-art AI model, GPT-4, is integrated into Smart Chat, offering advanced capabilities and improved performance in generating human-like responses.
 - **Context-aware responses**: Smart Chat understands the context of your notes, providing responses that are accurate and relevant to your specific content.
 - **Natural language processing**: The AI-powered feature interprets and responds to your questions in a conversational manner, simulating a chat with a real person.
 - **Multilingual support**: Smart Chat can understand and respond to queries in multiple languages, allowing you to interact with your notes in your preferred language.
