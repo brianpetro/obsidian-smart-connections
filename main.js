@@ -1041,7 +1041,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       }
       nearest.push({
         link: this.embeddings[from_keys[i]].meta.path,
-        similarity: this.computeCosineSimilarity(to_vec, this.embeddings[from_keys[i]].vec)
+        similarity: this.computeCosineSimilarity(to_vec, this.embeddings[from_keys[i]].vec),
+        len: this.embeddings[from_keys[i]].meta.len || this.embeddings[from_keys[i]].meta.size,
       });
     }
     // handle external links
@@ -1365,9 +1366,16 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       if ((line.indexOf('#') === 0) && (['#',' '].indexOf(line[1]) !== -1)){
         break; // ends when encountering next header
       }
-      // if char_count is greater than N, skip
+      // DEPRECATED: should be handled by new_line+char_count check (happens in previous iteration)
+      // if char_count is greater than limit.max_chars, skip
       if (limits.max_chars && char_count > limits.max_chars) {
         block.push("...");
+        break;
+      }
+      // if new_line + char_count is greater than limit.max_chars, skip
+      if (limits.max_chars && ((line.length + char_count) > limits.max_chars)) {
+        const max_new_chars = limits.max_chars - char_count;
+        line = line.slice(0, max_new_chars) + "...";
         break;
       }
       // validate/format
@@ -2659,42 +2667,62 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       messages: chatml,
       stream: false,
       temperature: 0,
-      max_tokens: 100,
+      max_tokens: 137,
     });
     // this.render_message(hyd, "assistant", true);
     // console.log(hyd);
     // search for nearest based on hyd
-    const nearest = await this.plugin.api.search(hyd);
+    let nearest = await this.plugin.api.search(hyd);
+    // re-sort by quotient of similarity divided by len DESC
+    nearest = nearest.sort((a, b) => {
+      const a_score = a.similarity / a.len;
+      const b_score = b.similarity / b.len;
+      // if a is greater than b, return -1
+      if(a_score > b_score) return -1;
+      // if a is less than b, return 1
+      if(a_score < b_score) return 1;
+      // if a is equal to b, return 0
+      return 0;
+    });
+
     // console.log(nearest);
     // get the top 3 results excluding files (must have a # in the link)
     let top = [];
-    const MAX_SOURCES = 10; // 10 * 1000 (max chars) = 10,000 chars (must be under ~16,000 chars or 4K tokens) 
+    const MAX_SOURCES = 20; // 10 * 1000 (max chars) = 10,000 chars (must be under ~16,000 chars or 4K tokens) 
+    const MAX_CHARS = 10000;
+    let char_accum = 0;
     for(let i = 0; i < nearest.length; i++) {
       if(top.length >= MAX_SOURCES) break;
-      if((typeof nearest[i].link === 'string') && nearest[i].link.indexOf("#") !== -1){ // is block
-        const block_content = await this.plugin.block_retriever(nearest[i].link, {max_chars: 1000});
-        const breadcrumbs = nearest[i].link.replace(/#/g, " > ").replace(".md", "").replace(/\//g, " > ");
-        top.push({
-          link: nearest[i].link,
-          text: `${breadcrumbs}\n${block_content}`
-        });
-      }else if(typeof nearest[i].link === 'string'){ // is file
+      if(char_accum >= MAX_CHARS) break;
+      if(typeof nearest[i].link !== 'string') continue;
+      // generate breadcrumbs
+      const breadcrumbs = nearest[i].link.replace(/#/g, " > ").replace(".md", "").replace(/\//g, " > ");
+      let new_context = `${breadcrumbs}:\n`;
+      // get max available chars to add to top
+      const max_available_chars = MAX_CHARS - char_accum - new_context.length;
+      if(nearest[i].link.indexOf("#") !== -1){ // is block
+        new_context += await this.plugin.block_retriever(nearest[i].link, {max_chars: max_available_chars});
+      }else{ // is file
         const this_file = this.app.vault.getAbstractFileByPath(nearest[i].link);
         // if file is not found, skip
         if (!(this_file instanceof Obsidian.TAbstractFile)) continue;
         // use cachedRead to get the first 10 lines of the file
         const file_content = await this.app.vault.cachedRead(this_file);
-        // get first 1000 chars
-        const file_content_1000 = file_content.substring(0, 1000);
-        // generate breadcrumbs
-        const breadcrumbs = nearest[i].link.replace(".md", "").replace(/\//g, " > ");
-        // add to top
-        top.push({
-          link: nearest[i].link,
-          text: `${breadcrumbs}\n${file_content_1000}`
-        });
+        // get up to max_available_chars from file_content
+        new_context += file_content.substring(0, max_available_chars);
       }
+      // add to char_accum
+      char_accum += new_context.length;
+      // add to top
+      top.push({
+        link: nearest[i].link,
+        text: new_context
+      });
     }
+    // context sources
+    console.log("context sources: " + top.length);
+    // char_accum divided by 4 and rounded to nearest integer for estimated tokens
+    console.log("total context tokens: ~" + Math.round(char_accum / 4));
     // console.log(top);
     return top;
   }
