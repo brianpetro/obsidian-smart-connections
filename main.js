@@ -2580,10 +2580,11 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
           this.last_msg.innerHTML = '.'.repeat(dots);
         }, 500);
         return;
+      }else{
+        // set message text
+        // this.last_msg.innerHTML = message;
+        Obsidian.MarkdownRenderer.renderMarkdown(message, this.last_msg, '?no-dataview', void 0);
       }
-      // set message text
-      // this.last_msg.innerHTML = message;
-      Obsidian.MarkdownRenderer.renderMarkdown(message, this.last_msg, '?no-dataview', void 0);
     }
     // scroll to bottom
     this.message_container.scrollTop = this.message_container.scrollHeight;
