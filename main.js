@@ -1,6 +1,7 @@
 const Obsidian = require("obsidian");
 // require built-in crypto module
 const crypto = require("crypto");
+const { json } = require("stream/consumers");
 
 const DEFAULT_SETTINGS = {
   api_key: "",
@@ -2400,6 +2401,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.current_chat_ml = [];
     this.last_from = null;
     this.last_msg = null;
+    this.prevent_input = false;
   }
   getDisplayText() {
     return "Smart Connections Chat";
@@ -2447,6 +2449,8 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.current_chat_ml = [];
     // render initial message from assistant
     this.render_message(INITIAL_MESSAGE, "assistant");
+    // update prevent input
+    this.prevent_input = false;
   }
   // render chat messages container
   render_chat_box() {
@@ -2460,14 +2464,19 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // create container for chat input
     let chat_input = this.chat_container.createDiv("sc-chat-form");
     // create textarea
-    let textarea = chat_input.createEl("textarea", {cls: "sc-chat-input"});
+    this.textarea = chat_input.createEl("textarea", {cls: "sc-chat-input"});
     // add event listener to listen for shift+enter
     chat_input.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && e.shiftKey) {
+        if(this.prevent_input){
+          console.log("wait until current response is finished");
+          new Obsidian.Notice("Wait until current response is finished");
+          return;
+        }
         // get text from textarea
-        let user_input = textarea.value;
+        let user_input = this.textarea.value;
         // clear textarea
-        textarea.value = "";
+        this.textarea.value = "";
         // initiate response from assistant
         this.initialize_response(user_input);
       }
@@ -2477,15 +2486,21 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     button.innerHTML = "Send";
     // add event listener to button
     button.addEventListener("click", () => {
+      if(this.prevent_input){
+        console.log("wait until current response is finished");
+        new Obsidian.Notice("Wait until current response is finished");
+        return;
+      }
       // get text from textarea
-      let user_input = textarea.value;
+      let user_input = this.textarea.value;
       // clear textarea
-      textarea.value = "";
+      this.textarea.value = "";
       // initiate response from assistant
       this.initialize_response(user_input);
     });
   }
   async initialize_response(user_input) {
+    this.prevent_input = true;
     // render message
     this.render_message(user_input, "user");
     this.append_chatml(user_input, "user");
@@ -2535,7 +2550,14 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
   // render message
   render_message(message, from="assistant", append_last=false) {
     if(append_last && this.last_from === from) {
-      if(this.last_msg.innerHTML === '...') this.last_msg.innerHTML = '';
+      // if(this.last_msg.innerHTML === '...') this.last_msg.innerHTML = '';
+      // if dotdotdot interval is set, then clear it
+      if(this.dotdotdot_interval) {
+        clearInterval(this.dotdotdot_interval);
+        this.dotdotdot_interval = null;
+        // clear last message
+        this.last_msg.innerHTML = '';
+      }
       this.current_message_raw += message;
       this.last_msg.innerHTML = '';
       Obsidian.MarkdownRenderer.renderMarkdown(this.current_message_raw, this.last_msg, '?no-dataview', void 0);
@@ -2549,6 +2571,16 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       let message_el = this.message_container.createDiv(`sc-message ${from}`);
       // create message content
       this.last_msg = message_el.createDiv("sc-message-content");
+      // if is '...', then initiate interval to change to '.' and then to '..' and then to '...'
+      if((from === "assistant") && (message === '...')) {
+        let dots = 0;
+        this.dotdotdot_interval = setInterval(() => {
+          dots++;
+          if(dots > 3) dots = 1;
+          this.last_msg.innerHTML = '.'.repeat(dots);
+        }, 500);
+        return;
+      }
       // set message text
       // this.last_msg.innerHTML = message;
       Obsidian.MarkdownRenderer.renderMarkdown(message, this.last_msg, '?no-dataview', void 0);
@@ -2588,6 +2620,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       if(!opts.stream) {
         return JSON.parse(response.text).choices[0].message.content;
       }
+      // the following code is for streaming
       try {
         const json = response.json;
         if (json && json.error) {
@@ -2629,8 +2662,12 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
             full_str += delta;
           }
         }
+        // if is done
+        if(resp_line && resp_line.indexOf("[DONE]") !== -1) {
+          this.prevent_input = false;
+        }
       }
-      console.log(full_str);
+      // console.log(full_str);
       this.append_chatml(full_str, "assistant");
       return;
     }catch(err){
@@ -2673,6 +2710,24 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // console.log(hyd);
     // search for nearest based on hyd
     let nearest = await this.plugin.api.search(hyd);
+    // get std dev of similarity
+    const sim = nearest.map((n) => n.similarity);
+    const mean = sim.reduce((a, b) => a + b) / sim.length;
+    const std_dev = Math.sqrt(sim.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / sim.length);
+    // slice where next item deviation is greater than std_dev
+    let slice_i = 0;
+    while(slice_i < nearest.length) {
+      const next = nearest[slice_i + 1];
+      if(next) {
+        const next_dev = Math.abs(next.similarity - nearest[slice_i].similarity);
+        if(next_dev > std_dev) {
+          break;
+        }
+      }
+      slice_i++;
+    }
+    // select top results
+    nearest = nearest.slice(0, slice_i);
     // re-sort by quotient of similarity divided by len DESC
     nearest = nearest.sort((a, b) => {
       const a_score = a.similarity / a.len;
