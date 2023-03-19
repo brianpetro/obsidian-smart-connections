@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS = {
   path_only: "",
   show_full_path: false,
   expanded_view: true,
+  group_nearest_by_file: false,
   log_render: false,
   log_render_files: false,
   skip_sections: false,
@@ -1406,6 +1407,92 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
     return block.join("\n").trim();
   }
+
+  // retrieve a file from the vault
+  async file_retriever(link, limits={}) {
+    limits = {
+      lines: null,
+      max_chars: null,
+      chars_per_line: null,
+      ...limits
+    };
+    const this_file = this.app.vault.getAbstractFileByPath(link);
+    // if file is not found, skip
+    if (!(this_file instanceof Obsidian.TAbstractFile)) return false;
+    // use cachedRead to get the first 10 lines of the file
+    const file_content = await this.app.vault.cachedRead(this_file);
+    const file_lines = file_content.split("\n");
+    let first_ten_lines = [];
+    let is_code = false;
+    let char_accum = 0;
+    const line_limit = limits.lines || file_lines.length;
+    for (let i = 0; first_ten_lines.length < line_limit; i++) {
+      let line = file_lines[i];
+      // if line is undefined, break
+      if (typeof line === 'undefined')
+        break;
+      // if line is empty, skip
+      if (line.length === 0)
+        continue;
+      // limit length of line to N characters
+      if (limits.chars_per_line && line.length > limits.chars_per_line) {
+        line = line.slice(0, limits.chars_per_line) + "...";
+      }
+      // if line is "---", skip
+      if (line === "---")
+        continue;
+      // skip if line is empty bullet or checkbox
+      if (['- ', '- [ ] '].indexOf(line) > -1)
+        continue;
+      // if line is a code block, skip
+      if (line.indexOf("```") === 0) {
+        is_code = !is_code;
+        continue;
+      }
+      // if char_accum is greater than limit.max_chars, skip
+      if (limits.max_chars && char_accum > limits.max_chars) {
+        first_ten_lines.push("...");
+        break;
+      }
+      if (is_code) {
+        // if is code, add tab to beginning of line
+        line = "\t" + line;
+      }
+      // if line is a heading
+      if (line_is_heading(line)) {
+        // look at last line in first_ten_lines to see if it is a heading
+        // note: uses last in first_ten_lines, instead of look ahead in file_lines, because..
+        // ...next line may be excluded from first_ten_lines by previous if statements
+        if ((first_ten_lines.length > 0) && line_is_heading(first_ten_lines[first_ten_lines.length - 1])) {
+          // if last line is a heading, remove it
+          first_ten_lines.pop();
+        }
+      }
+      // add line to first_ten_lines
+      first_ten_lines.push(line);
+      // increment char_accum
+      char_accum += line.length;
+    }
+    // for each line in first_ten_lines, apply view-specific formatting
+    for (let i = 0; i < first_ten_lines.length; i++) {
+      // if line is a heading
+      if (line_is_heading(first_ten_lines[i])) {
+        // if this is the last line in first_ten_lines
+        if (i === first_ten_lines.length - 1) {
+          // remove the last line if it is a heading
+          first_ten_lines.pop();
+          break;
+        }
+        // remove heading syntax to improve readability in small space
+        first_ten_lines[i] = first_ten_lines[i].replace(/#+/, "");
+        first_ten_lines[i] = `\n${first_ten_lines[i]}:`;
+      }
+    }
+    // join first ten lines into string
+    first_ten_lines = first_ten_lines.join("\n");
+    return first_ten_lines;
+  }
+
   // iterate through blocks and skip if block_headings contains this.header_exclusions
   validate_headings(block_headings) {
     let valid = true;
@@ -1622,9 +1709,96 @@ class SmartConnectionsView extends Obsidian.ItemView {
     if(!this.plugin.settings.expanded_view) search_result_class += " sc-collapsed";
 
     // TODO: add option to group nearest by file
-    // if(this.plugin.settings.group_nearest_by_file) {
-    // } else {
-    // }
+    if(!this.plugin.settings.group_nearest_by_file) {
+      // for each nearest note
+      for (let i = 0; i < nearest.length; i++) {
+        /**
+         * BEGIN EXTERNAL LINK LOGIC
+         * if link is an object, it indicates external link
+         */
+        if (typeof nearest[i].link === "object") {
+          const item = list.createEl("div", { cls: "search-result" });
+          const link = item.createEl("a", {
+            cls: "tree-item-self search-result-file-title is-clickable",
+            href: nearest[i].link.path,
+            title: nearest[i].link.title,
+          });
+          link.innerHTML = this.render_external_link_elm(nearest[i].link);
+          item.setAttr('draggable', 'true')
+          continue; // ends here for external links
+        }
+        /**
+         * BEGIN INTERNAL LINK LOGIC
+         * if link is a string, it indicates internal link
+         */
+        let file_link_text;
+        const file_similarity_pct = Math.round(nearest[i].similarity * 100) + "%";
+        if(this.plugin.settings.show_full_path) {
+          const pcs = nearest[i].link.split("/");
+          file_link_text = pcs[pcs.length - 1];
+          const path = pcs.slice(0, pcs.length - 1).join("/");
+          // file_link_text = `<small>${path} | ${file_similarity_pct}</small><br>${file_link_text}`;
+          file_link_text = `${file_similarity_pct} | ${path} | ${file_link_text}`;
+        }else{
+          file_link_text = file_similarity_pct + " | " + nearest[i].link.split("/").pop();
+        }
+        // skip contents rendering if incompatible file type
+        // ex. not markdown file or contains no '.excalidraw'
+        if(!this.renderable_file_type(nearest[i].link)){
+          const item = list.createEl("div", { cls: "search-result" });
+          const link = item.createEl("a", {
+            cls: "tree-item-self search-result-file-title is-clickable",
+            href: nearest[i].link,
+          });
+          link.innerHTML = file_link_text;
+          // drag and drop
+          item.setAttr('draggable', 'true')
+          // add listeners to link
+          this.add_link_listeners(link, nearest[i], item);
+          continue;
+        }
+
+        // remove file extension if .md and make # into >
+        file_link_text = file_link_text.replace(".md", "").replace(/#/g, " > ");
+        // create item
+        const item = list.createEl("div", { cls: search_result_class });
+        // create span for toggle
+        const toggle = item.createEl("span", { cls: "tree-item-self is-clickable" });
+        // insert right triangle svg as toggle
+        Obsidian.setIcon(toggle, "right-triangle"); // must come before adding other elms to prevent overwrite
+        const link = toggle.createEl("a", {
+          cls: "search-result-file-title",
+          title: nearest[i].link,
+        });
+        link.innerHTML = file_link_text;
+        // add listeners to link
+        this.add_link_listeners(link, nearest[i], item);
+        toggle.addEventListener("click", (event) => {
+          // find parent containing search-result class
+          let parent = event.target.parentElement;
+          while (!parent.classList.contains("search-result")) {
+            parent = parent.parentElement;
+          }
+          // toggle sc-collapsed class
+          parent.classList.toggle("sc-collapsed");
+        });
+        const contents = item.createEl("ul", { cls: "" });
+        const contents_container = contents.createEl("li", {
+          cls: "tree-item-self search-result-file-title is-clickable",
+          title: nearest[i].link,
+        });
+        if(nearest[i].link.indexOf("#") > -1){ // is block
+          Obsidian.MarkdownRenderer.renderMarkdown((await this.plugin.block_retriever(nearest[i].link, {lines: 10, max_chars: 1000})), contents_container, nearest[i].link, void 0);
+        }else{ // is file
+          const first_ten_lines = await this.plugin.file_retriever(nearest[i].link, {lines: 10, max_chars: 1000});
+          if(!first_ten_lines) continue; // skip if file is empty
+          Obsidian.MarkdownRenderer.renderMarkdown(first_ten_lines, contents_container, nearest[i].link, void 0);
+        }
+        this.add_link_listeners(contents, nearest[i], item);
+      }
+      this.plugin.render_brand(container);
+      return;
+    }
 
     // group nearest by file
     const nearest_by_file = {};
@@ -1693,7 +1867,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
         
       // skip contents rendering if incompatible file type
       // ex. not markdown or contains '.excalidraw'
-      if((file[0].link.indexOf(".md") === -1) || (file[0].link.indexOf(".excalidraw") > -1)) {
+      if(!this.renderable_file_type(file[0].link)) {
         const item = list.createEl("div", { cls: "search-result" });
         const file_link = item.createEl("a", {
           cls: "tree-item-self search-result-file-title is-clickable",
@@ -1757,67 +1931,8 @@ class SmartConnectionsView extends Obsidian.ItemView {
             title: file[0].link,
           });
           const block_container = block_link.createEl("div");
-          const this_file = this.app.vault.getAbstractFileByPath(file[0].link);
-          // if file is not found, skip
-          if (!(this_file instanceof Obsidian.TAbstractFile)) continue;
-          // use cachedRead to get the first 10 lines of the file
-          const file_content = await this.app.vault.cachedRead(this_file);
-          const file_lines = file_content.split("\n");
-          let first_ten_lines = [];
-          let is_code = false;
-          for (let i = 0; first_ten_lines.length < 10; i++) {
-            let line = file_lines[i];
-            // if line is undefined, break
-            if (typeof line === 'undefined') break;
-            // if line is empty, skip
-            if (line.length === 0) continue;
-            // limit length of line to N characters
-            if (line.length > 100) {
-              line = line.slice(0, 100) + "...";
-            }
-            // if line is "---", skip
-            if (line === "---") continue;
-            // skip if line is empty bullet or checkbox
-            if(['- ', '- [ ] '].indexOf(line) > -1) continue;
-            // if line is a code block, skip
-            if (line.indexOf("```") === 0) {
-              is_code = !is_code;
-              continue;
-            }
-            if (is_code) {
-              // if is code, add tab to beginning of line
-              line = "\t" + line;
-            }
-            // if line is a heading
-            if (line_is_heading(line)) {
-              // look at last line in first_ten_lines to see if it is a heading
-              // note: uses last in first_ten_lines, instead of look ahead in file_lines, because..
-              // ...next line may be excluded from first_ten_lines by previous if statements
-              if((first_ten_lines.length > 0) && line_is_heading(first_ten_lines[first_ten_lines.length - 1])) {
-                // if last line is a heading, remove it
-                first_ten_lines.pop();
-              }
-            }
-            // add line to first_ten_lines
-            first_ten_lines.push(line);
-          }
-          // for each line in first_ten_lines, apply view-specific formatting
-          for(let i = 0; i < first_ten_lines.length; i++) {
-            // if line is a heading
-            if (line_is_heading(first_ten_lines[i])) {
-              // if this is the last line in first_ten_lines
-              if(i === first_ten_lines.length - 1) {
-                // remove the last line if it is a heading
-                first_ten_lines.pop();
-                break;
-              }
-              // remove heading syntax to improve readability in small space
-              first_ten_lines[i] = first_ten_lines[i].replace(/#+/, "");
-              first_ten_lines[i] = `\n${first_ten_lines[i]}:`;
-            }
-          }
-          // join first ten lines into string
-          first_ten_lines = first_ten_lines.join("\n");
+          let first_ten_lines = await this.plugin.file_retriever(file[0].link, {lines: 10, max_chars: 1000});
+          if(!first_ten_lines) continue; // if file not found, skip
           Obsidian.MarkdownRenderer.renderMarkdown(first_ten_lines, block_container, file[0].link, void 0);
           this.add_link_listeners(block_link, file[0], file_link_list);
 
@@ -1826,6 +1941,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     }
     this.plugin.render_brand(container);
   }
+
 
   render_block_context(block) {
     const block_headings = block.link.split(".md")[1].split("#");
@@ -2170,6 +2286,10 @@ class SmartConnectionsView extends Obsidian.ItemView {
 
   }
 
+
+  renderable_file_type(link) {
+    return (link.indexOf(".md") !== -1) && (link.indexOf(".excalidraw") === -1);
+  }
 }
 
 class SmartConnectionsViewApi {
@@ -2277,6 +2397,11 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     // toggle expanded view by default
     new Obsidian.Setting(containerEl).setName("expanded_view").setDesc("Expanded view by default.").addToggle((toggle) => toggle.setValue(this.plugin.settings.expanded_view).onChange(async (value) => {
       this.plugin.settings.expanded_view = value;
+      await this.plugin.saveSettings(true);
+    }));
+    // toggle group nearest by file
+    new Obsidian.Setting(containerEl).setName("group_nearest_by_file").setDesc("Group nearest by file.").addToggle((toggle) => toggle.setValue(this.plugin.settings.group_nearest_by_file).onChange(async (value) => {
+      this.plugin.settings.group_nearest_by_file = value;
       await this.plugin.saveSettings(true);
     }));
     // toggle view_open on Obsidian startup
