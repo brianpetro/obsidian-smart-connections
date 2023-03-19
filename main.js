@@ -1621,6 +1621,11 @@ class SmartConnectionsView extends Obsidian.ItemView {
     // if settings expanded_view is false, add sc-collapsed class
     if(!this.plugin.settings.expanded_view) search_result_class += " sc-collapsed";
 
+    // TODO: add option to group nearest by file
+    // if(this.plugin.settings.group_nearest_by_file) {
+    // } else {
+    // }
+
     // group nearest by file
     const nearest_by_file = {};
     for (let i = 0; i < nearest.length; i++) {
@@ -2443,14 +2448,15 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     });
   }
   new_chat() {
-    // clear chat box
-    this.message_container.empty();
+    // if this.dotdotdot_interval is not null, clear interval
+    if (this.dotdotdot_interval) {
+      clearInterval(this.dotdotdot_interval);
+    }
     // clear current chat ml
     this.current_chat_ml = [];
-    // render initial message from assistant
-    this.render_message(INITIAL_MESSAGE, "assistant");
     // update prevent input
     this.prevent_input = false;
+    this.onOpen();
   }
   // render chat messages container
   render_chat_box() {
@@ -2468,9 +2474,10 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // add event listener to listen for shift+enter
     chat_input.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && e.shiftKey) {
+        e.preventDefault();
         if(this.prevent_input){
           console.log("wait until current response is finished");
-          new Obsidian.Notice("Wait until current response is finished");
+          new Obsidian.Notice("[Smart Connections] Wait until current response is finished");
           return;
         }
         // get text from textarea
@@ -2560,9 +2567,8 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       }
       this.current_message_raw += message;
       this.last_msg.innerHTML = '';
-      Obsidian.MarkdownRenderer.renderMarkdown(this.current_message_raw, this.last_msg, '?no-dataview', void 0);
       // append to last message
-      // this.last_msg.innerHTML += message;
+      Obsidian.MarkdownRenderer.renderMarkdown(this.current_message_raw, this.last_msg, '?no-dataview', void 0);
     }else{
       this.current_message_raw = '';
       // set last from
@@ -2574,15 +2580,14 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       // if is '...', then initiate interval to change to '.' and then to '..' and then to '...'
       if((from === "assistant") && (message === '...')) {
         let dots = 0;
+        this.last_msg.innerHTML = '...';
         this.dotdotdot_interval = setInterval(() => {
           dots++;
           if(dots > 3) dots = 1;
           this.last_msg.innerHTML = '.'.repeat(dots);
         }, 500);
-        return;
       }else{
         // set message text
-        // this.last_msg.innerHTML = message;
         Obsidian.MarkdownRenderer.renderMarkdown(message, this.last_msg, '?no-dataview', void 0);
       }
     }
@@ -2605,74 +2610,70 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       ...opts
     }
     // console.log(opts.messages);
-    try{
-      const response = await (0, Obsidian.requestUrl)({
-        url: `https://api.openai.com/v1/chat/completions`,
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.plugin.settings.api_key}`,
-          "Content-Type": "application/json"
-        },
-        contentType: "application/json",
-        body: JSON.stringify(opts),
-        throw: false
-      });
-      console.log(response);
-      if(!opts.stream) {
-        return JSON.parse(response.text).choices[0].message.content;
-      }
-      // the following code is for streaming
-      try {
-        const json = response.json;
-        if (json && json.error) {
-          console.log("JSON Error");
-          console.log(json.error);
-          new Obsidian.Notice(`Smart Connections ChatGPT Error :: ${json.error.message}`);
-          throw new Error(JSON.stringify(json.error));
-        }
-      } catch (err) {
-        if (err instanceof SyntaxError) {
-          console.log("Syntax Error");
-          console.log(err);
-        } else {
-          console.log(err);
-          throw new Error(err);
-        }
-      }
-      const resp = response.text;
-      const resp_lines = resp.split("\n\n");
-      if(resp_lines.length == 0) {
-        throw new Error("Smart Connections :: No response from ChatGPT");
-      }
-      for(let i = 0; i < resp_lines.length; i++) {
-        resp_lines[i] = resp_lines[i].split("data: ")[1];
-      }
-      let full_str = "";
-      for(let i = 0; i < resp_lines.length; i++) {
-        const resp_line = resp_lines[i];
-        if(resp_line && resp_line.indexOf("[DONE]") === -1) {
-          const resp_json = JSON.parse(resp_line);
-          const delta = resp_json.choices[0].delta.content;
-          if(delta) {
-            if(delta === "`"){
-              this.render_message("...", "assistant", true); // remove?
-            }else{
-              this.render_message(delta, "assistant", true);
+    if(opts.stream) {
+      const full_str = await new Promise((resolve, reject) => {
+        try {
+          // console.log("stream", opts);
+          const url = "https://api.openai.com/v1/chat/completions";
+          const source = new ScStreamer(url, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${this.plugin.settings.api_key}`
+            },
+            method: "POST",
+            payload: JSON.stringify(opts)
+          });
+          let txt = "";
+          source.addEventListener("message", (e) => {
+            if (e.data != "[DONE]") {
+              const payload = JSON.parse(e.data);
+              const text = payload.choices[0].delta.content;
+              if (!text) {
+                return;
+              }
+              txt += text;
+              this.render_message(text, "assistant", true);
+            } else {
+              source.close();
+              // this.render_message(txt, "assistant", true);
+              this.prevent_input = false;
+              resolve(txt);
             }
-            await new Promise(r => setTimeout(r, 88));
-            full_str += delta;
-          }
-        }
-        // if is done
-        if(resp_line && resp_line.indexOf("[DONE]") !== -1) {
+          });
+          source.addEventListener("readystatechange", (e) => {
+            if (e.readyState >= 2) {
+              console.log("ReadyState: " + e.readyState);
+            }
+          });
+          source.stream();
+        } catch (err) {
+          console.error(err);
+          new Obsidian.Notice("Smart Connections Error Streaming Response. See console for details.");
           this.prevent_input = false;
+          reject(err);
         }
-      }
+      });
       // console.log(full_str);
       this.append_chatml(full_str, "assistant");
       return;
-    }catch(err){
-      new Obsidian.Notice(`Smart Connections API Error :: ${err}`);
+    }else{
+      try{
+        const response = await (0, Obsidian.requestUrl)({
+          url: `https://api.openai.com/v1/chat/completions`,
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.plugin.settings.api_key}`,
+            "Content-Type": "application/json"
+          },
+          contentType: "application/json",
+          body: JSON.stringify(opts),
+          throw: false
+        });
+        // console.log(response);
+        return JSON.parse(response.text).choices[0].message.content;
+      }catch(err){
+        new Obsidian.Notice(`Smart Connections API Error :: ${err}`);
+      }
     }
   }
   append_chatml(message, from="assistant") {
@@ -2783,6 +2784,237 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     return top;
   }
 
+}
+
+// Handle API response streaming
+class ScStreamer {
+  // constructor
+  constructor(url, options) {
+    // set default options
+    options = options || {};
+    this.url = url;
+    this.method = options.method || 'GET';
+    this.headers = options.headers || {};
+    this.payload = options.payload || null;
+    this.withCredentials = options.withCredentials || false;
+    this.listeners = {};
+    this.readyState = this.CONNECTING;
+    this.progress = 0;
+    this.chunk = '';
+    this.xhr = null;
+    this.FIELD_SEPARATOR = ':';
+    this.INITIALIZING = -1;
+    this.CONNECTING = 0;
+    this.OPEN = 1;
+    this.CLOSED = 2;
+  }
+  // addEventListener
+  addEventListener(type, listener) {
+    // check if the type is in the listeners
+    if (!this.listeners[type]) {
+      this.listeners[type] = [];
+    }
+    // check if the listener is already in the listeners
+    if(this.listeners[type].indexOf(listener) === -1) {
+      this.listeners[type].push(listener);
+    }
+  }
+  // removeEventListener
+  removeEventListener(type, listener) {
+    // check if listener type is undefined
+    if (!this.listeners[type]) {
+      return;
+    }
+    let filtered = [];
+    // loop through the listeners
+    for (let i = 0; i < this.listeners[type].length; i++) {
+      // check if the listener is the same
+      if (this.listeners[type][i] !== listener) {
+        filtered.push(this.listeners[type][i]);
+      }
+    }
+    // check if the listeners are empty
+    if (this.listeners[type].length === 0) {
+      delete this.listeners[type];
+    } else {
+      this.listeners[type] = filtered;
+    }
+  }
+  // dispatchEvent
+  dispatchEvent(event) {
+    // if no event return true
+    if (!event) {
+      return true;
+    }
+    // set event source to this
+    event.source = this;
+    // set onHandler to on + event type
+    let onHandler = 'on' + event.type;
+    // check if the onHandler has own property named same as onHandler
+    if (this.hasOwnProperty(onHandler)) {
+      // call the onHandler
+      this[onHandler].call(this, event);
+      // check if the event is default prevented
+      if (event.defaultPrevented) {
+        return false;
+      }
+    }
+    // check if the event type is in the listeners
+    if (this.listeners[event.type]) {
+      return this.listeners[event.type].every(function(callback) {
+        callback(event);
+        return !event.defaultPrevented;
+      });
+    }
+    return true;
+  }
+  // _setReadyState
+  _setReadyState(state) {
+    // set event type to readyStateChange
+    let event = new CustomEvent('readyStateChange');
+    // set event readyState to state
+    event.readyState = state;
+    // set readyState to state
+    this.readyState = state;
+    // dispatch event
+    this.dispatchEvent(event);
+  }
+  // _onStreamFailure
+  _onStreamFailure(e) {
+    // set event type to error
+    let event = new CustomEvent('error');
+    // set event data to e
+    event.data = e.currentTarget.response;
+    // dispatch event
+    this.dispatchEvent(event);
+    this.close();
+  }
+  // _onStreamAbort
+  _onStreamAbort(e) {
+    // set to abort
+    let event = new CustomEvent('abort');
+    // close
+    this.close();
+  }
+  // _onStreamProgress
+  _onStreamProgress(e) {
+    // if not xhr return
+    if (!this.xhr) {
+      return;
+    }
+    // if xhr status is not 200 return
+    if (this.xhr.status !== 200) {
+      // onStreamFailure
+      this._onStreamFailure(e);
+      return;
+    }
+    // if ready state is CONNECTING
+    if (this.readyState === this.CONNECTING) {
+      // dispatch event
+      this.dispatchEvent(new CustomEvent('open'));
+      // set ready state to OPEN
+      this._setReadyState(this.OPEN);
+    }
+    // parse the received data.
+    let data = this.xhr.responseText.substring(this.progress);
+    // update progress
+    this.progress += data.length;
+    // split the data by new line and parse each line
+    data.split(/(\r\n|\r|\n){2}/g).forEach(function(part){
+      if(part.trim().length === 0) {
+        this.dispatchEvent(this._parseEventChunk(this.chunk.trim()));
+        this.chunk = '';
+      } else {
+        this.chunk += part;
+      }
+    }.bind(this));
+  }
+  // _onStreamLoaded
+  _onStreamLoaded(e) {
+    this._onStreamProgress(e);
+    // parse the last chunk
+    this.dispatchEvent(this._parseEventChunk(this.chunk));
+    this.chunk = '';
+  }
+  // _parseEventChunk
+  _parseEventChunk(chunk) {
+    // if no chunk or chunk is empty return
+    if (!chunk || chunk.length === 0) {
+      return null;
+    }
+    // init e
+    let e = {id: null, retry: null, data: '', event: 'message'};
+    // split the chunk by new line
+    chunk.split(/(\r\n|\r|\n)/).forEach(function(line) {
+      line = line.trimRight();
+      let index = line.indexOf(this.FIELD_SEPARATOR);
+      if(index <= 0) {
+        return;
+      }
+      // field
+      let field = line.substring(0, index);
+      if(!(field in e)) {
+        return;
+      }
+      // value
+      let value = line.substring(index + 1).trimLeft();
+      if(field === 'data') {
+        e[field] += value;
+      } else {
+        e[field] = value;
+      }
+    }.bind(this));
+    // return event
+    let event = new CustomEvent(e.event);
+    event.data = e.data;
+    event.id = e.id;
+    return event;
+  }
+  // _checkStreamClosed
+  _checkStreamClosed() {
+    if(!this.xhr) {
+      return;
+    }
+    if(this.xhr.readyState === XMLHttpRequest.DONE) {
+      this._setReadyState(this.CLOSED);
+    }
+  }
+  // stream
+  stream() {
+    // set ready state to connecting
+    this._setReadyState(this.CONNECTING);
+    // set xhr to new XMLHttpRequest
+    this.xhr = new XMLHttpRequest();
+    // set xhr progress to _onStreamProgress
+    this.xhr.addEventListener('progress', this._onStreamProgress.bind(this));
+    // set xhr load to _onStreamLoaded
+    this.xhr.addEventListener('load', this._onStreamLoaded.bind(this));
+    // set xhr ready state change to _checkStreamClosed
+    this.xhr.addEventListener('readystatechange', this._checkStreamClosed.bind(this));
+    // set xhr error to _onStreamFailure
+    this.xhr.addEventListener('error', this._onStreamFailure.bind(this));
+    // set xhr abort to _onStreamAbort
+    this.xhr.addEventListener('abort', this._onStreamAbort.bind(this));
+    // open xhr
+    this.xhr.open(this.method, this.url);
+    // headers to xhr
+    for (let header in this.headers) {
+      this.xhr.setRequestHeader(header, this.headers[header]);
+    }
+    // credentials to xhr
+    this.xhr.withCredentials = this.withCredentials;
+    // send xhr
+    this.xhr.send(this.payload);
+  }
+  // close
+  close() {
+    if(this.readyState === this.CLOSED) {
+      return;
+    }
+    this.xhr.abort();
+    this.xhr = null;
+    this._setReadyState(this.CLOSED);
+  }
 }
 
 module.exports = SmartConnectionsPlugin;
