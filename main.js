@@ -1738,9 +1738,9 @@ class SmartConnectionsView extends Obsidian.ItemView {
           file_link_text = pcs[pcs.length - 1];
           const path = pcs.slice(0, pcs.length - 1).join("/");
           // file_link_text = `<small>${path} | ${file_similarity_pct}</small><br>${file_link_text}`;
-          file_link_text = `${file_similarity_pct} | ${path} | ${file_link_text}`;
+          file_link_text = `<small>${file_similarity_pct} | ${path} | ${file_link_text}</small>`;
         }else{
-          file_link_text = file_similarity_pct + " | " + nearest[i].link.split("/").pop();
+          file_link_text = '<small>' + file_similarity_pct + " | " + nearest[i].link.split("/").pop() + '</small>';
         }
         // skip contents rendering if incompatible file type
         // ex. not markdown file or contains no '.excalidraw'
