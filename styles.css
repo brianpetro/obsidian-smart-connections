@@ -45,9 +45,11 @@
 .sc-list > div > span {
   display: inline-flex;
   width: 100%;
+  padding-left: 0;
 }
-.sc-list > div > ul {
+.sc-list > div ul {
   margin: 0;
+  padding-left: 1.3rem;
 }
 .sc-list > div > a {
   display: block;
