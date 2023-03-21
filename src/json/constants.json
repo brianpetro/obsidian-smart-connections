@@ -1,0 +1,6 @@
+{
+  "MAX_EMBED_STRING_LENGTH" : 25000,
+  "VERSION" : "1.2.8",
+  "SMART_CONNECTIONS_VIEW_TYPE" : "smart-connections-view",
+  "SMART_CONNECTIONS_CHAT_VIEW_TYPE" : "smart-connections-chat-view"
+}
