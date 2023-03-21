@@ -45,6 +45,17 @@ Enhance your note-taking experience with [Smart Chat](https://wfhbrian.com/intro
 - To preview the notes in the Smart Connections Pane, you can hold down the `ctrl` or `cmd` key to preview the note while hovering over it.
 - You can drag and drop a link from the to become a link in your note or open it as a new tab.
 
+### Smart View: Dynamic Code Block
+The dynamic code block feature allows you to create a dedicated section within your notes for Smart Connections. By labeling this code block as `smart-connections`, the content within the block will be specifically used to find relevant connections in your vault.
+
+#### How to Use the Dynamic Code Block
+To create a dynamic code block for Smart Connections, follow these steps:
+1.  In your Obsidian note, start a new code block by typing three backticks followed by `smart-connections`.
+2.  Press Enter to create a new line, and type the content you want to use for finding Smart Connections. This can include keywords, phrases, or even full sentences that are relevant to the note and its context.
+3.  Close the code block by typing three backticks on a new line after your content.
+![](./sc-dynamic-codeblock-code.png)
+![](./sc-dynamic-codeblock-rendered.png)
+
 ### External Connections
 **Coming soon:** See connections to external content!
 
