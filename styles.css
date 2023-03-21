@@ -57,8 +57,27 @@
 .sc-list > div > ul > li {
   display: block;
 }
-.sc-list .search-result {
+/* Only on right sidebar */
+.mod-right-split .sc-list .search-result {
+  font-size: var(--font-text-size);
   font-size: 0.88rem;
+}
+.sc-list .search-result {
+  cursor: pointer;
+  background: transparent;
+  padding: var(--nav-item-padding);
+  margin-bottom: 1px;
+  align-items: baseline;
+  border-radius: var(--radius-s);
+  font-weight: var(--nav-item-weight);
+}
+.sc-list .search-result span {
+  color: var(--h5-color);
+}
+.sc-list .search-result small {
+  color: var(--h5-color);
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 .sc-list .search-result p {
   margin-top: 0.3rem;
