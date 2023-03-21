@@ -161,8 +161,16 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this));
 
   }
-  async render_code_block(contents, container, component) {
-    const nearest = await this.api.search(contents);
+  async render_code_block(contents, container, ctx) {
+    let nearest;
+    if(contents.trim().length > 0) {
+      nearest = await this.api.search(contents);
+    } else {
+      // use ctx to get file
+      console.log(ctx);
+      const file = this.app.vault.getAbstractFileByPath(ctx.sourcePath);
+      nearest = await this.find_note_connections(file);
+    }
     if (nearest.length) {
       this.update_results(container, nearest);
       // const list = container.createEl("ul");

@@ -52,6 +52,7 @@ The dynamic code block feature allows you to create a dedicated section within y
 To create a dynamic code block for Smart Connections, follow these steps:
 1.  In your Obsidian note, start a new code block by typing three backticks followed by `smart-connections`.
 2.  Press Enter to create a new line, and type the content you want to use for finding Smart Connections. This can include keywords, phrases, or even full sentences that are relevant to the note and its context.
+    - If left blank, the plugin will use the entire content of the note. This returns the same results as the default Smart Connections pane (Smart View).
 3.  Close the code block by typing three backticks on a new line after your content.
 ![](./sc-dynamic-codeblock-code.png)
 ![](./sc-dynamic-codeblock-rendered.png)
