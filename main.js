@@ -2242,7 +2242,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
 
   async search(search_text, results_only=false) {
-    const nearest = await this.api.search(search_text);
+    const nearest = await this.plugin.api.search(search_text);
     // render results in view with first 100 characters of search text
     const nearest_context = `Selection: "${search_text.length > 100 ? search_text.substring(0, 100) + "..." : search_text}"`;
     this.set_nearest(nearest, nearest_context, results_only);
