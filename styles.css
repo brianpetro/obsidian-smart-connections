@@ -180,3 +180,9 @@
   border-radius: 10px;
   cursor: pointer;
 }
+
+.sc-msg-button {
+  cursor: pointer;
+  float: right;
+  margin-left: 5px;
+}
