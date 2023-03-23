@@ -185,4 +185,16 @@
   cursor: pointer;
   float: right;
   margin-left: 5px;
+  opacity: 0.8;
+}
+.sc-msg-button:hover {
+  opacity: 1;
+}
+#sc-abort-button {
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 5px;
+}
+#sc-abort-button:hover {
+  background-color: var(--nav-item-background-active);
 }

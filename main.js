@@ -1527,7 +1527,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     brand_p.createEl("a", {
       cls: "",
       text: "Smart Connections",
-      href: "https://wfhbrian.com/introducing-smart-chat-transform-your-obsidian-notes-into-interactive-ai-powered-conversations/?utm_source=plugin",
+      href: "https://github.com/brianpetro/obsidian-smart-connections/discussions",
       target: "_blank"
     });
   }
@@ -2539,13 +2539,14 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
   constructor(leaf, plugin) {
     super(leaf);
     this.plugin = plugin;
-    this.chat_container = null;
-    this.chat_box = null;
-    this.message_container = null;
-    this.current_chat_ml = [];
     this.active_elm = null;
-    this.prevent_input = false;
+    this.active_stream = null;
     this.chat = null;
+    this.chat_box = null;
+    this.chat_container = null;
+    this.current_chat_ml = [];
+    this.message_container = null;
+    this.prevent_input = false;
   }
   getDisplayText() {
     return "Smart Connections Chat";
@@ -2567,8 +2568,10 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // render chat input
     this.render_chat_input();
     this.plugin.render_brand(this.containerEl);
-    // render initial message from assistant
-    this.render_message(INITIAL_MESSAGE, "assistant");
+    // render initial message from assistant (don't use render_message to skip adding to chat history)
+    // this.render_message(INITIAL_MESSAGE, "assistant");
+    this.new_messsage_bubble("assistant");
+    this.active_elm.innerHTML = '<p>'+INITIAL_MESSAGE+'</p>';
     // this.test_get_nearest_until_next_dev_exceeds_std_dev();
   }
   onClose() {
@@ -2601,7 +2604,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // clear current chat ml
     this.current_chat_ml = [];
     // update prevent input
-    this.prevent_input = false;
+    this.end_stream();
     this.onOpen();
   }
   // render chat messages container
@@ -2633,9 +2636,19 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
         // initiate response from assistant
         this.initialize_response(user_input);
       }
-    });    
+    });
+    // button container
+    let button_container = chat_input.createDiv("sc-button-container");
+    // create hidden abort button
+    let abort_button = button_container.createEl("span", { attr: {id: "sc-abort-button", style: "display: none;"} });
+    Obsidian.setIcon(abort_button, "square");
+    // add event listener to button
+    abort_button.addEventListener("click", () => {
+      // abort current response
+      this.end_stream();
+    });
     // create button
-    let button = chat_input.createEl("button", { cls: "send-button" });
+    let button = button_container.createEl("button", { attr: {id: "sc-send-button"}, cls: "send-button" });
     button.innerHTML = "Send";
     // add event listener to button
     button.addEventListener("click", () => {
@@ -2653,7 +2666,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     });
   }
   async initialize_response(user_input) {
-    this.prevent_input = true;
+    this.set_streaming_ux();
     // render message
     this.render_message(user_input, "user");
     this.chat.new_message_in_thread({
@@ -2696,6 +2709,21 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     }
   }
   
+  set_streaming_ux() {
+    this.prevent_input = true;
+    // hide send button
+    document.getElementById("sc-send-button").style.display = "none";
+    // show abort button
+    document.getElementById("sc-abort-button").style.display = "block";
+  }
+  unset_streaming_ux() {
+    this.prevent_input = false;
+    // show send button, remove display none
+    document.getElementById("sc-send-button").style.display = "";
+    // hide abort button
+    document.getElementById("sc-abort-button").style.display = "none";
+  }
+
   contains_self_referential_keywords(user_input) {
     const kw_regex = /\b(my|I|me|mine|our|ours|us|we)\b/gi;
     const matches = user_input.match(kw_regex);
@@ -2792,7 +2820,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
         try {
           // console.log("stream", opts);
           const url = "https://api.openai.com/v1/chat/completions";
-          const source = new ScStreamer(url, {
+          this.active_stream = new ScStreamer(url, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${this.plugin.settings.api_key}`
@@ -2801,7 +2829,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
             payload: JSON.stringify(opts)
           });
           let txt = "";
-          source.addEventListener("message", (e) => {
+          this.active_stream.addEventListener("message", (e) => {
             if (e.data != "[DONE]") {
               const payload = JSON.parse(e.data);
               const text = payload.choices[0].delta.content;
@@ -2811,29 +2839,27 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
               txt += text;
               this.render_message(text, "assistant", true);
             } else {
-              source.close();
-              // this.render_message(txt, "assistant", true);
-              this.prevent_input = false;
+              this.end_stream();
               resolve(txt);
             }
           });
-          source.addEventListener("readystatechange", (e) => {
+          this.active_stream.addEventListener("readystatechange", (e) => {
             if (e.readyState >= 2) {
               console.log("ReadyState: " + e.readyState);
             }
           });
-          source.addEventListener("error", (e) => {
+          this.active_stream.addEventListener("error", (e) => {
             console.error(e);
             new Obsidian.Notice("Smart Connections Error Streaming Response. See console for details.");
             this.render_message("*API Error. See console logs for details.*", "assistant");
-            this.prevent_input = false;
+            this.end_stream();
             reject(e);
           });
-          source.stream();
+          this.active_stream.stream();
         } catch (err) {
           console.error(err);
           new Obsidian.Notice("Smart Connections Error Streaming Response. See console for details.");
-          this.prevent_input = false;
+          this.end_stream();
           reject(err);
         }
       });
@@ -2865,7 +2891,23 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     }
   }
 
+  end_stream() {
+    if(this.active_stream){
+      this.active_stream.close();
+      this.active_stream = null;
+    }
+    if(this.dotdotdot_interval){
+      clearInterval(this.dotdotdot_interval);
+      this.dotdotdot_interval = null;
+      // remove parent of active_elm
+      this.active_elm.parentElement.remove();
+      this.active_elm = null;
+    }
+    this.unset_streaming_ux();
+  }
+
   async get_context_hyde(user_input) {
+    this.chat.reset_context();
     // count current chat ml messages to determine 'question' or 'chat log' wording
     const hyd_input = `Anticipate what the user is seeking. Respond in the form of a hypothetical note written by the user. The note may contain statements as paragraphs, lists, or checklists in markdown format with no headings. Please respond with one hypothetical note and abstain from any other commentary. Use the format: PARENT FOLDER NAME > CHILD FOLDER NAME > FILE NAME > HEADING 1 > HEADING 2 > HEADING 3: HYPOTHETICAL NOTE CONTENTS.`;
     // complete
@@ -3109,6 +3151,10 @@ class SmartConnectionsChatModel {
       // otherwise add to specified turn
       this.thread[turn].push(message);
     }
+  }
+  reset_context(){
+    this.context = null;
+    this.hyd = null;
   }
 
 
