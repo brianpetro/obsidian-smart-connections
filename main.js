@@ -2660,10 +2660,18 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       role: "user",
       content: user_input
     });
-    // after 200 ms render "..."
-    setTimeout(() => {
-      this.render_message("...", "assistant");
-    }, 200);
+    if(this.dotdotdot_interval) clearInterval(this.dotdotdot_interval);
+    this.render_message("...", "assistant");
+    // if is '...', then initiate interval to change to '.' and then to '..' and then to '...'
+    let dots = 0;
+    this.active_elm.innerHTML = '...';
+    this.dotdotdot_interval = setInterval(() => {
+      dots++;
+      if(dots > 3) dots = 1;
+      this.active_elm.innerHTML = '.'.repeat(dots);
+    }, 500);
+    // wait 2 seconds for testing
+    // await new Promise(r => setTimeout(r, 2000));
     // if does not include keywords referring to one's own notes, then just use chatgpt and return
     if(!this.contains_self_referential_keywords(user_input)) {
       this.request_chatgpt_completion();
@@ -2697,14 +2705,14 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
 
   // render message
   render_message(message, from="assistant", append_last=false) {
+    // if dotdotdot interval is set, then clear it
+    if(this.dotdotdot_interval) {
+      clearInterval(this.dotdotdot_interval);
+      this.dotdotdot_interval = null;
+      // clear last message
+      this.active_elm.innerHTML = '';
+    }
     if(append_last) {
-      // if dotdotdot interval is set, then clear it
-      if(this.dotdotdot_interval) {
-        clearInterval(this.dotdotdot_interval);
-        this.dotdotdot_interval = null;
-        // clear last message
-        this.active_elm.innerHTML = '';
-      }
       this.current_message_raw += message;
       this.active_elm.innerHTML = '';
       // append to last message
@@ -2743,27 +2751,26 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
         return; // end here since message is already rendered
       }
       this.current_message_raw = '';
-      // create message
-      let message_el = this.message_container.createDiv(`sc-message ${from}`);
-      // create message content
-      this.active_elm = message_el.createDiv("sc-message-content");
-      // if is '...', then initiate interval to change to '.' and then to '..' and then to '...'
-      if((from === "assistant") && (message === '...')) {
-        let dots = 0;
-        this.active_elm.innerHTML = '...';
-        this.dotdotdot_interval = setInterval(() => {
-          dots++;
-          if(dots > 3) dots = 1;
-          this.active_elm.innerHTML = '.'.repeat(dots);
-        }, 500);
-      }else{
-        // set message text
-        Obsidian.MarkdownRenderer.renderMarkdown(message, this.active_elm, '?no-dataview', void 0);
+      if((this.chat.thread.length === 0) || (this.chat.last_from() !== from)) {
+        // create message
+        this.new_messsage_bubble(from);
       }
+      this.chat.new_message_in_thread({
+        role: from,
+        content: message
+      });
+      // set message text
+      Obsidian.MarkdownRenderer.renderMarkdown(message, this.active_elm, '?no-dataview', void 0);
     }
     // scroll to bottom
     this.message_container.scrollTop = this.message_container.scrollHeight;
   }
+  new_messsage_bubble(from) {
+    let message_el = this.message_container.createDiv(`sc-message ${from}`);
+    // create message content
+    this.active_elm = message_el.createDiv("sc-message-content");
+  }
+
   async request_chatgpt_completion(opts={}) {
     opts = {
       model: this.plugin.settings.smart_chat_model,
@@ -2814,6 +2821,13 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
             if (e.readyState >= 2) {
               console.log("ReadyState: " + e.readyState);
             }
+          });
+          source.addEventListener("error", (e) => {
+            console.error(e);
+            new Obsidian.Notice("Smart Connections Error Streaming Response. See console for details.");
+            this.render_message("*API Error. See console logs for details.*", "assistant");
+            this.prevent_input = false;
+            reject(e);
           });
           source.stream();
         } catch (err) {
