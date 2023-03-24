@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS = {
   folder_exclusions: "",
   header_exclusions: "",
   path_only: "",
+  selfReferentialPronouns: [],
   show_full_path: false,
   expanded_view: true,
   group_nearest_by_file: false,
@@ -2377,6 +2378,12 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       });
       dropdown.setValue(this.plugin.settings.smart_chat_model);
     });
+
+    // add textArea to enter selfReferentialPronouns
+    new Obsidian.Setting(containerEl).setName("Self Referential Pronouns").setDesc("Enter a comma separated list of self referential pronouns.").addTextArea((text) => text.setPlaceholder("I, me, myself").setValue(this.plugin.settings.selfReferentialPronouns.join(", ")).onChange(async (value) => {
+      this.plugin.settings.selfReferentialPronouns = value.split(/[,\n]\W*/).map((item) => item.trim()).filter((item) => item.length > 0);
+      await this.plugin.saveSettings();
+    }));
     containerEl.createEl("h2", {
       text: "Exclusions"
     });
@@ -2689,6 +2696,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     if(!this.contains_self_referential_keywords(user_input)) {
       this.request_chatgpt_completion();
     }else{
+      console.log("Get from notes & HYDES")
       // get hyde
       const context = await this.get_context_hyde(user_input);
       // get user input with added context
@@ -2725,8 +2733,15 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
   }
 
   contains_self_referential_keywords(user_input) {
-    const kw_regex = /\b(my|I|me|mine|our|ours|us|we)\b/gi;
+    let kw_regex = /\b(my|I|me|mine|our|ours|us|we)\b/gi;
+    const selfReferentialPronouns = this.plugin.settings.selfReferentialPronouns;
+    if (selfReferentialPronouns.length > 0) {
+      const selfReferentialPronounsRegex = new RegExp(`\\b(${selfReferentialPronouns.join('|')})\\b`, 'gi');
+      //fusion of the two regexes
+      kw_regex = new RegExp(`${kw_regex.source}|${selfReferentialPronounsRegex.source}`, 'gi');
+    }
     const matches = user_input.match(kw_regex);
+    console.log(matches);
     if(matches) return true;
     return false;
   }
