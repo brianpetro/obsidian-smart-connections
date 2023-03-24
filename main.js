@@ -2696,7 +2696,6 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     if(!this.contains_self_referential_keywords(user_input)) {
       this.request_chatgpt_completion();
     }else{
-      console.log("Get from notes & HYDES")
       // get hyde
       const context = await this.get_context_hyde(user_input);
       // get user input with added context
@@ -2741,7 +2740,6 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       kw_regex = new RegExp(`${kw_regex.source}|${selfReferentialPronounsRegex.source}`, 'gi');
     }
     const matches = user_input.match(kw_regex);
-    console.log(matches);
     if(matches) return true;
     return false;
   }
