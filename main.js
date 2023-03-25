@@ -2792,7 +2792,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
           Obsidian.setIcon(copy_prompt_button, "files");
           copy_prompt_button.addEventListener("click", () => {
             // copy to clipboard
-            navigator.clipboard.writeText(this_context);
+            navigator.clipboard.writeText("```prompt-context\n"+this_context+"\n```\n");
             new Obsidian.Notice("[Smart Connections] Context copied to clipboard");
           });
         }
