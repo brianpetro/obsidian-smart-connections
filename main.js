@@ -2652,6 +2652,8 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
         // initiate response from assistant
         this.initialize_response(user_input);
       }
+      this.textarea.style.height = 'auto';
+      this.textarea.style.height = (this.textarea.scrollHeight) + 'px';
     });
     // button container
     let button_container = chat_input.createDiv("sc-button-container");
@@ -2766,7 +2768,12 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       if(this.current_message_raw === message) {
         if(this.chat.context && this.chat.hyd) {
           // render button to copy hyd in smart-connections code block
-          const context_view = this.active_elm.createEl("span", {cls: "sc-msg-button"});
+          const context_view = this.active_elm.createEl("span", {
+            cls: "sc-msg-button",
+            attr: {
+              title: "Copy context to clipboard" /* tooltip */
+            }
+          });
           const this_hyd = this.chat.hyd;
           Obsidian.setIcon(context_view, "eye");
           context_view.addEventListener("click", () => {
@@ -2775,7 +2782,12 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
             new Obsidian.Notice("[Smart Connections] Context code block copied to clipboard");
           });
           // render copy context button
-          const copy_prompt_button = this.active_elm.createEl("span", {cls: "sc-msg-button"});
+          const copy_prompt_button = this.active_elm.createEl("span", {
+            cls: "sc-msg-button",
+            attr: {
+              title: "Copy prompt to clipboard" /* tooltip */
+            }
+          });
           const this_context = this.chat.context.trimLeft();
           Obsidian.setIcon(copy_prompt_button, "files");
           copy_prompt_button.addEventListener("click", () => {
@@ -2785,7 +2797,12 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
           });
         }
         // render copy button
-        const copy_button = this.active_elm.createEl("span", {cls: "sc-msg-button"});
+        const copy_button = this.active_elm.createEl("span", {
+          cls: "sc-msg-button",
+          attr: {
+            title: "Copy message to clipboard" /* tooltip */
+          }
+        });
         Obsidian.setIcon(copy_button, "copy");
         copy_button.addEventListener("click", () => {
           // copy message to clipboard
