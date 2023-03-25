@@ -2286,7 +2286,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     }
     // if embeddings-external-X.json exists then load it
     const files_list = await this.app.vault.adapter.list(".smart-connections");
-    console.log(files_list);
+    // console.log(files_list);
     if(files_list.files){
       console.log("loading external embeddings");
       // get all embeddings-external-X.json files
@@ -2552,6 +2552,8 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.chat_box = null;
     this.chat_container = null;
     this.current_chat_ml = [];
+    this.files = [];
+    this.last_from = null;
     this.message_container = null;
     this.prevent_input = false;
   }
@@ -2582,6 +2584,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // this.test_get_nearest_until_next_dev_exceeds_std_dev();
   }
   onClose() {
+    this.chat.save_chat();
   }
   // render plus sign for clear button
   render_top_bar() {
@@ -2589,6 +2592,19 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     let top_bar_container = this.chat_container.createDiv("sc-top-bar-container");
     // create button to open view
     // TODO: make button to open other view
+    // create button to open chat history modal
+    let history_button = top_bar_container.createEl("button", { cls: "history-button" });
+    history_button.innerHTML = "History";
+    // add event listener to button
+    history_button.addEventListener("click", async () => {
+      const folder = await this.app.vault.adapter.list(".smart-connections/chats");
+      this.files = folder.files.map((file) => {
+        return file.replace(".smart-connections/chats/", "").replace(".json", "");
+      });
+      // open chat history modal
+      if(!this.modal) this.modal = new SmartConnectionsChatHistoryModal(this.app, this);
+      this.modal.open();
+    });
     // create clear button
     let clear_button = top_bar_container.createEl("button", { cls: "clear-button" });
     clear_button.innerHTML = "+";
@@ -2643,6 +2659,8 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
         // initiate response from assistant
         this.initialize_response(user_input);
       }
+      this.textarea.style.height = 'auto';
+      this.textarea.style.height = (this.textarea.scrollHeight) + 'px';
     });
     // button container
     let button_container = chat_input.createDiv("sc-button-container");
@@ -2763,7 +2781,12 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       if(this.current_message_raw === message) {
         if(this.chat.context && this.chat.hyd) {
           // render button to copy hyd in smart-connections code block
-          const context_view = this.active_elm.createEl("span", {cls: "sc-msg-button"});
+          const context_view = this.active_elm.createEl("span", {
+            cls: "sc-msg-button",
+            attr: {
+              title: "Copy context to clipboard" /* tooltip */
+            }
+          });
           const this_hyd = this.chat.hyd;
           Obsidian.setIcon(context_view, "eye");
           context_view.addEventListener("click", () => {
@@ -2772,7 +2795,12 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
             new Obsidian.Notice("[Smart Connections] Context code block copied to clipboard");
           });
           // render copy context button
-          const copy_prompt_button = this.active_elm.createEl("span", {cls: "sc-msg-button"});
+          const copy_prompt_button = this.active_elm.createEl("span", {
+            cls: "sc-msg-button",
+            attr: {
+              title: "Copy prompt to clipboard" /* tooltip */
+            }
+          });
           const this_context = this.chat.context.trimLeft();
           Obsidian.setIcon(copy_prompt_button, "files");
           copy_prompt_button.addEventListener("click", () => {
@@ -2782,7 +2810,12 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
           });
         }
         // render copy button
-        const copy_button = this.active_elm.createEl("span", {cls: "sc-msg-button"});
+        const copy_button = this.active_elm.createEl("span", {
+          cls: "sc-msg-button",
+          attr: {
+            title: "Copy message to clipboard" /* tooltip */
+          }
+        });
         Obsidian.setIcon(copy_button, "copy");
         copy_button.addEventListener("click", () => {
           // copy message to clipboard
@@ -2792,14 +2825,10 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
         return; // end here since message is already rendered
       }
       this.current_message_raw = '';
-      if((this.chat.thread.length === 0) || (this.chat.last_from() !== from)) {
+      if((this.chat.thread.length === 0) || (this.last_from !== from)) {
         // create message
         this.new_messsage_bubble(from);
       }
-      this.chat.new_message_in_thread({
-        role: from,
-        content: message
-      });
       // set message text
       Obsidian.MarkdownRenderer.renderMarkdown(message, this.active_elm, '?no-dataview', void 0);
     }
@@ -3041,6 +3070,22 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     }
     return this.chat.context;
   }
+
+  async open_chat(chat_id) {
+    this.new_chat();
+    await this.chat.load_chat(chat_id);
+    // render messages in chat view
+    // for each turn in chat_ml
+    console.log(this.chat.thread);
+    console.log(this.chat.chat_ml);
+    for (let i = 0; i < this.chat.chat_ml.length; i++) {
+      this.render_message(this.chat.chat_ml[i].content, this.chat.chat_ml[i].role);
+    }
+
+  }
+
+
+
 }
 
 /**
@@ -3066,6 +3111,8 @@ class SmartConnectionsChatModel {
     this.thread = [];
   }
   async save_chat() {
+    // return if thread is empty
+    if (this.thread.length === 0) return;
     // save chat to file in .smart-connections folder
     // create .smart-connections/chats/ folder if it doesn't exist
     if (!(await this.app.vault.adapter.exists(".smart-connections/chats"))) {
@@ -3087,13 +3134,13 @@ class SmartConnectionsChatModel {
       JSON.stringify(this.thread, null, 2)
     );
   }
-  load_chat(chat_id) {
+  async load_chat(chat_id) {
     this.chat_id = chat_id;
     // load chat from file in .smart-connections folder
     // filename is chat_id
     const chat_file = this.chat_id + ".json";
     // read file
-    let chat_json = this.app.vault.adapter.read(
+    let chat_json = await this.app.vault.adapter.read(
       ".smart-connections/chats/" + chat_file
     );
     // parse json
@@ -3172,6 +3219,28 @@ class SmartConnectionsChatModel {
 
 
 }
+
+class SmartConnectionsChatHistoryModal extends Obsidian.FuzzySuggestModal {
+  constructor(app, view, files) {
+    super(app);
+    this.app = app;
+    this.view = view;
+    this.setPlaceholder("Type the name of a chat session...");
+  }
+  getItems() {
+    if (!this.view.files) {
+      return [];
+    }
+    return this.view.files;
+  }
+  getItemText(item) {
+    return item;
+  }
+  onChooseItem(session) {
+    this.view.open_chat(session);
+  }
+}
+
 
 // Handle API response streaming
 class ScStreamer {
