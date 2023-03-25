@@ -9,6 +9,9 @@ As an Obsidian enthusiast and AI researcher, I experienced firsthand the challen
 
 By harnessing the power of AI, Smart Connections elevates your Obsidian workflow to new heights.
 
+### Want to be part of the exciting journey of Smart Connections?
+We invite you to join the vibrant [discussion on GitHub](https://github.com/brianpetro/obsidian-smart-connections/discussions). Share your experiences, ask questions, or suggest new features – your input is invaluable to future of this project. Engaging with our community of Obsidian enthusiasts and AI aficionados is an excellent opportunity to learn from others, explore creative ways to use Smart Connections, and contribute to the continuous improvement of this powerful plugin. Let's work together to shape the future of AI-enhanced note-taking in Obsidian!
+
 ## What People Are Saying
 - ["This is an AWESOME little plugin. Thanks for sharing."](https://forum.obsidian.md/t/introducing-smart-chat-a-game-changer-for-your-obsidian-notes-smart-connections-plugin/56391/8?u=wfh#:~:text=This%20is%20an%20AWESOME%20little%20plugin.%20Thanks%20for%20sharing.)
 - ["Hopping on to also say thanks. I have been wanting this feature in something ever since reading about tad starners remembrance agent in the 90s! And this is even better."](https://github.com/brianpetro/obsidian-smart-connections/issues/47#issuecomment-1471441869:~:text=Hopping%20on%20to%20also%20say%20thanks.%20I%20have%20been%20wanting%20this%20feature%20in%20something%20ever%20since%20reading%20about%20tad%20starners%20remembrance%20agent%20in%20the%2090s!%20And%20this%20is%20even%20better.)
