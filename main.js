@@ -28,7 +28,7 @@ const VERSION = "1.2.8";
 const SELF_REFERENTIAL_PRONOUNS = {
   "en": ["my", "I", "me", "mine", "our", "ours", "us", "we"],
   "es": ["mi", "yo", "mí", "tú"],
-  "fr": ["mon", "ma", "mes", "moi", "nous", "notre", "nos", "notres"],
+  "fr": ["me", "mon", "ma", "mes", "moi", "nous", "notre", "nos", "notres"],
   "de": ["mein", "meine", "meinen", "meiner", "meines", "mir", "uns", "unser", "unseren", "unserer", "unseres"],
   "it": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
 };
