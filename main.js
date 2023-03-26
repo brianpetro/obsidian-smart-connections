@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS = {
   show_full_path: false,
   expanded_view: true,
   group_nearest_by_file: false,
+  language: "en",
   log_render: false,
   log_render_files: false,
   skip_sections: false,
@@ -22,6 +23,15 @@ const DEFAULT_SETTINGS = {
 const MAX_EMBED_STRING_LENGTH = 25000;
 
 const VERSION = "1.2.8";
+
+// language specific self-referential pronouns
+const SELF_REFERENTIAL_PRONOUNS = {
+  "en": ["my", "I", "me", "mine", "our", "ours", "us", "we"],
+  "es": ["mi", "yo", "mí", "tú"],
+  "fr": ["mon", "ma", "mes", "moi", "nous", "notre", "nos", "notres"],
+  "de": ["mein", "meine", "meinen", "meiner", "meines", "mir", "uns", "unser", "unseren", "unserer", "unseres"],
+  "it": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
+};
 
 class SmartConnectionsPlugin extends Obsidian.Plugin {
   // constructor
@@ -46,6 +56,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.render_log.tokens_saved_by_cache = 0;
     this.retry_notice_timeout = null;
     this.save_timeout = null;
+    this.self_ref_kw_regex = null;
   }
 
   async loadSettings() {
@@ -84,6 +95,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         return path.trim();
       });
     }
+    // load self_ref_kw_regex
+    this.self_ref_kw_regex = new RegExp(`\\b(${SELF_REFERENTIAL_PRONOUNS[this.settings.language].join("|")})\\b`, "gi");
     // load failed files
     await this.load_failed_files();
   }
@@ -2377,6 +2390,24 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       });
       dropdown.setValue(this.plugin.settings.smart_chat_model);
     });
+    // language
+    new Obsidian.Setting(containerEl).setName("Default Language").setDesc("Default language to use for Smart Chat. Changes which self-referential pronouns will trigger lookup of your notes.").addDropdown((dropdown) => {
+      // get Object keys from SELF_REFERENTIAL_PRONOUNS
+      const languages = Object.keys(SELF_REFERENTIAL_PRONOUNS);
+      for(let i = 0; i < languages.length; i++) {
+        dropdown.addOption(languages[i], languages[i]);
+      }
+      dropdown.onChange(async (value) => {
+        this.plugin.settings.language = value;
+        await this.plugin.saveSettings();
+        self_ref_pronouns_list.setText(this.get_self_ref_list());
+      });
+      dropdown.setValue(this.plugin.settings.language);
+    });
+    // list current self-referential pronouns
+    const self_ref_pronouns_list = containerEl.createEl("span", {
+      text: this.get_self_ref_list()
+    });
     containerEl.createEl("h2", {
       text: "Exclusions"
     });
@@ -2496,6 +2527,10 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     }));
 
   }
+  get_self_ref_list() {
+    return "Current: " + SELF_REFERENTIAL_PRONOUNS[this.plugin.settings.language].join(", ");
+  }
+
   draw_failed_files_list(failed_list) {
     failed_list.empty();
     if(this.plugin.settings.failed_files.length > 0) {
@@ -2795,8 +2830,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
   }
 
   contains_self_referential_keywords(user_input) {
-    const kw_regex = /\b(my|I|me|mine|our|ours|us|we)\b/gi;
-    const matches = user_input.match(kw_regex);
+    const matches = user_input.match(this.plugin.self_ref_kw_regex);
     if(matches) return true;
     return false;
   }
