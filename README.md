@@ -1,5 +1,39 @@
 # Smart Connections: AI-Powered Note Connections for Obsidian
-[Introducing Smart Connections](https://wfhbrian.com/introducing-obsidian-smart-connections/), the AI-powered plugin for [Obsidian](https://obsidian.md/) that helps you save time and stay organized by connecting you to the most relevant notes in your vault in real-time.
+Ever felt overwhelmed by a growing collection of notes in Obsidian, wondering how to uncover hidden connections and insights? Discover Smart Connections, an AI-powered plugin that transforms your note-taking experience and helps you tap into the full potential of your ideas.
+
+Our goal is to democratize access to AI technology and empower individuals with innovative tools. By creating open-source AI solutions like Smart Connections, we're breaking down barriers and ensuring that Obsidian users of all backgrounds can benefit from AI-enhanced productivity and creativity. Imagine a world where the power of AI is harnessed to amplify the knowledge and insights hidden within your notes, making the entire Obsidian community more interconnected and insightful.
+
+As an Obsidian enthusiast and AI researcher, I experienced firsthand the challenges of managing and connecting a growing vault of notes. I remember spending hours trying to find the perfect link between ideas or the insight that would spark a new project. It was during one of these late-night note-sifting sessions that I realized the potential of AI to transform the way we interact with our notes. Driven by this revelation, I dedicated myself to developing Smart Connections, an open-source plugin designed to bring the power of AI to every Obsidian user and unlock the true potential of their ideas.
+
+[Introducing Smart Connections](https://wfhbrian.com/introducing-obsidian-smart-connections/), your AI-powered plugin for [Obsidian](https://obsidian.md/). With features like [Smart View](#smart-view) for real-time relevant note suggestions and [Smart Chat](#smart-chat-transform-your-notes-into-interactive-conversations) for  chatting with your notes, Smart Connections makes it easier than ever to stay organized and uncover hidden connections between your notes. Its intuitive interface and customizable settings ensure a seamless experience, tailored to your unique needs and preferences. 
+
+By harnessing the power of AI, Smart Connections elevates your Obsidian workflow to new heights.
+
+### Want to be part of the exciting journey of Smart Connections?
+We invite you to join the vibrant [discussion on GitHub](https://github.com/brianpetro/obsidian-smart-connections/discussions). Share your experiences, ask questions, or suggest new features – your input is invaluable to future of this project. Engaging with our community of Obsidian enthusiasts and AI aficionados is an excellent opportunity to learn from others, explore creative ways to use Smart Connections, and contribute to the continuous improvement of this powerful plugin. Let's work together to shape the future of AI-enhanced note-taking in Obsidian!
+
+## What People Are Saying
+- ["This is an AWESOME little plugin. Thanks for sharing."](https://forum.obsidian.md/t/introducing-smart-chat-a-game-changer-for-your-obsidian-notes-smart-connections-plugin/56391/8?u=wfh#:~:text=This%20is%20an%20AWESOME%20little%20plugin.%20Thanks%20for%20sharing.)
+- ["Hopping on to also say thanks. I have been wanting this feature in something ever since reading about tad starners remembrance agent in the 90s! And this is even better."](https://github.com/brianpetro/obsidian-smart-connections/issues/47#issuecomment-1471441869:~:text=Hopping%20on%20to%20also%20say%20thanks.%20I%20have%20been%20wanting%20this%20feature%20in%20something%20ever%20since%20reading%20about%20tad%20starners%20remembrance%20agent%20in%20the%2090s!%20And%20this%20is%20even%20better.)
+- ["I'm having so much fun using your chat plugin to search my notes better and get insights."](https://github.com/brianpetro/obsidian-smart-connections/issues/57#:~:text=Hi%2C-,I%27m%20having%20so%20much%20fun%20using%20your%20chat%20plugin%20to%20search%20my%20notes%20better%20and%20get%20insights,-.%20I%20was%20just)
+- ["This plugin is fantastic"](https://github.com/brianpetro/obsidian-smart-connections/issues/47#:~:text=This%20plugin%20is%20fantastic)
+- ["This is a terrific idea"](https://github.com/brianpetro/obsidian-smart-connections/issues/54#:~:text=This%20is%20a%20terrific%20idea)
+- ["This plugins could be a Game changer!"](https://github.com/brianpetro/obsidian-smart-connections/issues/54#:~:text=This%20plugins%20could%20be%20a%20Game%20changer!)
+- ["I personally love the app"](https://old.reddit.com/r/ObsidianMD/comments/11s0oxb/chat_with_your_notes_now_available_in_the_smart/jcd73y8/?context=3#:~:text=I%20personally%20love%20the%20app)
+<details><summary>More nice things 😊</summary>
+
+- ["Now it serves me as a way to brainstorm potential connections, and I have seen major improvements over the past few months. I especially enjoy using it as part of my book digestion and relation process."](https://old.reddit.com/r/ObsidianMD/comments/11s0oxb/chat_with_your_notes_now_available_in_the_smart/jcczwiq/?context=3#:~:text=Now%20it%20serves%20me%20as%20a%20way%20to%20brainstorm%20potential%20connections%2C%20and%20I%20have%20seen%20major%20improvements%20over%20the%20past%20few%20months.%20I%20especially%20enjoy%20using%20it%20as%20part%20of%20my%20book%20digestion%20and%20relation%20process.)
+- ["Tried it, and it worked as well as I could hope! Thanks for making this."](https://old.reddit.com/r/ObsidianMD/comments/11s0oxb/chat_with_your_notes_now_available_in_the_smart/jcdpwsg/?context=3#:~:text=Tried%20it%2C%20and%20it%20worked%20as%20well%20as%20I%20could%20hope!%20Thanks%20for%20making%20this.)
+- ["This is an amazing extension."](https://github.com/brianpetro/obsidian-smart-connections/issues/32#issuecomment-1435798970:~:text=This%20is%20an%20amazing%20extension.)
+- ["This is an amazing plugin!"](https://github.com/brianpetro/obsidian-smart-connections/issues/20#:~:text=This%20is%20an%20amazing%20plugin!)
+- ["Has amazing potential to unlock lots of new info that can be added to your vault"](https://github.com/brianpetro/obsidian-smart-connections/issues/19#issue-1533699525:~:text=has%20amazing%20potential%20to%20unlock%20lots%20of%20new%20info%20that%20can%20be%20added%20to%20your%20vault)
+- ["Great plugin!"](https://github.com/brianpetro/obsidian-smart-connections/issues/1#issue-1511238131:~:text=Dec%2026%2C%202022-,Great%20plugin!,-My%20request%20is)
+- ["Loving the plugin so far!"](https://github.com/brianpetro/obsidian-smart-connections/issues/2#issue-1511288845:~:text=Loving%20the%20plugin%20so%20far!)
+- ["Smart Connections is so cool. I'm noticing similarities between notes that talk about the same thing but don't share any words."](https://discord.com/channels/686053708261228577/694233507500916796/1065057689949982870#:~:text=Smart%20Connections%20plugin%3F%20It%27s%20so%20cool.%20I%27m%20noticing%20similarities%20between%20notes%20that%20talk%20about%20the%20same%20thing%20but%20don%27t%20share%20any%20words.)
+- ["Thanks for doing this. I love the idea to have OpenAI help look through my notes to find connections"](https://github.com/brianpetro/obsidian-smart-connections/issues/47#issue-1609765217:~:text=Thanks%20for%20doing%20this.%20I%20love%20the%20idea%20to%20have%20OpenAI%20help%20look%20through%20my%20notes%20to%20find%20connections.)
+- ["I love this extension so much. So many potential features by the way."](https://github.com/brianpetro/obsidian-smart-connections/issues/48#issuecomment-1459929611:~:text=I%20love%20this%20extension%0Aso%20much.%20So%20many%20potential%20features%20by%20the%20way.)
+
+</details>
 
 ## Features
 ### Smart Chat: Transform Your Notes into Interactive Conversations
@@ -132,24 +166,6 @@ The plugin integrates [OpenAI Embeddings](https://beta.openai.com/docs/guides/em
 	- **Note**: This feature is currently in beta. Create a GitHub issue if you want to learn how to use the beta version of this feature.
 - This plugin is designed to manage the vector interpretation ("embeddings") of the notes in your vaults. The requirements for managing this can be extensive.
 - While there are many ways to interpret the vector relationships and make them useful this plugin is focused on delivering the core capabilities required to utilize such a system.
-
-## What People Are Saying
-- ["Hopping on to also say thanks. I have been wanting this feature in something ever since reading about tad starners remembrance agent in the 90s! And this is even better."](https://github.com/brianpetro/obsidian-smart-connections/issues/47#issuecomment-1471441869:~:text=Hopping%20on%20to%20also%20say%20thanks.%20I%20have%20been%20wanting%20this%20feature%20in%20something%20ever%20since%20reading%20about%20tad%20starners%20remembrance%20agent%20in%20the%2090s!%20And%20this%20is%20even%20better.)
-- ["I'm having so much fun using your chat plugin to search my notes better and get insights."](https://github.com/brianpetro/obsidian-smart-connections/issues/57#:~:text=Hi%2C-,I%27m%20having%20so%20much%20fun%20using%20your%20chat%20plugin%20to%20search%20my%20notes%20better%20and%20get%20insights,-.%20I%20was%20just)
-- ["This plugin is fantastic"](https://github.com/brianpetro/obsidian-smart-connections/issues/47#:~:text=This%20plugin%20is%20fantastic)
-- ["This is a terrific idea"](https://github.com/brianpetro/obsidian-smart-connections/issues/54#:~:text=This%20is%20a%20terrific%20idea)
-- ["This plugins could be a Game changer!"](https://github.com/brianpetro/obsidian-smart-connections/issues/54#:~:text=This%20plugins%20could%20be%20a%20Game%20changer!)
-- ["I personally love the app"](https://old.reddit.com/r/ObsidianMD/comments/11s0oxb/chat_with_your_notes_now_available_in_the_smart/jcd73y8/?context=3#:~:text=I%20personally%20love%20the%20app)
-- ["Now it serves me as a way to brainstorm potential connections, and I have seen major improvements over the past few months. I especially enjoy using it as part of my book digestion and relation process."](https://old.reddit.com/r/ObsidianMD/comments/11s0oxb/chat_with_your_notes_now_available_in_the_smart/jcczwiq/?context=3#:~:text=Now%20it%20serves%20me%20as%20a%20way%20to%20brainstorm%20potential%20connections%2C%20and%20I%20have%20seen%20major%20improvements%20over%20the%20past%20few%20months.%20I%20especially%20enjoy%20using%20it%20as%20part%20of%20my%20book%20digestion%20and%20relation%20process.)
-- ["Tried it, and it worked as well as I could hope! Thanks for making this."](https://old.reddit.com/r/ObsidianMD/comments/11s0oxb/chat_with_your_notes_now_available_in_the_smart/jcdpwsg/?context=3#:~:text=Tried%20it%2C%20and%20it%20worked%20as%20well%20as%20I%20could%20hope!%20Thanks%20for%20making%20this.)
-- ["This is an amazing extension."](https://github.com/brianpetro/obsidian-smart-connections/issues/32#issuecomment-1435798970:~:text=This%20is%20an%20amazing%20extension.)
-- ["This is an amazing plugin!"](https://github.com/brianpetro/obsidian-smart-connections/issues/20#:~:text=This%20is%20an%20amazing%20plugin!)
-- ["Has amazing potential to unlock lots of new info that can be added to your vault"](https://github.com/brianpetro/obsidian-smart-connections/issues/19#issue-1533699525:~:text=has%20amazing%20potential%20to%20unlock%20lots%20of%20new%20info%20that%20can%20be%20added%20to%20your%20vault)
-- ["Great plugin!"](https://github.com/brianpetro/obsidian-smart-connections/issues/1#issue-1511238131:~:text=Dec%2026%2C%202022-,Great%20plugin!,-My%20request%20is)
-- ["Loving the plugin so far!"](https://github.com/brianpetro/obsidian-smart-connections/issues/2#issue-1511288845:~:text=Loving%20the%20plugin%20so%20far!)
-- ["Smart Connections is so cool. I'm noticing similarities between notes that talk about the same thing but don't share any words."](https://discord.com/channels/686053708261228577/694233507500916796/1065057689949982870#:~:text=Smart%20Connections%20plugin%3F%20It%27s%20so%20cool.%20I%27m%20noticing%20similarities%20between%20notes%20that%20talk%20about%20the%20same%20thing%20but%20don%27t%20share%20any%20words.)
-- ["Thanks for doing this. I love the idea to have OpenAI help look through my notes to find connections"](https://github.com/brianpetro/obsidian-smart-connections/issues/47#issue-1609765217:~:text=Thanks%20for%20doing%20this.%20I%20love%20the%20idea%20to%20have%20OpenAI%20help%20look%20through%20my%20notes%20to%20find%20connections.)
-- ["I love this extension so much. So many potential features by the way."](https://github.com/brianpetro/obsidian-smart-connections/issues/48#issuecomment-1459929611:~:text=I%20love%20this%20extension%0Aso%20much.%20So%20many%20potential%20features%20by%20the%20way.)
 
 ## About the Author
 WFH Brian is an entrepreneur and consultant with extensive experience in artificial intelligence (AI) systems. Passionate about helping businesses unlock the potential of AI, he offers a range of services designed to make AI accessible and impactful for organizations of all sizes.

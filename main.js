@@ -12,6 +12,7 @@ const DEFAULT_SETTINGS = {
   show_full_path: false,
   expanded_view: true,
   group_nearest_by_file: false,
+  language: "en",
   log_render: false,
   log_render_files: false,
   skip_sections: false,
@@ -23,6 +24,15 @@ const DEFAULT_SETTINGS = {
 const MAX_EMBED_STRING_LENGTH = 25000;
 
 const VERSION = "1.2.8";
+
+// language specific self-referential pronouns
+const SELF_REFERENTIAL_PRONOUNS = {
+  "en": ["my", "I", "me", "mine", "our", "ours", "us", "we"],
+  "es": ["mi", "yo", "mí", "tú"],
+  "fr": ["mon", "ma", "mes", "moi", "nous", "notre", "nos", "notres"],
+  "de": ["mein", "meine", "meinen", "meiner", "meines", "mir", "uns", "unser", "unseren", "unserer", "unseres"],
+  "it": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
+};
 
 class SmartConnectionsPlugin extends Obsidian.Plugin {
   // constructor
@@ -47,6 +57,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.render_log.tokens_saved_by_cache = 0;
     this.retry_notice_timeout = null;
     this.save_timeout = null;
+    this.self_ref_kw_regex = null;
   }
 
   async loadSettings() {
@@ -85,6 +96,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         return path.trim();
       });
     }
+    // load self_ref_kw_regex
+    this.self_ref_kw_regex = new RegExp(`\\b(${SELF_REFERENTIAL_PRONOUNS[this.settings.language].join("|")})\\b`, "gi");
     // load failed files
     await this.load_failed_files();
   }
@@ -2286,7 +2299,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     }
     // if embeddings-external-X.json exists then load it
     const files_list = await this.app.vault.adapter.list(".smart-connections");
-    console.log(files_list);
+    // console.log(files_list);
     if(files_list.files){
       console.log("loading external embeddings");
       // get all embeddings-external-X.json files
@@ -2378,12 +2391,24 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       });
       dropdown.setValue(this.plugin.settings.smart_chat_model);
     });
-
-    // add textArea to enter selfReferentialPronouns
-    new Obsidian.Setting(containerEl).setName("Self Referential Pronouns").setDesc("Enter a comma separated list of self referential pronouns.").addTextArea((text) => text.setPlaceholder("I, me, myself").setValue(this.plugin.settings.selfReferentialPronouns.join(", ")).onChange(async (value) => {
-      this.plugin.settings.selfReferentialPronouns = value.split(/[,\n]\W*/).map((item) => item.trim()).filter((item) => item.length > 0);
-      await this.plugin.saveSettings();
-    }));
+    // language
+    new Obsidian.Setting(containerEl).setName("Default Language").setDesc("Default language to use for Smart Chat. Changes which self-referential pronouns will trigger lookup of your notes.").addDropdown((dropdown) => {
+      // get Object keys from SELF_REFERENTIAL_PRONOUNS
+      const languages = Object.keys(SELF_REFERENTIAL_PRONOUNS);
+      for(let i = 0; i < languages.length; i++) {
+        dropdown.addOption(languages[i], languages[i]);
+      }
+      dropdown.onChange(async (value) => {
+        this.plugin.settings.language = value;
+        await this.plugin.saveSettings();
+        self_ref_pronouns_list.setText(this.get_self_ref_list());
+      });
+      dropdown.setValue(this.plugin.settings.language);
+    });
+    // list current self-referential pronouns
+    const self_ref_pronouns_list = containerEl.createEl("span", {
+      text: this.get_self_ref_list()
+    });
     containerEl.createEl("h2", {
       text: "Exclusions"
     });
@@ -2503,6 +2528,10 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     }));
 
   }
+  get_self_ref_list() {
+    return "Current: " + SELF_REFERENTIAL_PRONOUNS[this.plugin.settings.language].join(", ");
+  }
+
   draw_failed_files_list(failed_list) {
     failed_list.empty();
     if(this.plugin.settings.failed_files.length > 0) {
@@ -2552,6 +2581,8 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.chat_box = null;
     this.chat_container = null;
     this.current_chat_ml = [];
+    this.files = [];
+    this.last_from = null;
     this.message_container = null;
     this.prevent_input = false;
   }
@@ -2565,7 +2596,12 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     return SMART_CONNECTIONS_CHAT_VIEW_TYPE;
   }
   onOpen() {
-    this.chat = new SmartConnectionsChatModel(this.plugin);
+    this.new_chat();
+  }
+  onClose() {
+    this.chat.save_chat();
+  }
+  render_chat() {
     this.containerEl.empty();
     this.chat_container = this.containerEl.createDiv("sc-chat-container");
     // render plus sign for clear button
@@ -2575,32 +2611,79 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // render chat input
     this.render_chat_input();
     this.plugin.render_brand(this.containerEl);
-    // render initial message from assistant (don't use render_message to skip adding to chat history)
-    // this.render_message(INITIAL_MESSAGE, "assistant");
-    this.new_messsage_bubble("assistant");
-    this.active_elm.innerHTML = '<p>'+INITIAL_MESSAGE+'</p>';
-    // this.test_get_nearest_until_next_dev_exceeds_std_dev();
-  }
-  onClose() {
   }
   // render plus sign for clear button
   render_top_bar() {
     // create container for clear button
     let top_bar_container = this.chat_container.createDiv("sc-top-bar-container");
-    // create button to open view
-    // TODO: make button to open other view
-    // create clear button
-    let clear_button = top_bar_container.createEl("button", { cls: "clear-button" });
-    clear_button.innerHTML = "+";
-    // add event listener to button
-    clear_button.addEventListener("click", () => {
-      // clear chat box
-      this.new_chat();
+    // render the name of the chat in an input box (pop content after last hyphen in chat_id)
+    let chat_name =this.chat.name();
+    let chat_name_input = top_bar_container.createEl("input", {
+      attr: {
+        type: "text",
+        value: chat_name
+      },
+      cls: "sc-chat-name-input"
     });
+    chat_name_input.addEventListener("change", this.rename_chat.bind(this));
+    
+    // create button to Smart View
+    let smart_view_btn = this.create_top_bar_button(top_bar_container, "Smart View", "smart-connections");
+    smart_view_btn.addEventListener("click", this.open_smart_view.bind(this));
+    // create button to save chat
+    let save_btn = this.create_top_bar_button(top_bar_container, "Save Chat", "save");
+    save_btn.addEventListener("click", this.save_chat.bind(this));
+    // create button to open chat history modal
+    let history_btn = this.create_top_bar_button(top_bar_container, "Chat History", "history");
+    history_btn.addEventListener("click", this.open_chat_history.bind(this));
+    // create button to start new chat
+    const new_chat_btn = this.create_top_bar_button(top_bar_container, "New Chat", "plus");
+    new_chat_btn.addEventListener("click", this.new_chat.bind(this));
   }
+  async open_chat_history() {
+    const folder = await this.app.vault.adapter.list(".smart-connections/chats");
+    this.files = folder.files.map((file) => {
+      return file.replace(".smart-connections/chats/", "").replace(".json", "");
+    });
+    // open chat history modal
+    if (!this.modal)
+      this.modal = new SmartConnectionsChatHistoryModal(this.app, this);
+    this.modal.open();
+  }
+
+  create_top_bar_button(top_bar_container, title, icon=null) {
+    let btn = top_bar_container.createEl("button", {
+      attr: {
+        title: title
+      }
+    });
+    if(icon){
+      Obsidian.setIcon(btn, icon);
+    }else{
+      btn.innerHTML = title;
+    }
+    return btn;
+  }
+  // render new chat
   new_chat() {
-    // save current chat
-    if(this.chat) {
+    this.clear_chat();
+    this.render_chat();
+    // render initial message from assistant (don't use render_message to skip adding to chat history)
+    this.new_messsage_bubble("assistant");
+    this.active_elm.innerHTML = '<p>'+INITIAL_MESSAGE+'</p>';
+  }
+  // open a chat from the chat history modal
+  async open_chat(chat_id) {
+    this.clear_chat();
+    await this.chat.load_chat(chat_id);
+    this.render_chat();
+    for (let i = 0; i < this.chat.chat_ml.length; i++) {
+      this.render_message(this.chat.chat_ml[i].content, this.chat.chat_ml[i].role);
+    }
+  }
+  // clear current chat state
+  clear_chat() {
+    if (this.chat) {
       this.chat.save_chat();
     }
     this.chat = new SmartConnectionsChatModel(this.plugin);
@@ -2612,7 +2695,21 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.current_chat_ml = [];
     // update prevent input
     this.end_stream();
-    this.onOpen();
+  }
+
+  rename_chat(event) {
+    let new_chat_name = event.target.value;
+    this.chat.rename_chat(new_chat_name);
+  }
+  
+  // save current chat
+  save_chat() {
+    this.chat.save_chat();
+    new Obsidian.Notice("[Smart Connections] Chat saved");
+  }
+  
+  open_smart_view() {
+    this.plugin.open_view();
   }
   // render chat messages container
   render_chat_box() {
@@ -2643,6 +2740,8 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
         // initiate response from assistant
         this.initialize_response(user_input);
       }
+      this.textarea.style.height = 'auto';
+      this.textarea.style.height = (this.textarea.scrollHeight) + 'px';
     });
     // button container
     let button_container = chat_input.createDiv("sc-button-container");
@@ -2733,15 +2832,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
   }
 
   contains_self_referential_keywords(user_input) {
-    let kw_regex = /\b(my|I|me|mine|our|ours|us|we)\b/gi;
-    const selfReferentialPronouns = this.plugin.settings.selfReferentialPronouns;
-    if (selfReferentialPronouns.length > 0) {
-      const selfReferentialPronounsRegex = new RegExp(`\\b(${selfReferentialPronouns.join('|')})\\b`, 'gi');
-      //fusion of the two regexes
-      kw_regex = new RegExp(`${kw_regex.source}|${selfReferentialPronounsRegex.source}`, 'gi');
-    }
-    const matches = user_input.match(kw_regex);
-    console.log(matches);
+    const matches = user_input.match(this.plugin.self_ref_kw_regex);
     if(matches) return true;
     return false;
   }
@@ -2765,7 +2856,12 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       if(this.current_message_raw === message) {
         if(this.chat.context && this.chat.hyd) {
           // render button to copy hyd in smart-connections code block
-          const context_view = this.active_elm.createEl("span", {cls: "sc-msg-button"});
+          const context_view = this.active_elm.createEl("span", {
+            cls: "sc-msg-button",
+            attr: {
+              title: "Copy context to clipboard" /* tooltip */
+            }
+          });
           const this_hyd = this.chat.hyd;
           Obsidian.setIcon(context_view, "eye");
           context_view.addEventListener("click", () => {
@@ -2774,17 +2870,27 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
             new Obsidian.Notice("[Smart Connections] Context code block copied to clipboard");
           });
           // render copy context button
-          const copy_prompt_button = this.active_elm.createEl("span", {cls: "sc-msg-button"});
+          const copy_prompt_button = this.active_elm.createEl("span", {
+            cls: "sc-msg-button",
+            attr: {
+              title: "Copy prompt to clipboard" /* tooltip */
+            }
+          });
           const this_context = this.chat.context.trimLeft();
           Obsidian.setIcon(copy_prompt_button, "files");
           copy_prompt_button.addEventListener("click", () => {
             // copy to clipboard
-            navigator.clipboard.writeText(this_context);
+            navigator.clipboard.writeText("```prompt-context\n"+this_context+"\n```\n");
             new Obsidian.Notice("[Smart Connections] Context copied to clipboard");
           });
         }
         // render copy button
-        const copy_button = this.active_elm.createEl("span", {cls: "sc-msg-button"});
+        const copy_button = this.active_elm.createEl("span", {
+          cls: "sc-msg-button",
+          attr: {
+            title: "Copy message to clipboard" /* tooltip */
+          }
+        });
         Obsidian.setIcon(copy_button, "copy");
         copy_button.addEventListener("click", () => {
           // copy message to clipboard
@@ -2794,14 +2900,10 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
         return; // end here since message is already rendered
       }
       this.current_message_raw = '';
-      if((this.chat.thread.length === 0) || (this.chat.last_from() !== from)) {
+      if((this.chat.thread.length === 0) || (this.last_from !== from)) {
         // create message
         this.new_messsage_bubble(from);
       }
-      this.chat.new_message_in_thread({
-        role: from,
-        content: message
-      });
       // set message text
       Obsidian.MarkdownRenderer.renderMarkdown(message, this.active_elm, '?no-dataview', void 0);
     }
@@ -2910,6 +3012,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     if(this.active_stream){
       this.active_stream.close();
       this.active_stream = null;
+      this.unset_streaming_ux();
     }
     if(this.dotdotdot_interval){
       clearInterval(this.dotdotdot_interval);
@@ -2918,7 +3021,6 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       this.active_elm.parentElement.remove();
       this.active_elm = null;
     }
-    this.unset_streaming_ux();
   }
 
   async get_context_hyde(user_input) {
@@ -2993,6 +3095,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     nearest = nearest.slice(0, slice_i+1);
     return nearest;
   }
+  // this.test_get_nearest_until_next_dev_exceeds_std_dev();
   // // test get_nearest_until_next_dev_exceeds_std_dev
   // test_get_nearest_until_next_dev_exceeds_std_dev() {
   //   const nearest = [{similarity: 0.99}, {similarity: 0.98}, {similarity: 0.97}, {similarity: 0.96}, {similarity: 0.95}, {similarity: 0.94}, {similarity: 0.93}, {similarity: 0.92}, {similarity: 0.91}, {similarity: 0.9}, {similarity: 0.79}, {similarity: 0.78}, {similarity: 0.77}, {similarity: 0.76}, {similarity: 0.75}, {similarity: 0.74}, {similarity: 0.73}, {similarity: 0.72}];
@@ -3043,6 +3146,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     }
     return this.chat.context;
   }
+
 }
 
 /**
@@ -3068,17 +3172,19 @@ class SmartConnectionsChatModel {
     this.thread = [];
   }
   async save_chat() {
+    // return if thread is empty
+    if (this.thread.length === 0) return;
     // save chat to file in .smart-connections folder
     // create .smart-connections/chats/ folder if it doesn't exist
     if (!(await this.app.vault.adapter.exists(".smart-connections/chats"))) {
       await this.app.vault.adapter.mkdir(".smart-connections/chats");
     }
-    // if chat_id is not set, set it to human readable timestamp
+    // if chat_id is not set, set it to UNTITLED-${unix timestamp}
     if (!this.chat_id) {
-      this.chat_id = new Date().toISOString().replace(/(T|:|\..*)/g, " ").trim();
+      this.chat_id = this.name() + "—" + this.get_file_date_string();
     }
-    // validate chat_id is set to valid filename characters (letters, numbers, underscores, dashes, and spaces)
-    if (!this.chat_id.match(/^[a-zA-Z0-9_\- ]+$/)) {
+    // validate chat_id is set to valid filename characters (letters, numbers, underscores, dashes, em dash, and spaces)
+    if (!this.chat_id.match(/^[a-zA-Z0-9_—\- ]+$/)) {
       console.log("Invalid chat_id: " + this.chat_id);
       new Obsidian.Notice("[Smart Connections] Failed to save chat. Invalid chat_id: '" + this.chat_id + "'");
     }
@@ -3089,19 +3195,23 @@ class SmartConnectionsChatModel {
       JSON.stringify(this.thread, null, 2)
     );
   }
-  load_chat(chat_id) {
+  async load_chat(chat_id, view) {
     this.chat_id = chat_id;
     // load chat from file in .smart-connections folder
     // filename is chat_id
     const chat_file = this.chat_id + ".json";
     // read file
-    let chat_json = this.app.vault.adapter.read(
+    let chat_json = await this.app.vault.adapter.read(
       ".smart-connections/chats/" + chat_file
     );
     // parse json
     this.thread = JSON.parse(chat_json);
     // load chat_ml
     this.chat_ml = this.prepare_chat_ml();
+    // render messages in chat view
+    // for each turn in chat_ml
+    // console.log(this.thread);
+    // console.log(this.chat_ml);
   }
   // prepare chat_ml from chat
   // gets the last message of each turn unless turn_variation_offsets=[[turn_index,variation_index]] is specified in offset
@@ -3171,9 +3281,63 @@ class SmartConnectionsChatModel {
     this.context = null;
     this.hyd = null;
   }
+  async rename_chat(new_name){
+    // check if current chat_id file exists
+    if (this.chat_id && await this.app.vault.adapter.exists(".smart-connections/chats/" + this.chat_id + ".json")) {
+      new_name = this.chat_id.replace(this.name(), new_name);
+      // rename file if it exists
+      await this.app.vault.adapter.rename(
+        ".smart-connections/chats/" + this.chat_id + ".json",
+        ".smart-connections/chats/" + new_name + ".json"
+      );
+      // set chat_id to new_name
+      this.chat_id = new_name;
+    }else{
+      this.chat_id = new_name + "—" + this.get_file_date_string();
+      // save chat
+      await this.save_chat();
+    }
 
+  }
 
+  name() {
+    if(this.chat_id){
+      // remove date after last em dash
+      return this.chat_id.replace(/—[^—]*$/,"");
+    }
+    return "UNTITLED";
+  }
+
+  get_file_date_string() {
+    return new Date().toISOString().replace(/(T|:|\..*)/g, " ").trim();
+  }
 }
+
+class SmartConnectionsChatHistoryModal extends Obsidian.FuzzySuggestModal {
+  constructor(app, view, files) {
+    super(app);
+    this.app = app;
+    this.view = view;
+    this.setPlaceholder("Type the name of a chat session...");
+  }
+  getItems() {
+    if (!this.view.files) {
+      return [];
+    }
+    return this.view.files;
+  }
+  getItemText(item) {
+    // if not UNTITLED, remove date after last em dash
+    if(item.indexOf("UNTITLED") === -1){
+      item.replace(/—[^—]*$/,"");
+    }
+    return item;
+  }
+  onChooseItem(session) {
+    this.view.open_chat(session);
+  }
+}
+
 
 // Handle API response streaming
 class ScStreamer {
