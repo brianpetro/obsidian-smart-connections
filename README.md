@@ -9,6 +9,11 @@ As an Obsidian enthusiast and AI researcher, I experienced firsthand the challen
 
 By harnessing the power of AI, Smart Connections elevates your Obsidian workflow to new heights.
 
+## Disclosure about OpenAI API usage:
+This plugin sends your data back to OpenAI which utilises credits. The default limit for spending with OpenAI is $120 per month. It is recommended you check these settings and set it to your preferred max monthly limit prior to enabling this plugin. The larger your vault, the more it is going to cost to 'train' the AI.
+
+[Check your billing](https://platform.openai.com/account/billing/limits)
+
 ### Want to be part of the exciting journey of Smart Connections?
 We invite you to join the vibrant [discussion on GitHub](https://github.com/brianpetro/obsidian-smart-connections/discussions). Share your experiences, ask questions, or suggest new features – your input is invaluable to future of this project. Engaging with our community of Obsidian enthusiasts and AI aficionados is an excellent opportunity to learn from others, explore creative ways to use Smart Connections, and contribute to the continuous improvement of this powerful plugin. Let's work together to shape the future of AI-enhanced note-taking in Obsidian!
 

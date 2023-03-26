@@ -2368,6 +2368,13 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     });
     new Obsidian.Setting(containerEl).setName("api_key").setDesc("api_key").addText((text) => text.setPlaceholder("Enter your api_key").setValue(this.plugin.settings.api_key).onChange(async (value) => {
       this.plugin.settings.api_key = value.trim();
+      new Obsidian.Notice( "Smart Connections: Your API Key is set. We recommend that you test it!" )
+
+      let message_elem = document.createElement( "span" )
+      message_elem.innerHTML = "Smart Connections:\n\nThis plugin sends your data back to OpenAI which utilises credits. The default limit for spending with OpenAI is $120 per month. It is recommended you check these settings and set it to your preferred max monthly limit prior to enabling this plugin. The larger your vault, the more it is going to cost to 'train' the AI.\n\n<a href='https://platform.openai.com/account/billing/limits'>Check your billing</a>"
+
+      // setting the timeout to null makes the message show indefinitely
+      new Obsidian.Notice( message_elem, null )
       await this.plugin.saveSettings(true);
     }));
     // add a button to test the API key is working
