@@ -24,14 +24,18 @@ const MAX_EMBED_STRING_LENGTH = 25000;
 
 const VERSION = "1.2.8";
 
-// language specific self-referential pronouns
-const SELF_REFERENTIAL_PRONOUNS = {
-  "en": ["my", "I", "me", "mine", "our", "ours", "us", "we"],
-  "es": ["mi", "yo", "mí", "tú"],
-  "fr": ["mon", "ma", "mes", "moi", "nous", "notre", "nos", "notres"],
-  "de": ["mein", "meine", "meinen", "meiner", "meines", "mir", "uns", "unser", "unseren", "unserer", "unseres"],
-  "it": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
-};
+// get the language specific self-referential pronouns
+const SELF_REFERENTIAL_PRONOUNS = {}
+// loop through the languages directory inside the plugin for .json files
+require("fs")
+  .readdirSync( __dirname + "/languages" )
+  .forEach( file => {
+    // require the .json files and assign their properties to the SELF_REFERENTIAL_PRONOUNS object
+    Object.assign(
+      SELF_REFERENTIAL_PRONOUNS,
+      require( `${ __dirname }/languages/${ file }` )
+    )
+  });
 
 class SmartConnectionsPlugin extends Obsidian.Plugin {
   // constructor
