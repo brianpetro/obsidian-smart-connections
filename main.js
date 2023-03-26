@@ -2560,7 +2560,12 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     return SMART_CONNECTIONS_CHAT_VIEW_TYPE;
   }
   onOpen() {
-    this.chat = new SmartConnectionsChatModel(this.plugin);
+    this.new_chat();
+  }
+  onClose() {
+    this.chat.save_chat();
+  }
+  render_chat() {
     this.containerEl.empty();
     this.chat_container = this.containerEl.createDiv("sc-chat-container");
     // render plus sign for clear button
@@ -2570,46 +2575,79 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // render chat input
     this.render_chat_input();
     this.plugin.render_brand(this.containerEl);
-    // render initial message from assistant (don't use render_message to skip adding to chat history)
-    // this.render_message(INITIAL_MESSAGE, "assistant");
-    this.new_messsage_bubble("assistant");
-    this.active_elm.innerHTML = '<p>'+INITIAL_MESSAGE+'</p>';
-    // this.test_get_nearest_until_next_dev_exceeds_std_dev();
-  }
-  onClose() {
-    this.chat.save_chat();
   }
   // render plus sign for clear button
   render_top_bar() {
     // create container for clear button
     let top_bar_container = this.chat_container.createDiv("sc-top-bar-container");
-    // create button to open view
-    // TODO: make button to open other view
+    // render the name of the chat in an input box (pop content after last hyphen in chat_id)
+    let chat_name =this.chat.name();
+    let chat_name_input = top_bar_container.createEl("input", {
+      attr: {
+        type: "text",
+        value: chat_name
+      },
+      cls: "sc-chat-name-input"
+    });
+    chat_name_input.addEventListener("change", this.rename_chat.bind(this));
+    
+    // create button to Smart View
+    let smart_view_btn = this.create_top_bar_button(top_bar_container, "Smart View", "smart-connections");
+    smart_view_btn.addEventListener("click", this.open_smart_view.bind(this));
+    // create button to save chat
+    let save_btn = this.create_top_bar_button(top_bar_container, "Save Chat", "save");
+    save_btn.addEventListener("click", this.save_chat.bind(this));
     // create button to open chat history modal
-    let history_button = top_bar_container.createEl("button", { cls: "history-button" });
-    history_button.innerHTML = "History";
-    // add event listener to button
-    history_button.addEventListener("click", async () => {
-      const folder = await this.app.vault.adapter.list(".smart-connections/chats");
-      this.files = folder.files.map((file) => {
-        return file.replace(".smart-connections/chats/", "").replace(".json", "");
-      });
-      // open chat history modal
-      if(!this.modal) this.modal = new SmartConnectionsChatHistoryModal(this.app, this);
-      this.modal.open();
-    });
-    // create clear button
-    let clear_button = top_bar_container.createEl("button", { cls: "clear-button" });
-    clear_button.innerHTML = "+";
-    // add event listener to button
-    clear_button.addEventListener("click", () => {
-      // clear chat box
-      this.new_chat();
-    });
+    let history_btn = this.create_top_bar_button(top_bar_container, "Chat History", "history");
+    history_btn.addEventListener("click", this.open_chat_history.bind(this));
+    // create button to start new chat
+    const new_chat_btn = this.create_top_bar_button(top_bar_container, "New Chat", "plus");
+    new_chat_btn.addEventListener("click", this.new_chat.bind(this));
   }
+  async open_chat_history() {
+    const folder = await this.app.vault.adapter.list(".smart-connections/chats");
+    this.files = folder.files.map((file) => {
+      return file.replace(".smart-connections/chats/", "").replace(".json", "");
+    });
+    // open chat history modal
+    if (!this.modal)
+      this.modal = new SmartConnectionsChatHistoryModal(this.app, this);
+    this.modal.open();
+  }
+
+  create_top_bar_button(top_bar_container, title, icon=null) {
+    let btn = top_bar_container.createEl("button", {
+      attr: {
+        title: title
+      }
+    });
+    if(icon){
+      Obsidian.setIcon(btn, icon);
+    }else{
+      btn.innerHTML = title;
+    }
+    return btn;
+  }
+  // render new chat
   new_chat() {
-    // save current chat
-    if(this.chat) {
+    this.clear_chat();
+    this.render_chat();
+    // render initial message from assistant (don't use render_message to skip adding to chat history)
+    this.new_messsage_bubble("assistant");
+    this.active_elm.innerHTML = '<p>'+INITIAL_MESSAGE+'</p>';
+  }
+  // open a chat from the chat history modal
+  async open_chat(chat_id) {
+    this.clear_chat();
+    await this.chat.load_chat(chat_id);
+    this.render_chat();
+    for (let i = 0; i < this.chat.chat_ml.length; i++) {
+      this.render_message(this.chat.chat_ml[i].content, this.chat.chat_ml[i].role);
+    }
+  }
+  // clear current chat state
+  clear_chat() {
+    if (this.chat) {
       this.chat.save_chat();
     }
     this.chat = new SmartConnectionsChatModel(this.plugin);
@@ -2621,7 +2659,21 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.current_chat_ml = [];
     // update prevent input
     this.end_stream();
-    this.onOpen();
+  }
+
+  rename_chat(event) {
+    let new_chat_name = event.target.value;
+    this.chat.rename_chat(new_chat_name);
+  }
+  
+  // save current chat
+  save_chat() {
+    this.chat.save_chat();
+    new Obsidian.Notice("[Smart Connections] Chat saved");
+  }
+  
+  open_smart_view() {
+    this.plugin.open_view();
   }
   // render chat messages container
   render_chat_box() {
@@ -2924,6 +2976,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     if(this.active_stream){
       this.active_stream.close();
       this.active_stream = null;
+      this.unset_streaming_ux();
     }
     if(this.dotdotdot_interval){
       clearInterval(this.dotdotdot_interval);
@@ -2932,7 +2985,6 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       this.active_elm.parentElement.remove();
       this.active_elm = null;
     }
-    this.unset_streaming_ux();
   }
 
   async get_context_hyde(user_input) {
@@ -3007,6 +3059,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     nearest = nearest.slice(0, slice_i+1);
     return nearest;
   }
+  // this.test_get_nearest_until_next_dev_exceeds_std_dev();
   // // test get_nearest_until_next_dev_exceeds_std_dev
   // test_get_nearest_until_next_dev_exceeds_std_dev() {
   //   const nearest = [{similarity: 0.99}, {similarity: 0.98}, {similarity: 0.97}, {similarity: 0.96}, {similarity: 0.95}, {similarity: 0.94}, {similarity: 0.93}, {similarity: 0.92}, {similarity: 0.91}, {similarity: 0.9}, {similarity: 0.79}, {similarity: 0.78}, {similarity: 0.77}, {similarity: 0.76}, {similarity: 0.75}, {similarity: 0.74}, {similarity: 0.73}, {similarity: 0.72}];
@@ -3058,21 +3111,6 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     return this.chat.context;
   }
 
-  async open_chat(chat_id) {
-    this.new_chat();
-    await this.chat.load_chat(chat_id);
-    // render messages in chat view
-    // for each turn in chat_ml
-    console.log(this.chat.thread);
-    console.log(this.chat.chat_ml);
-    for (let i = 0; i < this.chat.chat_ml.length; i++) {
-      this.render_message(this.chat.chat_ml[i].content, this.chat.chat_ml[i].role);
-    }
-
-  }
-
-
-
 }
 
 /**
@@ -3105,12 +3143,12 @@ class SmartConnectionsChatModel {
     if (!(await this.app.vault.adapter.exists(".smart-connections/chats"))) {
       await this.app.vault.adapter.mkdir(".smart-connections/chats");
     }
-    // if chat_id is not set, set it to human readable timestamp
+    // if chat_id is not set, set it to UNTITLED-${unix timestamp}
     if (!this.chat_id) {
-      this.chat_id = new Date().toISOString().replace(/(T|:|\..*)/g, " ").trim();
+      this.chat_id = this.name() + "—" + this.get_file_date_string();
     }
-    // validate chat_id is set to valid filename characters (letters, numbers, underscores, dashes, and spaces)
-    if (!this.chat_id.match(/^[a-zA-Z0-9_\- ]+$/)) {
+    // validate chat_id is set to valid filename characters (letters, numbers, underscores, dashes, em dash, and spaces)
+    if (!this.chat_id.match(/^[a-zA-Z0-9_—\- ]+$/)) {
       console.log("Invalid chat_id: " + this.chat_id);
       new Obsidian.Notice("[Smart Connections] Failed to save chat. Invalid chat_id: '" + this.chat_id + "'");
     }
@@ -3121,7 +3159,7 @@ class SmartConnectionsChatModel {
       JSON.stringify(this.thread, null, 2)
     );
   }
-  async load_chat(chat_id) {
+  async load_chat(chat_id, view) {
     this.chat_id = chat_id;
     // load chat from file in .smart-connections folder
     // filename is chat_id
@@ -3134,6 +3172,10 @@ class SmartConnectionsChatModel {
     this.thread = JSON.parse(chat_json);
     // load chat_ml
     this.chat_ml = this.prepare_chat_ml();
+    // render messages in chat view
+    // for each turn in chat_ml
+    // console.log(this.thread);
+    // console.log(this.chat_ml);
   }
   // prepare chat_ml from chat
   // gets the last message of each turn unless turn_variation_offsets=[[turn_index,variation_index]] is specified in offset
@@ -3203,8 +3245,36 @@ class SmartConnectionsChatModel {
     this.context = null;
     this.hyd = null;
   }
+  async rename_chat(new_name){
+    // check if current chat_id file exists
+    if (this.chat_id && await this.app.vault.adapter.exists(".smart-connections/chats/" + this.chat_id + ".json")) {
+      new_name = this.chat_id.replace(this.name(), new_name);
+      // rename file if it exists
+      await this.app.vault.adapter.rename(
+        ".smart-connections/chats/" + this.chat_id + ".json",
+        ".smart-connections/chats/" + new_name + ".json"
+      );
+      // set chat_id to new_name
+      this.chat_id = new_name;
+    }else{
+      this.chat_id = new_name + "—" + this.get_file_date_string();
+      // save chat
+      await this.save_chat();
+    }
 
+  }
 
+  name() {
+    if(this.chat_id){
+      // remove date after last em dash
+      return this.chat_id.replace(/—[^—]*$/,"");
+    }
+    return "UNTITLED";
+  }
+
+  get_file_date_string() {
+    return new Date().toISOString().replace(/(T|:|\..*)/g, " ").trim();
+  }
 }
 
 class SmartConnectionsChatHistoryModal extends Obsidian.FuzzySuggestModal {
@@ -3221,6 +3291,10 @@ class SmartConnectionsChatHistoryModal extends Obsidian.FuzzySuggestModal {
     return this.view.files;
   }
   getItemText(item) {
+    // if not UNTITLED, remove date after last em dash
+    if(item.indexOf("UNTITLED") === -1){
+      item.replace(/—[^—]*$/,"");
+    }
     return item;
   }
   onChooseItem(session) {
