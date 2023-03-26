@@ -176,6 +176,7 @@
   resize: none;
   height: auto;
   max-height: 100%;
+  border: 1px solid var(--blockquote-border-color);
 }
 
 .send-button {
