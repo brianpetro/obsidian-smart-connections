@@ -2794,7 +2794,6 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     if(!this.contains_self_referential_keywords(user_input)) {
       this.request_chatgpt_completion();
     }else{
-      console.log("Get from notes & HYDES")
       // get hyde
       const context = await this.get_context_hyde(user_input);
       // get user input with added context
