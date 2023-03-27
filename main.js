@@ -8,7 +8,6 @@ const DEFAULT_SETTINGS = {
   folder_exclusions: "",
   header_exclusions: "",
   path_only: "",
-  selfReferentialPronouns: [],
   show_full_path: false,
   expanded_view: true,
   group_nearest_by_file: false,
