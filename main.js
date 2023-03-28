@@ -2831,7 +2831,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
           content: user_input
         }
       ];
-      this.request_chatgpt_completion({messages: chatml});
+      this.request_chatgpt_completion({messages: chatml, temperature: 0});
     }
   }
   
