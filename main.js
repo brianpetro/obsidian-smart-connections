@@ -28,27 +28,27 @@ const VERSION = "1.2.8";
 // research : SMART_TRANSLATION[language][key]
 const SMART_TRANSLATION = {
   "en": {
-    "pronouns": ["my", "I", "me", "mine", "our", "ours", "us", "we"],
+    "pronous": ["my", "I", "me", "mine", "our", "ours", "us", "we"],
     "prompt": "Based on your notes",
     "initial_message": "Hi, I'm ChatGPT with access to your notes via Smart Connections. Ask me a question about your notes and I'll try to answer it.",
   },
   "es": {
-    "pronouns": ["mi", "yo", "mí", "tú"],
+    "pronous": ["mi", "yo", "mí", "tú"],
     "prompt": "Basándose en sus notas",
     "initial_message": "Hola, soy ChatGPT con acceso a tus apuntes a través de Smart Connections. Hazme una pregunta sobre tus apuntes e intentaré responderte.",
   },
   "fr": {
-    "pronouns": ["me", "mon", "ma", "mes", "moi", "nous", "notre", "nos", "je", "j'", "m'"],
+    "pronous": ["me", "mon", "ma", "mes", "moi", "nous", "notre", "nos", "je", "j'", "m'"],
     "prompt": "D'après vos notes",
     "initial_message": "Bonjour, je suis ChatGPT et j'ai accès à vos notes via Smart Connections. Posez-moi une question sur vos notes et j'essaierai d'y répondre.",
   },
   "de": {
-    "pronouns": ["mein", "meine", "meinen", "meiner", "meines", "mir", "uns", "unser", "unseren", "unserer", "unseres"],
+    "pronous": ["mein", "meine", "meinen", "meiner", "meines", "mir", "uns", "unser", "unseren", "unserer", "unseres"],
     "prompt": "Basierend auf Ihren Notizen",
     "initial_message": "Hallo, ich bin ChatGPT und habe über Smart Connections Zugang zu Ihren Notizen. Stellen Sie mir eine Frage zu Ihren Notizen und ich werde versuchen, sie zu beantworten.",
   },
   "it": {
-    "pronouns": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
+    "pronous": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
     "prompt": "Sulla base degli appunti",
     "initial_message": "Ciao, sono ChatGPT e ho accesso ai tuoi appunti tramite Smart Connections. Fatemi una domanda sui vostri appunti e cercherò di rispondervi.",
   },
@@ -117,7 +117,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       });
     }
     // load self_ref_kw_regex
-    this.self_ref_kw_regex = new RegExp(`\\b(${SMART_TRANSLATION[this.settings.language].pronouns.join("|")})\\b`, "gi");
+    this.self_ref_kw_regex = new RegExp(`\\b(${SMART_TRANSLATION[this.settings.language].pronous.join("|")})\\b`, "gi");
     // load failed files
     await this.load_failed_files();
   }
@@ -2413,8 +2413,8 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     });
     // language
     new Obsidian.Setting(containerEl).setName("Default Language").setDesc("Default language to use for Smart Chat. Changes which self-referential pronouns will trigger lookup of your notes.").addDropdown((dropdown) => {
-      // get Object keys from pronouns
-      const languages = Object.keys(pronouns);
+      // get Object keys from pronous
+      const languages = Object.keys(SMART_TRANSLATION);
       for(let i = 0; i < languages.length; i++) {
         dropdown.addOption(languages[i], languages[i]);
       }
@@ -2549,7 +2549,7 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
 
   }
   get_self_ref_list() {
-    return "Current: " + pronouns[this.plugin.settings.language].join(", ");
+    return "Current: " + SMART_TRANSLATION[this.plugin.settings.language].pronous.join(", ");
   }
 
   draw_failed_files_list(failed_list) {
