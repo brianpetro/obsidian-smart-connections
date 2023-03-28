@@ -2588,7 +2588,7 @@ function line_is_heading(line) {
 }
 
 const SMART_CONNECTIONS_CHAT_VIEW_TYPE = "smart-connections-chat-view";
-const INITIAL_MESSAGE = "Hi, I'm ChatGPT with access to your notes via Smart Connections. Ask me a question about your notes and I'll try to answer it.";
+
 class SmartConnectionsChatView extends Obsidian.ItemView {
   constructor(leaf, plugin) {
     super(leaf);
