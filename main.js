@@ -2422,6 +2422,11 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
         this.plugin.settings.language = value;
         await this.plugin.saveSettings();
         self_ref_pronouns_list.setText(this.get_self_ref_list());
+        // if chat view is open then run new_chat()
+        const chat_view = this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE).length > 0 ? this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE)[0].view : null;
+        if(chat_view) {
+          chat_view.new_chat();
+        }
       });
       dropdown.setValue(this.plugin.settings.language);
     });
