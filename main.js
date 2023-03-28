@@ -33,6 +33,25 @@ const SELF_REFERENTIAL_PRONOUNS = {
   "it": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
 };
 
+//why not translate "Based on your notes" ?
+
+const SMART_CHAT_PROMPT = {
+  "en": "Based on your notes",
+  "es": "Basándose en sus notas",
+  "fr": "D'après vos notes",
+  "de": "Basierend auf Ihren Notizen",
+  "it": "Sulla base degli appunti",
+};
+
+//translate initial message
+const SMART_CHAT_INITIAL_MESSAGE = {
+  "en": "Hi, I'm ChatGPT with access to your notes via Smart Connections. Ask me a question about your notes and I'll try to answer it.",
+  "es": "Hola, soy ChatGPT con acceso a tus apuntes a través de Smart Connections. Hazme una pregunta sobre tus apuntes e intentaré responderte.",
+  "fr": "Bonjour, je suis ChatGPT et j'ai accès à vos notes via Smart Connections. Posez-moi une question sur vos notes et j'essaierai d'y répondre.",
+  "de": "Hallo, ich bin ChatGPT und habe über Smart Connections Zugang zu Ihren Notizen. Stellen Sie mir eine Frage zu Ihren Notizen und ich werde versuchen, sie zu beantworten.",
+  "it": "Ciao, sono ChatGPT e ho accesso ai tuoi appunti tramite Smart Connections. Fatemi una domanda sui vostri appunti e cercherò di rispondervi.",
+};
+
 class SmartConnectionsPlugin extends Obsidian.Plugin {
   // constructor
   constructor() {
@@ -2669,7 +2688,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.render_chat();
     // render initial message from assistant (don't use render_message to skip adding to chat history)
     this.new_messsage_bubble("assistant");
-    this.active_elm.innerHTML = '<p>'+INITIAL_MESSAGE+'</p>';
+    this.active_elm.innerHTML = '<p>'+SMART_CHAT_INITIAL_MESSAGE[this.plugin.settings.language]+'</p>';
   }
   // open a chat from the chat history modal
   async open_chat(chat_id) {
@@ -3138,7 +3157,8 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // char_accum divided by 4 and rounded to nearest integer for estimated tokens
     console.log("total context tokens: ~" + Math.round(char_accum / 4));
     // build context input
-    this.chat.context = `Anticipate the type of answer desired by the user. Imagine the following ${context.length} notes were written by the user and contain all the necessary information to answer the user's question. Begin responses with "Based on your notes..."`;
+    console.log(SMART_CHAT_PROMPT[this.plugin.settings.language]);
+    this.chat.context = `Anticipate the type of answer desired by the user. Imagine the following ${context.length} notes were written by the user and contain all the necessary information to answer the user's question. Begin responses with "${SMART_CHAT_PROMPT[this.plugin.settings.language]}..."`;
     for(let i = 0; i < context.length; i++) {
       this.chat.context += `\n---BEGIN #${i+1}---\n${context[i].text}\n---END #${i+1}---`;
     }
