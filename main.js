@@ -14,9 +14,10 @@ const DEFAULT_SETTINGS = {
   language: "en",
   log_render: false,
   log_render_files: false,
+  recently_sent_retry_notice: false,
+  results_count: 30,
   skip_sections: false,
   smart_chat_model: "gpt-3.5-turbo",
-  results_count: 30,
   view_open: true,
   version: "",
 };
@@ -339,9 +340,14 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           clearTimeout(this.retry_notice_timeout);
           this.retry_notice_timeout = null;
         }
-        this.retry_notice_timeout = setTimeout(() => {
+        // limit to one notice every 10 minutes
+        if(!this.recently_sent_retry_notice){
           new Obsidian.Notice("Smart Connections: Skipping previously failed file, use button in settings to retry");
-        }, 3000);
+          this.recently_sent_retry_notice = true;
+          setTimeout(() => {
+            this.recently_sent_retry_notice = false;  
+          }, 600000);
+        }
         continue;
       }
       // skip files where path contains any exclusions
