@@ -22,7 +22,7 @@ const DEFAULT_SETTINGS = {
 };
 const MAX_EMBED_STRING_LENGTH = 25000;
 
-const VERSION = "1.2.8";
+let VERSION;
 
 //create one object with all the translations
 // research : SMART_TRANSLATION[language][key]
@@ -78,6 +78,89 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.retry_notice_timeout = null;
     this.save_timeout = null;
     this.self_ref_kw_regex = null;
+    this.update_available = false;
+  }
+
+  async onload() {
+    // initialize when layout is ready
+    this.app.workspace.onLayoutReady(this.initialize.bind(this));
+  }
+  async initialize() {
+    console.log("Loading Smart Connections plugin");
+    VERSION = this.manifest.version;
+    // VERSION = '1.0.0';
+    // console.log(VERSION);
+    await this.loadSettings();
+    await this.check_for_update();
+
+    this.addIcon();
+    this.addCommand({
+      id: "sc-find-notes",
+      name: "Find: Make Smart Connections",
+      icon: "pencil_icon",
+      hotkeys: [],
+      // editorCallback: async (editor) => {
+      editorCallback: async (editor) => {
+        if(editor.somethingSelected()) {
+          // get selected text
+          let selected_text = editor.getSelection();
+          // render connections from selected text
+          await this.make_connections(selected_text);
+        } else {
+          // clear nearest_cache on manual call to make connections
+          this.nearest_cache = {};
+          // console.log("Cleared nearest_cache");
+          await this.make_connections();
+        }
+      }
+    });
+    this.addCommand({
+      id: "smart-connections-view",
+      name: "Open: View Smart Connections",
+      callback: () => {
+        this.open_view();
+      }
+    });
+    // open chat command
+    this.addCommand({
+      id: "smart-connections-chat",
+      name: "Open: Smart Chat Conversation",
+      callback: () => {
+        this.open_chat();
+      }
+    });
+    this.addSettingTab(new SmartConnectionsSettingsTab(this.app, this));
+    // register main view type
+    this.registerView(SMART_CONNECTIONS_VIEW_TYPE, (leaf) => (new SmartConnectionsView(leaf, this)));
+    // register chat view type
+    this.registerView(SMART_CONNECTIONS_CHAT_VIEW_TYPE, (leaf) => (new SmartConnectionsChatView(leaf, this)));
+    // code-block renderer
+    this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this));
+
+    // if this settings.view_open is true, open view on startup
+    if(this.settings.view_open) {
+      this.open_view();
+    }
+    // on new version
+    if(this.settings.version !== VERSION) {
+      // update version
+      this.settings.version = VERSION;
+      // save settings
+      await this.saveSettings();
+      // open view
+      this.open_view();
+    }
+    // check github release endpoint if update is available
+    this.add_to_gitignore();
+    /**
+     * EXPERIMENTAL
+     * - window-based API access
+     * - code-block rendering
+     */
+    this.api = new ScSearchApi(this.app, this);
+    // register API to global window object
+    (window["SmartSearchApi"] = this.api) && this.register(() => delete window["SmartSearchApi"]);
+
   }
 
   async loadSettings() {
@@ -131,69 +214,33 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       await this.make_connections();
     }
   }
-  async onload() {
-    this.addIcon();
-    await this.loadSettings();
-    console.log("loading plugin");
-    this.addCommand({
-      id: "sc-find-notes",
-      name: "Find: Make Smart Connections",
-      icon: "pencil_icon",
-      hotkeys: [],
-      // editorCallback: async (editor) => {
-      editorCallback: async (editor) => {
-        if(editor.somethingSelected()) {
-          // get selected text
-          let selected_text = editor.getSelection();
-          // render connections from selected text
-          await this.make_connections(selected_text);
-        } else {
-          // clear nearest_cache on manual call to make connections
-          this.nearest_cache = {};
-          // console.log("Cleared nearest_cache");
-          await this.make_connections();
-        }
+
+  // check for update
+  async check_for_update() {
+    // fail silently, ex. if no internet connection
+    try {
+      // get latest release version from github
+      const response = await (0, Obsidian.requestUrl)({
+        url: "https://api.github.com/repos/brianpetro/obsidian-smart-connections/releases/latest",
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        contentType: "application/json",
+      });
+      // get version number from response
+      const latest_release = JSON.parse(response.text).tag_name;
+      // console.log(`Latest release: ${latest_release}`);
+      // if latest_release is newer than current version, show message
+      if(latest_release !== VERSION) {
+        new Obsidian.Notice(`[Smart Connections] A new version is available! (v${latest_release})`);
+        this.update_available = true;
       }
-    });
-    this.addCommand({
-      id: "smart-connections-view",
-      name: "Open: View Smart Connections",
-      callback: () => {
-        this.open_view();
-      }
-    });
-    // open chat command
-    this.addCommand({
-      id: "smart-connections-chat",
-      name: "Open: Smart Chat Conversation",
-      callback: () => {
-        this.open_chat();
-      }
-    });
-    // get all files in vault
-    this.addSettingTab(new SmartConnectionsSettingsTab(this.app, this));
-
-    // register main view type
-    this.registerView(SMART_CONNECTIONS_VIEW_TYPE, (leaf) => (new SmartConnectionsView(leaf, this)));
-    // register chat view type
-    this.registerView(SMART_CONNECTIONS_CHAT_VIEW_TYPE, (leaf) => (new SmartConnectionsChatView(leaf, this)));
-
-    // initialize when layout is ready
-    this.app.workspace.onLayoutReady(this.initialize.bind(this));
-
-    /**
-     * EXPERIMENTAL
-     * - window-based API access
-     * - code-block rendering
-     */
-    this.api = new ScSearchApi(this.app, this);
-    // register API to global window object
-    (window["SmartSearchApi"] = this.api) && this.register(() => delete window["SmartSearchApi"]);
-
-    // code-block renderer
-    this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this));
-
+    } catch (error) {
+      console.log(error);
+    }
   }
+
   async render_code_block(contents, container, ctx) {
     let nearest;
     if(contents.trim().length > 0) {
@@ -206,15 +253,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
     if (nearest.length) {
       this.update_results(container, nearest);
-      // const list = container.createEl("ul");
-      // list.addClass("smart-connections-list");
-      // for (const item of nearest) {
-      //   const el = list.createEl("li", {
-      //     cls: "smart-connections-item",
-      //     text: item.link
-      //   });
-      // }
-
     }
   }
 
@@ -226,23 +264,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       view = this.get_view();
     }
     await view.render_connections(selected_text);
-  }
-
-  async initialize() {
-    // if this settings.view_open is true, open view on startup
-    if(this.settings.view_open) {
-      this.open_view();
-    }
-    // on new version
-    if(this.settings.version !== VERSION) {
-      // update version
-      this.settings.version = VERSION;
-      // save settings
-      await this.saveSettings();
-      // open view
-      this.open_view();
-    }
-    this.add_to_gitignore();
   }
 
   addIcon(){
@@ -1558,11 +1579,21 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // add SVG signal icon using getIcon
     Obsidian.setIcon(brand_container, "smart-connections");
     const brand_p = brand_container.createEl("p");
+    let text = "Smart Connections";
+    let attr = {};
+    // if update available, change text to "Update Available"
+    if (this.update_available) {
+      text = "Update Available";
+      attr = {
+        style: "font-weight: 700;"
+      };
+    }
     brand_p.createEl("a", {
       cls: "",
-      text: "Smart Connections",
+      text: text,
       href: "https://github.com/brianpetro/obsidian-smart-connections/discussions",
-      target: "_blank"
+      target: "_blank",
+      attr: attr
     });
   }
 
