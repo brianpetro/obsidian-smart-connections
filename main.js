@@ -2814,7 +2814,12 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // create container for chat input
     let chat_input = this.chat_container.createDiv("sc-chat-form");
     // create textarea
-    this.textarea = chat_input.createEl("textarea", {cls: "sc-chat-input"});
+    this.textarea = chat_input.createEl("textarea", {
+      cls: "sc-chat-input",
+      attr: {
+        placeholder: `Try "Based on my notes" or "Summarize [[this note]]"`
+      }
+    });
     // use contenteditable instead of textarea
     // this.textarea = chat_input.createEl("div", {cls: "sc-chat-input", attr: {contenteditable: true}});
     // add event listener to listen for shift+enter
