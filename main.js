@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS = {
   header_exclusions: "",
   path_only: "",
   show_full_path: false,
+  cut_off_frontmatter: false,
   expanded_view: true,
   group_nearest_by_file: false,
   language: "en",
@@ -2476,6 +2477,7 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     const self_ref_pronouns_list = containerEl.createEl("span", {
       text: this.get_self_ref_list()
     });
+    new Obsidian.Setting(containerEl).setName("Cut off frontmatter").setDesc("Cut off frontmatter in the prompt to gain characters in reply generation").addToggle((toggle) => { toggle.setValue(this.plugin.settings.cut_off_frontmatter).onChange(async (value) => { this.plugin.settings.cut_off_frontmatter = value; await this.plugin.saveSettings(); }); });
     containerEl.createEl("h2", {
       text: "Exclusions"
     });
@@ -3494,6 +3496,7 @@ class SmartConnectionsChatModel {
       // max chars for this note is max_chars divided by number of notes left
       const this_max_chars = (notes.length - i > 1) ? Math.floor(max_chars / (notes.length - i)) : max_chars;
       const note_content = await this.get_note_contents(notes[i], {char_limit: this_max_chars});
+      console.log(note_content);
       system_input += `---BEGIN NOTE: [[${notes[i].basename}]]---\n`
       system_input += note_content;
       system_input += `---END NOTE---\n`
@@ -3539,11 +3542,17 @@ class SmartConnectionsChatModel {
     if(!(note instanceof Obsidian.TFile)) return "";
     // get file content
     let file_content = await this.app.vault.cachedRead(note);
+    //cut off front matter
+    if (this.plugin.settings.cut_off_frontmatter) {
+      file_content = file_content.replace(/\s*---[\s\S]*?---/,"");
+    }
     // check if contains dataview code block
     if(file_content.indexOf("```dataview") > -1){
       // if contains dataview code block get all dataview code blocks
       file_content = await this.render_dataview_queries(file_content, note.path, opts);
     }
+    // cut off note if %%---%% is found
+    file_content = file_content.replace(/%%---%%[\s\S]*/, "");
     return file_content.substring(0, opts.char_limit);
   }
 
