@@ -130,6 +130,15 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         this.open_chat();
       }
     });
+    // open random note from nearest cache
+    this.addCommand({
+      id: "smart-connections-random",
+      name: "Open: Random Note from Smart Connections",
+      callback: () => {
+        this.open_random_note();
+      }
+    });
+    // add settings tab
     this.addSettingTab(new SmartConnectionsSettingsTab(this.app, this));
     // register main view type
     this.registerView(SMART_CONNECTIONS_VIEW_TYPE, (leaf) => (new SmartConnectionsView(leaf, this)));
@@ -275,6 +284,22 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     <circle cx="80" cy="70" r="9" fill="currentColor"/>
     <circle cx="50" cy="100" r="9" fill="currentColor"/>
     <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
+  }
+
+  // open random note
+  async open_random_note() {
+    const curr_file = this.app.workspace.getActiveFile();
+    const curr_key = this.get_file_key(curr_file);
+    // if no nearest cache, create Obsidian notice
+    if(typeof this.nearest_cache[curr_key] === "undefined") {
+      new Obsidian.Notice("[Smart Connections] No Smart Connections found. Open a note to get Smart Connections.");
+      return;
+    }
+    // get random from nearest cache
+    const rand = Math.floor(Math.random() * this.nearest_cache[curr_key].length/2); // divide by 2 to limit to top half of results
+    const random_file = this.nearest_cache[curr_key][rand];
+    // open random file
+    this.open_note(random_file);
   }
 
   async open_view() {
@@ -724,7 +749,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     let req_batch = [];
     let blocks = [];
     // initiate curr_file_key from md5(curr_file.path)
-    const curr_file_key = crypto.createHash('md5').update(curr_file.path).digest('hex');
+    const curr_file_key = this.get_file_key(curr_file);
     // intiate file_file_embed_input by removing .md and converting file path to breadcrumbs (" > ")
     let file_embed_input = curr_file.path.replace(".md", "");
     file_embed_input = file_embed_input.replace(/\//g, " > ");
@@ -932,6 +957,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
 
   }
+  get_file_key(curr_file) {
+    return crypto.createHash('md5').update(curr_file.path).digest('hex');
+  }
+
   update_render_log(blocks, file_embed_input) {
     if (blocks.length > 0) {
       // multiply by 2 because implies we saved token spending on blocks(sections), too
@@ -1858,7 +1887,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   add_link_listeners(item, curr, list) {
     item.addEventListener("click", async (event) => {
-      await this.handle_click(curr, event);
+      await this.open_note(curr, event);
     });
     // drag-on
     // currently only works with full-file links
@@ -1888,7 +1917,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   // get target file from link path
   // if sub-section is linked, open file and scroll to sub-section
-  async handle_click(curr, event) {
+  async open_note(curr, event=null) {
     let targetFile;
     let heading;
     if (curr.link.indexOf("#") > -1) {
@@ -1924,10 +1953,16 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     } else {
       targetFile = this.app.metadataCache.getFirstLinkpathDest(curr.link, "");
     }
-    // properly handle if the meta/ctrl key is pressed
-    const mod = Obsidian.Keymap.isModEvent(event);
-    // get most recent leaf
-    let leaf = this.app.workspace.getLeaf(mod);
+    let leaf;
+    if(event) {
+      // properly handle if the meta/ctrl key is pressed
+      const mod = Obsidian.Keymap.isModEvent(event);
+      // get most recent leaf
+      leaf = this.app.workspace.getLeaf(mod);
+    }else{
+      // get most recent leaf
+      leaf = this.app.workspace.getMostRecentLeaf();
+    }
     await leaf.openFile(targetFile);
     if (heading) {
       let { editor } = leaf.view;
