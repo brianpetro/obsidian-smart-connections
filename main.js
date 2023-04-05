@@ -24,6 +24,7 @@ const DEFAULT_SETTINGS = {
 const MAX_EMBED_STRING_LENGTH = 25000;
 
 let VERSION;
+const SUPPORTED_FILE_TYPES = ["md", "canvas"];
 
 //create one object with all the translations
 // research : SMART_TRANSLATION[language][key]
@@ -334,8 +335,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   
   // get embeddings for all files
   async get_all_embeddings() {
-    // get all files in vault
-    const files = await this.app.vault.getMarkdownFiles();
+    // get all files in vault and filter all but markdown and canvas files
+    const files = (await this.app.vault.getFiles()).filter((file) => file instanceof Obsidian.TFile && (file.extension === "md" || file.extension === "canvas"));
+    // const files = await this.app.vault.getMarkdownFiles();
     // get open files to skip if file is currently open
     const open_files = this.app.workspace.getLeavesOfType("markdown").map((leaf) => leaf.view.file);
     this.render_log.total_files = files.length;
@@ -776,7 +778,35 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       await this.get_embeddings_batch(req_batch);
       return;
     }
-
+    /**
+     * BEGIN Canvas file type Embedding
+     */
+    if(curr_file.extension === "canvas") {
+      // get file contents and parse as JSON
+      const canvas_contents = await this.app.vault.cachedRead(curr_file);
+      const canvas_json = JSON.parse(canvas_contents);
+      // for each object in nodes array
+      for(let j = 0; j < canvas_json.nodes.length; j++) {
+        // if object has text property
+        if(canvas_json.nodes[j].text) {
+          // add to file_embed_input
+          file_embed_input += "\n" + canvas_json.nodes[j].text;
+        }
+        // if object has file property
+        if(canvas_json.nodes[j].file) {
+          // add to file_embed_input
+          file_embed_input += "\nLink: " + canvas_json.nodes[j].file;
+        }
+      }
+      // console.log(file_embed_input);
+      req_batch.push([curr_file_key, file_embed_input, {
+        mtime: curr_file.stat.mtime,
+        path: curr_file.path,
+      }]);
+      await this.get_embeddings_batch(req_batch);
+      return;
+    }
+    
     /**
      * BEGIN Block "section" embedding
      */
@@ -2209,17 +2239,11 @@ class SmartConnectionsView extends Obsidian.ItemView {
         // console.log("no file open, returning");
         return;
       }
-      // return if file type is not markdown
-      if(file.extension !== "md") {
-        // if file is 'canvas' and length of current view content is greater than 300 then return
-        if((file.extension === "canvas") && (container.innerHTML.length > 1000)) {
-          // prevents clearing view of search results when still on the same canvas
-          // console.log("prevented clearing view of search results when still on the same canvas")
-          return;
-        }
+      // return if file type is not supported
+      if(SUPPORTED_FILE_TYPES.indexOf(file.extension) === -1) {
         return this.set_message([
           "File: "+file.name
-          ,"Smart Connections only works with Markdown files."
+          ,"Unsupported file type (Supported: "+SUPPORTED_FILE_TYPES.join(", ")+")"
         ]);
       }
       // run render_connections after 1 second to allow for file to load
