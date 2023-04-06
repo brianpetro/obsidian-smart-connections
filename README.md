@@ -13,6 +13,8 @@ By harnessing the power of AI, Smart Connections elevates your Obsidian workflow
 We invite you to join the vibrant [discussion on GitHub](https://github.com/brianpetro/obsidian-smart-connections/discussions). Share your experiences, ask questions, or suggest new features – your input is invaluable to future of this project. Engaging with our community of Obsidian enthusiasts and AI aficionados is an excellent opportunity to learn from others, explore creative ways to use Smart Connections, and contribute to the continuous improvement of this powerful plugin. Let's work together to shape the future of AI-enhanced note-taking in Obsidian!
 
 ## What People Are Saying
+- ["I've switched over from Mem to Obsidian when I found this plugin"](https://discord.com/channels/686053708261228577/694233507500916796/1091164112425320538)
+- ["[Smart Connections] significantly changed how I use PKM"](https://discord.com/channels/686053708261228577/710585052769157141/1091163849190801468)
 - ["This plugin has become a vital part of my life"](https://github.com/brianpetro/obsidian-smart-connections/issues/120#issuecomment-1492842117:~:text=This%20plugin%20has%20become%20a%20vital%20part%20of%20my%20life)
 - ["Smart Connections is easily in my Top 3 [plugins], it changes radically the use of [Obsidian], many thanks for that."](https://github.com/brianpetro/obsidian-smart-connections/issues/64#issuecomment-1484212168:~:text=Smart%20connections%20is%20easily%20in%20my%20Top%203%2C%20it%20changes%20radically%20the%20use%20of%20the%20Soft%2C%20many%20thanks%20for%20that.)
 - ["Hi, amazing plugin! 🔥"](https://github.com/brianpetro/obsidian-smart-connections/issues/57#issuecomment-1488187361:~:text=Hi%2C%20amazing%20plugin,%F0%9F%94%A5)
@@ -31,6 +33,7 @@ We invite you to join the vibrant [discussion on GitHub](https://github.com/bria
 - ["This is an amazing extension."](https://github.com/brianpetro/obsidian-smart-connections/issues/32#issuecomment-1435798970:~:text=This%20is%20an%20amazing%20extension.)
 - [This is really cool...](https://twitter.com/rcvd_io/status/1638271532932780035?s=20)
 - ["This is an amazing plugin!"](https://github.com/brianpetro/obsidian-smart-connections/issues/20#:~:text=This%20is%20an%20amazing%20plugin!)
+- ["With smart connections, by just opening one such note, I can find all the others that reference the concept"](https://discord.com/channels/686053708261228577/694233507500916796/1091167414865109012)
 - ["Has amazing potential to unlock lots of new info that can be added to your vault"](https://github.com/brianpetro/obsidian-smart-connections/issues/19#issue-1533699525:~:text=has%20amazing%20potential%20to%20unlock%20lots%20of%20new%20info%20that%20can%20be%20added%20to%20your%20vault)
 - ["Great plugin!"](https://github.com/brianpetro/obsidian-smart-connections/issues/1#issue-1511238131:~:text=Dec%2026%2C%202022-,Great%20plugin!,-My%20request%20is)
 - ["Loving the plugin so far!"](https://github.com/brianpetro/obsidian-smart-connections/issues/2#issue-1511288845:~:text=Loving%20the%20plugin%20so%20far!)
