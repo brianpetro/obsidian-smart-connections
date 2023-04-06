@@ -2805,7 +2805,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     await this.chat.load_chat(chat_id);
     this.render_chat();
     for (let i = 0; i < this.chat.chat_ml.length; i++) {
-      this.render_message(this.chat.chat_ml[i].content, this.chat.chat_ml[i].role);
+      await this.render_message(this.chat.chat_ml[i].content, this.chat.chat_ml[i].role);
     }
   }
   // clear current chat state
