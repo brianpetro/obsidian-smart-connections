@@ -786,17 +786,19 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // get file contents and parse as JSON
       const canvas_contents = await this.app.vault.cachedRead(curr_file);
       const canvas_json = JSON.parse(canvas_contents);
-      // for each object in nodes array
-      for(let j = 0; j < canvas_json.nodes.length; j++) {
-        // if object has text property
-        if(canvas_json.nodes[j].text) {
-          // add to file_embed_input
-          file_embed_input += "\n" + canvas_json.nodes[j].text;
-        }
-        // if object has file property
-        if(canvas_json.nodes[j].file) {
-          // add to file_embed_input
-          file_embed_input += "\nLink: " + canvas_json.nodes[j].file;
+      if(canvas_json.nodes) {
+        // for each object in nodes array
+        for(let j = 0; j < canvas_json.nodes.length; j++) {
+          // if object has text property
+          if(canvas_json.nodes[j].text) {
+            // add to file_embed_input
+            file_embed_input += "\n" + canvas_json.nodes[j].text;
+          }
+          // if object has file property
+          if(canvas_json.nodes[j].file) {
+            // add to file_embed_input
+            file_embed_input += "\nLink: " + canvas_json.nodes[j].file;
+          }
         }
       }
       // console.log(file_embed_input);
