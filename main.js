@@ -1173,7 +1173,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         if(filter.skip_key===from_keys[i]) continue; // skip matching to current note
         if(filter.skip_key===this.embeddings[from_keys[i]].meta.file) continue; // skip if filter.skip_key matches meta.file
       }
-      // if filter.path_begins_with is set
+      // if filter.path_begins_with is set (folder filter)
       if(filter.path_begins_with){
         // if type is string & meta.path does not begin with filter.path_begins_with, skip
         if(typeof filter.path_begins_with === "string" && !this.embeddings[from_keys[i]].meta.path.startsWith(filter.path_begins_with)) continue;
@@ -2494,7 +2494,7 @@ class ScSearchApi {
     let nearest = [];
     const resp = await this.plugin.request_embedding_from_input(search_text);
     if (resp && resp.data && resp.data[0] && resp.data[0].embedding) {
-      nearest = this.plugin.find_nearest_embedding(resp.data[0].embedding);
+      nearest = this.plugin.find_nearest_embedding(resp.data[0].embedding, filter);
     } else {
       // resp is null, undefined, or missing data
       new Obsidian.Notice("Smart Connections: Error getting embedding");
@@ -3343,7 +3343,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       // if folder references are valid (string or array of strings)
       if(folder_refs){
         filter = {
-          includes: folder_refs
+          path_begins_with: folder_refs
         };
       }
     }
