@@ -1640,19 +1640,17 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
     // brand container
     if(!this.sc_branding[location]){
-      this.sc_branding[location] = container.createEl("div", { cls: "sc-brand" });
-    }else{
-      this.sc_branding[location].innerHTML = "";
+      this.sc_branding[location] = container;
     }
-    // if brand container is not HTMLDivElement, delete from this.sc_branding and return
-    if (!(this.sc_branding[location] instanceof HTMLDivElement)) {
-      delete this.sc_branding[location];
-      return;
+    // if this.sc_branding[location] contains child with class "sc-brand", remove it
+    if (this.sc_branding[location].querySelector(".sc-brand")) {
+      this.sc_branding[location].querySelector(".sc-brand").remove();
     }
+    const brand_container = this.sc_branding[location].createEl("div", { cls: "sc-brand" });
     // add text
     // add SVG signal icon using getIcon
-    Obsidian.setIcon(this.sc_branding[location], "smart-connections");
-    const brand_p = this.sc_branding[location].createEl("p");
+    Obsidian.setIcon(brand_container, "smart-connections");
+    const brand_p = brand_container.createEl("p");
     let text = "Smart Connections";
     let attr = {};
     // if update available, change text to "Update Available"
