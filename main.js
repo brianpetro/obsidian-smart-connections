@@ -4,6 +4,7 @@ const crypto = require("crypto");
 
 const DEFAULT_SETTINGS = {
   api_key: "",
+  chat_open: true,
   file_exclusions: "",
   folder_exclusions: "",
   header_exclusions: "",
@@ -80,6 +81,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.render_log.tokens_saved_by_cache = 0;
     this.retry_notice_timeout = null;
     this.save_timeout = null;
+    this.sc_branding = {};
     this.self_ref_kw_regex = null;
     this.update_available = false;
   }
@@ -94,7 +96,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // VERSION = '1.0.0';
     // console.log(VERSION);
     await this.loadSettings();
-    await this.check_for_update();
+    // run after 3 seconds
+    setTimeout(this.check_for_update.bind(this), 3000);
+    // run check for update every 3 hours
+    setInterval(this.check_for_update.bind(this), 10800000);
 
     this.addIcon();
     this.addCommand({
@@ -152,6 +157,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // if this settings.view_open is true, open view on startup
     if(this.settings.view_open) {
       this.open_view();
+    }
+    // if this settings.chat_open is true, open chat on startup
+    if(this.settings.chat_open) {
+      this.open_chat();
     }
     // on new version
     if(this.settings.version !== VERSION) {
@@ -247,6 +256,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       if(latest_release !== VERSION) {
         new Obsidian.Notice(`[Smart Connections] A new version is available! (v${latest_release})`);
         this.update_available = true;
+        this.render_brand("all")
       }
     } catch (error) {
       console.log(error);
@@ -512,36 +522,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     await this.app.vault.adapter.write(".smart-connections/failed-embeddings.txt", failed_embeddings);
     // reload failed_embeddings to prevent retrying failed files until explicitly requested
     await this.load_failed_files();
-  }
-  // test writing file to check if file system is read-only
-  async test_file_writing () {
-    // wrap in try catch to prevent error from crashing plugin
-    let log = "Begin test:";
-    try {
-      // check if test file already exists
-      const test_file_exists = await this.app.vault.adapter.exists(".smart-connections/embeddings-test.json");
-      // if test file exists then delete it
-      if(test_file_exists) {
-        await this.app.vault.adapter.remove(".smart-connections/embeddings-test.json");
-      }
-      // write test file
-      await this.app.vault.adapter.write(".smart-connections/embeddings-test.json", "test");
-      // update test file
-      if(this.embeddings){
-        await this.app.vault.adapter.write(".smart-connections/embeddings-test.json", JSON.stringify(this.embeddings));
-      }else{
-        log += "<br>No embeddings to test, writing test content to file."
-        await this.app.vault.adapter.write(".smart-connections/embeddings-test.json", "test2");
-      }
-      // delete test file
-      // await this.app.vault.adapter.remove(".smart-connections/embeddings-test.json");
-      // return "File writing test passed."
-      log += "<br>File writing test passed.";
-    }catch(error) {
-      // return error message
-      log += "<br>File writing test failed: "+error;
-    }
-    return log;
   }
   
   // load failed files from failed-embeddings.txt
@@ -1649,13 +1629,30 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     return valid;
   }
   // render "Smart Connections" text fixed in the bottom right corner
-  render_brand(container) {
+  render_brand(container, location="default") {
+    // if location is all then get Object.keys(this.sc_branding) and call this function for each
+    if (container === "all") {
+      const locations = Object.keys(this.sc_branding);
+      for (let i = 0; i < locations.length; i++) {
+        this.render_brand(this.sc_branding[locations[i]], locations[i]);
+      }
+      return;
+    }
     // brand container
-    const brand_container = container.createEl("div", { cls: "sc-brand" });
+    if(!this.sc_branding[location]){
+      this.sc_branding[location] = container.createEl("div", { cls: "sc-brand" });
+    }else{
+      this.sc_branding[location].innerHTML = "";
+    }
+    // if brand container is not HTMLDivElement, delete from this.sc_branding and return
+    if (!(this.sc_branding[location] instanceof HTMLDivElement)) {
+      delete this.sc_branding[location];
+      return;
+    }
     // add text
     // add SVG signal icon using getIcon
-    Obsidian.setIcon(brand_container, "smart-connections");
-    const brand_p = brand_container.createEl("p");
+    Obsidian.setIcon(this.sc_branding[location], "smart-connections");
+    const brand_p = this.sc_branding[location].createEl("p");
     let text = "Smart Connections";
     let attr = {};
     // if update available, change text to "Update Available"
@@ -1781,7 +1778,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         }
         this.add_link_listeners(contents, nearest[i], item);
       }
-      this.render_brand(container);
+      this.render_brand(container, "block");
       return;
     }
 
@@ -1924,7 +1921,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         }
       }
     }
-    this.render_brand(container);
+    this.render_brand(container, "file");
   }
 
   add_link_listeners(item, curr, list) {
@@ -2609,6 +2606,11 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       this.plugin.settings.view_open = value;
       await this.plugin.saveSettings(true);
     }));
+    // toggle chat_open on Obsidian startup
+    new Obsidian.Setting(containerEl).setName("chat_open").setDesc("Open view on Obsidian startup.").addToggle((toggle) => toggle.setValue(this.plugin.settings.chat_open).onChange(async (value) => {
+      this.plugin.settings.chat_open = value;
+      await this.plugin.saveSettings(true);
+    }));
     containerEl.createEl("h2", {
       text: "Advanced"
     });
@@ -2631,19 +2633,6 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     containerEl.createEl("h3", {
       text: "Test File Writing"
     });
-    // container for displaying test file writing results
-    let test_file_writing_results = containerEl.createEl("div");
-    new Obsidian.Setting(containerEl).setName("test_file_writing").setDesc("Test File Writing").addButton((button) => button.setButtonText("Test File Writing").onClick(async () => {
-      test_file_writing_results.empty();
-      test_file_writing_results.createEl("p", {
-        text: "Testing file writing..."
-      });
-      // test file writing
-      const resp = await this.plugin.test_file_writing();
-      test_file_writing_results.empty();
-      let log = test_file_writing_results.createEl("p");
-      log.innerHTML = resp;
-    }));
     // manual save button
     containerEl.createEl("h3", {
       text: "Manual Save"
@@ -2767,7 +2756,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.render_chat_box();
     // render chat input
     this.render_chat_input();
-    this.plugin.render_brand(this.containerEl);
+    this.plugin.render_brand(this.containerEl, "chat");
   }
   // render plus sign for clear button
   render_top_bar() {
