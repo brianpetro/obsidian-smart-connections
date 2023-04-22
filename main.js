@@ -342,7 +342,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   // open chat view
   async open_chat() {
     this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE);
-    if (this.settings.open_in_big_view === "false") {
+    if (!this.settings.open_in_big_view) {
       await this.app.workspace.getRightLeaf(false).setViewState({
         type: SMART_CONNECTIONS_CHAT_VIEW_TYPE,
         active: true,
@@ -2628,7 +2628,7 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       dropdown.addOption(true, "Main pane (big)");
       dropdown.setValue(this.plugin.settings.open_in_big_view);
       dropdown.onChange(async (value) => {
-        this.plugin.settings.open_in_big_view = value;
+        this.plugin.settings.open_in_big_view = JSON.parse(value);
         await this.plugin.saveSettings(true);
         this.plugin.open_chat();
         
