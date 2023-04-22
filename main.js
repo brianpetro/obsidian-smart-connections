@@ -22,6 +22,7 @@ const DEFAULT_SETTINGS = {
   smart_chat_model: "gpt-3.5-turbo",
   view_open: true,
   version: "",
+  open_in_big_view: false,
 };
 const MAX_EMBED_STRING_LENGTH = 25000;
 
@@ -35,26 +36,31 @@ const SMART_TRANSLATION = {
     "pronous": ["my", "I", "me", "mine", "our", "ours", "us", "we"],
     "prompt": "Based on your notes",
     "initial_message": "Hi, I'm ChatGPT with access to your notes via Smart Connections. Ask me a question about your notes and I'll try to answer it.",
+    "try_placeholder": `Try "Based on my notes" or "Summarize [[this note]]" or "Important tasks in /folder/"`
   },
   "es": {
     "pronous": ["mi", "yo", "mí", "tú"],
     "prompt": "Basándose en sus notas",
     "initial_message": "Hola, soy ChatGPT con acceso a tus apuntes a través de Smart Connections. Hazme una pregunta sobre tus apuntes e intentaré responderte.",
+    "try_placeholder": `Prueba "Basado en mis notas" o "Resumen [[esta nota]]" o "Tareas importantes en /carpeta/"`
   },
   "fr": {
     "pronous": ["me", "mon", "ma", "mes", "moi", "nous", "notre", "nos", "je", "j'", "m'"],
     "prompt": "D'après vos notes",
     "initial_message": "Bonjour, je suis ChatGPT et j'ai accès à vos notes via Smart Connections. Posez-moi une question sur vos notes et j'essaierai d'y répondre.",
+    "try_placeholder": `Essayez "D'après mes notes" ou "Résume [[cette note]]" ou "Tâches importantes dans /dossier/"`
   },
   "de": {
     "pronous": ["mein", "meine", "meinen", "meiner", "meines", "mir", "uns", "unser", "unseren", "unserer", "unseres"],
     "prompt": "Basierend auf Ihren Notizen",
     "initial_message": "Hallo, ich bin ChatGPT und habe über Smart Connections Zugang zu Ihren Notizen. Stellen Sie mir eine Frage zu Ihren Notizen und ich werde versuchen, sie zu beantworten.",
+    "try_placeholder": `Versuchen Sie "Basierend auf meinen Notizen" oder "Zusammenfassen [[dieser Notiz]]" oder "Wichtige Aufgaben im /Ordner/"`
   },
   "it": {
     "pronous": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
     "prompt": "Sulla base degli appunti",
     "initial_message": "Ciao, sono ChatGPT e ho accesso ai tuoi appunti tramite Smart Connections. Fatemi una domanda sui vostri appunti e cercherò di rispondervi.",
+    "try_placeholder": `Prova "Sulla base dei miei appunti" o "Riassumi [[questo appunto]]" o "Compiti importanti in /cartella/"`
   },
 }
 
@@ -336,10 +342,17 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   // open chat view
   async open_chat() {
     this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE);
-    await this.app.workspace.getRightLeaf(false).setViewState({
-      type: SMART_CONNECTIONS_CHAT_VIEW_TYPE,
-      active: true,
-    });
+    if (!this.settings.open_in_big_view) {
+      await this.app.workspace.getRightLeaf(false).setViewState({
+        type: SMART_CONNECTIONS_CHAT_VIEW_TYPE,
+        active: true,
+      });
+    } else {
+      await this.app.workspace.getLeaf(true).setViewState({
+        type: SMART_CONNECTIONS_CHAT_VIEW_TYPE,
+        active: true,
+      })
+    }
     this.app.workspace.revealLeaf(
       this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE)[0]
     );
@@ -2609,6 +2622,16 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       this.plugin.settings.chat_open = value;
       await this.plugin.saveSettings(true);
     }));
+    // open in big view or small view
+    new Obsidian.Setting(containerEl).setName("open_in_big_view").setDesc("Open in big view or small view.").addDropdown((dropdown) => {
+      dropdown.addOption(false, "Right pane (small)");
+      dropdown.addOption(true, "Main pane (big)");
+      dropdown.setValue(this.plugin.settings.open_in_big_view);
+      dropdown.onChange(async (value) => {
+        this.plugin.settings.open_in_big_view = value;
+        await this.plugin.saveSettings(true);
+      });
+    });
     containerEl.createEl("h2", {
       text: "Advanced"
     });
@@ -2901,7 +2924,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.textarea = chat_input.createEl("textarea", {
       cls: "sc-chat-input",
       attr: {
-        placeholder: `Try "Based on my notes" or "Summarize [[this note]]" or "Important tasks in /folder/"`
+        placeholder: SMART_TRANSLATION[this.plugin.settings.language].try_placeholder
       }
     });
     // use contenteditable instead of textarea
