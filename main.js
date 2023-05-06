@@ -59,6 +59,7 @@ const SMART_TRANSLATION = {
     "pronous": ["私", "自分", "僕", "俺", "私達", "この"],
     "prompt": "このノートに基づいて",
     "initial_message": "こんにちは、スマートコネクションであなたのノートにアクセスできるChatGPTです。あなたのノートに関する質問を私に投げかけてください。",
+    "unsegmented": true
   },
 }
 
@@ -226,7 +227,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       });
     }
     // load self_ref_kw_regex
-    this.self_ref_kw_regex = new RegExp(`\\b(${SMART_TRANSLATION[this.settings.language].pronous.join("|")})\\b`, "gi");
+    this.self_ref_kw_regex = 
+      !SMART_TRANSLATION[this.settings.language].unsegmented
+        ? new RegExp(`\\b(${SMART_TRANSLATION[this.settings.language].pronous.join("|")})\\b`, "gi")
+        : new RegExp(`(${SMART_TRANSLATION[this.settings.language].pronous.join("|")})`, "gi");
     // load failed files
     await this.load_failed_files();
   }
