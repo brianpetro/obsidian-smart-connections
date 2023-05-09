@@ -32,28 +32,43 @@ const SUPPORTED_FILE_TYPES = ["md", "canvas"];
 const SMART_TRANSLATION = {
   "en": {
     "pronous": ["my", "I", "me", "mine", "our", "ours", "us", "we"],
-    "prompt": "Based on your notes",
     "initial_message": "Hi, I'm ChatGPT with access to your notes via Smart Connections. Ask me a question about your notes and I'll try to answer it.",
+    "chat_placeholder": `Try "Based on my notes" or "Summarize [[this note]]" or "Important tasks in /folder/"`,
+    "system_prompt": `Imagine the following notes were written by the user and contain the necessary information to synthesize a useful answer the user's query:\n`,
+    "context_prompt": `Anticipate the type of answer desired by the user. Imagine the following notes were written by the user and contain all the necessary information to answer the user's question. Begin responses with "Based on your notes..."`,
+    "hyd_prompt": `Anticipate what the user is seeking. Respond in the form of a hypothetical note written by the user. The note may contain statements as paragraphs, lists, or checklists in markdown format with no headings. Please respond with one hypothetical note and abstain from any other commentary. Use the format: PARENT FOLDER NAME > CHILD FOLDER NAME > FILE NAME > HEADING 1 > HEADING 2 > HEADING 3: HYPOTHETICAL NOTE CONTENTS.`,
   },
   "es": {
-    "pronous": ["mi", "yo", "mí", "tú"],
-    "prompt": "Basándose en sus notas",
+    "pronous": ["mi", "mis", "yo", "mí", "tú"],
     "initial_message": "Hola, soy ChatGPT con acceso a tus apuntes a través de Smart Connections. Hazme una pregunta sobre tus apuntes e intentaré responderte.",
+    "chat_placeholder": `Prueba con "Basado en mis notas" o "Resumir [[esta nota]]" o "Tareas importantes en /carpeta/"`,
+    "system_prompt": `Imagínese que las siguientes notas fueron escritas por el usuario y contienen la información necesaria para sintetizar una respuesta útil a la consulta del usuario:\n`,
+    "context_prompt": `Anticipar el tipo de respuesta deseada por el usuario. Imagine que las siguientes notas de fueron escritas por el usuario y contienen toda la información necesaria para responder a la pregunta del usuario. Comience las respuestas con "Basándose en sus notas..."`,
+    "hyd_prompt": `Anticipa lo que el usuario está buscando. Responder en forma de nota hipotética escrita por el usuario. La nota puede contener declaraciones como párrafos, listas o listas de verificación en formato de descuento sin encabezados. Por favor responda con una nota hipotética y absténgase de cualquier otro comentario. Utilice el formato: NOMBRE DE LA CARPETA PRINCIPAL > NOMBRE DE LA CARPETA SECUNDARIA > NOMBRE DEL ARCHIVO > TÍTULO 1 > TÍTULO 2 > TÍTULO 3: CONTENIDO DE LA NOTA HIPOTÉTICA.`,
   },
   "fr": {
     "pronous": ["me", "mon", "ma", "mes", "moi", "nous", "notre", "nos", "je", "j'", "m'"],
-    "prompt": "D'après vos notes",
     "initial_message": "Bonjour, je suis ChatGPT et j'ai accès à vos notes via Smart Connections. Posez-moi une question sur vos notes et j'essaierai d'y répondre.",
+    "chat_placeholder": `Essayez "Basé sur mes notes" ou "Résumez [[cette note]]" ou "Tâches importantes dans /dossier/""`,
+    "system_prompt": `Imaginez que les notes suivantes ont été écrites par l'utilisateur et contiennent les informations nécessaires pour synthétiser une réponse utile à la requête de l'utilisateur :\n`,
+    "context_prompt": `Anticiper le type de réponse souhaité par l'utilisateur. Imaginez que les notes suivantes aient été écrites par l'utilisateur et contiennent toutes les informations nécessaires pour répondre à la question de l'utilisateur. Commencez les réponses par "En fonction de vos notes..."`,
+    "hyd_prompt": `Anticipez ce que l'utilisateur recherche. Répondre sous la forme d'une note hypothétique rédigée par l'utilisateur. La note peut contenir des déclarations sous forme de paragraphes, de listes ou de listes de contrôle au format Markdown sans en-tête. Veuillez répondre par une note hypothétique et vous abstenir de tout autre commentaire. Utilisez le format : NOM DU DOSSIER PARENT > NOM DU DOSSIER ENFANT > NOM DU FICHIER > TITRE 1 > TITRE 2 > TITRE 3 : CONTENU DE LA NOTE HYPOTHÉTIQUE.`,
   },
   "de": {
     "pronous": ["mein", "meine", "meinen", "meiner", "meines", "mir", "uns", "unser", "unseren", "unserer", "unseres"],
-    "prompt": "Basierend auf Ihren Notizen",
     "initial_message": "Hallo, ich bin ChatGPT und habe über Smart Connections Zugang zu Ihren Notizen. Stellen Sie mir eine Frage zu Ihren Notizen und ich werde versuchen, sie zu beantworten.",
+    "chat_placeholder": `Probieren Sie "Basierend auf meinen Notizen" oder "[[diese Notiz]] zusammenfassen" oder "Wichtige Aufgaben in /Ordner/" aus.`,
+    "system_prompt": `Stellen Sie sich vor, die folgenden Notizen wurden vom Benutzer geschrieben und enthalten die notwendigen Informationen, um eine nützliche Antwort auf die Frage des Benutzers zu synthetisieren:\n`,
+    "context_prompt": `Antizipieren Sie die Art der vom Benutzer gewünschten Antwort. Stellen Sie sich vor, die folgenden Notizen wurden vom Benutzer geschrieben und enthalten alle notwendigen Informationen, um die Frage des Benutzers zu beantworten. Beginnen Sie Antworten mit "Basierend auf Ihren Notizen ..."`,
+    "hyd_prompt": `Antizipieren, was der Benutzer sucht. Antworten Sie in Form einer hypothetischen Notiz, die vom Benutzer geschrieben wurde. Die Notiz kann Aussagen als Absätze, Listen oder Checklisten im Markdown-Format ohne Überschriften enthalten. Bitte antworten Sie mit einer hypothetischen Bemerkung und verzichten Sie auf weitere Kommentare. Verwenden Sie das Format: NAME DES ÜBERGEHENDEN ORDNERS > NAME DES KINDER ORDNER > DATEINAME > ÜBERSCHRIFT 1 > ÜBERSCHRIFT 2 > ÜBERSCHRIFT 3: INHALT DER HYPOTHETISCHEN ANMERKUNG.`,
   },
   "it": {
     "pronous": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
-    "prompt": "Sulla base degli appunti",
     "initial_message": "Ciao, sono ChatGPT e ho accesso ai tuoi appunti tramite Smart Connections. Fatemi una domanda sui vostri appunti e cercherò di rispondervi.",
+    "chat_placeholder": `Prova "In base alle mie note" o "Riassumi [[questa nota]]" o "Attività importanti in /cartella/"`,
+    "system_prompt": `Immagina che le seguenti note siano state scritte dall'utente e contengano le informazioni necessarie per sintetizzare una risposta utile alla domanda dell'utente:\n`,
+    "context_prompt": `Anticipare il tipo di risposta desiderata dall'utente. Immagina che le seguenti note siano state scritte dall'utente e contengano tutte le informazioni necessarie per rispondere alla domanda dell'utente. Inizia le risposte con "In base alle tue note..."`,
+    "hyd_prompt": `Anticipa ciò che l'utente sta cercando. Rispondere sotto forma di un'ipotetica nota scritta dall'utente. La nota può contenere affermazioni come paragrafi, elenchi o liste di controllo in formato markdown senza titoli. Si prega di rispondere con una nota ipotetica e di astenersi da qualsiasi altro commento. Utilizzare il formato: NOME CARTELLA GENITORE > NOME CARTELLA FIGLIO > NOME FILE > INTESTAZIONE 1 > INTESTAZIONE 2 > INTESTAZIONE 3: CONTENUTO DELLA NOTA IPOTETICA.`,
   },
 }
 
@@ -2899,7 +2914,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.textarea = chat_input.createEl("textarea", {
       cls: "sc-chat-input",
       attr: {
-        placeholder: `Try "Based on my notes" or "Summarize [[this note]]" or "Important tasks in /folder/"`
+        placeholder: SMART_TRANSLATION[this.plugin.settings.language].chat_placeholder
       }
     });
     // use contenteditable instead of textarea
@@ -3299,13 +3314,11 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
 
   async get_context_hyde(user_input) {
     this.chat.reset_context();
-    // count current chat ml messages to determine 'question' or 'chat log' wording
-    const hyd_input = `Anticipate what the user is seeking. Respond in the form of a hypothetical note written by the user. The note may contain statements as paragraphs, lists, or checklists in markdown format with no headings. Please respond with one hypothetical note and abstain from any other commentary. Use the format: PARENT FOLDER NAME > CHILD FOLDER NAME > FILE NAME > HEADING 1 > HEADING 2 > HEADING 3: HYPOTHETICAL NOTE CONTENTS.`;
-    // complete
+    // count current chat ml messages to determine 'question' or 'chat log' wording and complete
     const chatml = [
       {
         role: "system",
-        content: hyd_input 
+        content: SMART_TRANSLATION[this.plugin.settings.language].hyd_prompt 
       },
       {
         role: "user",
@@ -3427,9 +3440,9 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // char_accum divided by 4 and rounded to nearest integer for estimated tokens
     console.log("total context tokens: ~" + Math.round(char_accum / 4));
     // build context input
-    this.chat.context = `Anticipate the type of answer desired by the user. Imagine the following ${context.length} notes were written by the user and contain all the necessary information to answer the user's question. Begin responses with "${SMART_TRANSLATION[this.plugin.settings.language].prompt}..."`;
+    this.chat.context = SMART_TRANSLATION[this.plugin.settings.language].context_prompt;
     for(let i = 0; i < context.length; i++) {
-      this.chat.context += `\n---BEGIN #${i+1}---\n${context[i].text}\n---END #${i+1}---`;
+      this.chat.context += `\n---BEGIN #${i+1}---\n${context[i].text}\n link to note: ${context[i].link}---END #${i+1}---`;
     }
     return this.chat.context;
   }
@@ -3600,7 +3613,7 @@ class SmartConnectionsChatModel {
   }
   // get response from with note context
   async get_response_with_note_context(user_input, chat_view) {
-    let system_input = "Imagine the following notes were written by the user and contain the necessary information to synthesize a useful answer the user's query:\n";
+    let system_input = SMART_TRANSLATION[this.plugin.settings.language].system_prompt;
     // extract internal links
     const notes = this.extract_internal_links(user_input);
     // get content of internal links as context
