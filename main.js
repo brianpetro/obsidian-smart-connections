@@ -3442,7 +3442,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // build context input
     this.chat.context = SMART_TRANSLATION[this.plugin.settings.language].context_prompt;
     for(let i = 0; i < context.length; i++) {
-      this.chat.context += `\n---BEGIN #${i+1}---\n${context[i].text}\n link to note: ${context[i].link}---END #${i+1}---`;
+      this.chat.context += `\n---BEGIN #${i+1}---\n${context[i].text}\n---END #${i+1}---`;
     }
     return this.chat.context;
   }
