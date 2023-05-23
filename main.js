@@ -1547,6 +1547,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     let is_code = false;
     let char_accum = 0;
     const line_limit = limits.lines || file_lines.length;
+    let is_frontmatter = false;
     for (let i = 0; first_ten_lines.length < line_limit; i++) {
       let line = file_lines[i];
       // if line is undefined, break
@@ -1560,7 +1561,19 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         line = line.slice(0, limits.chars_per_line) + "...";
       }
       // if line is "---", skip
-      if (line === "---")
+      if (line === "---") {
+        // frontmatter ends
+        if (is_frontmatter) {
+          is_frontmatter = false;
+        }
+        // frontmatter starts
+        if (i === 0) {
+          is_frontmatter = true;
+        }
+        continue;
+      }
+      // if line is part of the frontmatter, skip
+      if (is_frontmatter)
         continue;
       // skip if line is empty bullet or checkbox
       if (['- ', '- [ ] '].indexOf(line) > -1)
