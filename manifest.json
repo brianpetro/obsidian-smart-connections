@@ -3,7 +3,7 @@
   "name": "Smart Connections",
   "author": "Brian Petro",
   "description": "Find links to similar notes using artificial intelligence from OpenAI.",
-  "version": "1.6.8",
+  "version": "1.6.9",
   "minAppVersion": "1.1.0",
   "authorUrl": "https://wfhbrian.com",
   "isDesktopOnly": true
