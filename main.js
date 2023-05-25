@@ -1766,11 +1766,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           title: nearest[i].link,
         });
         if(nearest[i].link.indexOf("#") > -1){ // is block
-          Obsidian.MarkdownRenderer.renderMarkdown((await this.block_retriever(nearest[i].link, {lines: 10, max_chars: 1000})), contents_container, nearest[i].link, void 0);
+          Obsidian.MarkdownRenderer.renderMarkdown((await this.block_retriever(nearest[i].link, {lines: 10, max_chars: 1000})), contents_container, nearest[i].link, new Obsidian.Component());
         }else{ // is file
           const first_ten_lines = await this.file_retriever(nearest[i].link, {lines: 10, max_chars: 1000});
           if(!first_ten_lines) continue; // skip if file is empty
-          Obsidian.MarkdownRenderer.renderMarkdown(first_ten_lines, contents_container, nearest[i].link, void 0);
+          Obsidian.MarkdownRenderer.renderMarkdown(first_ten_lines, contents_container, nearest[i].link, new Obsidian.Component());
         }
         this.add_link_listeners(contents, nearest[i], item);
       }
@@ -1898,7 +1898,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           }
           const block_container = block_link.createEl("div");
           // TODO: move to rendering on expanding section (toggle collapsed)
-          Obsidian.MarkdownRenderer.renderMarkdown((await this.block_retriever(block.link, {lines: 10, max_chars: 1000})), block_container, block.link, void 0);
+          Obsidian.MarkdownRenderer.renderMarkdown((await this.block_retriever(block.link, {lines: 10, max_chars: 1000})), block_container, block.link, new Obsidian.Component());
           // add link listeners to block link
           this.add_link_listeners(block_link, block, file_link_list);
         }else{
@@ -1911,7 +1911,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           const block_container = block_link.createEl("div");
           let first_ten_lines = await this.file_retriever(file[0].link, {lines: 10, max_chars: 1000});
           if(!first_ten_lines) continue; // if file not found, skip
-          Obsidian.MarkdownRenderer.renderMarkdown(first_ten_lines, block_container, file[0].link, void 0);
+          Obsidian.MarkdownRenderer.renderMarkdown(first_ten_lines, block_container, file[0].link, new Obsidian.Component());
           this.add_link_listeners(block_link, file[0], file_link_list);
 
         }
@@ -3084,7 +3084,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       }else{
         this.active_elm.innerHTML = '';
         // append to last message
-        await Obsidian.MarkdownRenderer.renderMarkdown(this.current_message_raw, this.active_elm, '?no-dataview', void 0);
+        await Obsidian.MarkdownRenderer.renderMarkdown(this.current_message_raw, this.active_elm, '?no-dataview', new Obsidian.Component());
       }
     }else{
       this.current_message_raw = '';
@@ -3094,7 +3094,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       }
       // set message text
       this.active_elm.innerHTML = '';
-      await Obsidian.MarkdownRenderer.renderMarkdown(message, this.active_elm, '?no-dataview', void 0);
+      await Obsidian.MarkdownRenderer.renderMarkdown(message, this.active_elm, '?no-dataview', new Obsidian.Component());
       // get links
       this.handle_links_in_message();
       // render button(s)

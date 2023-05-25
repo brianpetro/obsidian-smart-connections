@@ -26,6 +26,8 @@ We invite you to join the vibrant [discussion on GitHub](https://github.com/bria
 - ["This is a terrific idea"](https://github.com/brianpetro/obsidian-smart-connections/issues/54#:~:text=This%20is%20a%20terrific%20idea)
 - ["This plugins could be a Game changer!"](https://github.com/brianpetro/obsidian-smart-connections/issues/54#:~:text=This%20plugins%20could%20be%20a%20Game%20changer!)
 - ["I personally love the app"](https://old.reddit.com/r/ObsidianMD/comments/11s0oxb/chat_with_your_notes_now_available_in_the_smart/jcd73y8/?context=3#:~:text=I%20personally%20love%20the%20app)
+- [This app is such a game changer](https://github.com/brianpetro/obsidian-smart-connections/discussions/203#discussioncomment-5854265:~:text=This%20app%20is%20such%20a%20game%20changer.)
+- [Absolutely LOVE this plugin](https://github.com/brianpetro/obsidian-smart-connections/issues/202#issue-1702708828:~:text=Absolutely%20LOVE%20this%20plugin.)
 <details><summary>More nice things 😊</summary>
 
 - ["Now it serves me as a way to brainstorm potential connections, and I have seen major improvements over the past few months. I especially enjoy using it as part of my book digestion and relation process."](https://old.reddit.com/r/ObsidianMD/comments/11s0oxb/chat_with_your_notes_now_available_in_the_smart/jcczwiq/?context=3#:~:text=Now%20it%20serves%20me%20as%20a%20way%20to%20brainstorm%20potential%20connections%2C%20and%20I%20have%20seen%20major%20improvements%20over%20the%20past%20few%20months.%20I%20especially%20enjoy%20using%20it%20as%20part%20of%20my%20book%20digestion%20and%20relation%20process.)
@@ -190,3 +192,4 @@ Maximize the benefits of AI tools like ChatGPT with Brian's prompt development w
 For businesses seeking to adopt AI, Brian provides comprehensive AI strategy consulting services. From conceptualizing ideas to developing actionable plans, his expert guidance covers all aspects of AI transformation. Brian's commitment to delivering tangible results and ROI ensures clients can confidently navigate the AI landscape.
 
 To discover more about WFH Brian's services or to book a consultation, please visit [his website](https://wfhbrian.com/build-with-ai/). Don't miss the opportunity to take your business to new heights with expert AI insights from WFH Brian. If you find Smart Connections valuable, spread the word and help others benefit from his expertise as well!
+
