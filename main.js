@@ -4,6 +4,7 @@ const crypto = require("crypto");
 
 const DEFAULT_SETTINGS = {
   api_key: "",
+  api_host: "https://api.openai.com",
   chat_open: true,
   file_exclusions: "",
   folder_exclusions: "",
@@ -1090,7 +1091,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     };
     // console.log(this.settings.api_key);
     const reqParams = {
-      url: `https://api.openai.com/v1/embeddings`,
+      url: `${this.settings.api_host}/v1/embeddings`,
       method: "POST",
       body: JSON.stringify(usedParams),
       headers: {
@@ -2513,6 +2514,11 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       this.plugin.settings.api_key = value.trim();
       await this.plugin.saveSettings(true);
     }));
+    // add custom host
+    new Obsidian.Setting(containerEl).setName("custom_host").setDesc("custom_host").addText((text) => text.setPlaceholder("Enter your custom_host").setValue(this.plugin.settings.api_host).onChange(async (value) => {
+      this.plugin.settings.api_host = value.trim();
+      await this.plugin.saveSettings(true);
+    }));
     // add a button to test the API key is working
     new Obsidian.Setting(containerEl).setName("Test API Key").setDesc("Test API Key").addButton((button) => button.setButtonText("Test API Key").onClick(async () => {
       // test API key
@@ -3210,7 +3216,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       const full_str = await new Promise((resolve, reject) => {
         try {
           // console.log("stream", opts);
-          const url = "https://api.openai.com/v1/chat/completions";
+          const url = `${this.settings.api_host}/v1/chat/completions`;
           this.active_stream = new ScStreamer(url, {
             headers: {
               "Content-Type": "application/json",
@@ -3264,7 +3270,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     }else{
       try{
         const response = await (0, Obsidian.requestUrl)({
-          url: `https://api.openai.com/v1/chat/completions`,
+          url: `${this.settings.api_host}/v1/chat/completions`,
           method: "POST",
           headers: {
             Authorization: `Bearer ${this.plugin.settings.api_key}`,
