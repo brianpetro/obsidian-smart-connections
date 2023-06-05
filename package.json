@@ -7,8 +7,7 @@
     "bundle": "node esbuild.js",
     "copy-to-obs": "cp -r ./dist/* ./obsidian-plugins/obsidian-smart-connections/",
     "copy-style-to-dist": "cp ./src/styles.css ./dist/styles.css",
-    "update-manifest-version": "jq '.version = $newVersion' --arg newVersion $(jq -r '.version' package.json) manifest.json > manifest.json.tmp && mv manifest.json.tmp manifest.json",
-    "build": "npm version patch && npm run bundle && npm run copy-style-to-dist && npm run update-manifest-version && npm run copy-to-obs"
+    "build": "npm version patch && npm run bundle && npm run copy-style-to-dist && npm run copy-to-obs"
   },
   "repository": {
     "type": "git",
@@ -30,11 +29,6 @@
   },
   "homepage": "https://github.com/brianpetro/obsidian-smart-connections",
   "devDependencies": {
-    "commander": "^10.0.1",
-    "esbuild": "^0.17.19",
-    "jq": "^1.7.2"
-  },
-  "dependencies": {
-    "async": "^3.2.4"
+    "esbuild": "^0.17.19"
   }
 }
