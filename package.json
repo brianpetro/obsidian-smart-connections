@@ -6,7 +6,7 @@
   "scripts": {
     "bundle": "node esbuild.js",
     "copy-to-obs": "cp -r ./dist/* ../obsidian-1/.obsidian/plugins/smart-connections/",
-    "build": "npm version patch && npm run bundle && npm run copy-style-to-dist && npm run copy-to-obs"
+    "build": "npm run bundle && npm run copy-to-obs"
   },
   "repository": {
     "type": "git",
