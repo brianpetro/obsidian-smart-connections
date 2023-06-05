@@ -33,5 +33,8 @@
     "commander": "^10.0.1",
     "esbuild": "^0.17.19",
     "jq": "^1.7.2"
+  },
+  "dependencies": {
+    "async": "^3.2.4"
   }
 }
