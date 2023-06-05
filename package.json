@@ -1,12 +1,12 @@
 {
   "name": "obsidian-smart-connections",
-  "version": "1.6.13",
+  "version": "1.6.12",
   "description": "Link and chat with your notes using ChatGPT and embedding artificial intelligence from OpenAI.",
   "main": "main.js",
   "scripts": {
     "bundle": "node esbuild.js",
     "copy-to-obs": "cp -r ./dist/* ./obsidian-plugins/obsidian-smart-connections/",
-    "copy-style-to-dist": "cp ./source/style.css ./dist/style.css",
+    "copy-style-to-dist": "cp ./src/style.css ./dist/style.css",
     "update-manifest-version": "jq '.version = $newVersion' --arg newVersion $(jq -r '.version' package.json) manifest.json > manifest.json.tmp && mv manifest.json.tmp manifest.json",
     "build": "npm version patch && npm run bundle && npm run copy-style-to-dist && npm run update-manifest-version && npm run copy-to-obs"
   },
