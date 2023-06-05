@@ -1,0 +1,6 @@
+# build artifacts
+node_modules
+package-lock.json
+# symlinks for context
+obsidian-plugins
+notes

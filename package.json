@@ -1,0 +1,33 @@
+{
+  "name": "obsidian-smart-connections",
+  "version": "1.6.9",
+  "description": "Link and chat with your notes using ChatGPT and embedding artificial intelligence from OpenAI.",
+  "main": "main.js",
+  "scripts": {
+    "copy-to-obs": "cp -r ./dist/* ./obsidian-plugins/obsidian-smart-connections/",
+    "bundle": "npx esbuild source/index.js --bundle --outfile=dist/main.js",
+    "build": "npm version patch && npm run bundle && npm run copy-to-obs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brianpetro/obsidian-smart-connections.git"
+  },
+  "keywords": [
+    "Obsidian",
+    "Smart",
+    "Connections",
+    "AI",
+    "ChatGPT",
+    "Embeddings",
+    "Notes"
+  ],
+  "author": "WFH Brian (Brian Petro)",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/brianpetro/obsidian-smart-connections/issues"
+  },
+  "homepage": "https://github.com/brianpetro/obsidian-smart-connections",
+  "devDependencies": {
+    "esbuild": "^0.17.19"
+  }
+}
