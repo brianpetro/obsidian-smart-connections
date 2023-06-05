@@ -49,7 +49,7 @@ We invite you to join the vibrant [discussion on GitHub](https://github.com/bria
 ### Smart Chat: Transform Your Notes into Interactive Conversations
 Enhance your note-taking experience with [Smart Chat](https://wfhbrian.com/introducing-smart-chat-transform-your-obsidian-notes-into-interactive-ai-powered-conversations/), a plugin that turns your notes into an AI-powered interactive chat. Retrieve information, clarify concepts, and explore ideas by engaging in a conversation with your notes.
 
-![](./smart-connections-chat-who-am-i.gif)
+![](./assets/smart-connections-chat-who-am-i.gif)
 
 #### How Smart Chat Works
 - To access Smart Chat, open the command palette and select "Smart Connections: Open Smart Chat." If you already have the Smart View pane open, you can also access the Smart Chat by clicking the message icon in the top right.
@@ -64,7 +64,7 @@ Enhance your note-taking experience with [Smart Chat](https://wfhbrian.com/intro
 - **Natural language processing**: The AI-powered feature interprets and responds to your questions in a conversational manner, simulating a chat with a real person.
 - **Multilingual support**: Smart Chat can understand and respond to queries in multiple languages, allowing you to interact with your notes in your preferred language.
  
-![](./smart-connections-chat-backstory.gif)
+![](./assets/smart-connections-chat-backstory.gif)
 
 ##### Coming soon!
 - **Note linking**: If a response references a specific note in your vault, Smart Chat will provide a link to that note for quick access.
@@ -81,7 +81,7 @@ Enhance your note-taking experience with [Smart Chat](https://wfhbrian.com/intro
 
 ### Smart View
 
-![](./smart-connections-demo-2.gif)
+![](./assets/smart-connections-demo-2.gif)
 
 - Notes with multiple matching blocks can be expanded to show the matching blocks.
 - Search feature that uses embeddings to search for notes in your vault.
@@ -98,8 +98,8 @@ To create a dynamic code block for Smart Connections, follow these steps:
 2.  Press Enter to create a new line, and type the content you want to use for finding Smart Connections. This can include keywords, phrases, or even full sentences that are relevant to the note and its context.
     - If left blank, the plugin will use the entire content of the note. This returns the same results as the default Smart Connections pane (Smart View).
 3.  Close the code block by typing three backticks on a new line after your content.
-![](./sc-dynamic-codeblock-code.png)
-![](./sc-dynamic-codeblock-rendered.png)
+![](./assets/sc-dynamic-codeblock-code.png)
+![](./assets/sc-dynamic-codeblock-rendered.png)
 
 ### External Connections
 **Coming soon:** See connections to external content!
@@ -115,11 +115,11 @@ Currently taking requests for which external content you would like connected. P
 
 - Highlighted text will be used to find Smart Connections when you run the "Find Smart Connections" command
 
-![](./search-feature.png)
+![](./assets/search-feature.png)
 
 ## Installation
 
-![](./obsidian-community-smart-connections-install.png)
+![](./assets/obsidian-community-smart-connections-install.png)
 
 ### Instructions
 1. Install the plugin from the community plugins tab in Obsidian.
@@ -180,7 +180,7 @@ The plugin integrates [OpenAI Embeddings](https://beta.openai.com/docs/guides/em
 ## About the Author
 WFH Brian is an entrepreneur and consultant with extensive experience in artificial intelligence (AI) systems. Passionate about helping businesses unlock the potential of AI, he offers a range of services designed to make AI accessible and impactful for organizations of all sizes.
 
-[![](./wfh-brian-ai-header.jpg)](https://wfhbrian.com/build-with-ai/)
+[![](./assets/wfh-brian-ai-header.jpg)](https://wfhbrian.com/build-with-ai/)
 
 ### AI Tutoring and Education
 Brian's AI tutoring and education services transform clients from being anxious about AI's impact on their businesses to feeling confident and capable of harnessing its potential. He demystifies the latest AI advancements, enabling clients to make informed decisions, actively engage in AI-related discussions, and identify areas where AI can add value to their businesses.
