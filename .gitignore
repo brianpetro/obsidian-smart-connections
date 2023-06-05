@@ -1,6 +1,7 @@
 # build artifacts
 node_modules
 package-lock.json
+dist
 # env
 .vscode
 # symlinks for context
