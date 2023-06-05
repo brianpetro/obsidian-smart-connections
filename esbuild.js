@@ -10,7 +10,7 @@ esbuild.build({
   entryPoints: ['src/index.js'],
   outfile: 'dist/main.js',
   bundle: true,
-  copy: {
+  copyFiles: {
     'src/styles.css': 'dist/styles.css',
   },
   external: ['obsidian', 'crypto'],
