@@ -1,6 +1,8 @@
 # build artifacts
 node_modules
 package-lock.json
+# env
+.vscode
 # symlinks for context
 obsidian-plugins
 notes
