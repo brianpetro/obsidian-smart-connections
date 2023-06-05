@@ -4,7 +4,7 @@
   "description": "Link and chat with your notes using ChatGPT and embedding artificial intelligence from OpenAI.",
   "main": "main.js",
   "scripts": {
-    "bundle": "npx esbuild source/index.js --bundle --outfile=dist/main.js",
+    "bundle": "node esbuild.js",
     "copy-to-obs": "cp -r ./dist/* ./obsidian-plugins/obsidian-smart-connections/",
     "copy-style-to-dist": "cp ./source/style.css ./dist/style.css",
     "update-manifest-version": "jq '.version = $newVersion' --arg newVersion $(jq -r '.version' package.json) manifest.json > manifest.json.tmp && mv manifest.json.tmp manifest.json",
