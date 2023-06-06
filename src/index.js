@@ -184,11 +184,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   }
 
-  async init_vecs(force=false) {
-    if(!force && this.smart_vec_lite && this.smart_vec_lite.embeddings) {
-      this.embeddings = this.smart_vec_lite.embeddings;
-      return;
-    }
+  async init_vecs() {
     this.smart_vec_lite = new SmartVecLite2({
       embedding_paths: [
         ".smart-connections/embeddings-2.json",
@@ -2077,7 +2073,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     // add click event to "retry" button
     retry_button.addEventListener("click", async (event) => {
       // reload embeddings.json file
-      await this.plugin.init_vecs(true);
+      await this.plugin.init_vecs();
     });
   }
 
@@ -2256,7 +2252,7 @@ class SmartConnectionsViewApi {
   }
   // trigger reload of embeddings file
   async reload_embeddings_file() {
-    await this.plugin.init_vecs(true);
+    await this.plugin.init_vecs();
     await this.view.render_connections();
   }
 }
