@@ -186,16 +186,14 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   async init_vecs() {
     this.smart_vec_lite = new SmartVecLite2({
-      embedding_paths: [
-        ".smart-connections/embeddings-2.json",
-      ],
+      folder_path: ".smart-connections",
       exists_adapter: this.app.vault.adapter.exists.bind(this.app.vault.adapter),
       mkdir_adapter: this.app.vault.adapter.mkdir.bind(this.app.vault.adapter),
       read_adapter: this.app.vault.adapter.read.bind(this.app.vault.adapter),
       stat_adapter: this.app.vault.adapter.stat.bind(this.app.vault.adapter),
       write_adapter: this.app.vault.adapter.write.bind(this.app.vault.adapter),
     });
-    await this.smart_vec_lite.load_all();
+    await this.smart_vec_lite.load();
     this.embeddings = this.smart_vec_lite.embeddings;
   }
 
@@ -495,6 +493,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     try{
       // use smart_vec_lite
       await this.smart_vec_lite.save();
+      this.has_new_embeddings = false;
     }catch(error){
       console.log(error);
       new Obsidian.Notice("Smart Connections: "+error.message);
@@ -560,7 +559,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   // check if key from embeddings exists in files
   clean_up_embeddings(files) {
-    for (let key in this.embeddings) {
+    const keys = Object.keys(this.embeddings);
+    if(this.settings.log_render){
+      this.render_log.total_embeddings = keys.length;
+    }
+    for (const key of keys) {
       // console.log("key: "+key);
       const path = this.embeddings[key].meta.path;
       // if no key starts with file path
@@ -573,8 +576,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       }
       // if key contains '#'
       if(path.indexOf("#") > -1) {
-        // split at '#' and get first part
-        const file_key = this.embeddings[key].meta.file;
+        const file_key = this.embeddings[key].meta.parent;
         // if file_key and file.hashes exists and block hash not in file.hashes
         if(!this.embeddings[file_key]){
           // delete key
@@ -590,7 +592,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           // console.log("deleting (missing file meta)");
           continue;
         }
-        if(this.embeddings[file_key].meta.blocks && (this.embeddings[file_key].meta.blocks.indexOf(key) < 0)) {
+        if(this.embeddings[file_key].meta.children && (this.embeddings[file_key].meta.children.indexOf(key) < 0)) {
           // delete key
           delete this.embeddings[key];
           this.render_log.deleted_embeddings++;
@@ -730,8 +732,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         blocks.push(block_key);
         let block_hash; // set hash of block_embed_input in correct scope
         if (this.embeddings[block_key] && this.embeddings[block_key].meta) {
-          // skip if length of block_embed_input same as length of embeddings[block_key].meta.len
-          if (block_embed_input.length === this.embeddings[block_key].meta.len) {
+          // skip if length of block_embed_input same as length of embeddings[block_key].meta.size
+          if (block_embed_input.length === this.embeddings[block_key].meta.size) {
             // log skipping file
             // console.log("skipping block (len)");
             continue;
@@ -758,9 +760,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           // get current datetime as unix timestamp
           mtime: Date.now(),
           hash: block_hash, 
-          file: curr_file_key,
+          parent: curr_file_key,
           path: note_sections[j].path,
-          len: block_embed_input.length,
+          size: block_embed_input.length,
         }]);
         if(req_batch.length > 9) {
           // add batch to batch_promises
@@ -805,7 +807,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       if(typeof note_meta_cache.headings === "undefined") {
         // console.log("no headings found, using first chunk of file instead");
         file_embed_input += note_contents.substring(0, MAX_EMBED_STRING_LENGTH);
-        // console.log("chuck len: " + file_embed_input.length);
       }else{
         let note_headings = "";
         for (let j = 0; j < note_meta_cache.headings.length; j++) {
@@ -839,7 +840,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     };
 
     // if not already skipping and blocks are present
-    const existing_blocks = (this.embeddings[curr_file_key] && this.embeddings[curr_file_key].meta) ? this.embeddings[curr_file_key].meta.blocks : null;
+    const existing_blocks = (this.embeddings[curr_file_key] && this.embeddings[curr_file_key].meta) ? this.embeddings[curr_file_key].meta.children : null;
     let existing_has_all_blocks = true;
     if(existing_blocks && Array.isArray(existing_blocks) && (blocks.length > 0)) {
       // if all blocks are in existing_blocks then skip (allows deletion of small blocks without triggering full file embedding)
@@ -874,7 +875,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       hash: file_hash,
       path: curr_file.path,
       size: curr_file.stat.size,
-      blocks: blocks,
+      children: blocks,
     };
     // batch_promises.push(this.get_embeddings(curr_file_key, file_embed_input, meta));
     req_batch.push([curr_file_key, file_embed_input, meta]);
@@ -941,7 +942,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           this.embeddings[key] = {};
           this.embeddings[key].vec = vec;
           this.embeddings[key].meta = meta;
-          // this.embeddings[key].meta.tokens = requestResults.usage.total_tokens;
         }
       }
     }
