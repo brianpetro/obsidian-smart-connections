@@ -21,6 +21,10 @@ esbuild.build({
   format: 'cjs',
   bundle: true,
   write: true,
+  sourcemap: 'inline',
+  target: "es2018",
+	logLevel: "info",
+  treeShaking: true,
   external: [
     'obsidian',
     'crypto',

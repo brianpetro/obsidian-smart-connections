@@ -1,6 +1,4 @@
 const Obsidian = require("obsidian");
-// require built-in crypto module
-const crypto = require("crypto");
 const SmartVecLite2 = require("smart-vec-lite");
 
 const DEFAULT_SETTINGS = {
@@ -57,13 +55,19 @@ const SMART_TRANSLATION = {
   },
 }
 
+// require built-in crypto module
+const crypto = require("crypto");
+// md5 hash using built in crypto module
+function md5(str) {
+  return crypto.createHash("md5").update(str).digest("hex");
+}
+
 class SmartConnectionsPlugin extends Obsidian.Plugin {
   // constructor
   constructor() {
     super(...arguments);
     this.api = null;
-    this.embeddings = null;
-    this.embeddings_external = null;
+    this.embeddings_loaded = false;
     this.file_exclusions = [];
     this.folders = [];
     this.has_new_embeddings = false;
@@ -190,11 +194,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       exists_adapter: this.app.vault.adapter.exists.bind(this.app.vault.adapter),
       mkdir_adapter: this.app.vault.adapter.mkdir.bind(this.app.vault.adapter),
       read_adapter: this.app.vault.adapter.read.bind(this.app.vault.adapter),
+      rename_adapter: this.app.vault.adapter.rename.bind(this.app.vault.adapter),
       stat_adapter: this.app.vault.adapter.stat.bind(this.app.vault.adapter),
       write_adapter: this.app.vault.adapter.write.bind(this.app.vault.adapter),
     });
-    await this.smart_vec_lite.load();
-    this.embeddings = this.smart_vec_lite.embeddings;
+    this.embeddings_loaded = await this.smart_vec_lite.load();
+    return this.embeddings_loaded;
   }
 
   async loadSettings() {
@@ -314,7 +319,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   // open random note
   async open_random_note() {
     const curr_file = this.app.workspace.getActiveFile();
-    const curr_key = this.get_file_key(curr_file);
+    const curr_key = md5(curr_file.path);
     // if no nearest cache, create Obsidian notice
     if(typeof this.nearest_cache[curr_key] === "undefined") {
       new Obsidian.Notice("[Smart Connections] No Smart Connections found. Open a note to get Smart Connections.");
@@ -351,7 +356,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
   // open chat view
   async open_chat(retries=0) {
-    if(!this.embeddings) {
+    if(!this.embeddings_loaded) {
       console.log("embeddings not loaded yet");
       if(retries < 3) {
         // wait and try again
@@ -381,8 +386,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // const files = await this.app.vault.getMarkdownFiles();
     // get open files to skip if file is currently open
     const open_files = this.app.workspace.getLeavesOfType("markdown").map((leaf) => leaf.view.file);
-    this.render_log.total_files = files.length;
-    this.clean_up_embeddings(files);
+    const clean_up_log = this.smart_vec_lite.clean_up_embeddings(files);
+    if(this.settings.log_render){
+      this.render_log.total_files = files.length;
+      this.render_log.deleted_embeddings = clean_up_log.deleted_embeddings;
+      this.render_log.total_embeddings = clean_up_log.total_embeddings;
+    }
     // batch embeddings
     let batch_promises = [];
     for (let i = 0; i < files.length; i++) {
@@ -392,11 +401,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         this.log_exclusion("path contains #");
         continue;
       }
-      const curr_key = crypto.createHash("md5").update(files[i].path).digest("hex");
       // skip if file already has embedding and embedding.mtime is greater than or equal to file.mtime
-      if((this.embeddings[curr_key]) && (this.embeddings[curr_key].meta.mtime >= files[i].stat.mtime)) {
+      if(this.smart_vec_lite.mtime_is_current(md5(files[i].path), files[i].stat.mtime)) {
         // log skipping file
-        //console.log("skipping file (mtime)");
+        // console.log("skipping file (mtime)");
         continue;
       }
       // check if file is in failed_files
@@ -455,7 +463,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         await this.save_embeddings_to_file();
       }
     }
-    // console.log(this.embeddings);
     // wait for all promises to resolve
     await Promise.all(batch_promises);
     // write embeddings JSON to file
@@ -557,61 +564,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     await this.get_all_embeddings();
   }
 
-  // check if key from embeddings exists in files
-  clean_up_embeddings(files) {
-    const keys = Object.keys(this.embeddings);
-    if(this.settings.log_render){
-      this.render_log.total_embeddings = keys.length;
-    }
-    for (const key of keys) {
-      // console.log("key: "+key);
-      const path = this.embeddings[key].meta.path;
-      // if no key starts with file path
-      if(!files.find(file => path.startsWith(file.path))) {
-        // delete key if it doesn't exist
-        delete this.embeddings[key];
-        this.render_log.deleted_embeddings++;
-        // console.log("deleting (deleted file): " + key);
-        continue;
-      }
-      // if key contains '#'
-      if(path.indexOf("#") > -1) {
-        const file_key = this.embeddings[key].meta.parent;
-        // if file_key and file.hashes exists and block hash not in file.hashes
-        if(!this.embeddings[file_key]){
-          // delete key
-          delete this.embeddings[key];
-          this.render_log.deleted_embeddings++;
-          // console.log("deleting (missing file embedding)");
-          continue;
-        }
-        if(!this.embeddings[file_key].meta){
-          // delete key
-          delete this.embeddings[key];
-          this.render_log.deleted_embeddings++;
-          // console.log("deleting (missing file meta)");
-          continue;
-        }
-        if(this.embeddings[file_key].meta.children && (this.embeddings[file_key].meta.children.indexOf(key) < 0)) {
-          // delete key
-          delete this.embeddings[key];
-          this.render_log.deleted_embeddings++;
-          // console.log("deleting (missing block in file)");
-          continue;
-        }
-        // DEPRECATED - currently included to prevent existing embeddings from being refreshed all at once
-        if(this.embeddings[file_key].meta.mtime && 
-          this.embeddings[key].meta.mtime && 
-          (this.embeddings[file_key].meta.mtime > this.embeddings[key].meta.mtime)
-        ) {
-          // delete key
-          delete this.embeddings[key];
-          this.render_log.deleted_embeddings++;
-          // console.log("deleting (stale block - mtime): " + key);
-        }
-      }
-    }
-  }
 
   // add .smart-connections to .gitignore to prevent issues with large, frequently updated embeddings file(s)
   async add_to_gitignore() {
@@ -631,16 +583,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   // force refresh embeddings file but first rename existing embeddings file to .smart-connections/embeddings-YYYY-MM-DD.json
   async force_refresh_embeddings_file() {
-    // get current datetime as unix timestamp
-    let current_datetime = Math.floor(Date.now() / 1000);
-    // rename existing embeddings file to .smart-connections/embeddings-YYYY-MM-DD.json
-    await this.app.vault.adapter.rename(".smart-connections/embeddings-2.json", ".smart-connections/embeddings-"+current_datetime+".json");
-    // create new embeddings file
-    await this.app.vault.adapter.write(".smart-connections/embeddings-2.json", "{}");
     new Obsidian.Notice("Smart Connections: embeddings file Force Refreshed, making new connections...");
-    // clear this.embeddings
-    this.embeddings = null;
-    this.embeddings = {};
+    // force refresh
+    await this.smart_vec_lite.force_refresh();
     // trigger making new connections
     await this.get_all_embeddings();
     this.output_render_log();
@@ -653,7 +598,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     let req_batch = [];
     let blocks = [];
     // initiate curr_file_key from md5(curr_file.path)
-    const curr_file_key = this.get_file_key(curr_file);
+    const curr_file_key = md5(curr_file.path);
     // intiate file_file_embed_input by removing .md and converting file path to breadcrumbs (" > ")
     let file_embed_input = curr_file.path.replace(".md", "");
     file_embed_input = file_embed_input.replace(/\//g, " > ");
@@ -669,10 +614,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
     // return early if path_only
     if(path_only) {
-      // await this.get_embeddings(curr_file_key, file_embed_input, {
-      //   mtime: curr_file.stat.mtime,
-      //   path: curr_file.path,
-      // });
       req_batch.push([curr_file_key, file_embed_input, {
         mtime: curr_file.stat.mtime,
         path: curr_file.path,
@@ -728,30 +669,28 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         const block_embed_input = note_sections[j].text;
         // console.log(note_sections[j].path);
         // get block key from block.path (contains both file.path and header path)
-        const block_key = crypto.createHash('md5').update(note_sections[j].path).digest('hex');
+        const block_key = md5(note_sections[j].path);
         blocks.push(block_key);
-        let block_hash; // set hash of block_embed_input in correct scope
-        if (this.embeddings[block_key] && this.embeddings[block_key].meta) {
-          // skip if length of block_embed_input same as length of embeddings[block_key].meta.size
-          if (block_embed_input.length === this.embeddings[block_key].meta.size) {
-            // log skipping file
-            // console.log("skipping block (len)");
-            continue;
-          }
-          // add hash to blocks to prevent empty blocks triggering full-file embedding
-          // skip if embeddings key already exists and block mtime is greater than or equal to file mtime
-          if (this.embeddings[block_key].meta.mtime >= curr_file.stat.mtime) {
-            // log skipping file
-            // console.log("skipping block (mtime)");
-            continue;
-          }
-          // skip if hash is present in this.embeddings and hash of block_embed_input is equal to hash in this.embeddings
-          block_hash = this.get_embed_hash(block_embed_input);
-          if(this.embeddings[block_key].meta.hash === block_hash) {
-            // log skipping file
-            // console.log("skipping block (hash)");
-            continue;
-          }
+        // skip if length of block_embed_input same as length of embeddings[block_key].meta.size
+        // TODO consider rounding to nearest 10 or 100 for fuzzy matching
+        if (this.smart_vec_lite.get_size(block_key) === block_embed_input.length) {
+          // log skipping file
+          // console.log("skipping block (len)");
+          continue;
+        }
+        // add hash to blocks to prevent empty blocks triggering full-file embedding
+        // skip if embeddings key already exists and block mtime is greater than or equal to file mtime
+        if(this.smart_vec_lite.mtime_is_current(block_key, curr_file.stat.mtime)) {
+          // log skipping file
+          // console.log("skipping block (mtime)");
+          continue;
+        }
+        // skip if hash is present in embeddings and hash of block_embed_input is equal to hash in embeddings
+        const block_hash = md5(block_embed_input.trim());
+        if(this.smart_vec_lite.get_hash(block_key) === block_hash) {
+          // log skipping file
+          // console.log("skipping block (hash)");
+          continue;
         }
 
         // create req_batch for batching requests
@@ -829,10 +768,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         }
       }
     }
-    // skip embedding full file if blocks is not empty and all hashes are present in this.embeddings
+    // skip embedding full file if blocks is not empty and all hashes are present in embeddings
     // better than hashing file_embed_input because more resilient to inconsequential changes (whitespace between headings)
-    const file_hash = this.get_embed_hash(file_embed_input);
-    const existing_hash = (this.embeddings[curr_file_key] && this.embeddings[curr_file_key].meta) ? this.embeddings[curr_file_key].meta.hash : null;
+    const file_hash = md5(file_embed_input.trim());
+    const existing_hash = this.smart_vec_lite.get_hash(curr_file_key);
     if(existing_hash && (file_hash === existing_hash)) {
       // console.log("skipping file (hash): " + curr_file.path);
       this.update_render_log(blocks, file_embed_input);
@@ -840,7 +779,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     };
 
     // if not already skipping and blocks are present
-    const existing_blocks = (this.embeddings[curr_file_key] && this.embeddings[curr_file_key].meta) ? this.embeddings[curr_file_key].meta.children : null;
+    const existing_blocks = this.smart_vec_lite.get_children(curr_file_key);
     let existing_has_all_blocks = true;
     if(existing_blocks && Array.isArray(existing_blocks) && (blocks.length > 0)) {
       // if all blocks are in existing_blocks then skip (allows deletion of small blocks without triggering full file embedding)
@@ -855,10 +794,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     if(existing_has_all_blocks){
       // get current note file size
       const curr_file_size = curr_file.stat.size;
-      // get file size from this.embeddings
-      let prev_file_size = 0;
-      if (this.embeddings[curr_file_key] && this.embeddings[curr_file_key].meta && this.embeddings[curr_file_key].meta.size) {
-        prev_file_size = this.embeddings[curr_file_key].meta.size;
+      // get file size from embeddings
+      const prev_file_size = this.smart_vec_lite.get_size(curr_file_key);
+      if (prev_file_size) {
         // if curr file size is less than 10% different from prev file size
         const file_delta_pct = Math.round((Math.abs(curr_file_size - prev_file_size) / curr_file_size) * 100);
         if(file_delta_pct < 10) {
@@ -889,9 +827,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       await this.save_embeddings_to_file();
     }
 
-  }
-  get_file_key(curr_file) {
-    return crypto.createHash('md5').update(curr_file.path).digest('hex');
   }
 
   update_render_log(blocks, file_embed_input) {
@@ -939,25 +874,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         if(vec) {
           const key = req_batch[index][0];
           const meta = req_batch[index][2];
-          this.embeddings[key] = {};
-          this.embeddings[key].vec = vec;
-          this.embeddings[key].meta = meta;
+          this.smart_vec_lite.save_embedding(key, vec, meta);
         }
       }
     }
-  }
-  
-  // md5 hash of embed_input using built in crypto module
-  get_embed_hash(embed_input) {
-    /**
-     * TODO remove more/all whitespace from embed_input
-     * - all newlines
-     * - all tabs
-     * - all spaces?
-     */
-    // trim excess whitespace
-    embed_input = embed_input.trim();
-    return crypto.createHash('md5').update(embed_input).digest("hex");
   }
 
   async request_embedding_from_input(embed_input, retries = 0) {
@@ -1054,7 +974,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   // find connections by most similar to current note by cosine similarity
   async find_note_connections(current_note=null) {
     // md5 of current note path
-    const curr_key = crypto.createHash('md5').update(current_note.path).digest("hex");
+    const curr_key = md5(current_note.path);
     // if in this.nearest_cache then set to nearest
     // else get nearest
     let nearest = [];
@@ -1077,26 +997,21 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         this.get_all_embeddings()
       }, 3000);
       // get from cache if mtime is same and values are not empty
-      let current_note_embedding_vec = [];
-      if (!this.embeddings[curr_key] 
-        || !(this.embeddings[curr_key].meta.mtime >= current_note.stat.mtime) 
-        || !this.embeddings[curr_key].vec 
-        || !Array.isArray(this.embeddings[curr_key].vec) 
-        || !(this.embeddings[curr_key].vec.length > 0)
-        ) {
-          // console.log("getting current")
-          await this.get_file_embeddings(current_note);
-        }else{
+      if(this.smart_vec_lite.mtime_is_current(curr_key, current_note.stat.mtime)) {
         // skipping get file embeddings because nothing has changed
-        //console.log("skipping file (mtime)");
+        // console.log("find_note_connections - skipping file (mtime)");
+      }else{
+        // get file embeddings
+        await this.get_file_embeddings(current_note);
       }
-      if(!this.embeddings[curr_key] || !this.embeddings[curr_key].vec) {
+      // get current note embedding vector
+      const vec = this.smart_vec_lite.get_vec(curr_key);
+      if(!vec) {
         return "Error getting embeddings for: "+current_note.path;
       }
-      current_note_embedding_vec = this.embeddings[curr_key].vec;
       
       // compute cosine similarity between current note and all other notes via embeddings
-      nearest = this.smart_vec_lite.nearest(current_note_embedding_vec, {
+      nearest = this.smart_vec_lite.nearest(vec, {
         skip_key: curr_key,
         skip_sections: this.settings.skip_sections,
       });
@@ -2072,8 +1987,11 @@ class SmartConnectionsView extends Obsidian.ItemView {
 
     // add click event to "retry" button
     retry_button.addEventListener("click", async (event) => {
+      console.log("retrying to load embeddings.json file");
       // reload embeddings.json file
       await this.plugin.init_vecs();
+      // reload view
+      await this.render_connections();
     });
   }
 
@@ -2123,15 +2041,13 @@ class SmartConnectionsView extends Obsidian.ItemView {
   
   async initialize() {
     this.set_message("Loading embeddings file...");
-    await this.plugin.init_vecs();
-    if(!this.plugin.embeddings){
-      this.render_embeddings_buttons();
-      return; // stop here if embeddings file is not found
-    }else{
+    const vecs_intiated = await this.plugin.init_vecs();
+    if(vecs_intiated){
       this.set_message("Embeddings file loaded.");
+      await this.render_connections();
+    }else{
+      this.render_embeddings_buttons();
     }
-
-    await this.render_connections();
 
     /**
      * EXPERIMENTAL
@@ -2150,12 +2066,13 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
 
   async render_connections(context=null) {
+    console.log("rendering connections");
     // if API key is not set then update view message
     if(!this.plugin.settings.api_key) {
       this.set_message("An OpenAI API key is required to make Smart Connections");
       return;
     }
-    if(!this.plugin.embeddings){
+    if(!this.plugin.embeddings_loaded){
       await this.plugin.init_vecs();
     }
     this.set_message("Making Smart Connections...");
