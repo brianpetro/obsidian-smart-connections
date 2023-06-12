@@ -1,5 +1,5 @@
 const Obsidian = require("obsidian");
-const SmartVecLite2 = require("smart-vec-lite");
+const VecLite = require("vec-lite");
 
 const DEFAULT_SETTINGS = {
   api_key: "",
@@ -189,7 +189,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   async init_vecs() {
-    this.smart_vec_lite = new SmartVecLite2({
+    this.smart_vec_lite = new VecLite({
       folder_path: ".smart-connections",
       exists_adapter: this.app.vault.adapter.exists.bind(this.app.vault.adapter),
       mkdir_adapter: this.app.vault.adapter.mkdir.bind(this.app.vault.adapter),
