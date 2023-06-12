@@ -31,6 +31,6 @@
     "esbuild": "^0.17.19"
   },
   "dependencies": {
-    "smart-vec-lite": "file:../smart_vec_lite"
+    "vec-lite": "file:../vec_lite"
   }
 }
