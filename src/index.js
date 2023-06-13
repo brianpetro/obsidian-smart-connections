@@ -16,7 +16,7 @@ const DEFAULT_SETTINGS = {
   log_render_files: false,
   recently_sent_retry_notice: false,
   skip_sections: false,
-  smart_chat_model: "gpt-3.5-turbo",
+  smart_chat_model: "gpt-3.5-turbo-16k",
   view_open: true,
   version: "",
 };
@@ -93,6 +93,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   async onload() {
     // initialize when layout is ready
     this.app.workspace.onLayoutReady(this.initialize.bind(this));
+  }
+  onunload() {
+    this.output_render_log();
+    console.log("unloading plugin");
+    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE);
+    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE);
   }
   async initialize() {
     console.log("Loading Smart Connections plugin");
@@ -1028,13 +1034,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   log_exclusion(exclusion) {
     // increment render_log for skipped file
     this.render_log.exclusions_logs[exclusion] = (this.render_log.exclusions_logs[exclusion] || 0) + 1;
-  }
-
-  onunload() {
-    this.output_render_log();
-    console.log("unloading plugin");
-    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE);
-    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE);
   }
   
 
@@ -2002,7 +2001,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     container.createEl("p", { cls: "scPlaceholder", text: "Open a note to find connections." }); 
 
     // runs when file is opened
-    this.registerEvent(this.app.workspace.on('file-open', (file) => {
+    this.plugin.registerEvent(this.app.workspace.on('file-open', (file) => {
       // if no file is open, return
       if(!file) {
         // console.log("no file open, returning");
@@ -2061,6 +2060,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
 
   async onClose() {
+    console.log("closing smart connections view");
     this.app.workspace.unregisterHoverLinkSource(SMART_CONNECTIONS_VIEW_TYPE);
     this.plugin.view = null;
   }
@@ -2224,8 +2224,9 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     }));
     // add dropdown to select the model
     new Obsidian.Setting(containerEl).setName("Smart Chat Model").setDesc("Select a model to use with Smart Chat.").addDropdown((dropdown) => {
-      dropdown.addOption("gpt-3.5-turbo", "gpt-3.5-turbo");
-      dropdown.addOption("gpt-4", "gpt-4 (limited access)");
+      dropdown.addOption("gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k");
+      dropdown.addOption("gpt-4", "gpt-4 (limited access, 8k)");
+      dropdown.addOption("gpt-3.5-turbo", "gpt-3.5-turbo (4k)");
       dropdown.onChange(async (value) => {
         this.plugin.settings.smart_chat_model = value;
         await this.plugin.saveSettings();
@@ -2890,10 +2891,16 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
   }
 
   async request_chatgpt_completion(opts={}) {
+    const chat_ml = this.chat.prepare_chat_ml();
+    const max_total_tokens = Math.round(get_max_chars(this.plugin.settings.smart_chat_model) / 4);
+    console.log("max_total_tokens", max_total_tokens);
+    const max_available_tokens = max_total_tokens - this.chat.estimate_current_tokens_in_chat_ml();
+    console.log("max_available_tokens", max_available_tokens);
     opts = {
       model: this.plugin.settings.smart_chat_model,
-      messages: this.chat.prepare_chat_ml(),
-      max_tokens: 250,
+      messages: chat_ml,
+      // max_tokens: 250,
+      max_tokens: max_available_tokens,
       temperature: 0.3,
       top_p: 1,
       presence_penalty: 0,
@@ -3094,7 +3101,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
   async get_context_for_prompt(nearest) {
     let context = [];
     const MAX_SOURCES = 20; // 10 * 1000 (max chars) = 10,000 chars (must be under ~16,000 chars or 4K tokens) 
-    const MAX_CHARS = 10000;
+    const MAX_CHARS = get_max_chars(this.plugin.settings.smart_chat_model);
     let char_accum = 0;
     for (let i = 0; i < nearest.length; i++) {
       if (context.length >= MAX_SOURCES)
@@ -3124,7 +3131,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // context sources
     console.log("context sources: " + context.length);
     // char_accum divided by 4 and rounded to nearest integer for estimated tokens
-    console.log("total context tokens: ~" + Math.round(char_accum / 4));
+    console.log("total context tokens: ~" + Math.round(char_accum / 3.5));
     // build context input
     this.chat.context = `Anticipate the type of answer desired by the user. Imagine the following ${context.length} notes were written by the user and contain all the necessary information to answer the user's question. Begin responses with "${SMART_TRANSLATION[this.plugin.settings.language].prompt}..."`;
     for(let i = 0; i < context.length; i++) {
@@ -3133,8 +3140,17 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     return this.chat.context;
   }
 
+
 }
 
+function get_max_chars(model="gpt-3.5-turbo") {
+  const MAX_CHAR_MAP = {
+    "gpt-3.5-turbo-16k": 40000,
+    "gpt-4": 20000,
+    "gpt-3.5-turbo": 10000,
+  };
+  return MAX_CHAR_MAP[model];
+}
 /**
  * SmartConnectionsChatModel
  * ---
@@ -3233,6 +3249,11 @@ class SmartConnectionsChatModel {
     });
     return this.chat_ml;
   }
+  // estimate tokens in chat_ml by summing the length of each message
+  // and then divide by 3 to estimate number of tokens in chat_ml (tends to overestimate)
+  estimate_current_tokens_in_chat_ml() {
+    return Math.round(this.chat_ml.reduce((a, b) => a + b.content.length, 0)/3);
+  }
   last() {
     // get last message from chat
     return this.thread[this.thread.length - 1][this.thread[this.thread.length - 1].length - 1];
@@ -3303,7 +3324,7 @@ class SmartConnectionsChatModel {
     // extract internal links
     const notes = this.extract_internal_links(user_input);
     // get content of internal links as context
-    let max_chars = 10000;
+    let max_chars = get_max_chars(this.plugin.settings.smart_chat_model);
     for(let i = 0; i < notes.length; i++){
       // max chars for this note is max_chars divided by number of notes left
       const this_max_chars = (notes.length - i > 1) ? Math.floor(max_chars / (notes.length - i)) : max_chars;
