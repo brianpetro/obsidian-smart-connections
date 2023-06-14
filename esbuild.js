@@ -5,6 +5,7 @@ const packageJson = JSON.parse(fs.readFileSync('./package.json'));
 const manifestJson = JSON.parse(fs.readFileSync('./manifest.json'));
 manifestJson.version = packageJson.version;
 fs.writeFileSync('./manifest.json', JSON.stringify(manifestJson, null, 2));
+fs.writeFileSync('./dist/manifest.json', JSON.stringify(manifestJson, null, 2));
 
 // Copy styles.css to dist folder
 fs.copyFileSync('./src/styles.css', './dist/styles.css');
