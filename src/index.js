@@ -2891,10 +2891,13 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
   }
 
   async request_chatgpt_completion(opts={}) {
-    const chat_ml = this.chat.prepare_chat_ml();
+    const chat_ml = opts.messages || opts.chat_ml || this.chat.prepare_chat_ml();
+    console.log("chat_ml", chat_ml);
     const max_total_tokens = Math.round(get_max_chars(this.plugin.settings.smart_chat_model) / 4);
     console.log("max_total_tokens", max_total_tokens);
-    const max_available_tokens = max_total_tokens - this.chat.estimate_current_tokens_in_chat_ml();
+    const curr_token_est = Math.round(JSON.stringify(chat_ml).length / 3);
+    console.log("curr_token_est", curr_token_est);
+    const max_available_tokens = max_total_tokens - curr_token_est;
     console.log("max_available_tokens", max_available_tokens);
     opts = {
       model: this.plugin.settings.smart_chat_model,
@@ -3248,11 +3251,6 @@ class SmartConnectionsChatModel {
       };
     });
     return this.chat_ml;
-  }
-  // estimate tokens in chat_ml by summing the length of each message
-  // and then divide by 3 to estimate number of tokens in chat_ml (tends to overestimate)
-  estimate_current_tokens_in_chat_ml() {
-    return Math.round(this.chat_ml.reduce((a, b) => a + b.content.length, 0)/3);
   }
   last() {
     // get last message from chat
