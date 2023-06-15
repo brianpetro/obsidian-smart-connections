@@ -3104,7 +3104,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
   async get_context_for_prompt(nearest) {
     let context = [];
     const MAX_SOURCES = 20; // 10 * 1000 (max chars) = 10,000 chars (must be under ~16,000 chars or 4K tokens) 
-    const MAX_CHARS = get_max_chars(this.plugin.settings.smart_chat_model);
+    const MAX_CHARS = get_max_chars(this.plugin.settings.smart_chat_model) / 2;
     let char_accum = 0;
     for (let i = 0; i < nearest.length; i++) {
       if (context.length >= MAX_SOURCES)
@@ -3148,9 +3148,9 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
 
 function get_max_chars(model="gpt-3.5-turbo") {
   const MAX_CHAR_MAP = {
-    "gpt-3.5-turbo-16k": 40000,
-    "gpt-4": 20000,
-    "gpt-3.5-turbo": 10000,
+    "gpt-3.5-turbo-16k": 48000,
+    "gpt-4": 24000,
+    "gpt-3.5-turbo": 12000,
   };
   return MAX_CHAR_MAP[model];
 }
