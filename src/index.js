@@ -2075,6 +2075,11 @@ class SmartConnectionsView extends Obsidian.ItemView {
     if(!this.plugin.embeddings_loaded){
       await this.plugin.init_vecs();
     }
+    // if embedding still not loaded, return
+    if(!this.plugin.embeddings_loaded) {
+      console.log("embeddings files still not loaded or yet to be created");
+      return;
+    }
     this.set_message("Making Smart Connections...");
     /**
      * Begin highlighted-text-level search
