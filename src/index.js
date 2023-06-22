@@ -1826,7 +1826,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       },
       contentType: "application/json",
       body: JSON.stringify({
-        user_id: "test",
+        license_key: this.settings.license_key,
         notes: notes
       })
     });
@@ -2267,11 +2267,25 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       containerEl
     } = this;
     containerEl.empty();
+    containerEl.createEl("h2", {
+      text: "Supporter Settings"
+    });
+    // add a text input to enter supporter license key
+    new Obsidian.Setting(containerEl).setName("license_key").setDesc("license_key").addText((text) => text.setPlaceholder("Enter your license_key").setValue(this.plugin.settings.license_key).onChange(async (value) => {
+      this.plugin.settings.license_key = value.trim();
+      await this.plugin.saveSettings(true);
+    }));
     // add button to trigger sync notes to use with ChatGPT
     new Obsidian.Setting(containerEl).setName("Sync Notes").setDesc("Sync Notes").addButton((button) => button.setButtonText("Sync Notes").onClick(async () => {
       // sync notes
       await this.plugin.sync_notes();
     }));
+    // add button to become a supporter
+    new Obsidian.Setting(containerEl).setName("Become a Supporter").setDesc("Become a Supporter").addButton((button) => button.setButtonText("Become a Supporter").onClick(async () => {
+      // open supporter page in browser
+      window.open("https://buy.stripe.com/9AQ5kO5QnbAWgGAbIY");
+    }));
+
     
     containerEl.createEl("h2", {
       text: "OpenAI Settings"

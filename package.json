@@ -4,9 +4,7 @@
   "description": "Link and chat with your notes using ChatGPT and embedding artificial intelligence from OpenAI.",
   "main": "main.js",
   "scripts": {
-    "bundle": "node esbuild.js",
-    "copy-to-obs": "cp -r ./dist/* ../obsidian-1/.obsidian/plugins/smart-connections/",
-    "build": "npm run bundle && npm run copy-to-obs"
+    "bundle": "node esbuild.js"
   },
   "repository": {
     "type": "git",
