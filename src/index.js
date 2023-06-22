@@ -1806,6 +1806,62 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
     return folder_list;
   }
+
+
+  async sync_notes() {
+    console.log("syncing notes");
+    // get all files in vault
+    const files = this.app.vault.getMarkdownFiles();
+    const notes = await this.build_notes_object(files);
+    console.log("object built");
+    // save notes object to .smart-connections/notes.json
+    await this.app.vault.adapter.write(".smart-connections/notes.json", JSON.stringify(notes, null, 2));
+    console.log("notes saved");
+    // POST notes object to server
+    const response = await (0, Obsidian.requestUrl)({
+      url: "https://sync.smartconnections.app/sync",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      contentType: "application/json",
+      body: JSON.stringify({
+        user_id: "test",
+        notes: notes
+      })
+    });
+    console.log(response);
+
+  }
+
+  async build_notes_object(files) {
+    let output = {};
+  
+    for(let i = 0; i < files.length; i++) {
+      let file = files[i];
+      let parts = file.path.split("/");
+      let current = output;
+  
+      for (let ii = 0; ii < parts.length; ii++) {
+        let part = parts[ii];
+  
+        if (ii === parts.length - 1) {
+          // This is a file
+          current[part] = await this.app.vault.cachedRead(file);
+        } else {
+          // This is a directory
+          if (!current[part]) {
+            current[part] = {};
+          }
+  
+          current = current[part];
+        }
+      }
+    }
+  
+    return output;
+  }
+
 }
 
 const SMART_CONNECTIONS_VIEW_TYPE = "smart-connections-view";
@@ -2211,9 +2267,16 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       containerEl
     } = this;
     containerEl.empty();
+    // add button to trigger sync notes to use with ChatGPT
+    new Obsidian.Setting(containerEl).setName("Sync Notes").setDesc("Sync Notes").addButton((button) => button.setButtonText("Sync Notes").onClick(async () => {
+      // sync notes
+      await this.plugin.sync_notes();
+    }));
+    
     containerEl.createEl("h2", {
       text: "OpenAI Settings"
     });
+    // add a text input to enter the API key
     new Obsidian.Setting(containerEl).setName("api_key").setDesc("api_key").addText((text) => text.setPlaceholder("Enter your api_key").setValue(this.plugin.settings.api_key).onChange(async (value) => {
       this.plugin.settings.api_key = value.trim();
       await this.plugin.saveSettings(true);
