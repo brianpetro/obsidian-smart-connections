@@ -1811,12 +1811,21 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   async sync_notes() {
     console.log("syncing notes");
     // get all files in vault
-    const files = this.app.vault.getMarkdownFiles();
+    const files = this.app.vault.getMarkdownFiles().filter((file) => {
+      // filter out file paths matching any strings in this.file_exclusions
+      for(let i = 0; i < this.file_exclusions.length; i++) {
+        if(file.path.indexOf(this.file_exclusions[i]) > -1) {
+          return false;
+        }
+      }
+      return true;
+    });
     const notes = await this.build_notes_object(files);
     console.log("object built");
     // save notes object to .smart-connections/notes.json
     await this.app.vault.adapter.write(".smart-connections/notes.json", JSON.stringify(notes, null, 2));
     console.log("notes saved");
+    console.log(this.settings.license_key);
     // POST notes object to server
     const response = await (0, Obsidian.requestUrl)({
       url: "https://sync.smartconnections.app/sync",
@@ -2270,13 +2279,28 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     containerEl.createEl("h2", {
       text: "Supporter Settings"
     });
+    // list supporter benefits
+    containerEl.createEl("p", {
+      text: "As a Smart Connections \"Supporter\", fast-track your PKM journey with priority perks and pioneering innovations."
+    });
+    // three list items
+    const supporter_benefits_list = containerEl.createEl("ul");
+    supporter_benefits_list.createEl("li", {
+      text: "Enjoy swift, top-priority support."
+    });
+    supporter_benefits_list.createEl("li", {
+      text: "Gain early access to experimental features like the ChatGPT plugin."
+    });
+    supporter_benefits_list.createEl("li", {
+      text: "Stay informed and engaged with exclusive supporter-only communications."
+    });
     // add a text input to enter supporter license key
-    new Obsidian.Setting(containerEl).setName("license_key").setDesc("license_key").addText((text) => text.setPlaceholder("Enter your license_key").setValue(this.plugin.settings.license_key).onChange(async (value) => {
+    new Obsidian.Setting(containerEl).setName("Supporter License Key").setDesc("Note: this is not required to use Smart Connections.").addText((text) => text.setPlaceholder("Enter your license_key").setValue(this.plugin.settings.license_key).onChange(async (value) => {
       this.plugin.settings.license_key = value.trim();
       await this.plugin.saveSettings(true);
     }));
     // add button to trigger sync notes to use with ChatGPT
-    new Obsidian.Setting(containerEl).setName("Sync Notes").setDesc("Sync Notes").addButton((button) => button.setButtonText("Sync Notes").onClick(async () => {
+    new Obsidian.Setting(containerEl).setName("Sync Notes").setDesc("Make notes available via the Smart Connections ChatGPT Plugin. Respects exclusion settings configured below.").addButton((button) => button.setButtonText("Sync Notes").onClick(async () => {
       // sync notes
       await this.plugin.sync_notes();
     }));
@@ -2291,7 +2315,7 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       text: "OpenAI Settings"
     });
     // add a text input to enter the API key
-    new Obsidian.Setting(containerEl).setName("api_key").setDesc("api_key").addText((text) => text.setPlaceholder("Enter your api_key").setValue(this.plugin.settings.api_key).onChange(async (value) => {
+    new Obsidian.Setting(containerEl).setName("OpenAI API Key").setDesc("Required: an OpenAI API key is currently required to use Smart Connections.").addText((text) => text.setPlaceholder("Enter your api_key").setValue(this.plugin.settings.api_key).onChange(async (value) => {
       this.plugin.settings.api_key = value.trim();
       await this.plugin.saveSettings(true);
     }));
