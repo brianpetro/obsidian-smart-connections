@@ -1809,6 +1809,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
 
   async sync_notes() {
+    // if license key is not set, return
+    if(!this.settings.license_key){
+      new Obsidian.Notice("Smart Connections: Supporter license key is required to sync notes to the ChatGPT Plugin server.");
+      return;
+    }
     console.log("syncing notes");
     // get all files in vault
     const files = this.app.vault.getMarkdownFiles().filter((file) => {
