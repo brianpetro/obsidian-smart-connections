@@ -2311,8 +2311,15 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     }));
     // add button to become a supporter
     new Obsidian.Setting(containerEl).setName("Become a Supporter").setDesc("Become a Supporter").addButton((button) => button.setButtonText("Become a Supporter").onClick(async () => {
+      const payment_pages = [
+        "https://buy.stripe.com/9AQ5kO5QnbAWgGAbIY",
+        "https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
+      ];
+      if(!this.plugin.payment_page_index){
+        this.plugin.payment_page_index = Math.round(Math.random());
+      }
       // open supporter page in browser
-      window.open("https://buy.stripe.com/9AQ5kO5QnbAWgGAbIY");
+      window.open(payment_pages[this.plugin.payment_page_index]);
     }));
 
     
