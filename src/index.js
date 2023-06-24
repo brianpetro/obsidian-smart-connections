@@ -3016,7 +3016,9 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     console.log("max_total_tokens", max_total_tokens);
     const curr_token_est = Math.round(JSON.stringify(chat_ml).length / 3);
     console.log("curr_token_est", curr_token_est);
-    const max_available_tokens = max_total_tokens - curr_token_est;
+    let max_available_tokens = max_total_tokens - curr_token_est;
+    // if max_available_tokens is less than 0, set to 200
+    if(max_available_tokens < 0) max_available_tokens = 200;
     console.log("max_available_tokens", max_available_tokens);
     opts = {
       model: this.plugin.settings.smart_chat_model,
@@ -3445,6 +3447,7 @@ class SmartConnectionsChatModel {
     for(let i = 0; i < notes.length; i++){
       // max chars for this note is max_chars divided by number of notes left
       const this_max_chars = (notes.length - i > 1) ? Math.floor(max_chars / (notes.length - i)) : max_chars;
+      // console.log("file context max chars: " + this_max_chars);
       const note_content = await this.get_note_contents(notes[i], {char_limit: this_max_chars});
       system_input += `---BEGIN NOTE: [[${notes[i].basename}]]---\n`
       system_input += note_content;
@@ -3522,7 +3525,9 @@ class SmartConnectionsChatModel {
       // if contains dataview code block get all dataview code blocks
       file_content = await this.render_dataview_queries(file_content, note.path, opts);
     }
-    return file_content.substring(0, opts.char_limit);
+    file_content = file_content.substring(0, opts.char_limit);
+    // console.log(file_content.length);
+    return file_content;
   }
 
 
