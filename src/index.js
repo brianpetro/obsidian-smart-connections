@@ -18,6 +18,7 @@ const DEFAULT_SETTINGS = {
   skip_sections: false,
   smart_chat_model: "gpt-3.5-turbo-16k",
   view_open: true,
+  use_shift_to_send: true,
   version: "",
 };
 const MAX_EMBED_STRING_LENGTH = 25000;
@@ -2444,6 +2445,13 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       this.plugin.settings.skip_sections = value;
       await this.plugin.saveSettings(true);
     }));
+
+    // use shift to send
+    new Obsidian.Setting(containerEl).setName("use_shift_to_send").setDesc("When enabled, Enter goes to the next line and Shift+Enter sends the message. Otherwise, Enter sents the message and Shift+Enter goes to the next line.").addToggle((toggle) => toggle.setValue(this.plugin.settings.use_shift_to_send).onChange(async (value) => {
+      this.plugin.settings.use_shift_to_send = value;
+      await this.plugin.saveSettings(true);
+    }));
+
     // test file writing by creating a test file, then writing additional data to the file, and returning any error text if it fails
     containerEl.createEl("h3", {
       text: "Test File Writing"
@@ -2752,7 +2760,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     });
 
     chat_input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && e.shiftKey) {
+      if (e.key === 'Enter' && (!this.plugin.settings.use_shift_to_send || e.shiftKey)) {
         e.preventDefault();
         if(this.prevent_input){
           console.log("wait until current response is finished");
