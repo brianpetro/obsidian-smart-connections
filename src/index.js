@@ -2760,7 +2760,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     });
 
     chat_input.addEventListener("keydown", (e) => {
-      if (e.key === 'Enter' && (!this.plugin.settings.use_shift_to_send || e.shiftKey)) {
+      if (e.key === "Enter" && (!this.plugin.settings.use_shift_to_send || e.shiftKey)) {
         e.preventDefault();
         if(this.prevent_input){
           console.log("wait until current response is finished");
