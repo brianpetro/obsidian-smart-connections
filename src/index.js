@@ -2346,6 +2346,7 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       dropdown.addOption("gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k");
       dropdown.addOption("gpt-4", "gpt-4 (limited access, 8k)");
       dropdown.addOption("gpt-3.5-turbo", "gpt-3.5-turbo (4k)");
+      dropdown.addOption("gpt-4-1106-preview", "gpt-4-turbo (128k)");
       dropdown.onChange(async (value) => {
         this.plugin.settings.smart_chat_model = value;
         await this.plugin.saveSettings();
@@ -3019,6 +3020,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     let max_available_tokens = max_total_tokens - curr_token_est;
     // if max_available_tokens is less than 0, set to 200
     if(max_available_tokens < 0) max_available_tokens = 200;
+    else if(max_available_tokens > 4096) max_available_tokens = 4096;
     console.log("max_available_tokens", max_available_tokens);
     opts = {
       model: this.plugin.settings.smart_chat_model,
@@ -3195,7 +3197,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // get std dev of similarity
     const sim = nearest.map((n) => n.similarity);
     const mean = sim.reduce((a, b) => a + b) / sim.length;
-    const std_dev = Math.sqrt(sim.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / sim.length);
+    let std_dev = Math.sqrt(sim.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / sim.length);
     // slice where next item deviation is greater than std_dev
     let slice_i = 0;
     while (slice_i < nearest.length) {
@@ -3203,7 +3205,8 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       if (next) {
         const next_dev = Math.abs(next.similarity - nearest[slice_i].similarity);
         if (next_dev > std_dev) {
-          break;
+          if(slice_i < 3) std_dev = std_dev * 1.5;
+          else break;
         }
       }
       slice_i++;
@@ -3224,7 +3227,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
 
   async get_context_for_prompt(nearest) {
     let context = [];
-    const MAX_SOURCES = 20; // 10 * 1000 (max chars) = 10,000 chars (must be under ~16,000 chars or 4K tokens) 
+    const MAX_SOURCES = (this.plugin.settings.smart_chat_model === 'gpt-4-1106-preview') ? 42 : 20;
     const MAX_CHARS = get_max_chars(this.plugin.settings.smart_chat_model) / 2;
     let char_accum = 0;
     for (let i = 0; i < nearest.length; i++) {
@@ -3272,6 +3275,7 @@ function get_max_chars(model="gpt-3.5-turbo") {
     "gpt-3.5-turbo-16k": 48000,
     "gpt-4": 24000,
     "gpt-3.5-turbo": 12000,
+    "gpt-4-1106-preview": 200000,
   };
   return MAX_CHAR_MAP[model];
 }
