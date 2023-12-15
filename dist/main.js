@@ -388,6 +388,11 @@ var SMART_TRANSLATION = {
     "pronous": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
     "prompt": "Sulla base degli appunti",
     "initial_message": "Ciao, sono ChatGPT e ho accesso ai tuoi appunti tramite Smart Connections. Fatemi una domanda sui vostri appunti e cercher\xF2 di rispondervi."
+  },
+  "pt-br": {
+    "pronous": ["eu", "me", "mim", "meu", "meus", "minha", "minhas", "nosso", "nossos", "nossa", "nossas", "n\xF3s", "nos", "a gente"],
+    "prompt": "Baseado no que li das suas notas",
+    "initial_message": "Olá, sou ChatGPT e posso acessar suas notas por meio do plugin Smart Connections. Pergunte-me algo sobre suas notas e tentarei responder."
   }
 };
 var crypto = require("crypto");
