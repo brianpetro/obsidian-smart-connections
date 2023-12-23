@@ -28,6 +28,11 @@ const SUPPORTED_FILE_TYPES = ["md", "canvas"];
 //create one object with all the translations
 // research : SMART_TRANSLATION[language][key]
 const SMART_TRANSLATION = {
+    "zh":{
+    "pronous": ["我", "咱", "鄙人", "本人", "俺", "寡人", "本公主", "本王子", "在下", "本宫", "本座", "老夫", "贫道"],
+    "prompt": "基于你的笔记", 
+    "initial_message": "你好，我是ChatGPT，我通过Smart Connections可以访问您的笔记。请问有关您的笔记方面有什么问题吗？我会尽力回答。"
+  },
   "en": {
     "pronous": ["my", "I", "me", "mine", "our", "ours", "us", "we"],
     "prompt": "Based on your notes",
@@ -245,7 +250,16 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       });
     }
     // load self_ref_kw_regex
-    this.self_ref_kw_regex = new RegExp(`\\b(${SMART_TRANSLATION[this.settings.language].pronous.join("|")})\\b`, "gi");
+    // Language that separates words without spaces.(Asian languages)
+    if (this.settings.language == "zh")
+    {
+      this.self_ref_kw_regex = new RegExp(`(${SMART_TRANSLATION[this.settings.language].pronous.join("|")})`, "gi");
+    }
+    // Language that separates words with spaces.
+    else
+    {
+      this.self_ref_kw_regex = new RegExp(`\\b(${SMART_TRANSLATION[this.settings.language].pronous.join("|")})\\b`, "gi");
+    }
     // load failed files
     await this.load_failed_files();
   }
