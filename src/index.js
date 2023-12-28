@@ -207,6 +207,30 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.embeddings_loaded = await this.smart_vec_lite.load();
     return this.embeddings_loaded;
   }
+  async update_to_v2() {
+    // if license key is not set, return
+    if(!this.settings.license_key) return new Obsidian.Notice("[Smart Connections] Supporter license key required for early access to V2");
+    // download https://github.com/brianpetro/obsidian-smart-connections/releases/download/1.6.37/main.js
+    const v2 = await (0, Obsidian.requestUrl)({
+      url: "https://sync.smartconnections.app/download_v2",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        license_key: this.settings.license_key,
+      })
+    });
+    if(v2.status !== 200) return console.error("Error downloading version 2", v2);
+    console.log(v2);
+    await this.app.vault.adapter.remove(".obsidian/plugins/smart-connections/main.js"); // remove current
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/main.js", v2.json.main); // add new
+    await this.app.vault.adapter.remove(".obsidian/plugins/smart-connections/manifest.json"); // remove current
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", v2.json.manifest); // add new
+    await this.app.vault.adapter.remove(".obsidian/plugins/smart-connections/styles.css"); // remove current
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/styles.css", v2.json.styles); // add new
+    new Obsidian.Notice("Smart Connections: Updated to version 2.0.0, please restart Obsidian to complete update.");
+  }
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -2294,7 +2318,7 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       text: "Enjoy swift, top-priority support."
     });
     supporter_benefits_list.createEl("li", {
-      text: "Gain early access to experimental features like the ChatGPT plugin."
+      text: "Gain early access to version 2 (includes local embedding model)."
     });
     supporter_benefits_list.createEl("li", {
       text: "Stay informed and engaged with exclusive supporter-only communications."
@@ -2303,6 +2327,10 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     new Obsidian.Setting(containerEl).setName("Supporter License Key").setDesc("Note: this is not required to use Smart Connections.").addText((text) => text.setPlaceholder("Enter your license_key").setValue(this.plugin.settings.license_key).onChange(async (value) => {
       this.plugin.settings.license_key = value.trim();
       await this.plugin.saveSettings(true);
+    }));
+    // button "get v2"
+    new Obsidian.Setting(containerEl).setName("Get v2").setDesc("Get v2").addButton((button) => button.setButtonText("Get v2").onClick(async () => {
+      await this.plugin.update_to_v2();
     }));
     // add button to trigger sync notes to use with ChatGPT
     new Obsidian.Setting(containerEl).setName("Sync Notes").setDesc("Make notes available via the Smart Connections ChatGPT Plugin. Respects exclusion settings configured below.").addButton((button) => button.setButtonText("Sync Notes").onClick(async () => {
