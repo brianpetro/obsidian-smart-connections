@@ -223,11 +223,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     });
     if(v2.status !== 200) return console.error("Error downloading version 2", v2);
     console.log(v2);
-    await this.app.vault.adapter.remove(".obsidian/plugins/smart-connections/main.js"); // remove current
     await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/main.js", v2.json.main); // add new
-    await this.app.vault.adapter.remove(".obsidian/plugins/smart-connections/manifest.json"); // remove current
     await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", v2.json.manifest); // add new
-    await this.app.vault.adapter.remove(".obsidian/plugins/smart-connections/styles.css"); // remove current
     await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/styles.css", v2.json.styles); // add new
     window.restart_plugin = async (id) => {
       console.log("restarting plugin", id);
