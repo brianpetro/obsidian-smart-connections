@@ -229,7 +229,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", v2.json.manifest); // add new
     await this.app.vault.adapter.remove(".obsidian/plugins/smart-connections/styles.css"); // remove current
     await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/styles.css", v2.json.styles); // add new
-    new Obsidian.Notice("Smart Connections: Updated to version 2.0.0, please restart Obsidian to complete update.");
+    new Obsidian.Notice("Smart Connections: Updated to version 2.0.0, please restart Obsidian to complete update.", 0);
   }
 
   async loadSettings() {
