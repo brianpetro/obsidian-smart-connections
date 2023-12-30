@@ -61,6 +61,12 @@ Enhance your note-taking experience with [Smart Chat](https://wfhbrian.com/intro
 	- **Note**: Currently, to trigger a search of your notes, you must use a self-referential pronoun (ex. I, me, my, mine, we, us, our, ours).
 - You can continue the conversation by replying to the response or asking follow-up questions.
 
+#### How does Smart Chat retrieve information on my notes?
+
+The Smart Connections plug-in uses a retrieval strategy known as HyDE. Put simply, Smart Connections takes your prompt and uses embeddings to decide the top 20-30 notes in your vault that would provide an accurate response to the question. It then feeds these chosen notes to the OpenAI GPT model as a large, amalgamated prompt and returns an answer based on that information.
+
+If you ask questions on a topic which can be found across more than those 20 or 30 notes, the response may be less comprehensive. It is better to be as specific as possible with your questions, so that the HyDE process can feed only the most relevant notes to the GPT AI.
+
 #### Chat Features
 - **GPT-4 Support**: State-of-the-art AI model, GPT-4, is integrated into Smart Chat, offering advanced capabilities and improved performance in generating human-like responses.
 - **Context-aware responses**: Smart Chat understands the context of your notes, providing responses that are accurate and relevant to your specific content.
