@@ -2332,7 +2332,7 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       await this.plugin.saveSettings(true);
     }));
     // button "get v2"
-    new Obsidian.Setting(containerEl).setName("Get v2").setDesc("Get v2").addButton((button) => button.setButtonText("Get v2").onClick(async () => {
+    new Obsidian.Setting(containerEl).setName("Get v2").setDesc("Get v2 (warning: very early beta release, likely to crash, please send issues directly to the supporter email for quick response)").addButton((button) => button.setButtonText("Get v2 (unstable)").onClick(async () => {
       await this.plugin.update_to_v2();
     }));
     // add button to trigger sync notes to use with ChatGPT
