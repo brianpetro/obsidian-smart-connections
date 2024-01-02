@@ -27,8 +27,5 @@
   "homepage": "https://github.com/brianpetro/obsidian-smart-connections",
   "devDependencies": {
     "esbuild": "^0.17.19"
-  },
-  "dependencies": {
-    "vec-lite": "file:../vec_lite"
   }
 }
