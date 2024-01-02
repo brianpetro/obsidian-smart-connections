@@ -1,6 +1,5 @@
 const Obsidian = require("obsidian");
-// require built-in crypto module
-const crypto = require("crypto");
+const VecLite = require("vec-lite");
 
 const DEFAULT_SETTINGS = {
   api_key: "",
@@ -17,9 +16,8 @@ const DEFAULT_SETTINGS = {
   log_render: false,
   log_render_files: false,
   recently_sent_retry_notice: false,
-  results_count: 30,
   skip_sections: false,
-  smart_chat_model: "gpt-3.5-turbo",
+  smart_chat_model: "gpt-3.5-turbo-16k",
   view_open: true,
   version: "",
   open_in_big_view: false,
@@ -64,13 +62,19 @@ const SMART_TRANSLATION = {
   },
 }
 
+// require built-in crypto module
+const crypto = require("crypto");
+// md5 hash using built in crypto module
+function md5(str) {
+  return crypto.createHash("md5").update(str).digest("hex");
+}
+
 class SmartConnectionsPlugin extends Obsidian.Plugin {
   // constructor
   constructor() {
     super(...arguments);
     this.api = null;
-    this.embeddings = null;
-    this.embeddings_external = null;
+    this.embeddings_loaded = false;
     this.file_exclusions = [];
     this.folders = [];
     this.has_new_embeddings = false;
@@ -96,6 +100,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   async onload() {
     // initialize when layout is ready
     this.app.workspace.onLayoutReady(this.initialize.bind(this));
+  }
+  onunload() {
+    this.output_render_log();
+    console.log("unloading plugin");
+    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE);
+    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE);
   }
   async initialize() {
     console.log("Loading Smart Connections plugin");
@@ -189,6 +199,47 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // register API to global window object
     (window["SmartSearchApi"] = this.api) && this.register(() => delete window["SmartSearchApi"]);
 
+  }
+
+  async init_vecs() {
+    this.smart_vec_lite = new VecLite({
+      folder_path: ".smart-connections",
+      exists_adapter: this.app.vault.adapter.exists.bind(this.app.vault.adapter),
+      mkdir_adapter: this.app.vault.adapter.mkdir.bind(this.app.vault.adapter),
+      read_adapter: this.app.vault.adapter.read.bind(this.app.vault.adapter),
+      rename_adapter: this.app.vault.adapter.rename.bind(this.app.vault.adapter),
+      stat_adapter: this.app.vault.adapter.stat.bind(this.app.vault.adapter),
+      write_adapter: this.app.vault.adapter.write.bind(this.app.vault.adapter),
+    });
+    this.embeddings_loaded = await this.smart_vec_lite.load();
+    return this.embeddings_loaded;
+  }
+  async update_to_v2() {
+    // if license key is not set, return
+    if(!this.settings.license_key) return new Obsidian.Notice("[Smart Connections] Supporter license key required for early access to V2");
+    // download https://github.com/brianpetro/obsidian-smart-connections/releases/download/1.6.37/main.js
+    const v2 = await (0, Obsidian.requestUrl)({
+      url: "https://sync.smartconnections.app/download_v2",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        license_key: this.settings.license_key,
+      })
+    });
+    if(v2.status !== 200) return console.error("Error downloading version 2", v2);
+    console.log(v2);
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/main.js", v2.json.main); // add new
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", v2.json.manifest); // add new
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/styles.css", v2.json.styles); // add new
+    window.restart_plugin = async (id) => {
+      console.log("restarting plugin", id);
+      await window.app.plugins.disablePlugin(id);
+      await window.app.plugins.enablePlugin(id);
+      console.log("plugin restarted", id);
+    }
+    window.restart_plugin(this.manifest.id);
   }
 
   async loadSettings() {
@@ -308,7 +359,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   // open random note
   async open_random_note() {
     const curr_file = this.app.workspace.getActiveFile();
-    const curr_key = this.get_file_key(curr_file);
+    const curr_key = md5(curr_file.path);
     // if no nearest cache, create Obsidian notice
     if(typeof this.nearest_cache[curr_key] === "undefined") {
       new Obsidian.Notice("[Smart Connections] No Smart Connections found. Open a note to get Smart Connections.");
@@ -322,6 +373,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
   async open_view() {
+    if(this.get_view()){
+      console.log("Smart Connections view already open");
+      return;
+    }
     this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE);
     await this.app.workspace.getRightLeaf(false).setViewState({
       type: SMART_CONNECTIONS_VIEW_TYPE,
@@ -340,7 +395,20 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
   }
   // open chat view
-  async open_chat() {
+  async open_chat(retries=0) {
+    if(!this.embeddings_loaded) {
+      console.log("embeddings not loaded yet");
+      if(retries < 3) {
+        // wait and try again
+        setTimeout(() => {
+          this.open_chat(retries+1);
+        }, 1000 * (retries+1));
+        return;
+      }
+      console.log("embeddings still not loaded, opening smart view");
+      this.open_view();
+      return;
+    }
     this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE);
     if (!this.settings.open_in_big_view) {
       await this.app.workspace.getRightLeaf(false).setViewState({
@@ -357,7 +425,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE)[0]
     );
   }
-  
+
   // get embeddings for all files
   async get_all_embeddings() {
     // get all files in vault and filter all but markdown and canvas files
@@ -365,8 +433,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // const files = await this.app.vault.getMarkdownFiles();
     // get open files to skip if file is currently open
     const open_files = this.app.workspace.getLeavesOfType("markdown").map((leaf) => leaf.view.file);
-    this.render_log.total_files = files.length;
-    this.clean_up_embeddings(files);
+    const clean_up_log = this.smart_vec_lite.clean_up_embeddings(files);
+    if(this.settings.log_render){
+      this.render_log.total_files = files.length;
+      this.render_log.deleted_embeddings = clean_up_log.deleted_embeddings;
+      this.render_log.total_embeddings = clean_up_log.total_embeddings;
+    }
     // batch embeddings
     let batch_promises = [];
     for (let i = 0; i < files.length; i++) {
@@ -376,11 +448,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         this.log_exclusion("path contains #");
         continue;
       }
-      const curr_key = crypto.createHash("md5").update(files[i].path).digest("hex");
       // skip if file already has embedding and embedding.mtime is greater than or equal to file.mtime
-      if((this.embeddings[curr_key]) && (this.embeddings[curr_key].meta.mtime >= files[i].stat.mtime)) {
+      if(this.smart_vec_lite.mtime_is_current(md5(files[i].path), files[i].stat.mtime)) {
         // log skipping file
-        //console.log("skipping file (mtime)");
+        // console.log("skipping file (mtime)");
         continue;
       }
       // check if file is in failed_files
@@ -397,7 +468,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           new Obsidian.Notice("Smart Connections: Skipping previously failed file, use button in settings to retry");
           this.recently_sent_retry_notice = true;
           setTimeout(() => {
-            this.recently_sent_retry_notice = false;  
+            this.recently_sent_retry_notice = false;
           }, 600000);
         }
         continue;
@@ -439,7 +510,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         await this.save_embeddings_to_file();
       }
     }
-    // console.log(this.embeddings);
     // wait for all promises to resolve
     await Promise.all(batch_promises);
     // write embeddings JSON to file
@@ -459,7 +529,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // prevent excessive writes to embeddings file by waiting 1 minute before writing
       if(this.save_timeout) {
         clearTimeout(this.save_timeout);
-        this.save_timeout = null;  
+        this.save_timeout = null;
       }
       this.save_timeout = setTimeout(() => {
         // console.log("writing embeddings to file");
@@ -469,49 +539,20 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           clearTimeout(this.save_timeout);
           this.save_timeout = null;
         }
-      }, 60000);
-      // console.log("scheduled save");
+      }, 30000);
+      console.log("scheduled save");
       return;
     }
 
-    const embeddings = JSON.stringify(this.embeddings);
-    // check if embeddings file exists
-    const embeddings_file_exists = await this.app.vault.adapter.exists(".smart-connections/embeddings-2.json");
-    // if embeddings file exists then check if new embeddings file size is significantly smaller than existing embeddings file size
-    if(embeddings_file_exists) {
-      // esitmate file size of embeddings
-      const new_file_size = embeddings.length;
-      // get existing file size
-      const existing_file_size = await this.app.vault.adapter.stat(".smart-connections/embeddings-2.json").then((stat) => stat.size);
-      // console.log("new file size: "+new_file_size);
-      // console.log("existing file size: "+existing_file_size);
-
-      // if new file size is at least 50% of existing file size then write embeddings to file
-      if(new_file_size > (existing_file_size * 0.5)) {
-        // write embeddings to file
-        await this.app.vault.adapter.write(".smart-connections/embeddings-2.json", embeddings);
-        this.has_new_embeddings = false;
-        console.log("embeddings file size: "+new_file_size+" bytes");
-      }else{
-        // if new file size is significantly smaller than existing file size then throw error
-        // show warning message including file sizes
-        const warning_message = [
-          "Warning: New embeddings file size is significantly smaller than existing embeddings file size.", 
-          "Aborting to prevent possible loss of embeddings data.",
-          "New file size: "+new_file_size+" bytes.",
-          "Existing file size: "+existing_file_size+" bytes.",
-          "Restarting Obsidian may fix this."
-        ];
-        console.log(warning_message.join(" "));
-        // save embeddings to file named unsaved-embeddings.json
-        await this.app.vault.adapter.write(".smart-connections/unsaved-embeddings.json", embeddings);
-        new Obsidian.Notice("Smart Connections: Warning: New embeddings file size is significantly smaller than existing embeddings file size. Aborting to prevent possible loss of embeddings data. See Smart Connections view for more details.");
-        throw new Error("Error: New embeddings file size is significantly smaller than existing embeddings file size. Aborting to prevent possible loss of embeddings data.");
-      }
-    }else{
-      await this.init_embeddings_file();
-      await this.save_embeddings_to_file();
+    try{
+      // use smart_vec_lite
+      await this.smart_vec_lite.save();
+      this.has_new_embeddings = false;
+    }catch(error){
+      console.log(error);
+      new Obsidian.Notice("Smart Connections: "+error.message);
     }
+
   }
   // save failed embeddings to file from render_log.failed_embeddings
   async save_failed_embeddings () {
@@ -537,7 +578,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // reload failed_embeddings to prevent retrying failed files until explicitly requested
     await this.load_failed_files();
   }
-  
+
   // load failed files from failed-embeddings.txt
   async load_failed_files () {
     // check if failed-embeddings.txt exists
@@ -571,141 +612,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   }
 
 
-  // check if key from embeddings exists in files
-  clean_up_embeddings(files) {
-    for (let key in this.embeddings) {
-      // console.log("key: "+key);
-      const path = this.embeddings[key].meta.path;
-      // if no key starts with file path
-      if(!files.find(file => path.startsWith(file.path))) {
-        // delete key if it doesn't exist
-        delete this.embeddings[key];
-        this.render_log.deleted_embeddings++;
-        // console.log("deleting (deleted file): " + key);
-        continue;
-      }
-      // if key contains '#'
-      if(path.indexOf("#") > -1) {
-        // split at '#' and get first part
-        const file_key = this.embeddings[key].meta.file;
-        // if file_key and file.hashes exists and block hash not in file.hashes
-        if(!this.embeddings[file_key]){
-          // delete key
-          delete this.embeddings[key];
-          this.render_log.deleted_embeddings++;
-          // console.log("deleting (missing file embedding)");
-          continue;
-        }
-        if(!this.embeddings[file_key].meta){
-          // delete key
-          delete this.embeddings[key];
-          this.render_log.deleted_embeddings++;
-          // console.log("deleting (missing file meta)");
-          continue;
-        }
-        if(this.embeddings[file_key].meta.blocks && (this.embeddings[file_key].meta.blocks.indexOf(key) < 0)) {
-          // delete key
-          delete this.embeddings[key];
-          this.render_log.deleted_embeddings++;
-          // console.log("deleting (missing block in file)");
-          continue;
-        }
-        // DEPRECATED - currently included to prevent existing embeddings from being refreshed all at once
-        if(this.embeddings[file_key].meta.mtime && 
-          this.embeddings[key].meta.mtime && 
-          (this.embeddings[file_key].meta.mtime > this.embeddings[key].meta.mtime)
-        ) {
-          // delete key
-          delete this.embeddings[key];
-          this.render_log.deleted_embeddings++;
-          // console.log("deleting (stale block - mtime): " + key);
-        }
-      }
-    }
-  }
-
-
-  async init_embeddings_file() {
-    // check if folder exists
-    if (!(await this.app.vault.adapter.exists(".smart-connections"))) {
-      // create folder
-      await this.app.vault.adapter.mkdir(".smart-connections");
-      console.log("created folder: .smart-connections");
-      // if .gitignore file exists then add .smart-connections to .gitignore
-      await this.add_to_gitignore();
-    }else{
-      console.log("folder already exists: .smart-connections");
-    }
-    // check if embeddings file exists
-    if (!(await this.app.vault.adapter.exists(".smart-connections/embeddings-2.json"))) {
-      // create embeddings file
-      await this.app.vault.adapter.write(".smart-connections/embeddings-2.json", "{}");
-      console.log("created embeddings file: .smart-connections/embeddings-2.json");
-    }else{
-      console.log("embeddings file already exists: .smart-connections/embeddings-2.json");
-    }
-  }
-
-  /**
-   * migrate embeddings.json to embeddings-2.json
-   * - embeddings-2.json is a new file format that uses a different method to store embeddings
-   * - move key to meta.source
-   * - replace key with md5(meta.source)
-   * - move values to vec
-  */ 
-  // if embeddings.json exists then use it to create embeddings-2.json
-  async migrate_embeddings_to_v2() {
-    // get view and set to loading
-    // read embeddings.json
-    const embeddings = await this.app.vault.adapter.read(".smart-connections/embeddings.json");
-    // parse embeddings.json
-    const embeddings_json = JSON.parse(embeddings);
-    // create new embeddings-2.json
-    const embeddings_2_json = {};
-    // loop through embeddings.json
-    for (let key in embeddings_json) {
-      // create new key using crypto SHA1 hash
-      const new_key = crypto.createHash('md5').update(key).digest('hex');
-      // create new embeddings-2.json entry
-      embeddings_2_json[new_key] = {
-        "vec": embeddings_json[key].values,
-        "meta": {
-          "path": key,
-          "hash": embeddings_json[key].hash,
-          "mtime": embeddings_json[key].mtime,
-          "tokens": embeddings_json[key].tokens,
-        },
-      }
-      // if has hashes
-      if(embeddings_json[key].hashes) {
-        embeddings_2_json[new_key].meta.blocks = [];
-        // loop through hashes
-        for (let hash of embeddings_json[key].hashes) {
-          // iterate through embeddings_json
-          for(let key2 in embeddings_json) {
-            if (embeddings_json[key2].hash == hash) {
-              // create hash from key
-              const hash_key = crypto.createHash('md5').update(key2).digest('hex');
-              embeddings_2_json[new_key].meta.blocks.push(hash_key);
-            }
-          }
-        }
-        // sort blocks
-        embeddings_2_json[new_key].meta.blocks.sort();
-      }
-      // if key contains '#'
-      if(key.indexOf("#") > -1) {
-        // split at '#' and get first part
-        const file_key = crypto.createHash('md5').update(key.split("#")[0]).digest('hex');
-        embeddings_2_json[new_key].meta.file = file_key;
-      }
-      // re-write object create to exclude any undefined values
-      embeddings_2_json[new_key] = JSON.parse(JSON.stringify(embeddings_2_json[new_key]));
-    }
-    // write embeddings-2.json
-    await this.app.vault.adapter.write(".smart-connections/embeddings-2.json", JSON.stringify(embeddings_2_json));
-  }
-
   // add .smart-connections to .gitignore to prevent issues with large, frequently updated embeddings file(s)
   async add_to_gitignore() {
     if(!(await this.app.vault.adapter.exists(".gitignore"))) {
@@ -724,16 +630,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   // force refresh embeddings file but first rename existing embeddings file to .smart-connections/embeddings-YYYY-MM-DD.json
   async force_refresh_embeddings_file() {
-    // get current datetime as unix timestamp
-    let current_datetime = Math.floor(Date.now() / 1000);
-    // rename existing embeddings file to .smart-connections/embeddings-YYYY-MM-DD.json
-    await this.app.vault.adapter.rename(".smart-connections/embeddings-2.json", ".smart-connections/embeddings-"+current_datetime+".json");
-    // create new embeddings file
-    await this.app.vault.adapter.write(".smart-connections/embeddings-2.json", "{}");
     new Obsidian.Notice("Smart Connections: embeddings file Force Refreshed, making new connections...");
-    // clear this.embeddings
-    this.embeddings = null;
-    this.embeddings = {};
+    // force refresh
+    await this.smart_vec_lite.force_refresh();
     // trigger making new connections
     await this.get_all_embeddings();
     this.output_render_log();
@@ -746,7 +645,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     let req_batch = [];
     let blocks = [];
     // initiate curr_file_key from md5(curr_file.path)
-    const curr_file_key = this.get_file_key(curr_file);
+    const curr_file_key = md5(curr_file.path);
     // intiate file_file_embed_input by removing .md and converting file path to breadcrumbs (" > ")
     let file_embed_input = curr_file.path.replace(".md", "");
     file_embed_input = file_embed_input.replace(/\//g, " > ");
@@ -762,10 +661,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
     // return early if path_only
     if(path_only) {
-      // await this.get_embeddings(curr_file_key, file_embed_input, {
-      //   mtime: curr_file.stat.mtime,
-      //   path: curr_file.path,
-      // });
       req_batch.push([curr_file_key, file_embed_input, {
         mtime: curr_file.stat.mtime,
         path: curr_file.path,
@@ -803,7 +698,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       await this.get_embeddings_batch(req_batch);
       return;
     }
-    
+
     /**
      * BEGIN Block "section" embedding
      */
@@ -821,41 +716,39 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         const block_embed_input = note_sections[j].text;
         // console.log(note_sections[j].path);
         // get block key from block.path (contains both file.path and header path)
-        const block_key = crypto.createHash('md5').update(note_sections[j].path).digest('hex');
+        const block_key = md5(note_sections[j].path);
         blocks.push(block_key);
-        let block_hash; // set hash of block_embed_input in correct scope
-        if (this.embeddings[block_key] && this.embeddings[block_key].meta) {
-          // skip if length of block_embed_input same as length of embeddings[block_key].meta.len
-          if (block_embed_input.length === this.embeddings[block_key].meta.len) {
-            // log skipping file
-            // console.log("skipping block (len)");
-            continue;
-          }
-          // add hash to blocks to prevent empty blocks triggering full-file embedding
-          // skip if embeddings key already exists and block mtime is greater than or equal to file mtime
-          if (this.embeddings[block_key].meta.mtime >= curr_file.stat.mtime) {
-            // log skipping file
-            // console.log("skipping block (mtime)");
-            continue;
-          }
-          // skip if hash is present in this.embeddings and hash of block_embed_input is equal to hash in this.embeddings
-          block_hash = this.get_embed_hash(block_embed_input);
-          if(this.embeddings[block_key].meta.hash === block_hash) {
-            // log skipping file
-            // console.log("skipping block (hash)");
-            continue;
-          }
+        // skip if length of block_embed_input same as length of embeddings[block_key].meta.size
+        // TODO consider rounding to nearest 10 or 100 for fuzzy matching
+        if (this.smart_vec_lite.get_size(block_key) === block_embed_input.length) {
+          // log skipping file
+          // console.log("skipping block (len)");
+          continue;
+        }
+        // add hash to blocks to prevent empty blocks triggering full-file embedding
+        // skip if embeddings key already exists and block mtime is greater than or equal to file mtime
+        if(this.smart_vec_lite.mtime_is_current(block_key, curr_file.stat.mtime)) {
+          // log skipping file
+          // console.log("skipping block (mtime)");
+          continue;
+        }
+        // skip if hash is present in embeddings and hash of block_embed_input is equal to hash in embeddings
+        const block_hash = md5(block_embed_input.trim());
+        if(this.smart_vec_lite.get_hash(block_key) === block_hash) {
+          // log skipping file
+          // console.log("skipping block (hash)");
+          continue;
         }
 
         // create req_batch for batching requests
         req_batch.push([block_key, block_embed_input, {
-          // oldmtime: curr_file.stat.mtime, 
+          // oldmtime: curr_file.stat.mtime,
           // get current datetime as unix timestamp
           mtime: Date.now(),
-          hash: block_hash, 
-          file: curr_file_key,
+          hash: block_hash,
+          parent: curr_file_key,
           path: note_sections[j].path,
-          len: block_embed_input.length,
+          size: block_embed_input.length,
         }]);
         if(req_batch.length > 9) {
           // add batch to batch_promises
@@ -881,7 +774,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       req_batch = [];
       processed_since_last_save += req_batch.length;
     }
-    
+
     /**
      * BEGIN File "full note" embedding
      */
@@ -894,13 +787,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
      */
     if(note_contents.length < MAX_EMBED_STRING_LENGTH) {
       file_embed_input += note_contents
-    }else{ 
+    }else{
       const note_meta_cache = this.app.metadataCache.getFileCache(curr_file);
       // for each heading in file
       if(typeof note_meta_cache.headings === "undefined") {
         // console.log("no headings found, using first chunk of file instead");
         file_embed_input += note_contents.substring(0, MAX_EMBED_STRING_LENGTH);
-        // console.log("chuck len: " + file_embed_input.length);
       }else{
         let note_headings = "";
         for (let j = 0; j < note_meta_cache.headings.length; j++) {
@@ -923,10 +815,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         }
       }
     }
-    // skip embedding full file if blocks is not empty and all hashes are present in this.embeddings
+    // skip embedding full file if blocks is not empty and all hashes are present in embeddings
     // better than hashing file_embed_input because more resilient to inconsequential changes (whitespace between headings)
-    const file_hash = this.get_embed_hash(file_embed_input);
-    const existing_hash = (this.embeddings[curr_file_key] && this.embeddings[curr_file_key].meta) ? this.embeddings[curr_file_key].meta.hash : null;
+    const file_hash = md5(file_embed_input.trim());
+    const existing_hash = this.smart_vec_lite.get_hash(curr_file_key);
     if(existing_hash && (file_hash === existing_hash)) {
       // console.log("skipping file (hash): " + curr_file.path);
       this.update_render_log(blocks, file_embed_input);
@@ -934,7 +826,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     };
 
     // if not already skipping and blocks are present
-    const existing_blocks = (this.embeddings[curr_file_key] && this.embeddings[curr_file_key].meta) ? this.embeddings[curr_file_key].meta.blocks : null;
+    const existing_blocks = this.smart_vec_lite.get_children(curr_file_key);
     let existing_has_all_blocks = true;
     if(existing_blocks && Array.isArray(existing_blocks) && (blocks.length > 0)) {
       // if all blocks are in existing_blocks then skip (allows deletion of small blocks without triggering full file embedding)
@@ -949,10 +841,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     if(existing_has_all_blocks){
       // get current note file size
       const curr_file_size = curr_file.stat.size;
-      // get file size from this.embeddings
-      let prev_file_size = 0;
-      if (this.embeddings[curr_file_key] && this.embeddings[curr_file_key].meta && this.embeddings[curr_file_key].meta.size) {
-        prev_file_size = this.embeddings[curr_file_key].meta.size;
+      // get file size from embeddings
+      const prev_file_size = this.smart_vec_lite.get_size(curr_file_key);
+      if (prev_file_size) {
         // if curr file size is less than 10% different from prev file size
         const file_delta_pct = Math.round((Math.abs(curr_file_size - prev_file_size) / curr_file_size) * 100);
         if(file_delta_pct < 10) {
@@ -969,7 +860,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       hash: file_hash,
       path: curr_file.path,
       size: curr_file.stat.size,
-      blocks: blocks,
+      children: blocks,
     };
     // batch_promises.push(this.get_embeddings(curr_file_key, file_embed_input, meta));
     req_batch.push([curr_file_key, file_embed_input, meta]);
@@ -984,9 +875,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
 
   }
-  get_file_key(curr_file) {
-    return crypto.createHash('md5').update(curr_file.path).digest('hex');
-  }
 
   update_render_log(blocks, file_embed_input) {
     if (blocks.length > 0) {
@@ -997,38 +885,9 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       this.render_log.tokens_saved_by_cache += file_embed_input.length / 4;
     }
   }
-  
-  // async get_embeddings(key, embed_input, meta={}) {
-  //   const requestResults = await this.request_embedding_from_input(embed_input);
-  //   // if requestResults is null then return
-  //   if(!requestResults) {
-  //     console.log("failed embedding: " + meta.path);
-  //     // log failed file names to render_log
-  //     this.render_log.failed_embeddings.push(meta.path);
-  //     return;
-  //   }
-  //   // if requestResults is not null
-  //   if(requestResults){
-  //     // add embedding key to render_log
-  //     if(this.settings.log_render){
-  //       if(this.settings.log_render_files){
-  //         this.render_log.files.push(meta);
-  //       }
-  //       this.render_log.new_embeddings++;
-  //       // add token usage to render_log
-  //       this.render_log.token_usage += requestResults.usage.total_tokens;
-  //     }
-  //     const vec = requestResults.data[0].embedding;
-  //     if(vec) {
-  //       this.embeddings[key] = {};
-  //       this.embeddings[key].vec = vec;
-  //       this.embeddings[key].meta = meta;
-  //       this.embeddings[key].meta.tokens = requestResults.usage.total_tokens;
-  //     }
-  //   }
-  // }
 
   async get_embeddings_batch(req_batch) {
+    console.log("get_embeddings_batch");
     // if req_batch is empty then return
     if(req_batch.length === 0) return;
     // create arrary of embed_inputs from req_batch[i][1]
@@ -1062,27 +921,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         if(vec) {
           const key = req_batch[index][0];
           const meta = req_batch[index][2];
-          this.embeddings[key] = {};
-          this.embeddings[key].vec = vec;
-          this.embeddings[key].meta = meta;
-          // this.embeddings[key].meta.tokens = requestResults.usage.total_tokens;
+          this.smart_vec_lite.save_embedding(key, vec, meta);
         }
       }
     }
-  }
-
-  
-  // md5 hash of embed_input using built in crypto module
-  get_embed_hash(embed_input) {
-    /**
-     * TODO remove more/all whitespace from embed_input
-     * - all newlines
-     * - all tabs
-     * - all spaces?
-     */
-    // trim excess whitespace
-    embed_input = embed_input.trim();
-    return crypto.createHash('md5').update(embed_input).digest("hex");
   }
 
   async request_embedding_from_input(embed_input, retries = 0) {
@@ -1137,7 +979,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       console.log(error);
       // console.log(usedParams);
       // console.log(usedParams.input.length);
-      return null; 
+      return null;
     }
   }
   async test_api_key() {
@@ -1152,53 +994,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
   }
 
-  find_nearest_embedding(to_vec, filter={}) {
-    let nearest = [];
-    const from_keys = Object.keys(this.embeddings);
-    this.render_log.total_embeddings = from_keys.length;
-    for (let i = 0; i < from_keys.length; i++) {
-      // if this.settings.skip_sections is true
-      if(this.settings.skip_sections){
-        const from_path = this.embeddings[from_keys[i]].meta.path;
-        if(from_path.indexOf("#") > -1) continue; // skip if contains # indicating block (section)
-        // TODO: consider using presence of meta.file to skip files (faster checking?)
-      }
-      if(filter.skip_key){
-        if(filter.skip_key===from_keys[i]) continue; // skip matching to current note
-        if(filter.skip_key===this.embeddings[from_keys[i]].meta.file) continue; // skip if filter.skip_key matches meta.file
-      }
-      // if filter.path_begins_with is set (folder filter)
-      if(filter.path_begins_with){
-        // if type is string & meta.path does not begin with filter.path_begins_with, skip
-        if(typeof filter.path_begins_with === "string" && !this.embeddings[from_keys[i]].meta.path.startsWith(filter.path_begins_with)) continue;
-        // if type is array & meta.path does not begin with any of the filter.path_begins_with, skip
-        if(Array.isArray(filter.path_begins_with) && !filter.path_begins_with.some((path) => this.embeddings[from_keys[i]].meta.path.startsWith(path))) continue;
-      }
-        
-      nearest.push({
-        link: this.embeddings[from_keys[i]].meta.path,
-        similarity: this.computeCosineSimilarity(to_vec, this.embeddings[from_keys[i]].vec),
-        len: this.embeddings[from_keys[i]].meta.len || this.embeddings[from_keys[i]].meta.size,
-      });
-    }
-    // handle external links
-    if(this.embeddings_external){
-      for(let i = 0; i < this.embeddings_external.length; i++) {
-        nearest.push({
-          link: this.embeddings_external[i].meta,
-          similarity: this.computeCosineSimilarity(to_vec, this.embeddings_external[i].vec)
-        });
-      }
-    }
-    // sort array by cosine similarity
-    nearest.sort(function (a, b) {
-      return b.similarity - a.similarity;
-    });
-    // console.log(nearest);
-    // limit to N nearest connections
-    nearest = nearest.slice(0, this.settings.results_count);
-    return nearest;
-  }
 
   output_render_log() {
     // if settings.log_render is true
@@ -1226,7 +1021,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   // find connections by most similar to current note by cosine similarity
   async find_note_connections(current_note=null) {
     // md5 of current note path
-    const curr_key = crypto.createHash('md5').update(current_note.path).digest("hex");
+    const curr_key = md5(current_note.path);
     // if in this.nearest_cache then set to nearest
     // else get nearest
     let nearest = [];
@@ -1249,27 +1044,25 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         this.get_all_embeddings()
       }, 3000);
       // get from cache if mtime is same and values are not empty
-      let current_note_embedding_vec = [];
-      if (!this.embeddings[curr_key] 
-        || !(this.embeddings[curr_key].meta.mtime >= current_note.stat.mtime) 
-        || !this.embeddings[curr_key].vec 
-        || !Array.isArray(this.embeddings[curr_key].vec) 
-        || !(this.embeddings[curr_key].vec.length > 0)
-        ) {
-          // console.log("getting current")
-          await this.get_file_embeddings(current_note);
-        }else{
+      if(this.smart_vec_lite.mtime_is_current(curr_key, current_note.stat.mtime)) {
         // skipping get file embeddings because nothing has changed
-        //console.log("skipping file (mtime)");
+        // console.log("find_note_connections - skipping file (mtime)");
+      }else{
+        // get file embeddings
+        await this.get_file_embeddings(current_note);
       }
-      if(!this.embeddings[curr_key] || !this.embeddings[curr_key].vec) {
+      // get current note embedding vector
+      const vec = this.smart_vec_lite.get_vec(curr_key);
+      if(!vec) {
         return "Error getting embeddings for: "+current_note.path;
       }
-      current_note_embedding_vec = this.embeddings[curr_key].vec;
-      
+
       // compute cosine similarity between current note and all other notes via embeddings
-      nearest = this.find_nearest_embedding(current_note_embedding_vec, {skip_key: curr_key});
-  
+      nearest = this.smart_vec_lite.nearest(vec, {
+        skip_key: curr_key,
+        skip_sections: this.settings.skip_sections,
+      });
+
       // save to this.nearest_cache
       this.nearest_cache[curr_key] = nearest;
     }
@@ -1277,35 +1070,13 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // return array sorted by cosine similarity
     return nearest;
   }
-  
+
   // create render_log object of exlusions with number of times skipped as value
   log_exclusion(exclusion) {
     // increment render_log for skipped file
     this.render_log.exclusions_logs[exclusion] = (this.render_log.exclusions_logs[exclusion] || 0) + 1;
   }
 
-  onunload() {
-    this.output_render_log();
-    console.log("unloading plugin");
-    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE);
-    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE);
-  }
-  
-  computeCosineSimilarity(vector1, vector2) {
-    let dotProduct = 0;
-    let normA = 0;
-    let normB = 0;
-    for (let i = 0; i < vector1.length; i++) {
-      dotProduct += vector1[i] * vector2[i];
-      normA += vector1[i] * vector1[i];
-      normB += vector2[i] * vector2[i];
-    }
-    if (normA === 0 || normB === 0) {
-      return 0;
-    } else {
-      return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-    }
-  }
 
   block_parser(markdown, file_path){
     // if this.settings.skip_sections is true then return empty array
@@ -1780,11 +1551,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           title: nearest[i].link,
         });
         if(nearest[i].link.indexOf("#") > -1){ // is block
-          Obsidian.MarkdownRenderer.renderMarkdown((await this.block_retriever(nearest[i].link, {lines: 10, max_chars: 1000})), contents_container, nearest[i].link, void 0);
+          Obsidian.MarkdownRenderer.renderMarkdown((await this.block_retriever(nearest[i].link, {lines: 10, max_chars: 1000})), contents_container, nearest[i].link, new Obsidian.Component());
         }else{ // is file
           const first_ten_lines = await this.file_retriever(nearest[i].link, {lines: 10, max_chars: 1000});
           if(!first_ten_lines) continue; // skip if file is empty
-          Obsidian.MarkdownRenderer.renderMarkdown(first_ten_lines, contents_container, nearest[i].link, void 0);
+          Obsidian.MarkdownRenderer.renderMarkdown(first_ten_lines, contents_container, nearest[i].link, new Obsidian.Component());
         }
         this.add_link_listeners(contents, nearest[i], item);
       }
@@ -1856,7 +1627,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       }
 
 
-        
+
       // skip contents rendering if incompatible file type
       // ex. not markdown or contains '.excalidraw'
       if(!this.renderable_file_type(file[0].link)) {
@@ -1912,7 +1683,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           }
           const block_container = block_link.createEl("div");
           // TODO: move to rendering on expanding section (toggle collapsed)
-          Obsidian.MarkdownRenderer.renderMarkdown((await this.block_retriever(block.link, {lines: 10, max_chars: 1000})), block_container, block.link, void 0);
+          Obsidian.MarkdownRenderer.renderMarkdown((await this.block_retriever(block.link, {lines: 10, max_chars: 1000})), block_container, block.link, new Obsidian.Component());
           // add link listeners to block link
           this.add_link_listeners(block_link, block, file_link_list);
         }else{
@@ -1925,7 +1696,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           const block_container = block_link.createEl("div");
           let first_ten_lines = await this.file_retriever(file[0].link, {lines: 10, max_chars: 1000});
           if(!first_ten_lines) continue; // if file not found, skip
-          Obsidian.MarkdownRenderer.renderMarkdown(first_ten_lines, block_container, file[0].link, void 0);
+          Obsidian.MarkdownRenderer.renderMarkdown(first_ten_lines, block_container, file[0].link, new Obsidian.Component());
           this.add_link_listeners(block_link, file[0], file_link_list);
 
         }
@@ -1962,7 +1733,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       });
     });
   }
-
 
   // get target file from link path
   // if sub-section is linked, open file and scroll to sub-section
@@ -2077,6 +1847,76 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
     return folder_list;
   }
+
+
+  async sync_notes() {
+    // if license key is not set, return
+    if(!this.settings.license_key){
+      new Obsidian.Notice("Smart Connections: Supporter license key is required to sync notes to the ChatGPT Plugin server.");
+      return;
+    }
+    console.log("syncing notes");
+    // get all files in vault
+    const files = this.app.vault.getMarkdownFiles().filter((file) => {
+      // filter out file paths matching any strings in this.file_exclusions
+      for(let i = 0; i < this.file_exclusions.length; i++) {
+        if(file.path.indexOf(this.file_exclusions[i]) > -1) {
+          return false;
+        }
+      }
+      return true;
+    });
+    const notes = await this.build_notes_object(files);
+    console.log("object built");
+    // save notes object to .smart-connections/notes.json
+    await this.app.vault.adapter.write(".smart-connections/notes.json", JSON.stringify(notes, null, 2));
+    console.log("notes saved");
+    console.log(this.settings.license_key);
+    // POST notes object to server
+    const response = await (0, Obsidian.requestUrl)({
+      url: "https://sync.smartconnections.app/sync",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      contentType: "application/json",
+      body: JSON.stringify({
+        license_key: this.settings.license_key,
+        notes: notes
+      })
+    });
+    console.log(response);
+
+  }
+
+  async build_notes_object(files) {
+    let output = {};
+
+    for(let i = 0; i < files.length; i++) {
+      let file = files[i];
+      let parts = file.path.split("/");
+      let current = output;
+
+      for (let ii = 0; ii < parts.length; ii++) {
+        let part = parts[ii];
+
+        if (ii === parts.length - 1) {
+          // This is a file
+          current[part] = await this.app.vault.cachedRead(file);
+        } else {
+          // This is a directory
+          if (!current[part]) {
+            current[part] = {};
+          }
+
+          current = current[part];
+        }
+      }
+    }
+
+    return output;
+  }
+
 }
 
 const SMART_CONNECTIONS_VIEW_TYPE = "smart-connections-view";
@@ -2191,7 +2031,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
       const input = search_container.createEl("input", {
         cls: "sc-search-input",
         type: "search",
-        placeholder: "Type to start search...", 
+        placeholder: "Type to start search...",
       });
       // focus input
       input.focus();
@@ -2250,15 +2090,18 @@ class SmartConnectionsView extends Obsidian.ItemView {
     // add click event to "create" button
     create_button.addEventListener("click", async (event) => {
       // create embeddings.json file
-      await this.plugin.init_embeddings_file();
+      await this.plugin.smart_vec_lite.init_embeddings_file();
       // reload view
       await this.render_connections();
     });
 
     // add click event to "retry" button
     retry_button.addEventListener("click", async (event) => {
+      console.log("retrying to load embeddings.json file");
       // reload embeddings.json file
-      await this.plugin.load_embeddings_file();
+      await this.plugin.init_vecs();
+      // reload view
+      await this.render_connections();
     });
   }
 
@@ -2266,10 +2109,10 @@ class SmartConnectionsView extends Obsidian.ItemView {
     const container = this.containerEl.children[1];
     container.empty();
     // placeholder text
-    container.createEl("p", { cls: "scPlaceholder", text: "Open a note to find connections." }); 
+    container.createEl("p", { cls: "scPlaceholder", text: "Open a note to find connections." });
 
     // runs when file is opened
-    this.registerEvent(this.app.workspace.on('file-open', (file) => {
+    this.plugin.registerEvent(this.app.workspace.on('file-open', (file) => {
       // if no file is open, return
       if(!file) {
         // console.log("no file open, returning");
@@ -2290,7 +2133,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
         this.render_connections(file);
         this.load_wait = null;
       }, 1000);
-        
+
     }));
 
     this.app.workspace.registerHoverLinkSource(SMART_CONNECTIONS_VIEW_TYPE, {
@@ -2303,12 +2146,18 @@ class SmartConnectionsView extends Obsidian.ItemView {
     });
 
     this.app.workspace.onLayoutReady(this.initialize.bind(this));
-    
+
   }
-  
+
   async initialize() {
-    await this.load_embeddings_file();
-    await this.render_connections();
+    this.set_message("Loading embeddings file...");
+    const vecs_intiated = await this.plugin.init_vecs();
+    if(vecs_intiated){
+      this.set_message("Embeddings file loaded.");
+      await this.render_connections();
+    }else{
+      this.render_embeddings_buttons();
+    }
 
     /**
      * EXPERIMENTAL
@@ -2322,18 +2171,26 @@ class SmartConnectionsView extends Obsidian.ItemView {
   }
 
   async onClose() {
+    console.log("closing smart connections view");
     this.app.workspace.unregisterHoverLinkSource(SMART_CONNECTIONS_VIEW_TYPE);
     this.plugin.view = null;
   }
 
   async render_connections(context=null) {
+    console.log("rendering connections");
     // if API key is not set then update view message
     if(!this.plugin.settings.api_key) {
       this.set_message("An OpenAI API key is required to make Smart Connections");
       return;
     }
-    if(!this.plugin.embeddings){
-      await this.load_embeddings_file();
+    if(!this.plugin.embeddings_loaded){
+      await this.plugin.init_vecs();
+    }
+    // if embedding still not loaded, return
+    if(!this.plugin.embeddings_loaded) {
+      console.log("embeddings files still not loaded or yet to be created");
+      this.render_embeddings_buttons();
+      return;
     }
     this.set_message("Making Smart Connections...");
     /**
@@ -2346,9 +2203,9 @@ class SmartConnectionsView extends Obsidian.ItemView {
       return; // ends here if context is a string
     }
 
-    /** 
+    /**
      * Begin file-level search
-     */    
+     */
     this.nearest = null;
     this.interval_count = 0;
     this.rendering = false;
@@ -2371,7 +2228,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
           if(!this.file && this.count > 1) {
             clearInterval(this.interval);
             this.set_message("No active file");
-            return; 
+            return;
           }
         }
       }else{
@@ -2390,7 +2247,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
           }
           // get object keys of render_log
           this.plugin.output_render_log();
-          return; 
+          return;
         }else{
           this.interval_count++;
           this.set_message("Making Smart Connections..."+this.interval_count);
@@ -2417,65 +2274,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     this.set_nearest(nearest, nearest_context, results_only);
   }
 
-  async load_embeddings_file(retries=0) {
-    this.set_message("Loading embeddings file...");
-    try {
-      // handle migrating
-      if(retries === 3) {
-        // if embeddings-2.json does not exist then check for embeddings.json
-        if(await this.app.vault.adapter.exists(".smart-connections/embeddings.json")) {
-          // migrate embeddings.json to embeddings-2.json
-          this.set_message("Migrating embeddings.json to embeddings-2.json...");
-          await this.plugin.migrate_embeddings_to_v2();
-          // retry loading embeddings-2.json
-          await this.load_embeddings_file();
-          return;
-        }
-      }
-      // get embeddings file contents from root of vault
-      const embeddings_file = await this.app.vault.adapter.read(".smart-connections/embeddings-2.json");
-      // parse file containing all embeddings JSON
-      // console.log("loaded embeddings from file");
-      // loaded embeddings from file
-      this.plugin.embeddings = JSON.parse(embeddings_file);
-      // set message
-      this.set_message("Embeddings file loaded.");
-    } catch (error) {
-      // retry if error up to 3 times
-      if(retries < 3) {
-        console.log("retrying load_embeddings_file()");
-        // increase wait time between retries
-        await new Promise(r => setTimeout(r, 1000+(1000*retries)));
-        await this.load_embeddings_file(retries+1);
-      }else{
-        console.log("failed to load embeddings file, prompting user to bulk embed");
-        this.render_embeddings_buttons();
-        throw new Error("Error: Prompting user to create a new embeddings file or retry.");
-      }
-    }
-    // if embeddings-external-X.json exists then load it
-    const files_list = await this.app.vault.adapter.list(".smart-connections");
-    // console.log(files_list);
-    if(files_list.files){
-      console.log("loading external embeddings");
-      // get all embeddings-external-X.json files
-      const external_files = files_list.files.filter(file => file.indexOf("embeddings-external") !== -1);
-      for(let i = 0; i < external_files.length; i++) {
-        const embeddings_file = await this.app.vault.adapter.read(external_files[i]);
-        // merge with existing embeddings_external if it exists
-        if(this.plugin.embeddings_external) {
-          this.plugin.embeddings_external = [...this.plugin.embeddings_external, ...JSON.parse(embeddings_file).embeddings];
-        }else{
-          this.plugin.embeddings_external = JSON.parse(embeddings_file).embeddings;
-        }
-        console.log("loaded "+external_files[i]);
-      }
-    }
-
-  }
-
 }
-
 class SmartConnectionsViewApi {
   constructor(app, plugin, view) {
     this.app = app;
@@ -2487,10 +2286,9 @@ class SmartConnectionsViewApi {
   }
   // trigger reload of embeddings file
   async reload_embeddings_file() {
-    await this.view.load_embeddings_file();
+    await this.plugin.init_vecs();
     await this.view.render_connections();
   }
-  
 }
 class ScSearchApi {
   constructor(app, plugin) {
@@ -2498,10 +2296,14 @@ class ScSearchApi {
     this.plugin = plugin;
   }
   async search (search_text, filter={}) {
+    filter = {
+      skip_sections: this.plugin.settings.skip_sections,
+      ...filter
+    }
     let nearest = [];
     const resp = await this.plugin.request_embedding_from_input(search_text);
     if (resp && resp.data && resp.data[0] && resp.data[0].embedding) {
-      nearest = this.plugin.find_nearest_embedding(resp.data[0].embedding, filter);
+      nearest = this.plugin.smart_vec_lite.nearest(resp.data[0].embedding, filter);
     } else {
       // resp is null, undefined, or missing data
       new Obsidian.Notice("Smart Connections: Error getting embedding");
@@ -2521,9 +2323,56 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     } = this;
     containerEl.empty();
     containerEl.createEl("h2", {
+      text: "Supporter Settings"
+    });
+    // list supporter benefits
+    containerEl.createEl("p", {
+      text: "As a Smart Connections \"Supporter\", fast-track your PKM journey with priority perks and pioneering innovations."
+    });
+    // three list items
+    const supporter_benefits_list = containerEl.createEl("ul");
+    supporter_benefits_list.createEl("li", {
+      text: "Enjoy swift, top-priority support."
+    });
+    supporter_benefits_list.createEl("li", {
+      text: "Gain early access to version 2 (includes local embedding model)."
+    });
+    supporter_benefits_list.createEl("li", {
+      text: "Stay informed and engaged with exclusive supporter-only communications."
+    });
+    // add a text input to enter supporter license key
+    new Obsidian.Setting(containerEl).setName("Supporter License Key").setDesc("Note: this is not required to use Smart Connections.").addText((text) => text.setPlaceholder("Enter your license_key").setValue(this.plugin.settings.license_key).onChange(async (value) => {
+      this.plugin.settings.license_key = value.trim();
+      await this.plugin.saveSettings(true);
+    }));
+    // button "get v2"
+    new Obsidian.Setting(containerEl).setName("Get v2").setDesc("Get v2 (warning: very early beta release, likely to crash, please send issues directly to the supporter email for quick response)").addButton((button) => button.setButtonText("Get v2 (unstable)").onClick(async () => {
+      await this.plugin.update_to_v2();
+    }));
+    // add button to trigger sync notes to use with ChatGPT
+    new Obsidian.Setting(containerEl).setName("Sync Notes").setDesc("Make notes available via the Smart Connections ChatGPT Plugin. Respects exclusion settings configured below.").addButton((button) => button.setButtonText("Sync Notes").onClick(async () => {
+      // sync notes
+      await this.plugin.sync_notes();
+    }));
+    // add button to become a supporter
+    new Obsidian.Setting(containerEl).setName("Become a Supporter").setDesc("Become a Supporter").addButton((button) => button.setButtonText("Become a Supporter").onClick(async () => {
+      const payment_pages = [
+        "https://buy.stripe.com/9AQ5kO5QnbAWgGAbIY",
+        "https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
+      ];
+      if(!this.plugin.payment_page_index){
+        this.plugin.payment_page_index = Math.round(Math.random());
+      }
+      // open supporter page in browser
+      window.open(payment_pages[this.plugin.payment_page_index]);
+    }));
+
+
+    containerEl.createEl("h2", {
       text: "OpenAI Settings"
     });
-    new Obsidian.Setting(containerEl).setName("api_key").setDesc("api_key").addText((text) => text.setPlaceholder("Enter your api_key").setValue(this.plugin.settings.api_key).onChange(async (value) => {
+    // add a text input to enter the API key
+    new Obsidian.Setting(containerEl).setName("OpenAI API Key").setDesc("Required: an OpenAI API key is currently required to use Smart Connections.").addText((text) => text.setPlaceholder("Enter your api_key").setValue(this.plugin.settings.api_key).onChange(async (value) => {
       this.plugin.settings.api_key = value.trim();
       await this.plugin.saveSettings(true);
     }));
@@ -2539,8 +2388,10 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     }));
     // add dropdown to select the model
     new Obsidian.Setting(containerEl).setName("Smart Chat Model").setDesc("Select a model to use with Smart Chat.").addDropdown((dropdown) => {
-      dropdown.addOption("gpt-3.5-turbo", "gpt-3.5-turbo");
-      dropdown.addOption("gpt-4", "gpt-4 (limited access)");
+      dropdown.addOption("gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k");
+      dropdown.addOption("gpt-4", "gpt-4 (limited access, 8k)");
+      dropdown.addOption("gpt-3.5-turbo", "gpt-3.5-turbo (4k)");
+      dropdown.addOption("gpt-4-1106-preview", "gpt-4-turbo (128k)");
       dropdown.onChange(async (value) => {
         this.plugin.settings.smart_chat_model = value;
         await this.plugin.saveSettings();
@@ -2631,7 +2482,7 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
         this.plugin.settings.open_in_big_view = JSON.parse(value);
         await this.plugin.saveSettings(true);
         this.plugin.open_chat();
-        
+
       });
     });
     containerEl.createEl("h2", {
@@ -2795,7 +2646,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       cls: "sc-chat-name-input"
     });
     chat_name_input.addEventListener("change", this.rename_chat.bind(this));
-    
+
     // create button to Smart View
     let smart_view_btn = this.create_top_bar_button(top_bar_container, "Smart View", "smart-connections");
     smart_view_btn.addEventListener("click", this.open_smart_view.bind(this));
@@ -2870,13 +2721,13 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     let new_chat_name = event.target.value;
     this.chat.rename_chat(new_chat_name);
   }
-  
+
   // save current chat
   save_chat() {
     this.chat.save_chat();
     new Obsidian.Notice("[Smart Connections] Chat saved");
   }
-  
+
   open_smart_view() {
     this.plugin.open_view();
   }
@@ -3050,7 +2901,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // completion without any specific context
     this.request_chatgpt_completion();
   }
-  
+
   async render_dotdotdot() {
     if (this.dotdotdot_interval)
       clearInterval(this.dotdotdot_interval);
@@ -3111,7 +2962,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       }else{
         this.active_elm.innerHTML = '';
         // append to last message
-        await Obsidian.MarkdownRenderer.renderMarkdown(this.current_message_raw, this.active_elm, '?no-dataview', void 0);
+        await Obsidian.MarkdownRenderer.renderMarkdown(this.current_message_raw, this.active_elm, '?no-dataview', new Obsidian.Component());
       }
     }else{
       this.current_message_raw = '';
@@ -3121,7 +2972,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       }
       // set message text
       this.active_elm.innerHTML = '';
-      await Obsidian.MarkdownRenderer.renderMarkdown(message, this.active_elm, '?no-dataview', void 0);
+      await Obsidian.MarkdownRenderer.renderMarkdown(message, this.active_elm, '?no-dataview', new Obsidian.Component());
       // get links
       this.handle_links_in_message();
       // render button(s)
@@ -3218,10 +3069,22 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
   }
 
   async request_chatgpt_completion(opts={}) {
+    const chat_ml = opts.messages || opts.chat_ml || this.chat.prepare_chat_ml();
+    console.log("chat_ml", chat_ml);
+    const max_total_tokens = Math.round(get_max_chars(this.plugin.settings.smart_chat_model) / 4);
+    console.log("max_total_tokens", max_total_tokens);
+    const curr_token_est = Math.round(JSON.stringify(chat_ml).length / 3);
+    console.log("curr_token_est", curr_token_est);
+    let max_available_tokens = max_total_tokens - curr_token_est;
+    // if max_available_tokens is less than 0, set to 200
+    if(max_available_tokens < 0) max_available_tokens = 200;
+    else if(max_available_tokens > 4096) max_available_tokens = 4096;
+    console.log("max_available_tokens", max_available_tokens);
     opts = {
       model: this.plugin.settings.smart_chat_model,
-      messages: this.chat.prepare_chat_ml(),
-      max_tokens: 250,
+      messages: chat_ml,
+      // max_tokens: 250,
+      max_tokens: max_available_tokens,
       temperature: 0.3,
       top_p: 1,
       presence_penalty: 0,
@@ -3332,7 +3195,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     const chatml = [
       {
         role: "system",
-        content: hyd_input 
+        content: hyd_input
       },
       {
         role: "user",
@@ -3366,11 +3229,11 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     nearest = this.get_nearest_until_next_dev_exceeds_std_dev(nearest);
     console.log("nearest after std dev slice", nearest.length);
     nearest = this.sort_by_len_adjusted_similarity(nearest);
-    
+
     return await this.get_context_for_prompt(nearest);
   }
-  
-  
+
+
   sort_by_len_adjusted_similarity(nearest) {
     // re-sort by quotient of similarity divided by len DESC
     nearest = nearest.sort((a, b) => {
@@ -3392,7 +3255,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // get std dev of similarity
     const sim = nearest.map((n) => n.similarity);
     const mean = sim.reduce((a, b) => a + b) / sim.length;
-    const std_dev = Math.sqrt(sim.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / sim.length);
+    let std_dev = Math.sqrt(sim.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / sim.length);
     // slice where next item deviation is greater than std_dev
     let slice_i = 0;
     while (slice_i < nearest.length) {
@@ -3400,7 +3263,8 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       if (next) {
         const next_dev = Math.abs(next.similarity - nearest[slice_i].similarity);
         if (next_dev > std_dev) {
-          break;
+          if(slice_i < 3) std_dev = std_dev * 1.5;
+          else break;
         }
       }
       slice_i++;
@@ -3421,8 +3285,8 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
 
   async get_context_for_prompt(nearest) {
     let context = [];
-    const MAX_SOURCES = 20; // 10 * 1000 (max chars) = 10,000 chars (must be under ~16,000 chars or 4K tokens) 
-    const MAX_CHARS = 10000;
+    const MAX_SOURCES = (this.plugin.settings.smart_chat_model === 'gpt-4-1106-preview') ? 42 : 20;
+    const MAX_CHARS = get_max_chars(this.plugin.settings.smart_chat_model) / 2;
     let char_accum = 0;
     for (let i = 0; i < nearest.length; i++) {
       if (context.length >= MAX_SOURCES)
@@ -3452,7 +3316,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // context sources
     console.log("context sources: " + context.length);
     // char_accum divided by 4 and rounded to nearest integer for estimated tokens
-    console.log("total context tokens: ~" + Math.round(char_accum / 4));
+    console.log("total context tokens: ~" + Math.round(char_accum / 3.5));
     // build context input
     this.chat.context = `Anticipate the type of answer desired by the user. Imagine the following ${context.length} notes were written by the user and contain all the necessary information to answer the user's question. Begin responses with "${SMART_TRANSLATION[this.plugin.settings.language].prompt}..."`;
     for(let i = 0; i < context.length; i++) {
@@ -3461,8 +3325,18 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     return this.chat.context;
   }
 
+
 }
 
+function get_max_chars(model="gpt-3.5-turbo") {
+  const MAX_CHAR_MAP = {
+    "gpt-3.5-turbo-16k": 48000,
+    "gpt-4": 24000,
+    "gpt-3.5-turbo": 12000,
+    "gpt-4-1106-preview": 200000,
+  };
+  return MAX_CHAR_MAP[model];
+}
 /**
  * SmartConnectionsChatModel
  * ---
@@ -3470,7 +3344,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
  *  - [Turn[variation{}], Turn[variation{}, variation{}], ...]
  * - Saves in 'thread' format to JSON file in .smart-connections folder using chat_id as filename
  * - Loads chat in 'thread' format Array[Array[Object{role, content, hyde}]] from JSON file in .smart-connections folder
- * - prepares chat_ml returns in 'ChatML' format 
+ * - prepares chat_ml returns in 'ChatML' format
  *  - strips all but role and content properties from Object in ChatML format
  * - ChatML Array[Object{role, content}]
  *  - [Current_Variation_For_Turn_1{}, Current_Variation_For_Turn_2{}, ...]
@@ -3631,10 +3505,11 @@ class SmartConnectionsChatModel {
     // extract internal links
     const notes = this.extract_internal_links(user_input);
     // get content of internal links as context
-    let max_chars = 10000;
+    let max_chars = get_max_chars(this.plugin.settings.smart_chat_model);
     for(let i = 0; i < notes.length; i++){
       // max chars for this note is max_chars divided by number of notes left
       const this_max_chars = (notes.length - i > 1) ? Math.floor(max_chars / (notes.length - i)) : max_chars;
+      // console.log("file context max chars: " + this_max_chars);
       const note_content = await this.get_note_contents(notes[i], {char_limit: this_max_chars});
       console.log(note_content);
       system_input += `---BEGIN NOTE: [[${notes[i].basename}]]---\n`
