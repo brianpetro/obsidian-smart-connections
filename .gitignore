@@ -1,0 +1,11 @@
+# build artifacts
+node_modules
+package-lock.json
+#dist
+.DS_Store
+# env
+.vscode
+# symlinks for context
+obsidian-plugins
+notes
+vec_lite
