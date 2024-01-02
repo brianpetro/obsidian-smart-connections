@@ -1832,7 +1832,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
          * BEGIN EXTERNAL LINK LOGIC
          * if link is an object, it indicates external link
          */
-        console.log(this);
         if (typeof nearest[i].link === "object") {
           const item = list.createEl("div", { cls: "search-result" });
           const link = item.createEl("a", {
