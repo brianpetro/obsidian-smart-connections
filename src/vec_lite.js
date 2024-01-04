@@ -1,4 +1,4 @@
-export default class {
+const Veclite = class {
   constructor(config) {
     this.config = {
       file_name: "embeddings-3.json",
@@ -345,3 +345,4 @@ export default class {
   }
 };
 
+export default Veclite;
