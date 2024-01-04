@@ -1,5 +1,6 @@
 const Obsidian = require("obsidian");
-const VecLite = require("vec-lite");
+const VecLite = require("./vec_lite");
+
 
 const DEFAULT_SETTINGS = {
   api_key: "",
@@ -9,6 +10,7 @@ const DEFAULT_SETTINGS = {
   header_exclusions: "",
   path_only: "",
   show_full_path: false,
+  cut_off_frontmatter: false,
   expanded_view: true,
   group_nearest_by_file: false,
   language: "en",
@@ -19,6 +21,7 @@ const DEFAULT_SETTINGS = {
   smart_chat_model: "gpt-3.5-turbo-16k",
   view_open: true,
   version: "",
+  open_in_big_view: false,
 };
 const MAX_EMBED_STRING_LENGTH = 25000;
 
@@ -32,26 +35,31 @@ const SMART_TRANSLATION = {
     "pronous": ["my", "I", "me", "mine", "our", "ours", "us", "we"],
     "prompt": "Based on your notes",
     "initial_message": "Hi, I'm ChatGPT with access to your notes via Smart Connections. Ask me a question about your notes and I'll try to answer it.",
+    "try_placeholder": `Try "Based on my notes" or "Summarize [[this note]]" or "Important tasks in /folder/"`
   },
   "es": {
     "pronous": ["mi", "yo", "mí", "tú"],
     "prompt": "Basándose en sus notas",
     "initial_message": "Hola, soy ChatGPT con acceso a tus apuntes a través de Smart Connections. Hazme una pregunta sobre tus apuntes e intentaré responderte.",
+    "try_placeholder": `Prueba "Basado en mis notas" o "Resumen [[esta nota]]" o "Tareas importantes en /carpeta/"`
   },
   "fr": {
     "pronous": ["me", "mon", "ma", "mes", "moi", "nous", "notre", "nos", "je", "j'", "m'"],
     "prompt": "D'après vos notes",
     "initial_message": "Bonjour, je suis ChatGPT et j'ai accès à vos notes via Smart Connections. Posez-moi une question sur vos notes et j'essaierai d'y répondre.",
+    "try_placeholder": `Essayez "D'après mes notes" ou "Résume [[cette note]]" ou "Tâches importantes dans /dossier/"`
   },
   "de": {
     "pronous": ["mein", "meine", "meinen", "meiner", "meines", "mir", "uns", "unser", "unseren", "unserer", "unseres"],
     "prompt": "Basierend auf Ihren Notizen",
     "initial_message": "Hallo, ich bin ChatGPT und habe über Smart Connections Zugang zu Ihren Notizen. Stellen Sie mir eine Frage zu Ihren Notizen und ich werde versuchen, sie zu beantworten.",
+    "try_placeholder": `Versuchen Sie "Basierend auf meinen Notizen" oder "Zusammenfassen [[dieser Notiz]]" oder "Wichtige Aufgaben im /Ordner/"`
   },
   "it": {
     "pronous": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
     "prompt": "Sulla base degli appunti",
     "initial_message": "Ciao, sono ChatGPT e ho accesso ai tuoi appunti tramite Smart Connections. Fatemi una domanda sui vostri appunti e cercherò di rispondervi.",
+    "try_placeholder": `Prova "Sulla base dei miei appunti" o "Riassumi [[questo appunto]]" o "Compiti importanti in /cartella/"`
   },
 }
 
@@ -97,8 +105,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   onunload() {
     this.output_render_log();
     console.log("unloading plugin");
-    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE);
-    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE);
   }
   async initialize() {
     console.log("Loading Smart Connections plugin");
@@ -240,36 +246,42 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // load file exclusions if not blank
     if(this.settings.file_exclusions && this.settings.file_exclusions.length > 0) {
       // split file exclusions into array and trim whitespace
-      this.file_exclusions = this.settings.file_exclusions.split(",").map((file) => {
+      this.file_exclusions = this.settings.file_exclusions.split(/[,\n\s]/)
+        .filter((file) => file.length > 0)
+        .map((file) => {
         return file.trim();
       });
     }
     // load folder exclusions if not blank
     if(this.settings.folder_exclusions && this.settings.folder_exclusions.length > 0) {
       // add slash to end of folder name if not present
-      const folder_exclusions = this.settings.folder_exclusions.split(",").map((folder) => {
-        // trim whitespace
-        folder = folder.trim();
-        if(folder.slice(-1) !== "/") {
-          return folder + "/";
-        } else {
-          return folder;
-        }
-      });
+      const folder_exclusions = this.settings.folder_exclusions
+        .split(/[,\n\s]/)
+        .filter((file) => file.length > 0)
+        .map((folder) => {
+          folder = folder.trim();
+          return folder.slice(-1) === "/" ? folder : `${folder}/`;
+        });
       // merge folder exclusions with file exclusions
       this.file_exclusions = this.file_exclusions.concat(folder_exclusions);
     }
     // load header exclusions if not blank
     if(this.settings.header_exclusions && this.settings.header_exclusions.length > 0) {
-      this.header_exclusions = this.settings.header_exclusions.split(",").map((header) => {
-        return header.trim();
-      });
+      this.header_exclusions = this.settings.header_exclusions
+        .split(/[\s\n,]/)
+        .filter((file) => file.length > 0)
+        .map((header) => {
+          return header.trim();
+        });
     }
     // load path_only if not blank
     if(this.settings.path_only && this.settings.path_only.length > 0) {
-      this.path_only = this.settings.path_only.split(",").map((path) => {
-        return path.trim();
-      });
+      this.path_only = this.settings.path_only
+        .split(/[\s\n,]/)
+        .filter((file) => file.length > 0)
+        .map((path) => {
+          return path.trim();
+        });
     }
     // load self_ref_kw_regex
     this.self_ref_kw_regex = new RegExp(`\\b(${SMART_TRANSLATION[this.settings.language].pronous.join("|")})\\b`, "gi");
@@ -403,15 +415,22 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       return;
     }
     this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE);
-    await this.app.workspace.getRightLeaf(false).setViewState({
-      type: SMART_CONNECTIONS_CHAT_VIEW_TYPE,
-      active: true,
-    });
+    if (!this.settings.open_in_big_view) {
+      await this.app.workspace.getRightLeaf(false).setViewState({
+        type: SMART_CONNECTIONS_CHAT_VIEW_TYPE,
+        active: true,
+      });
+    } else {
+      await this.app.workspace.getLeaf(true).setViewState({
+        type: SMART_CONNECTIONS_CHAT_VIEW_TYPE,
+        active: true,
+      })
+    }
     this.app.workspace.revealLeaf(
       this.app.workspace.getLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE)[0]
     );
   }
-  
+
   // get embeddings for all files
   async get_all_embeddings() {
     // get all files in vault and filter all but markdown and canvas files
@@ -454,17 +473,17 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           new Obsidian.Notice("Smart Connections: Skipping previously failed file, use button in settings to retry");
           this.recently_sent_retry_notice = true;
           setTimeout(() => {
-            this.recently_sent_retry_notice = false;  
+            this.recently_sent_retry_notice = false;
           }, 600000);
         }
         continue;
       }
       // skip files where path contains any exclusions
       let skip = false;
-      for(let j = 0; j < this.file_exclusions.length; j++) {
-        if(files[i].path.indexOf(this.file_exclusions[j]) > -1) {
+      for (const fileExclusion of this.file_exclusions) {
+        if(files[i].path.includes(fileExclusion)) {
           skip = true;
-          this.log_exclusion(this.file_exclusions[j]);
+          this.log_exclusion(fileExclusion);
           // break out of loop
           break;
         }
@@ -515,7 +534,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       // prevent excessive writes to embeddings file by waiting 1 minute before writing
       if(this.save_timeout) {
         clearTimeout(this.save_timeout);
-        this.save_timeout = null;  
+        this.save_timeout = null;
       }
       this.save_timeout = setTimeout(() => {
         // console.log("writing embeddings to file");
@@ -564,7 +583,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // reload failed_embeddings to prevent retrying failed files until explicitly requested
     await this.load_failed_files();
   }
-  
+
   // load failed files from failed-embeddings.txt
   async load_failed_files () {
     // check if failed-embeddings.txt exists
@@ -684,7 +703,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       await this.get_embeddings_batch(req_batch);
       return;
     }
-    
+
     /**
      * BEGIN Block "section" embedding
      */
@@ -728,10 +747,10 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
         // create req_batch for batching requests
         req_batch.push([block_key, block_embed_input, {
-          // oldmtime: curr_file.stat.mtime, 
+          // oldmtime: curr_file.stat.mtime,
           // get current datetime as unix timestamp
           mtime: Date.now(),
-          hash: block_hash, 
+          hash: block_hash,
           parent: curr_file_key,
           path: note_sections[j].path,
           size: block_embed_input.length,
@@ -760,7 +779,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       req_batch = [];
       processed_since_last_save += req_batch.length;
     }
-    
+
     /**
      * BEGIN File "full note" embedding
      */
@@ -773,7 +792,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
      */
     if(note_contents.length < MAX_EMBED_STRING_LENGTH) {
       file_embed_input += note_contents
-    }else{ 
+    }else{
       const note_meta_cache = this.app.metadataCache.getFileCache(curr_file);
       // for each heading in file
       if(typeof note_meta_cache.headings === "undefined") {
@@ -965,7 +984,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       console.log(error);
       // console.log(usedParams);
       // console.log(usedParams.input.length);
-      return null; 
+      return null;
     }
   }
   async test_api_key() {
@@ -1042,13 +1061,13 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       if(!vec) {
         return "Error getting embeddings for: "+current_note.path;
       }
-      
+
       // compute cosine similarity between current note and all other notes via embeddings
       nearest = this.smart_vec_lite.nearest(vec, {
         skip_key: curr_key,
         skip_sections: this.settings.skip_sections,
       });
-  
+
       // save to this.nearest_cache
       this.nearest_cache[curr_key] = nearest;
     }
@@ -1056,13 +1075,13 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // return array sorted by cosine similarity
     return nearest;
   }
-  
+
   // create render_log object of exlusions with number of times skipped as value
   log_exclusion(exclusion) {
     // increment render_log for skipped file
     this.render_log.exclusions_logs[exclusion] = (this.render_log.exclusions_logs[exclusion] || 0) + 1;
   }
-  
+
 
   block_parser(markdown, file_path){
     // if this.settings.skip_sections is true then return empty array
@@ -1613,7 +1632,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       }
 
 
-        
+
       // skip contents rendering if incompatible file type
       // ex. not markdown or contains '.excalidraw'
       if(!this.renderable_file_type(file[0].link)) {
@@ -1877,15 +1896,15 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
 
   async build_notes_object(files) {
     let output = {};
-  
+
     for(let i = 0; i < files.length; i++) {
       let file = files[i];
       let parts = file.path.split("/");
       let current = output;
-  
+
       for (let ii = 0; ii < parts.length; ii++) {
         let part = parts[ii];
-  
+
         if (ii === parts.length - 1) {
           // This is a file
           current[part] = await this.app.vault.cachedRead(file);
@@ -1894,12 +1913,12 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
           if (!current[part]) {
             current[part] = {};
           }
-  
+
           current = current[part];
         }
       }
     }
-  
+
     return output;
   }
 
@@ -2017,7 +2036,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
       const input = search_container.createEl("input", {
         cls: "sc-search-input",
         type: "search",
-        placeholder: "Type to start search...", 
+        placeholder: "Type to start search...",
       });
       // focus input
       input.focus();
@@ -2095,7 +2114,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
     const container = this.containerEl.children[1];
     container.empty();
     // placeholder text
-    container.createEl("p", { cls: "scPlaceholder", text: "Open a note to find connections." }); 
+    container.createEl("p", { cls: "scPlaceholder", text: "Open a note to find connections." });
 
     // runs when file is opened
     this.plugin.registerEvent(this.app.workspace.on('file-open', (file) => {
@@ -2119,7 +2138,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
         this.render_connections(file);
         this.load_wait = null;
       }, 1000);
-        
+
     }));
 
     this.app.workspace.registerHoverLinkSource(SMART_CONNECTIONS_VIEW_TYPE, {
@@ -2132,9 +2151,9 @@ class SmartConnectionsView extends Obsidian.ItemView {
     });
 
     this.app.workspace.onLayoutReady(this.initialize.bind(this));
-    
+
   }
-  
+
   async initialize() {
     this.set_message("Loading embeddings file...");
     const vecs_intiated = await this.plugin.init_vecs();
@@ -2189,9 +2208,9 @@ class SmartConnectionsView extends Obsidian.ItemView {
       return; // ends here if context is a string
     }
 
-    /** 
+    /**
      * Begin file-level search
-     */    
+     */
     this.nearest = null;
     this.interval_count = 0;
     this.rendering = false;
@@ -2214,7 +2233,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
           if(!this.file && this.count > 1) {
             clearInterval(this.interval);
             this.set_message("No active file");
-            return; 
+            return;
           }
         }
       }else{
@@ -2233,7 +2252,7 @@ class SmartConnectionsView extends Obsidian.ItemView {
           }
           // get object keys of render_log
           this.plugin.output_render_log();
-          return; 
+          return;
         }else{
           this.interval_count++;
           this.set_message("Making Smart Connections..."+this.interval_count);
@@ -2267,13 +2286,30 @@ class SmartConnectionsViewApi {
     this.plugin = plugin;
     this.view = view;
   }
-  async search (search_text) {
+  async search(search_text) {
     return await this.plugin.api.search(search_text);
   }
   // trigger reload of embeddings file
   async reload_embeddings_file() {
     await this.plugin.init_vecs();
     await this.view.render_connections();
+  }
+  async init_vecs() {
+    this.smart_vec_lite = new VecLite({
+      folder_path: ".smart-connections",
+      exists_adapter: this.app.vault.adapter.exists.bind(
+        this.app.vault.adapter
+      ),
+      mkdir_adapter: this.app.vault.adapter.mkdir.bind(this.app.vault.adapter),
+      read_adapter: this.app.vault.adapter.read.bind(this.app.vault.adapter),
+      rename_adapter: this.app.vault.adapter.rename.bind(
+        this.app.vault.adapter
+      ),
+      stat_adapter: this.app.vault.adapter.stat.bind(this.app.vault.adapter),
+      write_adapter: this.app.vault.adapter.write.bind(this.app.vault.adapter),
+    });
+    this.embeddings_loaded = await this.smart_vec_lite.load();
+    return this.embeddings_loaded;
   }
 }
 class ScSearchApi {
@@ -2353,7 +2389,7 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       window.open(payment_pages[this.plugin.payment_page_index]);
     }));
 
-    
+
     containerEl.createEl("h2", {
       text: "OpenAI Settings"
     });
@@ -2407,6 +2443,7 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
     const self_ref_pronouns_list = containerEl.createEl("span", {
       text: this.get_self_ref_list()
     });
+    new Obsidian.Setting(containerEl).setName("Cut off frontmatter").setDesc("Cut off frontmatter in the prompt to gain characters in reply generation").addToggle((toggle) => { toggle.setValue(this.plugin.settings.cut_off_frontmatter).onChange(async (value) => { this.plugin.settings.cut_off_frontmatter = value; await this.plugin.saveSettings(); }); });
     containerEl.createEl("h2", {
       text: "Exclusions"
     });
@@ -2458,6 +2495,18 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       this.plugin.settings.chat_open = value;
       await this.plugin.saveSettings(true);
     }));
+    // open in big view or small view
+    new Obsidian.Setting(containerEl).setName("open_in_big_view").setDesc("Open in big view or small view.").addDropdown((dropdown) => {
+      dropdown.addOption(false, "Right pane (small)");
+      dropdown.addOption(true, "Main pane (big)");
+      dropdown.setValue(this.plugin.settings.open_in_big_view);
+      dropdown.onChange(async (value) => {
+        this.plugin.settings.open_in_big_view = JSON.parse(value);
+        await this.plugin.saveSettings(true);
+        this.plugin.open_chat();
+
+      });
+    });
     containerEl.createEl("h2", {
       text: "Advanced"
     });
@@ -2619,7 +2668,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
       cls: "sc-chat-name-input"
     });
     chat_name_input.addEventListener("change", this.rename_chat.bind(this));
-    
+
     // create button to Smart View
     let smart_view_btn = this.create_top_bar_button(top_bar_container, "Smart View", "smart-connections");
     smart_view_btn.addEventListener("click", this.open_smart_view.bind(this));
@@ -2694,13 +2743,13 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     let new_chat_name = event.target.value;
     this.chat.rename_chat(new_chat_name);
   }
-  
+
   // save current chat
   save_chat() {
     this.chat.save_chat();
     new Obsidian.Notice("[Smart Connections] Chat saved");
   }
-  
+
   open_smart_view() {
     this.plugin.open_view();
   }
@@ -2750,7 +2799,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     this.textarea = chat_input.createEl("textarea", {
       cls: "sc-chat-input",
       attr: {
-        placeholder: `Try "Based on my notes" or "Summarize [[this note]]" or "Important tasks in /folder/"`
+        placeholder: SMART_TRANSLATION[this.plugin.settings.language].try_placeholder
       }
     });
     // use contenteditable instead of textarea
@@ -2874,7 +2923,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     // completion without any specific context
     this.request_chatgpt_completion();
   }
-  
+
   async render_dotdotdot() {
     if (this.dotdotdot_interval)
       clearInterval(this.dotdotdot_interval);
@@ -3168,7 +3217,7 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     const chatml = [
       {
         role: "system",
-        content: hyd_input 
+        content: hyd_input
       },
       {
         role: "user",
@@ -3202,11 +3251,11 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
     nearest = this.get_nearest_until_next_dev_exceeds_std_dev(nearest);
     console.log("nearest after std dev slice", nearest.length);
     nearest = this.sort_by_len_adjusted_similarity(nearest);
-    
+
     return await this.get_context_for_prompt(nearest);
   }
-  
-  
+
+
   sort_by_len_adjusted_similarity(nearest) {
     // re-sort by quotient of similarity divided by len DESC
     nearest = nearest.sort((a, b) => {
@@ -3317,7 +3366,7 @@ function get_max_chars(model="gpt-3.5-turbo") {
  *  - [Turn[variation{}], Turn[variation{}, variation{}], ...]
  * - Saves in 'thread' format to JSON file in .smart-connections folder using chat_id as filename
  * - Loads chat in 'thread' format Array[Array[Object{role, content, hyde}]] from JSON file in .smart-connections folder
- * - prepares chat_ml returns in 'ChatML' format 
+ * - prepares chat_ml returns in 'ChatML' format
  *  - strips all but role and content properties from Object in ChatML format
  * - ChatML Array[Object{role, content}]
  *  - [Current_Variation_For_Turn_1{}, Current_Variation_For_Turn_2{}, ...]
@@ -3484,6 +3533,7 @@ class SmartConnectionsChatModel {
       const this_max_chars = (notes.length - i > 1) ? Math.floor(max_chars / (notes.length - i)) : max_chars;
       // console.log("file context max chars: " + this_max_chars);
       const note_content = await this.get_note_contents(notes[i], {char_limit: this_max_chars});
+      console.log(note_content);
       system_input += `---BEGIN NOTE: [[${notes[i].basename}]]---\n`
       system_input += note_content;
       system_input += `---END NOTE---\n`
@@ -3555,14 +3605,16 @@ class SmartConnectionsChatModel {
     if(!(note instanceof Obsidian.TFile)) return "";
     // get file content
     let file_content = await this.app.vault.cachedRead(note);
+    //cut off front matter
+    if (this.plugin.settings.cut_off_frontmatter) {
+      file_content = file_content.replace(/\s*---[\s\S]*?---/,"");
+    }
     // check if contains dataview code block
     if(file_content.indexOf("```dataview") > -1){
       // if contains dataview code block get all dataview code blocks
       file_content = await this.render_dataview_queries(file_content, note.path, opts);
     }
-    file_content = file_content.substring(0, opts.char_limit);
-    // console.log(file_content.length);
-    return file_content;
+    return file_content.substring(0, opts.char_limit);
   }
 
 

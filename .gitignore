@@ -9,3 +9,4 @@ package-lock.json
 obsidian-plugins
 notes
 vec_lite
+dist/*

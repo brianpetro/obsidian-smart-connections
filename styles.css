@@ -1,0 +1,206 @@
+.sc-list .tree-item-self {
+  cursor: pointer;
+}
+.sc-list .tree-item-self small {
+  color: var(--color-gray-40);
+}
+.sc-brand {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  background-color: var(--titlebar-background);
+}
+.sc-brand > svg, .sc-brand > p {
+  display: inline;
+  margin: 0 0.1rem 0 0.3rem;
+  font-size: 0.77rem;
+  line-height: 1;
+  color: var(--tab-text-color-focused-active-current);
+  height: 0.88rem;
+  width: auto;
+}
+.sc-brand > svg, .sc-brand > p > a {
+  color: var(--tab-text-color-focused-active-current);
+}
+.sc-context {
+  color: var(--nav-item-color);
+  font-size: var(--nav-item-size);
+  margin: 0.5em 0.5em 1em;
+  width: 100%;
+}
+.sc-list > .sc-collapsed ul {
+  display: none;
+}
+.sc-list > .sc-collapsed span svg {
+  transform: rotate(-90deg);
+}
+.sc-list > :not(.sc-collapsed) span svg {
+  transform: rotate(0deg);
+}
+.sc-list > div span svg {
+  height: auto;
+  margin: auto 0.5em auto 0;
+  flex: none;
+}
+.sc-list > div > span {
+  display: inline-flex;
+  width: 100%;
+  padding-left: 0;
+}
+.sc-list > div ul {
+  margin: 0;
+  padding-left: 1.3rem;
+}
+.sc-list > div > a {
+  display: block;
+}
+.sc-list > div > ul > li {
+  display: block;
+}
+/* Only on right sidebar */
+.mod-right-split .sc-list .search-result {
+  font-size: var(--font-text-size);
+  font-size: 0.88rem;
+}
+.sc-list .search-result {
+  cursor: pointer;
+  background: transparent;
+  padding: var(--nav-item-padding);
+  margin-bottom: 1px;
+  align-items: baseline;
+  border-radius: var(--radius-s);
+  font-weight: var(--nav-item-weight);
+}
+.sc-list .search-result:hover {
+  color: var(--nav-item-color-active);
+  background-color: var(--nav-item-background-active);
+  font-weight: var(--nav-item-weight-active);  
+}
+.sc-list .search-result span {
+  color: var(--h5-color);
+}
+.sc-list .search-result small {
+  color: var(--h5-color);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.sc-list .search-result p {
+  margin-top: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+.sc-top-bar {
+  display: flex;
+  width: 100%;
+  justify-content: end;
+}
+.sc-top-bar .search-input-container {
+  width: calc(100% - var(--size-4-8));
+  margin: 4px auto;
+}
+
+/* Chat */
+.sc-top-bar-container {
+  align-self: flex-end;
+  display: flex;
+  width: 100%;
+}
+.sc-top-bar-container input.sc-chat-name-input{
+  flex-grow: 1;
+}
+.sc-chat-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  padding: 10px;
+}
+.sc-chat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  user-select: text;
+}
+.sc-message-container {
+  border: 1px solid var(--blockquote-border-color);
+  border-radius: 10px;
+  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+}
+.sc-message {
+  max-width: 90%;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  word-break: break-word;
+}
+
+.sc-message.assistant {
+  background-color: #007bff;
+  color: #fff;
+}
+.sc-message.user {
+  background-color: #333;
+  color: #fff;
+  align-self: flex-end;
+}
+
+.sc-message-content {
+  margin: 0;
+}
+.sc-message-content p {
+  margin: 10px;
+}
+
+.sc-chat-form {
+  display: flex;
+  padding: 0 10px 1rem 0;
+  width: 100%;
+  max-height: 50%;
+}
+
+.sc-chat-input {
+  flex-grow: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  resize: none;
+  height: auto;
+  max-height: 100%;
+  border: 1px solid var(--blockquote-border-color);
+}
+
+.send-button {
+  margin-left: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.sc-msg-button {
+  cursor: pointer;
+  float: right;
+  margin-left: 5px;
+  opacity: 0.8;
+}
+.sc-msg-button:hover {
+  opacity: 1;
+}
+#sc-abort-button {
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 5px;
+}
+#sc-abort-button:hover {
+  background-color: var(--nav-item-background-active);
+}
