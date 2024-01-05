@@ -2308,40 +2308,34 @@ class SmartConnectionsSettingsTab extends Obsidian.PluginSettingTab {
       containerEl
     } = this;
     containerEl.empty();
-    containerEl.createEl("h2", {
-      text: "Supporter Settings"
-    });
+    containerEl.createEl("h2", { text: "Supporter Features" });
     // list supporter benefits
     containerEl.createEl("p", {
       text: "As a Smart Connections \"Supporter\", fast-track your PKM journey with priority perks and pioneering innovations."
     });
     // three list items
     const supporter_benefits_list = containerEl.createEl("ul");
-    supporter_benefits_list.createEl("li", {
-      text: "Enjoy swift, top-priority support."
-    });
-    supporter_benefits_list.createEl("li", {
-      text: "Gain early access to version 2 (includes local embedding model)."
-    });
-    supporter_benefits_list.createEl("li", {
-      text: "Stay informed and engaged with exclusive supporter-only communications."
-    });
+    supporter_benefits_list.createEl("li", { text: "Enjoy swift, top-priority support by replying to your supporter license key email." });
+    supporter_benefits_list.createEl("li", { text: "Gain early access new versions (v2.0 available now)." });
+    const gpt_li = supporter_benefits_list.createEl("li");
+    gpt_li.innerHTML = 'Access experimental features like the <a href="https://chat.openai.com/g/g-SlDDp07bm-smart-connections-for-obsidian" target="_blank">Smart Connections GPT</a> ChatGPT integration.';
+    supporter_benefits_list.createEl("li", { text: "Stay informed and engaged with exclusive supporter-only communications." });
+    // button "get v2"
+    new Obsidian.Setting(containerEl).setName("Upgrade to Version 2.0.").setDesc("No more sending all of your notes to OpenAI for embedding! Includes a local embedding model for increased privacy.").addButton((button) => button.setButtonText("Upgrade to v2.0").onClick(async () => {
+      await this.plugin.update_to_v2();
+    }));
+    // add button to trigger sync notes to use with ChatGPT
+    new Obsidian.Setting(containerEl).setName("Sync for ChatGPT").setDesc("Make notes available via the Smart Connections GPT and ChatGPT Plugin. Respects exclusion settings configured below.").addButton((button) => button.setButtonText("Sync for ChatGPT").onClick(async () => {
+      // sync notes
+      await this.plugin.sync_notes();
+    }));
     // add a text input to enter supporter license key
     new Obsidian.Setting(containerEl).setName("Supporter License Key").setDesc("Note: this is not required to use Smart Connections.").addText((text) => text.setPlaceholder("Enter your license_key").setValue(this.plugin.settings.license_key).onChange(async (value) => {
       this.plugin.settings.license_key = value.trim();
       await this.plugin.saveSettings(true);
     }));
-    // button "get v2"
-    new Obsidian.Setting(containerEl).setName("Get v2").setDesc("Get v2 (warning: very early beta release, likely to crash, please send issues directly to the supporter email for quick response)").addButton((button) => button.setButtonText("Get v2 (unstable)").onClick(async () => {
-      await this.plugin.update_to_v2();
-    }));
-    // add button to trigger sync notes to use with ChatGPT
-    new Obsidian.Setting(containerEl).setName("Sync Notes").setDesc("Make notes available via the Smart Connections ChatGPT Plugin. Respects exclusion settings configured below.").addButton((button) => button.setButtonText("Sync Notes").onClick(async () => {
-      // sync notes
-      await this.plugin.sync_notes();
-    }));
     // add button to become a supporter
-    new Obsidian.Setting(containerEl).setName("Become a Supporter").setDesc("Become a Supporter").addButton((button) => button.setButtonText("Become a Supporter").onClick(async () => {
+    new Obsidian.Setting(containerEl).setName("Support Smart Connections").setDesc("Become a supporter to support the development of Smart Connections.").addButton((button) => button.setButtonText("Become a Supporter").onClick(async () => {
       const payment_pages = [
         "https://buy.stripe.com/9AQ5kO5QnbAWgGAbIY",
         "https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
