@@ -27,6 +27,7 @@ esbuild.build({
 	logLevel: "info",
   treeShaking: true,
   external: [
+    'electron',
     'obsidian',
     'crypto',
   ],

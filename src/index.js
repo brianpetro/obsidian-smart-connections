@@ -191,6 +191,30 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     this.api = new ScSearchApi(this.app, this);
     // register API to global window object
     (window["SmartSearchApi"] = this.api) && this.register(() => delete window["SmartSearchApi"]);
+    
+    // if no supporter license key and !settings.best_new_plugin then
+    if(((typeof this.settings.license_key !== 'string') || this.settings.license_key.length === 0) && !this.settings.best_new_plugin) {
+      const frag = document.createDocumentFragment(); // document fragment
+      const message = frag.createEl("p"); // add message
+      message.setText("Vote Smart Connections for Best New Plugin!");
+      // vote for Smart Connections and send a screenshot to brian@smartconnections.app to get early access to V2
+      const vote = frag.createEl("button");
+      vote.setText("Vote on Discord (click here)");
+      vote.addEventListener("click", (event) => {
+        event.preventDefault(); // prevent default click behavior
+        event.stopPropagation();
+        require("electron").shell.openExternal("https://discord.com/channels/686053708261228577/702717892533157999/1193993954346139729");
+      });
+      const text = frag.createEl("p"); // add text
+      text.setText("Show your support by sending a screenshot of your vote to brian@smartconnections.app and get early access to V2.0!");
+      const hide = frag.createEl("button"); // hide this for good
+      hide.setText("Delete this message");
+      hide.addEventListener("click", (event) => {
+        this.settings.best_new_plugin = true;
+        this.saveSettings();
+      });
+      new Obsidian.Notice(frag, 0);
+    }
 
   }
 
