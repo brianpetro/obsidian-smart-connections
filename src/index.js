@@ -195,6 +195,11 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     // if no supporter license key and !settings.best_new_plugin then
     if(((typeof this.settings.license_key !== 'string') || this.settings.license_key.length === 0) && !this.settings.best_new_plugin) {
       const frag = document.createDocumentFragment(); // document fragment
+      // prevent default click behavior on frag
+      frag.addEventListener("click", (event) => {
+        event.preventDefault(); // prevent default click behavior
+        event.stopPropagation();
+      });
       const message = frag.createEl("p"); // add message
       message.setText("Vote Smart Connections for Best New Plugin!");
       // vote for Smart Connections and send a screenshot to brian@smartconnections.app to get early access to V2
@@ -207,6 +212,13 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
       });
       const text = frag.createEl("p"); // add text
       text.setText("Show your support by sending a screenshot of your vote to brian@smartconnections.app and get early access to V2.0!");
+      // copy email to clipboard on click
+      text.addEventListener("click", (event) => {
+        event.preventDefault(); // prevent default click behavior
+        event.stopPropagation();
+        navigator.clipboard.writeText("brian@smartconnections.app");
+        new Obsidian.Notice("Copied email to clipboard");
+      });
       const hide = frag.createEl("button"); // hide this for good
       hide.setText("Delete this message");
       hide.addEventListener("click", (event) => {
