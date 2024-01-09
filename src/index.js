@@ -97,8 +97,6 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
   onunload() {
     this.output_render_log();
     console.log("unloading plugin");
-    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_VIEW_TYPE);
-    this.app.workspace.detachLeavesOfType(SMART_CONNECTIONS_CHAT_VIEW_TYPE);
   }
   async initialize() {
     console.log("Loading Smart Connections plugin");
