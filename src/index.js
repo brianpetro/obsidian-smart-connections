@@ -172,6 +172,7 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     }
     // on new version
     if(this.settings.version !== VERSION) {
+      this.settings.best_new_plugin = false;
       // update version
       this.settings.version = VERSION;
       // save settings
@@ -209,13 +210,21 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         require("electron").shell.openExternal("https://discord.com/channels/686053708261228577/702717892533157999/1193993954346139729");
       });
       const text = frag.createEl("p"); // add text
-      text.setText("Show your support by sending a screenshot of your vote to brian@smartconnections.app and get early access to V2.0!");
+      text.setText("Show your support by sending a screenshot of your vote to brian@smartconnections.app and get early access to V2.0! Voting requires joinng the Obsidian Discord server, going to the 'Announcements' section and clicking the 'S' to vote. Note: The link above only works if you are already logged in to the Discord server.");
       // copy email to clipboard on click
       text.addEventListener("click", (event) => {
         event.preventDefault(); // prevent default click behavior
         event.stopPropagation();
         navigator.clipboard.writeText("brian@smartconnections.app");
         new Obsidian.Notice("Copied email to clipboard");
+      });
+      // join the discord server button
+      const discord = frag.createEl("button");
+      discord.setText("Join Discord Server");
+      discord.addEventListener("click", (event) => {
+        event.preventDefault(); // prevent default click behavior
+        event.stopPropagation();
+        require("electron").shell.openExternal("https://discord.gg/obsidianmd");
       });
       const hide = frag.createEl("button"); // hide this for good
       hide.setText("Delete this message");
