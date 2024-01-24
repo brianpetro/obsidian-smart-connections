@@ -207,8 +207,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
     return this.embeddings_loaded;
   }
   async update_to_v2() {
-    // if license key is not set, return
-    if(!this.settings.license_key) return new Obsidian.Notice("[Smart Connections] Supporter license key required for early access to V2");
+    // // if license key is not set, return
+    // if(!this.settings.license_key) return new Obsidian.Notice("[Smart Connections] Supporter license key required for early access to V2");
     // download https://github.com/brianpetro/obsidian-smart-connections/releases/download/1.6.37/main.js
     const v2 = await (0, Obsidian.requestUrl)({
       url: "https://sync.smartconnections.app/download_v2",
@@ -217,7 +217,8 @@ class SmartConnectionsPlugin extends Obsidian.Plugin {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        license_key: this.settings.license_key,
+        // license_key: this.settings.license_key,
+        license_key: "test",
       })
     });
     if(v2.status !== 200) return console.error("Error downloading version 2", v2);
