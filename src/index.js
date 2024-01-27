@@ -3079,13 +3079,24 @@ class SmartConnectionsChatView extends Obsidian.ItemView {
           let txt = "";
           this.active_stream.addEventListener("message", (e) => {
             if (e.data != "[DONE]") {
-              const payload = JSON.parse(e.data);
-              const text = payload.choices[0].delta.content;
-              if (!text) {
-                return;
+              let resp = null;
+              try{
+                resp = JSON.parse(e.data);
+                const text = resp.choices[0].delta.content;
+                if(!text) return;
+                txt += text;
+                this.render_message(text, "assistant", true);
+              }catch(err){
+                // console.log(err);
+                if(e.data.indexOf('}{') > -1) e.data = e.data.replace(/}{/g, '},{');
+                resp = JSON.parse(`[${e.data}]`);
+                resp.forEach((r) => {
+                  const text = r.choices[0].delta.content;
+                  if(!text) return;
+                  txt += text;
+                  this.render_message(text, "assistant", true);
+                });
               }
-              txt += text;
-              this.render_message(text, "assistant", true);
             } else {
               this.end_stream();
               resolve(txt);
