@@ -53,6 +53,11 @@ const SMART_TRANSLATION = {
     "prompt": "Sulla base degli appunti",
     "initial_message": "Ciao, sono ChatGPT e ho accesso ai tuoi appunti tramite Smart Connections. Fatemi una domanda sui vostri appunti e cercherò di rispondervi.",
   },
+  "pt": {
+    "pronous": ["meu", "eu", "mim", "minha", "nosso", "nosso", "nós", "nós"],
+    "prompt": "Com base em suas anotações",
+    "initial_message": "Olá, sou ChatGPT com acesso às suas notas via Smart Connections. Faça-me uma pergunta sobre suas anotações e tentarei respondê-la.",
+  },
 }
 
 // require built-in crypto module
