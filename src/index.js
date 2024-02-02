@@ -124,30 +124,31 @@ class SmartConnectionsPlugin extends Plugin {
     setTimeout(this.check_for_update.bind(this), 3000); // run after 3 seconds
     setInterval(this.check_for_update.bind(this), 10800000); // run check for update every 3 hours
   }
-  check_for_update() { this.v2_updater(); } // check for update
-  async v2_updater() {
-    console.log("v2 updater");
-    const { json: v2, status } = await requestUrl({
-      url: "https://sync.smartconnections.app/download_v2",
-      method: "POST",
-      headers: { "Content-Type": "application/json", },
-      body: JSON.stringify({ license_key: 'test' })
-    });
-    if(status !== 200) return console.error("Error downloading version 2", v2);
-    const v2_version = JSON.parse(v2.manifest).version;
-    console.log(v2_version, this.settings.version);
-    if(v2_version === this.settings.version) return console.log("Already up to date");
-    if(v2.main) await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/main.js", v2.main); // add new
-    if(v2.manifest) await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", v2.manifest); // add new
-    if(v2.styles) await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/styles.css", v2.styles); // add new
-    console.log('before', this.manifest.version);
-    await this.app.plugins.loadManifests(); // load new manifest
-    console.log('after', this.manifest.version);
-    const restart_btn = { text: "Restart plugin", callback: () => { this.restart_plugin(); } };
-    this.show_notice([`Updating to v${v2_version}`], { button: restart_btn, timeout: 0 });
-    this.settings.version = v2_version; // update version
-    await this.saveData(this.settings); // save settings
-    await this.load_settings(); // re-load settings into memory
+  // check for update
+  async check_for_update() {
+    // fail silently, ex. if no internet connection
+    try {
+      // get latest release version from github
+      const {json: response} = await requestUrl({
+        url: "https://api.github.com/repos/brianpetro/obsidian-smart-connections/releases/latest",
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        contentType: "application/json",
+      });
+      // get version number from response
+      const latest_release = response.tag_name;
+      // console.log(`Latest release: ${latest_release}`);
+      // if latest_release is newer than current version, show message
+      if(latest_release !== this.manifest.version) {
+        new Notice(`[Smart Connections] A new version is available! (v${latest_release})`);
+        this.update_available = true;
+        this.render_brand("all")
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
   async restart_plugin() {
     await this.saveData(this.settings); // save settings
