@@ -34,12 +34,12 @@
     "ava": "^6.0.1",
     "axios": "^1.6.7",
     "child_process": "^1.0.2",
+    "obsidian": "latest",
     "dotenv": "^16.3.1",
     "esbuild": "^0.17.19"
   },
   "dependencies": {
     "ejs": "^3.1.9",
-    "obsidian": "latest",
     "smart-chunks": "latest",
     "smart-collections": "latest",
     "smart-embed": "latest"
