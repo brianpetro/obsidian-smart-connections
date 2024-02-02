@@ -255,7 +255,11 @@ class SmartNotes extends SmartEntities {
       show_notice = false,
     } = opts;
     // if(reset) this.clear();
-    if(file_path) return await this.create_or_update({ path: file_path });
+    if(file_path){
+      await this.create_or_update({ path: file_path });
+      if(this.smart_embed) await this.ensure_embeddings(show_notice);
+      return;
+    }
     if(reset) this.prune(true);
     try{
       const files = [];
@@ -354,8 +358,7 @@ class SmartNote extends SmartEntity {
       const start_embedding_btn = {
         text: "Start embedding",
         callback: async () => {
-          await this.collection.import();
-          console.log("imported");
+          await this.collection.import({ file_path: this.path });
           this.brain.main.view.render_nearest(this);
         }
       };
