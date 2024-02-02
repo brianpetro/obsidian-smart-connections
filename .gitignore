@@ -9,3 +9,15 @@ package-lock.json
 obsidian-plugins
 notes
 vec_lite
+sc-desktop
+.obsidian
+smart-collections
+.smart-connections
+obsidian-localhost
+smart-plugins
+smart-chunks
+.env
+smart-embed
+sc-v1
+obsidian-1
+dist
