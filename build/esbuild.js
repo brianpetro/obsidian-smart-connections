@@ -9,14 +9,14 @@ execSync('node build/compile_views.js', {stdio: 'inherit'});
 const main_path = path.join(__dirname, '..', 'dist', 'main.js');
 const manifest_path = path.join(__dirname, '..', 'manifest.json');
 const styles_path = path.join(__dirname, '..', 'src', 'styles.css');
-// copy manifest and styles to dist
-fs.copyFileSync(manifest_path, path.join(__dirname, '..', 'dist', 'manifest.json'));
-fs.copyFileSync(styles_path, path.join(__dirname, '..', 'dist', 'styles.css'));
 // Update manifest.json version
 const package_json = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json')));
 const manifest_json = JSON.parse(fs.readFileSync(manifest_path));
 manifest_json.version = package_json.version;
 fs.writeFileSync(manifest_path, JSON.stringify(manifest_json, null, 2));
+// copy manifest and styles to dist
+fs.copyFileSync(manifest_path, path.join(__dirname, '..', 'dist', 'manifest.json'));
+fs.copyFileSync(styles_path, path.join(__dirname, '..', 'dist', 'styles.css'));
 
 const destination_vaults = [
   'sc-test-vault',
