@@ -3,12 +3,13 @@ const { Brain, Collection, CollectionItem } = require("smart-collections"); // N
 // const { Brain, Collection, CollectionItem } = require("../smart-collections/smart-collections"); // local
 const { SmartMarkdown } = require("smart-chunks"); // NPM
 // const { SmartMarkdown } = require("../smart-chunks/smart-chunks"); // local
-const { script: web_script } = require('smart-embed/web_connector.json');
-// const {script: web_script} = require('../smart-embed/web_connector.json'); // issues compiling this file with esbuild in smart_embed.js
+// const { script: web_script } = require('smart-embed/web_connector.json');
+const {script: web_script} = require('../smart-embed/web_connector.json'); // issues compiling this file with esbuild in smart_embed.js
 const {
   SmartEmbedTransformersWebAdapter,
   SmartEmbedTransformersNodeAdapter,
   SmartEmbedOpenAIAdapter, 
+  SmartEmbed,
 // } = require('smart-embed');
 } = require('../smart-embed/smart_embed');
 class SmartBrain extends Brain {
@@ -74,7 +75,11 @@ class SmartBrain extends Brain {
   async _save() { await Promise.all(Object.keys(this.collections).map(async collection_name => await this[collection_name]._save())); }
   // getters
   get all_files(){ return this.main.app.vault.getFiles().filter((file) => (file instanceof this.main.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas")); } // no exclusions
-  get files(){ return this.main.app.vault.getFiles().filter((file) => (file instanceof this.main.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas") && !this.file_exclusions.some(exclusion => file.path.includes(exclusion))); }
+  get files(){ return this.main.app.vault.getFiles().filter((file) => (file instanceof this.main.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas") && this.is_included(file.path)); }
+  is_included(file_path) {
+    return !this.file_exclusions.some(exclusion => file_path.includes(exclusion));
+  }
+
   get file_exclusions() { 
     if(this._file_exclusions) return this._file_exclusions;
     this._file_exclusions = (this.main.settings.file_exclusions?.length) ? this.main.settings.file_exclusions.split(",").map((file) => file.trim()) : [];
@@ -117,28 +122,34 @@ class SmartEntities extends Collection {
     }
   }
   async load() {
-    await this.LTM.load(); // MUST RUN BEFORE SMART EMBED async b/c Obsidian API is async
     await this.load_smart_embed();
+    await this.LTM.load(); // MUST RUN BEFORE SMART EMBED async b/c Obsidian API is async
   }
   async load_smart_embed() {
     // console.log("Loading SmartEmbed for " + this.collection_name + " Model: " + this.smart_embed_model);
     if(this.smart_embed_model === "None") return; // console.log("SmartEmbed disabled for ", this.collection_name);
-    if(!this.brain.smart_embed_active_models[this.smart_embed_model]){
+    if(this.brain.smart_embed_active_models[this.smart_embed_model] instanceof SmartEmbed){
+      this.smart_embed = this.brain.smart_embed_active_models[this.smart_embed_model];
+      console.log("SmartEmbed already loaded for " + this.collection_name + ": Model: " + this.smart_embed_model);
+    }else{
       if(this.smart_embed_model.includes("/")) { // TODO: better way to detect local model
         if(this.brain.local_model_type === 'Web'){
           while (!this.brain.main.view?.containerEl) await new Promise(resolve => setTimeout(resolve, 100)); // wait for this.main.view.containerEl to be available
           // const { SmartEmbedTransformersWebAdapter } = require("smart-embed");
-          this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedTransformersWebAdapter.create(this.smart_embed_model, this.brain.main.view.containerEl, web_script); // initialize smart embed
+          // this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedTransformersWebAdapter.create(this.smart_embed_model, this.brain.main.view.containerEl, web_script); // initialize smart embed
+          this.smart_embed = await SmartEmbedTransformersWebAdapter.create(this.smart_embed_model, this.brain.main.view.containerEl, web_script); // initialize smart embed
         }else{
           // const { SmartEmbedTransformersNodeAdapter } = require("smart-embed");
-          this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedTransformersNodeAdapter.create(this.smart_embed_model); // initialize smart embed
+          // this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedTransformersNodeAdapter.create(this.smart_embed_model); // initialize smart embed
+          this.smart_embed = await SmartEmbedTransformersNodeAdapter.create(this.smart_embed_model); // initialize smart embed
         }
       } else { // is API model
         // const { SmartEmbedOpenAIAdapter } = require("smart-embed");
-        this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedOpenAIAdapter.create(this.smart_embed_model, this.brain.main.obsidian.requestUrl, this.config.api_key); // initialize smart embed
+        // this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedOpenAIAdapter.create(this.smart_embed_model, this.brain.main.obsidian.requestUrl, this.config.api_key); // initialize smart embed
+        this.smart_embed = await SmartEmbedOpenAIAdapter.create(this.smart_embed_model, this.brain.main.obsidian.requestUrl, this.config.api_key); // initialize smart embed
       }
-    }else console.log("SmartEmbed already loaded for " + this.collection_name + ": Model: " + this.smart_embed_model);
-    this.smart_embed = this.brain.smart_embed_active_models[this.smart_embed_model];
+      // this.smart_embed = this.brain.smart_embed_active_models[this.smart_embed_model];
+    }
   }
   pause_embedding() { this._pause_embeddings = true; }
   async ensure_embeddings(show_notice = null) {
@@ -175,7 +186,7 @@ class SmartEntities extends Collection {
       if(i && (i % 500 === 0)) await this.LTM._save();
     }
     this.brain.main.show_notice([`Embedding ${this.collection_name}...`, `Done creating ${unembedded_items.length} embeddings.`], { timeout: 0 });
-    if(unembedded_items.length) this.brain.save(); // prevent blocking UI
+    if(unembedded_items.length) this.LTM._save();
     return true;
   }
   nearest(vec, filter={}) {
@@ -339,6 +350,7 @@ class SmartNote extends SmartEntity {
   find_connections() {
     let results = [];
     if(!this.vec && !this.median_block_vec){
+      console.log(this);
       const start_embedding_btn = {
         text: "Start embedding",
         callback: async () => {
@@ -386,10 +398,17 @@ class SmartNote extends SmartEntity {
       ;
     }else if(this.vec && this.collection.smart_embed){
       const nearest_notes = this.brain.smart_notes.nearest(this.vec, { exclude_key_starts_with: this.key });
-      results = nearest_notes.map(note => {
-        note.score = note.sim;
-        return note;
-      });
+      results = nearest_notes
+        .map(note => {
+          note.score = note.sim;
+          return note;
+        })
+        // sort by item.score descending
+        .sort((a, b) => {
+          if(a.score === b.score) return 0;
+          return (a.score > b.score) ? -1 : 1;
+        })
+      ;
     }
     return results;
   }

@@ -100,8 +100,13 @@ class SmartView extends SmartObsidianView {
         "Unsupported file type (Supported: " + SUPPORTED_FILE_TYPES.join(", ") + ")"
       ]);
       if (!this.brain.smart_notes.get(context.path)) {
-        await this.brain.smart_notes.import({ file_path: context.path });
-        await this.brain.smart_blocks.ensure_embeddings();
+        // check if excluded
+        if(this.brain.is_included(context.path)){
+          await this.brain.smart_notes.import({ file_path: context.path });
+          await this.brain.smart_blocks.ensure_embeddings();
+        }else{
+          return this.plugin.show_notice("File is excluded: " + context.path, {timeout: 3000});
+        }
       }
       results = this.brain.smart_notes.get(context.path)?.find_connections();
     }

@@ -144,7 +144,6 @@ class SmartConnectionsPlugin extends Plugin {
       if(latest_release !== this.manifest.version) {
         new Notice(`[Smart Connections] A new version is available! (v${latest_release})`);
         this.update_available = true;
-        this.render_brand("all")
       }
     } catch (error) {
       console.log(error);
