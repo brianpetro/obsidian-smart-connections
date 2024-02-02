@@ -1,0 +1,28 @@
+{
+  "openai_ada_embeddings": {
+    "url": "https://api.openai.com/v1/embeddings",
+    "method": "POST",
+    "body": {
+      "model": "text-embedding-ada-002",
+      "input": "${EMBED_INPUT}"
+    },
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer ${API_KEY}"
+    }
+  },
+  "openai_chat_completion": {
+    "url": "https://api.openai.com/v1/chat/completions",
+    "method": "POST",
+    "body": {
+      "model": "${MODEL}",
+      "prompt": "${CHATML}",
+      "temperature": "${TEMPERATURE}",
+      "max_tokens": "${MAX_TOKENS}"
+    },
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer ${API_KEY}"
+    }
+  }
+}

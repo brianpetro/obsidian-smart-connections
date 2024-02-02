@@ -1,0 +1,167 @@
+<h2>Supporter Features</h2>
+<p>As a Smart Connections "Supporter", fast-track your PKM journey with priority perks and pioneering innovations.</p>
+<ul>
+  <li>Swift, top-priority support by replying to your supporter license key email.</li>
+  <li>Access your notes in ChatGPT with the <a href="https://chat.openai.com/g/g-SlDDp07bm-smart-connections-for-obsidian" target="_blank">Smart Connections GPT</a>.</li>
+  <li>Gain early access new versions and experimental features.</li>
+  <li>Stay informed and engaged with exclusive supporter-only communications.</li>
+</ul>
+<div class="setting-component"
+  data-name="Supporter License Key"
+  data-type="text"
+  data-setting="license_key"
+  data-description="Note: this is not required to use Smart Connections."
+  data-placeholder="Enter your license_key"
+></div>
+<div class="setting-component"
+  data-name="Become a Supporter"
+  data-description="Become a Supporter"
+  data-type="button"
+  data-href="https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
+></div>
+<div class="setting-component"
+  data-name="ChatGPT Integration (supporter-only)"
+  data-btn-text="Sync Notes"
+  data-description="Sync your notes for use with the Smart Connections GPT and ChatGPT Plugin. Respects your file and folder exclusion settings. Required to use the Smart Connections GPT."
+  data-type="button"
+  data-callback="sync_for_chatgpt"
+></div>
+<div class="setting-component"
+  data-name="Open Smart Connections GPT"
+  data-btn-text="Open"
+  data-description='Chat with your notes in ChatGPT. Requires a ChatGPT Plus account.'
+  data-type="button"
+  data-href="https://chat.openai.com/g/g-SlDDp07bm-smart-connections-for-obsidian"
+></div>
+<h2>Embedding Models</h2>
+<p>Notes about embedding models:</p>
+<ul>
+  <li>Local models:<ul>
+    <li>Higher dimension models are more accurate but require more storage space.</li>
+    <li>Higher context models include more content in the embedding but require computing power to process.</li>
+    <li>Using a model that is too large for your computer may cause errors. For instance, the Jina-small-4K model works on a Mac M2 8GB, while the Jina-small-8K model fails.</li>
+  </ul></li>
+  <li>Blocks have less content but there are more of them, so it is recommended to use a smaller model for blocks than for notes.</li>
+  <li>API models are not restricted by your computer's computing power, but they require an API key and send your notes to third-party servers for processing.</li>
+</ul>
+<div class="setting-component"
+  data-name="Notes Embedding Model"
+  data-setting="smart_notes_embed_model"
+  data-type="dropdown"
+  data-description="Select a model to use for embedding your notes."
+  data-option-0="None|None"
+  <%- embedding_models.map((model, i) => `data-option-${i + 1}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
+  data-callback="reload_brain"
+></div>
+<div class="setting-component"
+  data-name="Blocks Embedding Model"
+  data-setting="smart_blocks_embed_model"
+  data-type="dropdown"
+  data-description="Select a model to use for embedding your blocks."
+  data-option-0="None|None"
+  <%- embedding_models.map((model, i) => `data-option-${i + 1}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
+  data-callback="reload_brain"
+></div>
+<h2>OpenAI Settings</h2>
+<div class="setting-component"
+  data-name="OpenAI API Key"
+  data-type="text"
+  data-setting="api_key"
+  data-description="Required: an OpenAI API key is currently required to use Smart Chat. Your API key will be tested when you click save."
+  data-placeholder="Enter your api_key"
+  data-button="Save"
+  data-callback="test_api_key"
+></div>
+<div class="setting-component"
+  data-name="Smart Chat Model"
+  data-setting="smart_chat_model"
+  data-type="dropdown"
+  data-description="Select a model to use with Smart Chat."
+  data-option-1="gpt-3.5-turbo-0125|gpt-3.5-turbo (16k)"
+  data-option-2="gpt-4|gpt-4 (limited access, 8k)"
+  data-option-3="gpt-4-turbo-preview|gpt-4-turbo (128k)"
+></div>
+<div class="setting-component"
+  data-name="Default Language"
+  data-setting="language"
+  data-type="dropdown"
+  data-description="Default language to use for Smart Chat. Changes which self-referential pronouns will trigger lookup of your notes."
+  data-option-1="en|English"
+  data-option-2="es|Spanish"
+  data-option-3="fr|French"
+  data-option-4="de|German"
+  data-option-5="it|Italian"
+  data-callback="update_language"
+></div>
+<span id="self-referential-pronouns">Current: my, I, me, mine, our, ours, us, we</span>
+<h2>Exclusions</h2>
+<p id="file-counts">Included files: <%= included_files %> / Total files: <%= total_files %></p>
+<div class="setting-component"
+  data-name="File Exclusions"
+  data-description="'Excluded file' matchers separated by a comma."
+  data-type="text"
+  data-setting="file_exclusions"
+  data-placeholder="drawings,prompts/logs"
+  data-callback="update_exclusions"
+></div>
+<div class="setting-component"
+  data-name="Folder Exclusions"
+  data-description="'Excluded folder' matchers separated by a comma."
+  data-type="text"
+  data-setting="folder_exclusions"
+  data-placeholder="drawings,prompts/logs"
+  data-callback="update_exclusions"
+></div>
+<div class="setting-component"
+  data-name="Exclude all top-level folders"
+  data-description="Set folder exclusions to exclude all top-level folders."
+  data-type="button"
+  data-callback="exclude_all_top_level_folders"
+></div>
+<div class="setting-component"
+  data-name="Heading Exclusions"
+  data-description="'Excluded header' matchers separated by a comma. Works for 'blocks' only."
+  data-type="text"
+  data-setting="excluded_headings"
+  data-placeholder="drawings,prompts/logs"
+></div>
+<h2>Smart View</h2>
+<div class="setting-component"
+  data-name="Show Full Path"
+  data-description="Show full path in view."
+  data-type="toggle"
+  data-setting="show_full_path"
+  data-callback="refresh_smart_view"
+></div>
+<h3>Data Management</h3>
+<div class="setting-component"
+  data-name="Refresh Notes"
+  data-description="Clear notes data and reprocess."
+  data-confirm="Are you sure you want to Refresh Notes?"
+  data-type="button"
+  data-callback="refresh_notes"
+></div>
+<div class="setting-component"
+  data-name="Minimum Embedding Length"
+  data-description="Minimum length of note to embed."
+  data-type="number"
+  data-setting="embed_input_min_chars"
+  data-placeholder="Enter a number"
+></div>
+<div class="setting-component"
+  data-name="Smart Connections Folder"
+  data-description="Folder to store Smart Connections data."
+  data-type="text"
+  data-setting="smart_connections_folder"
+  data-placeholder="Enter a folder name"
+  data-callback="update_smart_connections_folder"
+  data-button="Save"
+></div>
+<h3>Force Refresh</h3>
+<div class="setting-component"
+  data-name="force_refresh"
+  data-description="WARNING: DO NOT use unless you know what you are doing! This will delete all of your current embeddings from OpenAI and trigger reprocessing of your entire vault!"
+  data-confirm="Are you sure you want to Force Refresh? By clicking yes you confirm that you understand the consequences of this action."
+  data-type="button"
+  data-callback="force_refresh"
+></div>

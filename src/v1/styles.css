@@ -66,7 +66,6 @@
   cursor: pointer;
   background: transparent;
   padding: var(--nav-item-padding);
-  padding-left: 10px;
   margin-bottom: 1px;
   align-items: baseline;
   border-radius: var(--radius-s);
@@ -204,33 +203,4 @@
 }
 #sc-abort-button:hover {
   background-color: var(--nav-item-background-active);
-}
-
-/* V2 */
-.sc-list .search-result li h1,
-.sc-list .search-result li h2,
-.sc-list .search-result li h3,
-.sc-list .search-result li h4,
-.sc-list .search-result li h5,
-.sc-list .search-result li h6 {
-  margin-block-start: calc(var(--p-spacing)/2);
-  margin-block-end: calc(var(--p-spacing)/2);
-}
-.sc-list .search-result li h1 {
-  font-size: 1.3rem;
-}
-.sc-list .search-result li h2 {
-  font-size: 1.25rem;
-}
-.sc-list .search-result li h3 {
-  font-size: 1.2rem;
-}
-.sc-list .search-result li h4 {
-  font-size: 1.15rem;
-}
-.sc-list .search-result li h5 {
-  font-size: 1.1rem;
-}
-.sc-list .search-result li h6 {
-  font-size: 1.05rem;
 }

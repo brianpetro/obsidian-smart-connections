@@ -1,0 +1,27 @@
+<div class="sc-top-bar">
+  <p class="sc-context">
+    <%- current_path %>
+    <%- this.notes %> (<%- this.blocks %>)
+  </p>
+  <button class="sc-fold-all"><%- this.get_icon('fold-vertical') %></button>
+  <button class="sc-unfold-all"><%- this.get_icon('unfold-vertical') %></button>
+  <button class="sc-chat-button"><%- this.get_icon('message-square') %></button>
+  <button class="sc-search-button"><%- this.get_icon('search') %></button>
+</div>
+<div class="sc-list">
+  <% for (let result of results) { %>
+  <div class="search-result<%- !this.settings.expanded_view ? ' sc-collapsed' : '' %>" data-path="<%- result.path %>">
+    <span class="header">
+      <%- this.get_icon('right-triangle') %>
+      <a class="search-result-file-title" title="<%- result.path %>" draggable="true">
+        <small><%- [result.score?.toFixed(2), result.name].join(' | ') %></small>
+        </small>
+      </a>
+    </span>
+    <ul draggable="true">
+      <li class="search-result-file-title" title="<%- result.path %>" data-collection="<%= result.collection_name %>"></li>
+    </ul>
+  </div>
+  <% } %>
+</div>
+<%- this.attribution %>

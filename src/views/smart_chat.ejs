@@ -1,0 +1,29 @@
+<div class="workspace-leaf-content" data-type="smart-connections-chat-view">
+  <div class="sc-chat-container">
+    <div class="sc-top-bar-container">
+      <input class="sc-chat-name-input" type="text" value="UNTITLED">
+      <button title="Smart View"><%- this.get_icon('smart-connections') %></button>
+      <button title="Save Chat"><%- this.get_icon('save') %></button>
+      <button title="Chat History"><%- this.get_icon('history') %></button>
+      <button title="New Chat"><%- this.get_icon('plus') %></button>
+    </div>
+    <div class="sc-chat-box">
+      <div class="sc-message-container">
+        <div class="sc-message assistant">
+          <div class="sc-message-content">
+            <p>Hi, I'm ChatGPT with access to your notes via Smart Connections. Ask me a question about your notes and
+              I'll try to answer it.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sc-chat-form"><textarea class="sc-chat-input"
+        placeholder="Try &quot;Based on my notes&quot; or &quot;Summarize [[this note]]&quot; or &quot;Important tasks in /folder/&quot;"></textarea>
+      <div class="sc-button-container">
+        <span id="sc-abort-button" style="display: none;"><%- this.get_icon('square') %></span>
+        <button class="send-button" id="sc-send-button">Send</button>
+      </div>
+    </div>
+  </div>
+  <%- this.attribution %>
+</div>
