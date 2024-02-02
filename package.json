@@ -1,5 +1,5 @@
 {
-  "name": "smart-connections",
+  "name": "obsidian-smart-connections",
   "version": "2.0.101",
   "description": "Link and chat with your notes using ChatGPT and embedding artificial intelligence from OpenAI.",
   "main": "main.js",
@@ -27,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/brianpetro/obsidian-smart-connections/issues"
   },
-  "homepage": "https://github.com/brianpetro/obsidian-smart-connections",
+  "homepage": "https://smartconnections.app",
   "devDependencies": {
     "@xenova/transformers": "latest",
     "archiver": "^6.0.1",

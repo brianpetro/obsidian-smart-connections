@@ -31,7 +31,7 @@ rl_interface.question(`Confirm release version (${version}): `, (confirmed_versi
 
     // Prepare release data
     const release_data = {
-      tag_name: `v${confirmed_version}`,
+      tag_name: `${confirmed_version}`,
       name: release_name,
       body: release_description,
       draft: false,
