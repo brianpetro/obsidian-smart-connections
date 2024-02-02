@@ -5,6 +5,12 @@ const { SmartMarkdown } = require("smart-chunks"); // NPM
 // const { SmartMarkdown } = require("../smart-chunks/smart-chunks"); // local
 const { script: web_script } = require('smart-embed/web_connector.json');
 // const {script: web_script} = require('../smart-embed/web_connector.json'); // issues compiling this file with esbuild in smart_embed.js
+const {
+  SmartEmbedTransformersWebAdapter,
+  SmartEmbedTransformersNodeAdapter,
+  SmartEmbedOpenAIAdapter, 
+// } = require('smart-embed');
+} = require('../smart-embed/smart_embed');
 class SmartBrain extends Brain {
   constructor(main, ltm_adapter) {
     super(ltm_adapter);
@@ -121,14 +127,14 @@ class SmartEntities extends Collection {
       if(this.smart_embed_model.includes("/")) { // TODO: better way to detect local model
         if(this.brain.local_model_type === 'Web'){
           while (!this.brain.main.view?.containerEl) await new Promise(resolve => setTimeout(resolve, 100)); // wait for this.main.view.containerEl to be available
-          const { SmartEmbedTransformersWebAdapter } = require("smart-embed");
+          // const { SmartEmbedTransformersWebAdapter } = require("smart-embed");
           this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedTransformersWebAdapter.create(this.smart_embed_model, this.brain.main.view.containerEl, web_script); // initialize smart embed
         }else{
-          const { SmartEmbedTransformersNodeAdapter } = require("smart-embed");
+          // const { SmartEmbedTransformersNodeAdapter } = require("smart-embed");
           this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedTransformersNodeAdapter.create(this.smart_embed_model); // initialize smart embed
         }
       } else { // is API model
-        const { SmartEmbedOpenAIAdapter } = require("smart-embed");
+        // const { SmartEmbedOpenAIAdapter } = require("smart-embed");
         this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedOpenAIAdapter.create(this.smart_embed_model, this.brain.main.obsidian.requestUrl, this.config.api_key); // initialize smart embed
       }
     }else console.log("SmartEmbed already loaded for " + this.collection_name + ": Model: " + this.smart_embed_model);
