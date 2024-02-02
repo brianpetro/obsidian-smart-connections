@@ -6,17 +6,17 @@ package-lock.json
 # env
 .vscode
 # symlinks for context
+.obsidian
+.smart-connections
+.env
 obsidian-plugins
 notes
 vec_lite
 sc-desktop
-.obsidian
 smart-collections
-.smart-connections
 obsidian-localhost
 smart-plugins
 smart-chunks
-.env
 smart-embed
 sc-v1
 obsidian-1
