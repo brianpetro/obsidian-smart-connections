@@ -1,23 +1,19 @@
-# build artifacts
-node_modules
-package-lock.json
-#dist
 .DS_Store
-# env
-.vscode
-# symlinks for context
+.env
 .obsidian
 .smart-connections
-.env
-obsidian-plugins
-notes
-vec_lite
-sc-desktop
-smart-collections
-obsidian-localhost
-smart-plugins
-smart-chunks
-smart-embed
-sc-v1
-obsidian-1
+.vscode
 dist
+node_modules
+notes
+obsidian-1
+obsidian-localhost
+obsidian-plugins
+package-lock.json
+sc-desktop
+sc-v1
+smart-chunks
+smart-collections
+smart-embed
+smart-plugins
+vec_lite

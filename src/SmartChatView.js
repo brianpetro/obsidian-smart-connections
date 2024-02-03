@@ -303,22 +303,23 @@ class SmartChatView extends SmartObsidianView {
       if (SmartView.is_open(this.app.workspace)) {
         // get hyde
         const context = await this.get_context_hyde(user_input);
-        const chatml = [
-          {
-            role: "system",
-            content: context
-          },
-          {
-            role: "user",
-            content: user_input
-          }
-        ];
-        this.request_chatgpt_completion({ messages: chatml, temperature: 0 });
-        return;
-      } else {
-        const btn = { text: "Open Smart View", callback: () => SmartView.open(this.app.workspace, false) };
-        this.plugin.show_notice("Smart View must be open to utilize all Smart Chat features. For example, asking things like \"Based on my notes...\" requires Smart View to be open.", { button: btn, timeout: 0 });
+        if(context) {
+          const chatml = [
+            {
+              role: "system",
+              content: context
+            },
+            {
+              role: "user",
+              content: user_input
+            }
+          ];
+          this.request_chatgpt_completion({ messages: chatml, temperature: 0 });
+          return;
+        }
       }
+      const btn = { text: "Open Smart View", callback: () => SmartView.open(this.app.workspace, false) };
+      this.plugin.show_notice("Smart View must be open to utilize all Smart Chat features. For example, asking things like \"Based on my notes...\" requires Smart View to be open.", { button: btn, timeout: 0 });
     }
     // completion without any specific context
     this.request_chatgpt_completion();
@@ -671,6 +672,7 @@ class SmartChatView extends SmartObsidianView {
     }
     // search for nearest based on hyd
     let nearest = await this.plugin.api.search(hyd, filter);
+    if(!nearest.length) return null;
     console.log("nearest before std dev slice", nearest.length);
     nearest = this.get_nearest_until_next_dev_exceeds_std_dev(nearest);
     console.log("nearest after std dev slice", nearest.length);
