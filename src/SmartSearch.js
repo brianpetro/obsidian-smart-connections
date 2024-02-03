@@ -11,7 +11,14 @@ class SmartSearch {
       // has embeddings, complete search
       const collection = this.main.view?.brain?.smart_blocks?.smart_embed ? this.main.view.brain.smart_blocks : this.main.view.brain.smart_notes;
       const embedding = await collection.smart_embed.embed(search_text);
-      return collection.nearest(embedding.vec, filter);
+      return collection.nearest(embedding.vec, filter)
+        // sort by sim desc
+        .sort((a, b) => {
+          if (a.sim > b.sim) return -1;
+          if (a.sim < b.sim) return 1;
+          return 0;
+        })
+      ;
     } catch (e) {
       this.main.show_notice("Error in embedding search. See console for details.", { timeout: 0 });
       console.error(e);

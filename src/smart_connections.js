@@ -10,8 +10,8 @@ const {
   SmartEmbedTransformersNodeAdapter,
   SmartEmbedOpenAIAdapter, 
   SmartEmbed,
-} = require('smart-embed');
-// } = require('../smart-embed/smart_embed');
+// } = require('smart-embed');
+} = require('../smart-embed/smart_embed');
 class SmartBrain extends Brain {
   constructor(main, ltm_adapter) {
     super(ltm_adapter);
