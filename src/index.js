@@ -535,5 +535,7 @@ class SmartConnectionsPlugin extends Plugin {
       console.error("Smart Connections: Error testing API key", err);
     }
   }
+  // is smart view open
+  is_smart_view_open() { return SmartView.is_open(this.app.workspace); }
 }
 module.exports = SmartConnectionsPlugin;
