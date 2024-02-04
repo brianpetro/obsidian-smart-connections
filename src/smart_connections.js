@@ -1,4 +1,3 @@
-const { cos_sim, md5 } = require("smart-collections/helpers");
 const { Brain, Collection, CollectionItem } = require("smart-collections"); // NPM
 // const { Brain, Collection, CollectionItem } = require("../smart-collections/smart-collections"); // local
 const { SmartMarkdown } = require("smart-chunks"); // NPM
@@ -185,7 +184,8 @@ class SmartEntities extends Collection {
       await this.smart_embed.embed_batch(items);
       if(i && (i % 500 === 0)) await this.LTM._save();
     }
-    this.brain.main.show_notice([`Embedding ${this.collection_name}...`, `Done creating ${unembedded_items.length} embeddings.`], { timeout: 0 });
+    if(this.brain.main._notice?.noticeEl?.parentElement) this.brain.main._notice.hide();
+    this.brain.main.show_notice([`Embedding ${this.collection_name}...`, `Done creating ${unembedded_items.length} embeddings.`], { timeout: 10000 });
     if(unembedded_items.length) this.LTM._save();
     return true;
   }
@@ -474,7 +474,7 @@ class SmartBlock extends SmartEntity {
     };
   }
   update_data(data) {
-    const hash = md5(data.text);
+    const hash = create_hash(data.text);
     if(!this.is_new && (this.data.hash !== hash)) this.data.embedding = {}; // clear embedding
     data.hash = hash; // update hash
     return super.update_data(data);
@@ -503,6 +503,24 @@ class SmartBlock extends SmartEntity {
   get note_key() { return this.data.path.split("#")[0]; }
   // backwards compatibility (DEPRECATED)
   get link() { return this.data.path; }
+}
+
+const crypto = require('crypto');
+function create_hash(string) { return crypto.createHash('md5').update(String(string)).digest('hex'); }
+// // no crypto available in mobile
+// async function create_hash(text) {
+//   const msgUint8 = new TextEncoder().encode(text); // encode as (utf-8) Uint8Array
+//   const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); // hash the message
+//   const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+//   const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
+//   return hashHex;
+// }
+// COSINE SIMILARITY
+function cos_sim(vector1, vector2) {
+  const dotProduct = vector1.reduce((acc, val, i) => acc + val * vector2[i], 0);
+  const normA = Math.sqrt(vector1.reduce((acc, val) => acc + val * val, 0));
+  const normB = Math.sqrt(vector2.reduce((acc, val) => acc + val * val, 0));
+  return normA === 0 || normB === 0 ? 0 : dotProduct / (normA * normB);
 }
 
 exports.SmartBrain = SmartBrain;

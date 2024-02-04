@@ -9,8 +9,8 @@ const {
   TAbstractFile,
   TFile,
 } = require("obsidian");
-const { ObsidianAJSON } = require("smart-collections"); // NPM
-// const { ObsidianAJSON } = require("../smart-collections"); // Local
+// const { ObsidianAJSON } = require("smart-collections"); // NPM
+const { ObsidianAJSON } = require("../smart-collections/ObsidianAJSON.js"); // Local
 const { SmartBrain } = require("./smart_connections");
 const { default_settings } = require("./default_settings");
 const { SmartView } = require("./SmartView");
