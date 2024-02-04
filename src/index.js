@@ -98,13 +98,8 @@ class SmartConnectionsPlugin extends Plugin {
     <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
     // regist "change" dynamic code block
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this)); // code-block renderer (DEPRECATE?)
-    this.registerMarkdownCodeBlockProcessor("change", this.change_code_block.bind(this));
-    this.registerMarkdownCodeBlockProcessor("merge", this.merge_code_block.bind(this));
-    this.registerMarkdownCodeBlockProcessor("move", this.move_code_block.bind(this));
     this.obsidian = { document, Notice, request, requestUrl, TFile };
     this.brain = new SmartBrain(this, ObsidianAJSON);
-    console.log(this.app);
-    // this.brain.init();
     setTimeout(() => {
       if(!SmartChatView.is_open(this.app.workspace) && !SmartView.is_open(this.app.workspace)){
         const btn = { text: "Open Smart View", callback: () => { this.open_view(); } };
@@ -220,147 +215,6 @@ class SmartConnectionsPlugin extends Plugin {
       await this.make_connections();
     }
   }
-  // FX CALLS
-  async change_code_block(source, el, ctx) {
-    const active_file = this.app.workspace.getActiveFile();
-    const note_path = active_file.path;
-    // Create container div with border
-    const container = this.init_container(el);
-    // Create div for new content
-    const new_content = source.substring(0, source.indexOf("---CHANGED---"));
-    const old_content = source.substring(source.indexOf("---CHANGED---") + "---CHANGED---".length);
-    const new_elm = container.createDiv();
-    new_elm.style.marginBottom = "10px";
-    MarkdownRenderer.renderMarkdown(new_content, new_elm, note_path, void 0);
-    // Create div for old content
-    const old_elm = container.createDiv();
-    old_elm.style.display = "none";
-    old_elm.style.marginBottom = "10px";
-    MarkdownRenderer.renderMarkdown(`~~${old_content.trim()}~~`, old_elm, note_path, void 0);
-    const actions_div = this.init_actions_container(container);
-    // Create review button
-    const review_button = actions_div.createEl("button");
-    review_button.innerHTML = "Review";
-    review_button.style.marginRight = "10px";
-    // Button click events
-    review_button.onclick = () => {
-      // toggle display of old content
-      if (old_elm.style.display == "block") old_elm.style.display = "none";
-      else
-        old_elm.style.display = "block";
-    };
-    const accept_button = this.init_accept_btn(actions_div);
-    accept_button.onclick = async () => {
-      // update note to replace code block with new content
-      const content = await this.app.vault.cachedRead(active_file);
-      const updated_content = content.replace("```change\n" + source + "\n```", new_content);
-      await this.app.vault.modify(active_file, updated_content);
-    }
-    const reject_button = this.init_reject_btn(actions_div);
-    reject_button.onclick = async () => {
-      // update note to replace code block with old content
-      const content = await this.app.vault.cachedRead(active_file);
-      const updated_content = content.replace("```change\n" + source + "\n```", old_content);
-      await this.app.vault.modify(active_file, updated_content);
-    }
-  }
-  // Create actions div
-  init_actions_container(container) {
-    const actions_div = container.createDiv();
-    actions_div.style.display = "flex";
-    actions_div.style.justifyContent = "space-between";
-    return actions_div;
-  }
-  // Create reject button
-  init_reject_btn(actions_div) {
-    const reject_button = actions_div.createEl("button");
-    reject_button.innerHTML = "Reject";
-    reject_button.style.border = "none";
-    return reject_button;
-  }
-  // Create accept button
-  init_accept_btn(actions_div) {
-    const accept_button = actions_div.createEl("button");
-    accept_button.innerHTML = "Accept";
-    accept_button.style.border = "none";
-    accept_button.style.marginRight = "10px";
-    return accept_button;
-  }
-  init_container(el) {
-    const container = el.createDiv();
-    container.style.border = "1px solid var(--blockquote-border-color)";
-    container.style.padding = "10px";
-    container.style.marginBottom = "10px";
-    return container;
-  }
-  // merge code block
-  async merge_code_block(source, el, ctx) {
-    const active_file = this.app.vault.getAbstractFileByPath(ctx.sourcePath);
-    const note_path = active_file.path;
-    // Create container div with border
-    const container = this.init_container(el);
-    // Create div for content to be merged
-    const preview_content = `![[${source}]]`;
-    const merge_elm = container.createDiv();
-    merge_elm.style.marginBottom = "10px";
-    MarkdownRenderer.renderMarkdown(preview_content, merge_elm, note_path, void 0);
-    // init actions container
-    const actions_container = this.init_actions_container(container);
-    // Create accept button
-    const accept_button = this.init_accept_btn(actions_container);
-    accept_button.onclick = async () => {
-      // update note to replace code block with new content
-      const content = await this.app.vault.cachedRead(active_file);
-      let merge_content = `# ${source}\n\n`;
-      merge_content += await this.app.vault.cachedRead(this.app.metadataCache.getFirstLinkpathDest(source, note_path));
-      const updated_content = content.replace("```merge\n" + source + "\n```", merge_content);
-      await this.app.vault.modify(active_file, updated_content);
-      // remove source note
-      await this.app.vault.trash(this.app.metadataCache.getFirstLinkpathDest(source, note_path));
-    }
-    // Create reject button
-    const reject_button = this.init_reject_btn(actions_container);
-    reject_button.onclick = async () => {
-      // update note to remove merge code block
-      const content = await this.app.vault.cachedRead(active_file);
-      const updated_content = content.replace("```merge\n" + source + "\n```", '');
-      await this.app.vault.modify(active_file, updated_content);
-    }
-  }
-  async move_code_block(cb_source, el, ctx) {
-    // get note containing code block
-    // use ctx.sourcePath to get note path
-    const active_file = this.app.vault.getAbstractFileByPath(ctx.sourcePath);
-    const note_name = active_file.basename;
-    // Create container div with border
-    const container = this.init_container(el);
-    // Create div for destination representation
-    const destination_elm = container.createDiv();
-    destination_elm.style.marginBottom = "10px";
-    destination_elm.innerHTML = `Move to: ${cb_source}`;
-    // init actions container
-    const actions_container = this.init_actions_container(container);
-    // Create accept button
-    const accept_button = this.init_accept_btn(actions_container);
-    accept_button.onclick = async () => {
-      await remove_code_block(this);
-      const new_path = cb_source.replace(/\/$/g, "") + "/" + note_name + ".md";
-      // move note to new location
-      await this.app.vault.rename(active_file, new_path);
-    }
-    // Create reject button
-    const reject_button = this.init_reject_btn(actions_container);
-    reject_button.onclick = async () => {
-      await remove_code_block(this);
-    }
-
-    // update note to remove move code block
-    async function remove_code_block(instance) {
-      const content = await instance.app.vault.cachedRead(active_file);
-      const updated_content = content.replace("```move\n" + cb_source + "\n```", '');
-      await instance.app.vault.modify(active_file, updated_content);
-    }
-  }
   // utils
   async add_to_gitignore(ignore, message=null) {
     if(!(await this.app.vault.adapter.exists(".gitignore"))) return; // if .gitignore skip
@@ -428,11 +282,6 @@ class SmartConnectionsPlugin extends Plugin {
   open_chat() { SmartChatView.open(this.app.workspace); }
   get view() { return SmartView.get_view(this.app.workspace); } 
   get chat_view() { return SmartChatView.get_view(this.app.workspace); }
-  // V1
-  // source: https://github.com/obsidianmd/obsidian-releases/blob/master/plugin-review.md#avoid-managing-references-to-custom-views
-  // get view() { return this.app.workspace.getLeavesOfType(SmartView.view_type).find((leaf) => leaf.view instanceof SmartView)?.view; }
-  // get chat_view() { return this.app.workspace.getLeavesOfType(SmartChatView.view_type).find((leaf) => leaf.view instanceof SmartChatView)?.view; }
-  // open chat view
   // get folders, traverse non-hidden sub-folders
   async get_folders(path = "/") {
     const folders = (await this.app.vault.adapter.list(path)).folders;
@@ -452,14 +301,6 @@ class SmartConnectionsPlugin extends Plugin {
       return;
     }
     console.log("syncing notes");
-    // get all files in vault
-    // const files = this.app.vault.getMarkdownFiles().filter((file) => {
-    //   // filter out file paths matching any strings in this.file_exclusions
-    //   for(let i = 0; i < this.brain.file_exclusions.length; i++) {
-    //     if(file.path.indexOf(this.brain.file_exclusions[i]) > -1) return false;
-    //   }
-    //   return true;
-    // });
     const files = this.brain.files;
     const notes = await this.build_notes_object(files);
     // POST notes object to server
