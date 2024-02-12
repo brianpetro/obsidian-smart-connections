@@ -35,6 +35,7 @@ esbuild.build({
 	logLevel: "info",
   treeShaking: true,
   platform: 'node',
+  preserveSymlinks: true,
   external: [
     'obsidian',
     'crypto',

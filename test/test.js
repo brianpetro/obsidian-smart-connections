@@ -1,9 +1,9 @@
 const test = require('ava');
 const path = require('path');
 const { init_test_brain } = require('./_test_env');
-// const { SmartBlock } = require('../src/smart_connections');
+const { SmartBlock } = require('../src/smart_connections');
 // use process.cwd() to get the current working directory
-const { SmartBlock } = require(path.join(process.cwd(), 'src', 'smart_connections'));
+// const { SmartBlock } = require(path.join(process.cwd(), 'src', 'smart_connections'));
 function clear_collections(t) {
   const { brain } = t.context;
   brain.smart_notes.clear();
@@ -130,8 +130,8 @@ test('smart_note.get_content()-> returns note content', async (t) => {
 });
 // TEMPLATES
 test('views.json contains EJS views', (t) => {
-  // const views_json = require('../build/views.json');
-  const views_json = require(path.join(process.cwd(), 'build', 'views.json'));
+  const views_json = require('../build/views.json');
+  // const views_json = require(path.join(process.cwd(), 'build', 'views.json'));
   t.is(typeof views_json, 'object');
   t.true(Object.keys(views_json).length > 0);
 });

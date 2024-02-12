@@ -2,7 +2,6 @@
   "name": "obsidian-smart-connections",
   "version": "2.0.111",
   "description": "Link and chat with your notes using ChatGPT and embedding artificial intelligence from OpenAI.",
-  "main": "main.js",
   "scripts": {
     "build": "node build/esbuild.js",
     "compile": "node build/compile_ejs.js",
@@ -29,14 +28,13 @@
   },
   "homepage": "https://smartconnections.app",
   "devDependencies": {
-    "@xenova/transformers": "latest",
     "archiver": "^6.0.1",
-    "ava": "^6.0.1",
+    "ava": "^6.1.1",
     "axios": "^1.6.7",
     "child_process": "^1.0.2",
-    "obsidian": "latest",
     "dotenv": "^16.3.1",
-    "esbuild": "^0.17.19"
+    "esbuild": "^0.17.19",
+    "obsidian": "latest"
   },
   "dependencies": {
     "ejs": "^3.1.9",
