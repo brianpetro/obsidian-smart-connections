@@ -495,11 +495,9 @@ class SmartBlock extends SmartEntity {
     // data.hash = hash; // update hash
     const length = data.text.length;
     if(!this.is_new){
-      if(this.data.hash){ // backwards compatibility to prevent unnecessary re-embedding
-        delete this.data.hash; // clear hash
-        this.data.text.length = length; // update length
-      }else if(this.data.text.length !== length) this.data.embedding = {}; // clear embedding
+      if(this.data.len !== length) this.data.embedding = {}; // clear embedding
     }
+    this.data.len = length; // update length
     return super.update_data(data);
   }
   validate_save() {
@@ -509,7 +507,14 @@ class SmartBlock extends SmartEntity {
   async get_content() {
     const note_content = await this.note?.get_content();
     if(!note_content) return null;
-    return this.brain.smart_markdown.get_block_from_path(this.data.path, note_content);
+    const block_content = this.brain.smart_markdown.get_block_from_path(this.data.path, note_content);
+    // begin backwards compatibility (DEPRECATED)
+    if(this.data.hash){ // backwards compatibility to prevent unnecessary re-embedding
+      delete this.data.hash; // clear hash
+      this.data.len = block_content.length; // update length
+    }
+    // end backwards compatibility (DEPRECATED)
+    return block_content;
   }
   async get_as_context_for_chat() { return this.breadcrumbs + "\n" + (await this.get_content()); }
   find_connections() {
