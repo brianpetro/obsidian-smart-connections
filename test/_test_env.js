@@ -31,7 +31,12 @@ function get_test_file_paths() {
       if (stat.isDirectory()) {
         get_files(file_path);
       } else {
-        test_file_paths.push(file_path.replace(__dirname+'/', '')); // remove __dirname from file_path
+        test_file_paths.push(
+          file_path
+            .replace(__dirname, '') // remove __dirname from file_path
+            .replace(/\\/g, '/') // replace backslashes with forward slashes (for windows compatibility)
+            .slice(1) // remove leading forward slash
+        );
       }
     }
   }
@@ -43,7 +48,7 @@ console.log('test_file_paths', test_file_paths);
 
 function get_tfile(file_path) {
   return new MockTFile({
-    path: file_path,
+    path: file_path.replace(/\\/g, '/'), // replace backslashes with forward slashes (for windows compatibility)
     extension: 'md',
     stat: {
       mtime: new Date(),

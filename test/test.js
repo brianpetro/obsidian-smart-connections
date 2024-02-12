@@ -101,6 +101,20 @@ test('smart_block.content-> returns block content', async (t) => {
   t.is(smart_block.content.length > 0, true);
   t.is(test_md.includes(smart_block.content), true);
 });
+test('smart_block.import-> removes block if no longer exists in note', async (t) => {
+  const { brain, test_md_path } = t.context;
+  const original_blocks_count = brain.smart_blocks.keys.length;
+  const smart_note = brain.smart_notes.get(test_md_path);
+  smart_note.last_history.blocks = smart_note.last_history.blocks.slice(1);
+  await brain.smart_blocks.import(smart_note);
+  t.is(brain.smart_blocks.keys.length, original_blocks_count - 1);
+});
+test('smart_block.update_data-> removes embedding if block content length changes', async (t) => {
+  const { smart_block } = t.context;
+  smart_block.is_new = false; // set to false to test update_data
+  smart_block.update_data({ text: 'new', length: 3 });
+  t.deepEqual(smart_block.data.embedding, {});
+});
 // NEAREST
 test('smart_blocks.nearest()-> respects include_path_begins_with filter', async (t) => {
   const { brain, smart_block, test_md_path } = t.context;

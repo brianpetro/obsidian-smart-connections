@@ -77,9 +77,7 @@ class SmartBrain extends Brain {
   // getters
   get all_files(){ return this.main.app.vault.getFiles().filter((file) => (file instanceof this.main.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas")); } // no exclusions
   get files(){ return this.main.app.vault.getFiles().filter((file) => (file instanceof this.main.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas") && this.is_included(file.path)); }
-  is_included(file_path) {
-    return !this.file_exclusions.some(exclusion => file_path.includes(exclusion));
-  }
+  is_included(file_path) { return !this.file_exclusions.some(exclusion => file_path.includes(exclusion)); }
 
   get file_exclusions() { 
     if(this._file_exclusions) return this._file_exclusions;
@@ -157,7 +155,7 @@ class SmartEntities extends Collection {
     if(!this.smart_embed) return console.log("SmartEmbed not loaded for " + this.collection_name);
     if(this.smart_embed.is_embedding) return console.log("already embedding, skipping ensure_embeddings", this.smart_embed.queue_length);
     const unembedded_items = Object.values(this.items).filter(item => !item.vec); // gets all without vec
-    console.log("unembedded_items: ", unembedded_items.map(item => item.name));
+    // console.log("unembedded_items: ", unembedded_items.map(item => item.name));
     if(unembedded_items.length === 0){
       // console.log("no unembedded items");
       return true; // skip if no unembedded items
@@ -449,7 +447,7 @@ class SmartBlocks extends SmartEntities {
   prune(override = false) {
     const remove = [];
     const total_items_w_vec = Object.entries(this.items).filter(([key, block]) => block.vec).length;
-    console.log("total_items_w_vec: ", total_items_w_vec);
+    // console.log("total_items_w_vec: ", total_items_w_vec);
     if(!total_items_w_vec){
       // DOES NOT clear like in notes
       return; // skip rest if no items with vec
@@ -460,12 +458,12 @@ class SmartBlocks extends SmartEntities {
       if(block.is_gone) return remove.push(key); // remove if expired
     });
     const remove_ratio = remove.length / total_items_w_vec;
-    console.log("remove_ratio: ", remove_ratio);
+    // console.log("remove_ratio: ", remove_ratio);
     // if(!remove.length) return console.log("no blocks to prune");
     if((override && (remove_ratio < 0.5)) || confirm(`Are you sure you want to delete ${remove.length} (${Math.floor(remove_ratio*100)}%) Block-level embeddings?`)){
       this.delete_many(remove);
       if(!override) this.LTM._save(true); // save if not override
-      console.log(`Pruned ${remove.length} Smart Blocks`);
+      // console.log(`Pruned ${remove.length} Smart Blocks`);
     }
   }
 }
@@ -489,15 +487,11 @@ class SmartBlock extends SmartEntity {
       },
     };
   }
+  // SmartChunk: text, length, path
   update_data(data) {
-    // const hash = create_hash(data.text);
-    // if(!this.is_new && (this.data.hash !== hash)) this.data.embedding = {}; // clear embedding
-    // data.hash = hash; // update hash
-    const length = data.text.length;
     if(!this.is_new){
-      if(this.data.len !== length) this.data.embedding = {}; // clear embedding
+      if(this.data.length !== data.length) this.data.embedding = {}; // clear embedding
     }
-    this.data.len = length; // update length
     return super.update_data(data);
   }
   validate_save() {
@@ -508,12 +502,6 @@ class SmartBlock extends SmartEntity {
     const note_content = await this.note?.get_content();
     if(!note_content) return null;
     const block_content = this.brain.smart_markdown.get_block_from_path(this.data.path, note_content);
-    // begin backwards compatibility (DEPRECATED)
-    if(this.data.hash){ // backwards compatibility to prevent unnecessary re-embedding
-      delete this.data.hash; // clear hash
-      this.data.len = block_content.length; // update length
-    }
-    // end backwards compatibility (DEPRECATED)
     return block_content;
   }
   async get_as_context_for_chat() { return this.breadcrumbs + "\n" + (await this.get_content()); }
