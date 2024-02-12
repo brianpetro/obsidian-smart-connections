@@ -28,6 +28,7 @@
   },
   "homepage": "https://smartconnections.app",
   "devDependencies": {
+    "@xenova/transformers": "^2.15.0",
     "archiver": "^6.0.1",
     "ava": "^6.1.1",
     "axios": "^1.6.7",
