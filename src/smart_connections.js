@@ -182,6 +182,7 @@ class SmartEntities extends Collection {
       }
       const items = unembedded_items.slice(i, i + batch_size);
       await this.smart_embed.embed_batch(items);
+      // console.log(items.filter(i => !i.vec).map(item => item));
       if(i && (i % 500 === 0)) await this.LTM._save();
     }
     if(this.brain.main._notice?.noticeEl?.parentElement) this.brain.main._notice.hide();
