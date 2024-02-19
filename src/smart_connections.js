@@ -257,8 +257,9 @@ class SmartNotes extends SmartEntities {
     } = opts;
     // if(reset) this.clear();
     if(file_path){
-      await this.create_or_update({ path: file_path });
-      if(this.smart_embed) await this.ensure_embeddings(show_notice);
+      const smart_note = await this.create_or_update({ path: file_path });
+      if(this.smart_embed) await this.smart_embed.embed_batch([smart_note]);
+      if(this.brain.smart_blocks.smart_embed) await this.brain.smart_blocks.smart_embed.embed_batch(smart_note.blocks);
       return;
     }
     if(reset) this.prune(true);

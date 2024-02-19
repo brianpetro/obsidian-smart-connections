@@ -23,9 +23,12 @@ const destination_vaults = [
   'obsidian-1',
 ];
 
+// get first argument as entry point
+const entry_point = process.argv[2] || 'src/index.js';
+
 // Build the project
 esbuild.build({
-  entryPoints: ['src/index.js'],
+  entryPoints: [entry_point],
   outfile: 'dist/main.js',
   format: 'cjs',
   bundle: true,
