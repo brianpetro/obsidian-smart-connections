@@ -54,7 +54,7 @@ const SMART_TRANSLATION = {
     "initial_message": "Ciao, sono ChatGPT e ho accesso ai tuoi appunti tramite Smart Connections. Fatemi una domanda sui vostri appunti e cercherò di rispondervi.",
   },
   "ko": {
-    "pronous": ["제", "저", "나", "내", "우리", "우리들", "저희", "우리의"],
+    "pronous": ["제가", "저는", "나는", "내가", "우리가", "우리는", "우리의"],
     "prompt": "귀하의 노트를 바탕으로",
     "initial_message": "안녕하세요, 저는 스마트 커넥션을 통해 귀하의 노트에 접근할 수 있는 ChatGPT입니다. 귀하의 노트에 관한 질문을 해주세요. 저는 최선을 다해 답변하겠습니다."
   }
