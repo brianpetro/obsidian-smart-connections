@@ -1,5 +1,6 @@
 const { PluginSettingTab, Setting } = require("obsidian");
-const ejs = require("ejs");
+// const ejs = require("ejs");
+const ejs = require("../ejs.min");
 
 class SmartObsidianSettings extends PluginSettingTab {
   constructor(app, plugin) {

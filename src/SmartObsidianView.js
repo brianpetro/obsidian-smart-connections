@@ -1,6 +1,7 @@
 const { getIcon, ItemView } = require("obsidian");
 const views = require("../build/views.json");
-const ejs = require("ejs");
+// const ejs = require("ejs");
+const ejs = require("../ejs.min");
 
 // handle rendering EJS views
 class SmartObsidianView extends ItemView {
