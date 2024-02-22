@@ -1,6 +1,5 @@
 const { Collection } = require("../smart-collections/Collection"); // local
 const { CollectionItem } = require("../smart-collections/CollectionItem"); // local
-// const { SmartMarkdown } = require("../smart-chunks/smart-chunks"); // local
 const { script: web_script } = require('smart-embed/web_connector.json');
 // const {script: web_script} = require('../smart-embed/web_connector.json'); // issues compiling this file with esbuild in smart_embed.js
 const {
