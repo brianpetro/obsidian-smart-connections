@@ -1,8 +1,5 @@
-// const { Brain, Collection, CollectionItem } = require("smart-collections"); // NPM
-const { Brain } = require("../smart-collections/Brain"); // local
 const { Collection } = require("../smart-collections/Collection"); // local
 const { CollectionItem } = require("../smart-collections/CollectionItem"); // local
-const { SmartMarkdown } = require("smart-chunks"); // NPM
 // const { SmartMarkdown } = require("../smart-chunks/smart-chunks"); // local
 const { script: web_script } = require('smart-embed/web_connector.json');
 // const {script: web_script} = require('../smart-embed/web_connector.json'); // issues compiling this file with esbuild in smart_embed.js
@@ -13,90 +10,6 @@ const {
   SmartEmbed,
 // } = require('smart-embed');
 } = require('../smart-embed/smart_embed');
-class SmartBrain extends Brain {
-  constructor(main, ltm_adapter) {
-    super(ltm_adapter);
-    this.main = main;
-    this.config = this.main.settings;
-    this.data_path = this.config.smart_connections_folder;
-    this.collections = {
-      smart_notes: SmartNotes,
-      smart_blocks: SmartBlocks,
-    };
-    this.item_types = {
-      SmartNote,
-      SmartBlock,
-    };
-    this.save_timeout = null;
-    this.smart_embed_active_models = {};
-    this.local_model_type = 'Web';
-  }
-  reload() {
-    this.unload();
-    this.init();
-  }
-  unload() {
-    if(this.smart_notes) this.smart_notes.unload();
-    this.smart_notes = null;
-    if(this.smart_blocks) this.smart_blocks.unload();
-    this.smart_blocks = null;
-    this.smart_embed_active_models = {};
-  }
-  async init() {
-    // console.log("Initializing SmartBrain");
-    this.smart_markdown = new SmartMarkdown({...this.config, skip_blocks_with_headings_only: true}); // initialize smart markdown (before collections, b/c collections use smart markdown)
-    await Promise.all(Object.values(this.collections).map(async static_collection => await static_collection.load(this)));
-    // console.log("SmartBrain Collections Loaded");
-    await this.init_import(); // refresh smart notes and init "Start embedding" notification
-  }
-  // initiate import of smart notes, shows notice before starting embedding
-  async init_import() { if (this.smart_notes.smart_embed || this.smart_blocks.smart_embed) this.smart_notes.import({ reset: true, show_notice: true }); }
-
-  get_tfile(file_path) { return this.main.app.vault.getAbstractFileByPath(file_path); }
-  async cached_read(file) {
-    const t_file = (typeof file === 'string') ? this.get_tfile(file) : file; // handle string (file_path) or Tfile input
-    if(!(t_file instanceof this.main.obsidian.TFile)) return null;
-    return await this.main.app.vault.cachedRead(t_file);
-  }
-  async force_refresh() {
-    this.smart_blocks.clear();
-    this.smart_notes.clear();
-    this.smart_notes.import(); // trigger making new connections
-  }
-  // prevent saving too often (large files can cause lag)
-  save() {
-    if(this.save_timeout) clearTimeout(this.save_timeout); // clear save timeout
-    this.save_timeout = setTimeout(async () => {
-      // require minimum 1 minute since last user activity
-      if(this.main.last_user_activity && ((Date.now() - this.main.last_user_activity) < 60000)) return this.save(); // reset save timeout
-      await this._save();
-      this.save_timeout = null;
-    }, 60000); // set save timeout
-  }
-  async _save() { await Promise.all(Object.keys(this.collections).map(async collection_name => await this[collection_name]._save())); }
-  // getters
-  get all_files(){ return this.main.app.vault.getFiles().filter((file) => (file instanceof this.main.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas")); } // no exclusions
-  get files(){ return this.main.app.vault.getFiles().filter((file) => (file instanceof this.main.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas") && this.is_included(file.path)); }
-  is_included(file_path) { return !this.file_exclusions.some(exclusion => file_path.includes(exclusion)); }
-
-  get file_exclusions() { 
-    if(this._file_exclusions) return this._file_exclusions;
-    this._file_exclusions = (this.main.settings.file_exclusions?.length) ? this.main.settings.file_exclusions.split(",").map((file) => file.trim()) : [];
-    return this._file_exclusions = this._file_exclusions.concat(this.folder_exclusions); // merge file exclusions with folder exclusions (parser only checks this.file_exclusions)
-  }
-  get folder_exclusions() {
-    if(this._folder_exclusions) return this._folder_exclusions;
-    return this._folder_exclusions = (this.main.settings.folder_exclusions?.length) ? this.main.settings.folder_exclusions.split(",").map((folder) => {
-      folder = folder.trim();
-      if(folder.slice(-1) !== "/") return folder + "/";
-      return folder;
-    }) : [];
-  }
-  get excluded_headings() {
-    if(this._excluded_headings) return this._excluded_headings;
-    return this._excluded_headings = (this.main.settings.excluded_headings?.length) ? this.main.settings.excluded_headings.split(",").map((heading) => heading.trim()) : [];
-  }
-}
 class SmartEntities extends Collection {
   constructor(brain) {
     super(brain);
@@ -543,8 +456,8 @@ function cos_sim(vector1, vector2) {
   return normA === 0 || normB === 0 ? 0 : dotProduct / (normA * normB);
 }
 
-exports.SmartBrain = SmartBrain;
 exports.SmartEntity = SmartEntity;
+exports.SmartEntities = SmartEntities;
 exports.SmartNotes = SmartNotes;
 exports.SmartNote = SmartNote;
 exports.SmartBlocks = SmartBlocks;

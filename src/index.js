@@ -11,7 +11,7 @@ const {
 } = require("obsidian");
 // const { ObsidianAJSON } = require("smart-collections"); // NPM
 const { ObsidianAJSON } = require("../smart-collections/ObsidianAJSON.js"); // Local
-const { SmartBrain } = require("./smart_connections");
+const { ScBrain } = require("./sc_brain");
 const { default_settings } = require("./default_settings");
 const { SmartView } = require("./SmartView");
 const { SmartChatView } = require("./SmartChatView");
@@ -99,7 +99,7 @@ class SmartConnectionsPlugin extends Plugin {
     // regist "change" dynamic code block
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this)); // code-block renderer (DEPRECATE?)
     this.obsidian = { document, Notice, request, requestUrl, TFile };
-    this.brain = new SmartBrain(this, ObsidianAJSON);
+    this.brain = new ScBrain(this, ObsidianAJSON);
     setTimeout(() => {
       if(!SmartChatView.is_open(this.app.workspace) && !SmartView.is_open(this.app.workspace)){
         const btn = { text: "Open Smart View", callback: () => { this.open_view(); } };

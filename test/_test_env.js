@@ -1,4 +1,4 @@
-const { SmartBrain } = require('../src/smart_connections');
+const { ScBrain } = require('../src/sc_brain');
 const { default_settings } = require('../src/default_settings');
 const path = require('path');
 const fs = require('fs');
@@ -84,7 +84,7 @@ async function init_test_brain(t) {
   main.settings.smart_blocks_embed_model = 'TaylorAI/bge-micro-v2';
   main.settings.embed_input_min_chars = 1;
   main.settings.multi_heading_blocks = false;
-  const brain = new SmartBrain(main);
+  const brain = new ScBrain(main);
   brain.local_model_type = 'Node';
   brain.get_tfile = get_tfile; // override brain.get_tfile
   brain.cached_read = (t_file) => test_md; // override brain.cached_read

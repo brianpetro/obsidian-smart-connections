@@ -42,7 +42,8 @@ let views = {};
       views[path.basename(file, path.extname(file))] = content;
     });
   
-    fs.writeFileSync('build/views.json', JSON.stringify(views, null, 2));
+    // fs.writeFileSync('build/views.json', JSON.stringify(views, null, 2));
+    fs.writeFileSync(path.join(process.cwd(), 'build', 'views.json'), JSON.stringify(views, null, 2));
     console.log('EJS templates compiled into templates.json');
   });
 })();
