@@ -13,18 +13,16 @@ class SmartView extends SmartObsidianView {
     this.container = this.containerEl.children[1]; // get container for views
     this.container.empty();
     this.nearest_cache = {}; // cache nearest results
-    this.load_brain();
-    // this.brain.init();
-    // window.brain = this.brain;
+    await this.load_brain();
     this.plugin.smart_connections_view = this;
     this.register_plugin_events();
     this.app.workspace.registerHoverLinkSource(SmartView.view_type, { display: 'Smart Connections Files', defaultMod: true });
     this.container.innerHTML = this.render_template("smart_connections", { current_path: "", results: [] });
     this.add_top_bar_listeners();
   }
-  load_brain() {
+  async load_brain() {
     this.brain = this.plugin.brain;
-    this.brain.reload();
+    await this.brain.reload();
     this.last_parent_id = SmartView.get_leaf(this.app.workspace).parent.id;
   }
 

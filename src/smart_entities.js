@@ -4,11 +4,13 @@ const { script: web_script } = require('smart-embed/web_connector.json');
 // const {script: web_script} = require('../smart-embed/web_connector.json'); // issues compiling this file with esbuild in smart_embed.js
 const {
   SmartEmbedTransformersWebAdapter,
-  SmartEmbedTransformersNodeAdapter,
   SmartEmbedOpenAIAdapter, 
   SmartEmbed,
 // } = require('smart-embed');
 } = require('../smart-embed/smart_embed');
+const { SmartEmbedTransformersNodeAdapter } = require('../smart-embed/SmartEmbedTransformersNodeAdapter');
+const { SmartEmbedElectronConnector } = require("../../smart-embed/SmartEmbedElectronConnector");
+const { SmartEmbedWebSocketConnector } = require("../../smart-embed/SmartEmbedWebSocketConnector");
 class SmartEntities extends Collection {
   constructor(brain) {
     super(brain);
@@ -44,22 +46,20 @@ class SmartEntities extends Collection {
       console.log("SmartEmbed already loaded for " + this.collection_name + ": Model: " + this.smart_embed_model);
     }else{
       if(this.smart_embed_model.includes("/")) { // TODO: better way to detect local model
-        if(this.brain.local_model_type === 'Web'){
+        console.log(this.brain.local_model_type);
+        if(this.brain.local_model_type === 'websocket') {
+          this.smart_embed = await SmartEmbedWebSocketConnector.create(this.smart_embed_model);
+        }else if(this.brain.local_model_type === 'Web'){
           while (!this.brain.main.view?.containerEl) await new Promise(resolve => setTimeout(resolve, 100)); // wait for this.main.view.containerEl to be available
-          // const { SmartEmbedTransformersWebAdapter } = require("smart-embed");
-          // this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedTransformersWebAdapter.create(this.smart_embed_model, this.brain.main.view.containerEl, web_script); // initialize smart embed
           this.smart_embed = await SmartEmbedTransformersWebAdapter.create(this.smart_embed_model, this.brain.main.view.containerEl, web_script); // initialize smart embed
+        }else if(this.brain.local_model_type === 'electron'){
+          this.smart_embed = await SmartEmbedElectronConnector.create(this.smart_embed_model); // initialize smart embed
         }else{
-          // const { SmartEmbedTransformersNodeAdapter } = require("smart-embed");
-          // this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedTransformersNodeAdapter.create(this.smart_embed_model); // initialize smart embed
           this.smart_embed = await SmartEmbedTransformersNodeAdapter.create(this.smart_embed_model); // initialize smart embed
         }
       } else { // is API model
-        // const { SmartEmbedOpenAIAdapter } = require("smart-embed");
-        // this.brain.smart_embed_active_models[this.smart_embed_model] = await SmartEmbedOpenAIAdapter.create(this.smart_embed_model, this.brain.main.obsidian.requestUrl, this.config.api_key); // initialize smart embed
         this.smart_embed = await SmartEmbedOpenAIAdapter.create(this.smart_embed_model, this.brain.main.obsidian.requestUrl, this.config.api_key); // initialize smart embed
       }
-      // this.smart_embed = this.brain.smart_embed_active_models[this.smart_embed_model];
     }
   }
   pause_embedding() { this._pause_embeddings = true; }
@@ -67,18 +67,22 @@ class SmartEntities extends Collection {
     if(!this.smart_embed) return console.log("SmartEmbed not loaded for " + this.collection_name);
     if(this.smart_embed.is_embedding) return console.log("already embedding, skipping ensure_embeddings", this.smart_embed.queue_length);
     const unembedded_items = Object.values(this.items).filter(item => !item.vec); // gets all without vec
-    // console.log("unembedded_items: ", unembedded_items.map(item => item.name));
+    console.log("unembedded_items: ", unembedded_items.map(item => item.name));
     if(unembedded_items.length === 0){
       // console.log("no unembedded items");
       return true; // skip if no unembedded items
     }
     const batch_size = this.smart_embed.batch_size;
-    const performance_notice_msg = "(Processing a large number of notes using the local models may cause Obsidian to become temporarily unresponsive.)";
+    const performance_notice_msg = "(This is a resource intensive operation)";
     if((show_notice !== false) && (unembedded_items.length > 30)) {
       const start_btn = {text: "Start embedding", callback: () => this.ensure_embeddings(false) };
       this.brain.main.show_notice([`Are you ready to begin embedding ${unembedded_items.length} ${this.collection_name}?`, performance_notice_msg], { timeout: 0, button: start_btn});
       return;
     }
+    let total_tokens = 0;
+    let time_start = Date.now();
+    let time_elapsed = 0;
+    let tokens_per_sec = 0;
     for(let i = 0; i < unembedded_items.length; i += batch_size) {
       if(this._pause_embeddings) {
         this._pause_embeddings = false;
@@ -90,15 +94,22 @@ class SmartEntities extends Collection {
       }
       if(i % 10 === 0){
         const pause_btn = {text: "Pause", callback: () => this.pause_embedding(), stay_open: true};
-        this.brain.main.show_notice([`Embedding ${this.collection_name}...`, `Progress: ${i} / ${unembedded_items.length} ${this.collection_name}`, performance_notice_msg], { timeout: 0, button: pause_btn});
+        this.brain.main.show_notice([`Embedding ${this.collection_name}...`, `Progress: ${i} / ${unembedded_items.length} ${this.collection_name}`, `${tokens_per_sec} tokens/sec`, performance_notice_msg], { timeout: 0, button: pause_btn});
       }
       const items = unembedded_items.slice(i, i + batch_size);
-      await this.smart_embed.embed_batch(items);
+      const resp = await this.smart_embed.embed_batch(items);
+      total_tokens += resp.reduce((acc, item) => acc + item.tokens, 0);
+      time_elapsed = Date.now() - time_start;
+      tokens_per_sec = Math.round(total_tokens / (time_elapsed / 1000));
       // console.log(items.filter(i => !i.vec).map(item => item));
-      if(i && (i % 500 === 0)) await this.LTM._save();
+      if(i && (i % 500 === 0)){
+        console.log(unembedded_items[i]);
+        await this.LTM._save();
+      }
     }
     if(this.brain.main._notice?.noticeEl?.parentElement) this.brain.main._notice.hide();
-    this.brain.main.show_notice([`Embedding ${this.collection_name}...`, `Done creating ${unembedded_items.length} embeddings.`], { timeout: 10000 });
+    const embedded_ct = unembedded_items.filter(i => i.vec).length;
+    this.brain.main.show_notice([`Embedding ${this.collection_name}...`, `Done creating ${embedded_ct} embeddings.`], { timeout: 10000 });
     if(unembedded_items.length) this.LTM._save();
     return true;
   }
@@ -176,9 +187,7 @@ class SmartNotes extends SmartEntities {
     }
     if(reset) this.prune(true);
     try{
-      const files = [];
-      this.brain.files.forEach(file => { if(!this.get(file.path)) files.push(file); }); // get files that aren't already imported
-      // console.log("files to import: ", files.length);
+      const files = this.brain.files.filter(file => !this.get(file.path)?.vec); // get files that aren't already imported or unembedded
       let batch = [];
       for(let i = 0; i < files.length; i++) {
         if(i % 10 === 0){
@@ -246,8 +255,10 @@ class SmartNote extends SmartEntity {
     };
   }
   update_data(data) {
-    if(!this.is_new && this.last_history){
+    // if is not new, has last_history, and has vec
+    if(!this.is_new && this.last_history && this.vec){
       const last = this.last_history;
+      // mtime or size is same as file mtime or size, return false (skips update and init())
       if((last.mtime === this.t_file.stat.mtime) || (last.size === this.t_file.stat.size)) return false;
     }
     super.update_data(data);
@@ -257,7 +268,8 @@ class SmartNote extends SmartEntity {
   async get_content() { return (await this.brain.cached_read(this.data.path)); } // get content from file
   async init() {
     const content = await this.get_content(); // get content from file
-    this._embed_input = content; // store temporarily for embedding
+    const breadcrumbs = this.data.path.split("/").join(" > ").replace(".md", "");
+    this._embed_input = `${breadcrumbs}:\n${content}`;
     const { blocks } = this.brain.smart_markdown.parse({ content, file_path: this.data.path }); // create blocks from note content
     blocks.forEach((block, i) => {
       if(this.brain.excluded_headings.some(exclusion => block.path.includes(exclusion))) return; // skip excluded headings

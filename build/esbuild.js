@@ -40,6 +40,7 @@ esbuild.build({
   platform: 'node',
   preserveSymlinks: true,
   external: [
+    'electron',
     'obsidian',
     'crypto',
     '@xenova/transformers',
