@@ -379,8 +379,17 @@ class SmartBlocks extends SmartEntities {
       return; // skip rest if no items with vec
     }
     Object.entries(this.items).forEach(([key, block]) => {
-      // if(block.note?.last_history.blocks.includes(key)) return; // keep if block has note
-      // remove.push(key);
+      // // handle malformed keys
+      // if(block.is_gone && block.data.path[0] === "/"){
+      //   block.data.path = block.data.path.slice(1); // remove leading slash
+      //   block.data.key = block.data.path; // update key
+      //   block.save();
+      // }
+      // if(key !== block.data.path){
+      //   this.items[block.data.path] = block; // update items
+      //   delete this.items[key]; // delete old key
+      //   console.log("updated block key");
+      // }
       if(block.is_gone) return remove.push(key); // remove if expired
     });
     const remove_ratio = remove.length / total_items_w_vec;
