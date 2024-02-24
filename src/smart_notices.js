@@ -66,7 +66,7 @@ class SmartNotices {
     }
   }
   remove(id) {
-    this.active[id].hide();
+    this.active[id]?.hide();
     delete this.active[id];
   }
 }

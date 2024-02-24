@@ -82,6 +82,7 @@ class SmartEntities extends Collection {
       this.brain.main.notices.show('start embedding', [`Are you ready to begin embedding ${unembedded_items.length} ${this.collection_name}?`, performance_notice_msg], { timeout: 0, confirm: start_btn});
       return;
     }
+    this.brain.main.notices.remove('start embedding');
     let total_tokens = 0;
     let time_start = Date.now();
     let time_elapsed = 0;
