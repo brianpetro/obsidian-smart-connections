@@ -192,7 +192,8 @@ class SmartNotes extends SmartEntities {
     }
     if(reset) this.prune(true);
     try{
-      const files = this.brain.files.filter(file => !this.get(file.path)?.vec); // get files that aren't already imported or unembedded
+      // const files = this.brain.files.filter(file => !this.get(file.path)?.vec); // get files that aren't already imported or unembedded
+      const files = this.brain.files; // get all files (no filter so reparses all blocks always)
       let batch = [];
       for(let i = 0; i < files.length; i++) {
         if(i % 10 === 0){
@@ -261,14 +262,10 @@ class SmartNote extends SmartEntity {
     };
   }
   update_data(data) {
-    // if is not new, has last_history, and has vec
-    if(!this.is_new && this.last_history && this.vec){
-      const last = this.last_history;
-      // mtime or size is same as file mtime or size, return false (skips update and init())
-      if((last.mtime === this.t_file.stat.mtime) || (last.size === this.t_file.stat.size)) return false;
-    }
     super.update_data(data);
-    this.data.history.push({ blocks: [], mtime: this.t_file.stat.mtime, size: this.t_file.stat.size }); // add history entry
+    if(!this.last_history || (this.last_history.mtime !== this.t_file.stat.mtime) || (this.last_history.size !== this.t_file.stat.size)){
+      this.data.history.push({ blocks: [], mtime: this.t_file.stat.mtime, size: this.t_file.stat.size }); // add history entry
+    }
     return true;
   }
   async get_content() { return (await this.brain.cached_read(this.data.path)); } // get content from file
