@@ -8,7 +8,7 @@ class SmartNotices {
     if(typeof opts.timeout === 'undefined') opts.timeout = 5000; // default timeout
     // if notice is muted, return
     if (this.main.settings.muted_notices?.[id]) {
-      console.log("Notice is muted");
+      // console.log("Notice is muted");
       if (opts.confirm) opts.confirm.callback(); // if confirm callback, run it
       return;
     }
@@ -18,7 +18,7 @@ class SmartNotices {
       // console.log("updating notice");
       return this.active[id].setMessage(content, opts.timeout);
     }
-    console.log("showing notice");
+    // console.log("showing notice");
     return this.render(id, content, opts);
   }
   render(id, content, opts) {

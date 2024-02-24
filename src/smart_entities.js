@@ -287,7 +287,7 @@ class SmartNote extends SmartEntity {
   find_connections() {
     let results = [];
     if(!this.vec && !this.median_block_vec){
-      console.log(this);
+      // console.log(this);
       const start_embedding_btn = {
         text: "Start embedding",
         callback: async () => {
