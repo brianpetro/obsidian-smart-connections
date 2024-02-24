@@ -5,6 +5,7 @@ class SmartNotices {
     this.active = {};
   }
   show(id, message, opts = {}) {
+    if(typeof opts.timeout === 'undefined') opts.timeout = 5000; // default timeout
     // if notice is muted, return
     if (this.main.settings.muted_notices?.[id]) {
       console.log("Notice is muted");
@@ -31,9 +32,9 @@ class SmartNotices {
     const actions = frag.createEl("div", { cls: "sc-notice-actions" });
     if (typeof message === 'string') content.innerText = message;
     else if (Array.isArray(message)) content.innerHTML = message.join("<br>");
-    if (opts.confirm) this.add_btn(opts.confirm, actions);
-    if (opts.button) this.add_btn(opts.button, actions);
     if(!opts.immutable) this.add_mute_btn(id, actions);
+    if(opts.confirm) this.add_btn(opts.confirm, actions);
+    if(opts.button) this.add_btn(opts.button, actions);
     return frag;
   }
   add_btn(button, container) {
@@ -56,7 +57,7 @@ class SmartNotices {
       if (!this.main.settings.muted_notices) this.main.settings.muted_notices = {};
       this.main.settings.muted_notices[id] = true;
       this.main.save_settings();
-      this.main.show_notice("Notice muted");
+      this.show("Notice muted", "Notice muted", { timeout: 2000 });
     });
     container.appendChild(btn);
   }
@@ -68,6 +69,12 @@ class SmartNotices {
   remove(id) {
     this.active[id]?.hide();
     delete this.active[id];
+  }
+  // begin plugin specific methods
+  show_requires_smart_view() {
+    const btn = { text: "Open Smart View", callback: () => { this.main.open_view(false); } };
+    const msg = "Smart View must be open to utilize all Smart Chat features. For example, asking things like \"Based on my notes...\" requires Smart View to be open.";
+    this.show('requires smart view', msg, { button: btn, timeout: 0 });
   }
 }
 exports.SmartNotices = SmartNotices;

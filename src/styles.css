@@ -234,3 +234,9 @@
 .sc-list .search-result li h6 {
   font-size: 1.05rem;
 }
+
+.notice .sc-notice-actions{
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+}

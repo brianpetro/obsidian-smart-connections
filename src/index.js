@@ -104,10 +104,8 @@ class SmartConnectionsPlugin extends Plugin {
     this.obsidian = { document, Notice, request, requestUrl, TFile };
     this.brain = new ScBrain(this, ObsidianAJSON);
     setTimeout(() => {
-      if(!SmartChatView.is_open(this.app.workspace) && !SmartView.is_open(this.app.workspace)){
-        const btn = { text: "Open Smart View", callback: () => { this.open_view(); } };
-        this.show_notice("Smart View must be open for Smart Connections to work.", { button: btn, timeout: 0 });
-      }
+      // PARTIALLY DEPRECATED: should only apply if using local model VIA Web connector (excludes APIs and local via Smart Connect)
+      if(!SmartChatView.is_open(this.app.workspace) && !SmartView.is_open(this.app.workspace)) this.notices.show_requires_smart_view();
     }, 1000);
   }
   register_views() {
@@ -240,7 +238,7 @@ class SmartConnectionsPlugin extends Plugin {
       delete this.settings.header_exclusions;
     }
   }
-  open_view() { SmartView.open(this.app.workspace); }
+  open_view(active=true) { SmartView.open(this.app.workspace, active); }
   open_chat() { SmartChatView.open(this.app.workspace); }
   get view() { return SmartView.get_view(this.app.workspace); } 
   get chat_view() { return SmartChatView.get_view(this.app.workspace); }

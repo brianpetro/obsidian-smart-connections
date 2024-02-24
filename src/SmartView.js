@@ -102,7 +102,7 @@ class SmartView extends SmartObsidianView {
         if(this.brain.is_included(context.path)){
           await this.brain.smart_notes.import({ file_path: context.path });
         }else{
-          return this.plugin.show_notice("File is excluded: " + context.path, {timeout: 3000});
+          return this.plugin.notices.show('excluded file', "File is excluded: " + context.path, {timeout: 3000});
         }
       }
       results = this.brain.smart_notes.get(context.path)?.find_connections();

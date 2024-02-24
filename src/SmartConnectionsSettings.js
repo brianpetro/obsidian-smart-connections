@@ -28,10 +28,10 @@ class SmartConnectionsSettings extends SmartObsidianSettings {
     };
     try{
       const resp = await this.plugin.obsidian.requestUrl(req);
-      if(resp?.json?.data?.[0]?.embedding?.length) return this.plugin.show_notice("Success! API key is valid");
-      this.plugin.show_notice("Error: API key is invalid!");
+      if(resp?.json?.data?.[0]?.embedding?.length) return this.plugin.notices.show('api key test pass', "Success! API key is valid");
+      this.plugin.notices.show('api key test fail', "Error: API key is invalid!");
     }catch(err){
-      this.plugin.show_notice("Error: API key is invalid!");
+      this.plugin.notices.show('api key test fail', "Error: API key is invalid!");
       console.error("Smart Connections: Error testing API key", err);
     }
   }

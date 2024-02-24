@@ -17,7 +17,7 @@ const ScTranslations = require("./ScTranslations");
 class SmartChatView extends SmartObsidianView {
   constructor(leaf, plugin) {
     super(leaf, plugin);
-    this.plugin = plugin;
+    this.plugin = plugin; // DEPRECATED in favor of this.main???
     this.config = plugin.settings;
     this.active_elm = null;
     this.active_stream = null;
@@ -42,10 +42,7 @@ class SmartChatView extends SmartObsidianView {
       defaultMod: true,
     });
     setTimeout(() => {
-      if (!SmartView.is_open(this.app.workspace)) {
-        const btn = { text: "Open Smart View", callback: () => SmartView.open(this.app.workspace, false) };
-        this.plugin.show_notice("Smart View must be open to chat with your notes.", { button: btn, timeout: 0 });
-      }
+      if (!SmartView.is_open(this.app.workspace)) this.plugin.notices.show_requires_smart_view(); 
     }, 1000);
   }
   onClose() {
@@ -317,9 +314,9 @@ class SmartChatView extends SmartObsidianView {
           this.request_chatgpt_completion({ messages: chatml, temperature: 0 });
           return;
         }
+      }else{
+        this.plugin.notices.show_requires_smart_view();
       }
-      const btn = { text: "Open Smart View", callback: () => SmartView.open(this.app.workspace, false) };
-      this.plugin.show_notice("Smart View must be open to utilize all Smart Chat features. For example, asking things like \"Based on my notes...\" requires Smart View to be open.", { button: btn, timeout: 0 });
     }
     // completion without any specific context
     this.request_chatgpt_completion();
@@ -503,7 +500,7 @@ class SmartChatView extends SmartObsidianView {
     console.log("chat_ml", chat_ml);
     const max_chars = get_max_chars(this.plugin.settings.smart_chat_model);
     if(!max_chars) {
-      this.plugin.show_notice("Smart Chat Model not set. Please set a Smart Chat Model in the Smart Connections settings.");
+      this.plugin.notices.show("chat model not set", "Smart Chat Model not set. Please set a Smart Chat Model in the Smart Connections settings.");
       this.render_message("*Smart Chat Model not set. Please set a Smart Chat Model in the Smart Connections settings.*", "assistant");
       return;
     }
@@ -919,7 +916,7 @@ class SmartConnectionsChatModel {
     // get content of internal links as context
     let max_chars = get_max_chars(this.plugin.settings.smart_chat_model);
     if(!max_chars) {
-      this.plugin.show_notice("Smart Chat Model not set. Please set a Smart Chat Model in the Smart Connections settings.");
+      this.plugin.notices.show("chat model not set", "Smart Chat Model not set. Please set a Smart Chat Model in the Smart Connections settings.");
       this.render_message("*Smart Chat Model not set. Please set a Smart Chat Model in the Smart Connections settings.*", "assistant");
       return;
     }

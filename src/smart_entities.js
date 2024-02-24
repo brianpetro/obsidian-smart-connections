@@ -113,6 +113,7 @@ class SmartEntities extends Collection {
     }
     if(this.brain.main._notice?.noticeEl?.parentElement) this.brain.main._notice.hide();
     const embedded_ct = unembedded_items.filter(i => i.vec).length;
+    this.brain.main.notices.remove('embedding progress');
     this.brain.main.notices.show('done embedding', [`Embedding ${this.collection_name}...`, `Done creating ${embedded_ct} embeddings.`], { timeout: 10000 });
     if(unembedded_items.length) this.LTM._save();
     return true;
