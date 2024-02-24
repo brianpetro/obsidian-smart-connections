@@ -62,7 +62,10 @@ class SmartEntities extends Collection {
       }
     }
   }
-  pause_embedding() { this._pause_embeddings = true; }
+  pause_embedding() {
+    this._pause_embeddings = true;
+    this.brain.main.notices.remove('embedding progress');
+  }
   async ensure_embeddings(show_notice = null) {
     if(!this.smart_embed) return console.log("SmartEmbed not loaded for " + this.collection_name);
     if(this.smart_embed.is_embedding) return console.log("already embedding, skipping ensure_embeddings", this.smart_embed.queue_length);
@@ -76,7 +79,7 @@ class SmartEntities extends Collection {
     const performance_notice_msg = "(This is a resource intensive operation)";
     if((show_notice !== false) && (unembedded_items.length > 30)) {
       const start_btn = {text: "Start embedding", callback: () => this.ensure_embeddings(false) };
-      this.brain.main.show_notice([`Are you ready to begin embedding ${unembedded_items.length} ${this.collection_name}?`, performance_notice_msg], { timeout: 0, button: start_btn});
+      this.brain.main.notices.show('start embedding', [`Are you ready to begin embedding ${unembedded_items.length} ${this.collection_name}?`, performance_notice_msg], { timeout: 0, confirm: start_btn});
       return;
     }
     let total_tokens = 0;
@@ -87,14 +90,14 @@ class SmartEntities extends Collection {
       if(this._pause_embeddings) {
         this._pause_embeddings = false;
         const restart_btn = {text: "Restart", callback: () => this.ensure_embeddings() };
-        this.brain.main.show_notice([`Embedding ${this.collection_name}...`, `Paused at ${i} / ${unembedded_items.length} ${this.collection_name}`, performance_notice_msg], { timeout: 0, button: restart_btn});
+        this.brain.main.notices.show('restart embedding', [`Embedding ${this.collection_name}...`, `Paused at ${i} / ${unembedded_items.length} ${this.collection_name}`, performance_notice_msg], { timeout: 0, button: restart_btn});
         // this.brain.save(); // save
         this.LTM._save(); // save
         return;
       }
       if(i % 10 === 0){
         const pause_btn = {text: "Pause", callback: () => this.pause_embedding(), stay_open: true};
-        this.brain.main.show_notice([`Embedding ${this.collection_name}...`, `Progress: ${i} / ${unembedded_items.length} ${this.collection_name}`, `${tokens_per_sec} tokens/sec`, performance_notice_msg], { timeout: 0, button: pause_btn});
+        this.brain.main.notices.show('embedding progress', [`Embedding ${this.collection_name}...`, `Progress: ${i} / ${unembedded_items.length} ${this.collection_name}`, `${tokens_per_sec} tokens/sec`, performance_notice_msg], { timeout: 0, button: pause_btn, immutable: true});
       }
       const items = unembedded_items.slice(i, i + batch_size);
       const resp = await this.smart_embed.embed_batch(items);
@@ -109,7 +112,7 @@ class SmartEntities extends Collection {
     }
     if(this.brain.main._notice?.noticeEl?.parentElement) this.brain.main._notice.hide();
     const embedded_ct = unembedded_items.filter(i => i.vec).length;
-    this.brain.main.show_notice([`Embedding ${this.collection_name}...`, `Done creating ${embedded_ct} embeddings.`], { timeout: 10000 });
+    this.brain.main.notices.show('done embedding', [`Embedding ${this.collection_name}...`, `Done creating ${embedded_ct} embeddings.`], { timeout: 10000 });
     if(unembedded_items.length) this.LTM._save();
     return true;
   }
@@ -191,14 +194,15 @@ class SmartNotes extends SmartEntities {
       let batch = [];
       for(let i = 0; i < files.length; i++) {
         if(i % 10 === 0){
-          this.brain.main.show_notice([`Making Smart Connections...`, `Progress: ${i} / ${files.length} files`], { timeout: 0 });
+          this.brain.main.notices.show('initial scan progress', [`Making Smart Connections...`, `Progress: ${i} / ${files.length} files`], { timeout: 0 });
           await Promise.all(batch);
           batch = [];
         }
         batch.push(this.create_or_update({ path: files[i].path }));
       }
       await Promise.all(batch);
-      if(this.brain.main._notice_content?.textContent) this.brain.main._notice_content.textContent = "Making Smart Connections... Done importing Smart Notes.";
+      this.brain.main.notices.remove('initial scan progress');
+      this.brain.main.notices.show('done initial scan', [`Making Smart Connections...`, `Done importing Smart Notes.`], { timeout: 3000 });
       if(files.length){
         await this._save();
         if(this.smart_embed) await this.ensure_embeddings(show_notice); // note-level embeddings
@@ -289,7 +293,7 @@ class SmartNote extends SmartEntity {
           this.brain.main.view.render_nearest(this);
         }
       };
-      this.brain.main.show_notice(`No embeddings found for ${this.name}.`, { button: start_embedding_btn });
+      this.brain.main.notices.show('no embedding found', `No embeddings found for ${this.name}.`, { button: start_embedding_btn });
       return results;
     }
     if(this.vec && this.median_block_vec && this.brain.smart_blocks.smart_embed && this.collection.smart_embed){

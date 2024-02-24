@@ -6,7 +6,6 @@ const {
   Plugin,
   request,
   requestUrl,
-  setIcon,
   TAbstractFile,
   TFile,
 } = require("obsidian");
@@ -18,6 +17,7 @@ const { SmartView } = require("./SmartView");
 const { SmartChatView } = require("./SmartChatView");
 const { SmartConnectionsSettings } = require("./SmartConnectionsSettings");
 const { SmartSearch } = require("./SmartSearch");
+const { SmartNotices } = require("./smart_notices.js");
 class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
   async open_note(target_path, event=null) {
@@ -77,6 +77,7 @@ class SmartConnectionsPlugin extends Plugin {
     console.log("unloading plugin");
     this.brain?.unload();
     this.brain = null;
+    this.notices?.unload();
   }
   async initialize() {
     console.log("Loading Smart Connections v2...");
@@ -322,64 +323,5 @@ class SmartConnectionsPlugin extends Plugin {
   }
   // is smart view open
   is_smart_view_open() { return SmartView.is_open(this.app.workspace); }
-}
-class SmartNotices {
-  constructor(main) {
-    this.main = main; // main plugin instance
-    this.active = {};
-  }
-  show(id, message, opts={}) {
-    // if notice is muted, return
-    if(this.main.settings.muted_notices?.[id]){
-      console.log("Notice is muted");
-      if(opts.confirm) opts.confirm.callback(); // if confirm callback, run it
-      return;
-    }
-    const content = this.build(id, message, opts);
-    // if notice is already active, update message
-    if(this.active[id] && this.active[id].noticeEl?.parentElement){
-      console.log("updating notice");
-      return this.active[id].setMessage(content, opts.timeout);
-    }
-    console.log("showing notice");
-    return this.active[id] = new Notice(content, opts.timeout);
-  }
-  build(id, message, opts={}) {
-    const frag = document.createDocumentFragment();
-    const head = frag.createEl("p", { cls: "sc-notice-head", text: "[Smart Connections]" });
-    const content = frag.createEl("p", { cls: "sc-notice-content" });
-    const actions = frag.createEl("div", { cls: "sc-notice-actions" });
-    if(typeof message === 'string') content.innerText = message;
-    else if(Array.isArray(message)) content.innerHTML = message.join("<br>");
-    if(opts.confirm) this.add_btn(opts.confirm, actions);
-    if(opts.button) this.add_btn(opts.button, actions);
-    this.add_mute_btn(id, actions);
-    console.log(frag);
-    return frag;
-  }
-  add_btn(button, container) {
-    const btn = document.createElement("button");
-    btn.innerHTML = button.text;
-    btn.addEventListener("click", (e) => {
-      if(button.stay_open){
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      button.callback();
-    });
-    container.appendChild(btn);
-  }
-  add_mute_btn(id, container) {
-    const btn = document.createElement("button");
-    setIcon(btn, "bell-off");
-    // btn.innerHTML = "Mute";
-    btn.addEventListener("click", () => {
-      if(!this.main.settings.muted_notices) this.main.settings.muted_notices = {};
-      this.main.settings.muted_notices[id] = true;
-      this.main.save_settings();
-      this.main.show_notice("Notice muted");
-    });
-    container.appendChild(btn);
-  }
 }
 module.exports = SmartConnectionsPlugin;
