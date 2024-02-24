@@ -93,7 +93,7 @@ class SmartView extends SmartObsidianView {
     if (typeof context === "undefined") context = this.app.workspace.getActiveFile();
     if (context instanceof TFile) {
       // return if file type is not supported
-      if (SUPPORTED_FILE_TYPES.indexOf(context.extension) === -1) return this.set_message([
+      if (SUPPORTED_FILE_TYPES.indexOf(context.extension) === -1) return this.plugin.notices.show('unsupported file type', [
         "File: " + context.name,
         "Unsupported file type (Supported: " + SUPPORTED_FILE_TYPES.join(", ") + ")"
       ]);
@@ -109,7 +109,7 @@ class SmartView extends SmartObsidianView {
     }
     if (context instanceof this.brain.item_types.SmartBlock) results = context.find_connections();
     if (context instanceof this.brain.item_types.SmartNote) results = context.find_connections();
-    if (!results) return this.set_message("No results found");
+    if (!results) return this.plugin.notices.show('no smart connections found', "No Smart Connections found.");
     if (typeof context === "object") context = context.key || context.path;
     this.last_note = this.app.workspace.getActiveFile().path; // for checking if results are already rendered (ex: on active-leaf-change)
 
@@ -273,7 +273,5 @@ class SmartView extends SmartObsidianView {
       this.plugin.save_settings();
     });
   }
-  // UTILS
-  set_message(message) { return this.plugin.show_notice(message); } // DEPRECATED
 }
 exports.SmartView = SmartView;

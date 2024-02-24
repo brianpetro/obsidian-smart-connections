@@ -166,3 +166,17 @@
   data-type="button"
   data-callback="force_refresh"
 ></div> -->
+<h2>Muted Notices</h2>
+<% if(muted_notices && Object.keys(muted_notices).length) { %>
+  <% for(const notice in muted_notices) { %>
+    <div class="setting-component"
+      data-name="<%= notice %>"
+      data-setting="muted_notices.<%= notice %>"
+      data-type="button"
+      data-btn-text="Unmute"
+      data-callback="unmute_notice"
+    ></div>
+  <% } %>
+<% } else { %>
+  <p>No muted notices.</p>
+<% } %>

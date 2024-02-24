@@ -6,6 +6,7 @@ const {
   Plugin,
   request,
   requestUrl,
+  setIcon,
   TAbstractFile,
   TFile,
 } = require("obsidian");
@@ -98,6 +99,7 @@ class SmartConnectionsPlugin extends Plugin {
     <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
     // regist "change" dynamic code block
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this)); // code-block renderer (DEPRECATE?)
+    this.notices = new SmartNotices(this);
     this.obsidian = { document, Notice, request, requestUrl, TFile };
     this.brain = new ScBrain(this, ObsidianAJSON);
     setTimeout(() => {
@@ -225,50 +227,9 @@ class SmartConnectionsPlugin extends Plugin {
     }
   }
   show_notice(message, opts={}) {
-    const {
-      // html_elm,
-      timeout,
-      button,
-    } = opts;
-    // new notice
-    if(timeout){
-      // if(this._notice?.noticeEl?.parentElement) this._notice.hide(); // hide previous notice
-      const _notice_doc_frag = document.createDocumentFragment();
-      _notice_doc_frag.createEl("p", { cls: "sc-notice-head", text: "[Smart Connections]" }); // create notice element for Smart Connections header
-      const text = _notice_doc_frag.createEl("p", { cls: "sc-notice-content", text: message }); // create notice element for Smart Connections content
-      const actions = _notice_doc_frag.createEl("div", { cls: "sc-notice-actions" }); // create notice element for Smart Connections actions
-      if(typeof message === 'string') text.innerText = message;
-      else if(Array.isArray(message)) text.innerHTML = message.join("<br>");
-      // if(html_elm instanceof HTMLElement) actions.appendChild(html_elm);
-      if(button) this.add_notice_btn(button, actions);
-      return new Notice(_notice_doc_frag, timeout);
-    }
-    // update existing notice
-    if(!this._notice?.noticeEl?.parentElement) {
-      this._notice_doc_frag = document.createDocumentFragment();
-      this._notice_doc_frag.createEl("p", { cls: "sc-notice-head", text: "[Smart Connections]" }); // create notice element for Smart Connections header
-      this._notice_content = this._notice_doc_frag.createEl("p", { cls: "sc-notice-content" }); // create notice element for Smart Connections content
-      this._notice_actions = this._notice_doc_frag.createEl("div", { cls: "sc-notice-actions" }); // create notice element for Smart Connections actions
-      this._notice = new Notice(this._notice_doc_frag, 0);
-    }
-    if(typeof message === 'string') this._notice_content.innerText = message;
-    else if(Array.isArray(message)) this._notice_content.innerHTML = message.join("<br>");
-    this._notice_actions.innerHTML = ""; // clear actions
-    // if(html_elm instanceof HTMLElement) this._notice_actions.appendChild(html_elm);
-    if(button) this.add_notice_btn(button, this._notice_actions);
-    return this._notice;
-  }
-  add_notice_btn(button, container) {
-    const btn = document.createElement("button");
-    btn.innerHTML = button.text;
-    btn.addEventListener("click", (e) => {
-      if(button.stay_open){
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      button.callback();
-    });
-    container.appendChild(btn);
+    console.log("old showing notice");
+    const notice_id = typeof message === 'string' ? message : message[0];
+    return this.notices.show(notice_id, message, opts);
   }
 
   // backwards compatibility
@@ -359,24 +320,66 @@ class SmartConnectionsPlugin extends Plugin {
     // reload plugin
     this.restart_plugin();
   }
-  // test API key
-  async test_api_key() {
-    const req = {
-      url: `https://api.openai.com/v1/embeddings`,
-      method: "POST",
-      body: JSON.stringify({ model: "text-embedding-ada-002", input: "test" }),
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${this.settings.api_key}` },
-    };
-    try{
-      const resp = await requestUrl(req);
-      if(resp?.json?.data?.[0]?.embedding?.length) return this.show_notice("Success! API key is valid");
-      this.show_notice("Error: API key is invalid!");
-    }catch(err){
-      this.show_notice("Error: API key is invalid!");
-      console.error("Smart Connections: Error testing API key", err);
-    }
-  }
   // is smart view open
   is_smart_view_open() { return SmartView.is_open(this.app.workspace); }
+}
+class SmartNotices {
+  constructor(main) {
+    this.main = main; // main plugin instance
+    this.active = {};
+  }
+  show(id, message, opts={}) {
+    // if notice is muted, return
+    if(this.main.settings.muted_notices?.[id]){
+      console.log("Notice is muted");
+      if(opts.confirm) opts.confirm.callback(); // if confirm callback, run it
+      return;
+    }
+    const content = this.build(id, message, opts);
+    // if notice is already active, update message
+    if(this.active[id] && this.active[id].noticeEl?.parentElement){
+      console.log("updating notice");
+      return this.active[id].setMessage(content, opts.timeout);
+    }
+    console.log("showing notice");
+    return this.active[id] = new Notice(content, opts.timeout);
+  }
+  build(id, message, opts={}) {
+    const frag = document.createDocumentFragment();
+    const head = frag.createEl("p", { cls: "sc-notice-head", text: "[Smart Connections]" });
+    const content = frag.createEl("p", { cls: "sc-notice-content" });
+    const actions = frag.createEl("div", { cls: "sc-notice-actions" });
+    if(typeof message === 'string') content.innerText = message;
+    else if(Array.isArray(message)) content.innerHTML = message.join("<br>");
+    if(opts.confirm) this.add_btn(opts.confirm, actions);
+    if(opts.button) this.add_btn(opts.button, actions);
+    this.add_mute_btn(id, actions);
+    console.log(frag);
+    return frag;
+  }
+  add_btn(button, container) {
+    const btn = document.createElement("button");
+    btn.innerHTML = button.text;
+    btn.addEventListener("click", (e) => {
+      if(button.stay_open){
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      button.callback();
+    });
+    container.appendChild(btn);
+  }
+  add_mute_btn(id, container) {
+    const btn = document.createElement("button");
+    setIcon(btn, "bell-off");
+    // btn.innerHTML = "Mute";
+    btn.addEventListener("click", () => {
+      if(!this.main.settings.muted_notices) this.main.settings.muted_notices = {};
+      this.main.settings.muted_notices[id] = true;
+      this.main.save_settings();
+      this.main.show_notice("Notice muted");
+    });
+    container.appendChild(btn);
+  }
 }
 module.exports = SmartConnectionsPlugin;

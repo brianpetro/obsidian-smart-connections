@@ -67,7 +67,7 @@ class SmartObsidianSettings extends PluginSettingTab {
               if (!confirm(confirmation_message)) return;
             }
             if (elm.dataset.href) window.open(elm.dataset.href);
-            if (elm.dataset.callback) this[elm.dataset.callback]();
+            if (elm.dataset.callback) this[elm.dataset.callback](setting);
           });
         });
       } else if (elm.dataset.type === "toggle") {
