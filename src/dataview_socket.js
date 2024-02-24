@@ -7,9 +7,10 @@ class DataviewSocket extends SmartSocket {
     this.dataview_api = null;
   }
   static async create(brain, port) {
-    const smartSocket = new DataviewSocket(brain, port);
-    await smartSocket.init();
-    return smartSocket;
+    const socket = new DataviewSocket(brain, port);
+    await socket.init();
+    brain.dv_ws = socket;
+    return socket;
   }
   async init() {
     await this.get_dataview_api();

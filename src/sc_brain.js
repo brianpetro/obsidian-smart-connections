@@ -25,6 +25,7 @@ class ScBrain extends Brain {
     this.save_timeout = null;
     this.smart_embed_active_models = {};
     this.local_model_type = 'Web';
+    this.dv_ws = null;
   }
   async reload() {
     this.unload();
@@ -39,7 +40,9 @@ class ScBrain extends Brain {
     if(this.dv_ws) this.dv_ws.unload();
   }
   async init() {
-    this.dv_ws = await DataviewSocket.create(this, 37042); // Smart Connect
+    DataviewSocket.create(this, 37042); // Smart Connect
+    // wait 2 seconds for websocket to connect (so ws presence is known before initializing smart embed) (not await to prevent blocking load of collections)
+    await new Promise(resolve => setTimeout(resolve, 2000));
     // console.log("Initializing SmartBrain");
     this.smart_markdown = new SmartMarkdown({ ...this.config, skip_blocks_with_headings_only: true }); // initialize smart markdown (before collections, b/c collections use smart markdown)
     await Promise.all(Object.values(this.collections).map(async (static_collection) => await static_collection.load(this)));

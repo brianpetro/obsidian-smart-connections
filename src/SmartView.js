@@ -23,7 +23,7 @@ class SmartView extends SmartObsidianView {
   async load_brain() {
     this.brain = this.plugin.brain;
     await this.brain.reload();
-    this.last_parent_id = SmartView.get_leaf(this.app.workspace).parent.id;
+    this.last_parent_id = SmartView.get_leaf(this.app.workspace)?.parent.id;
   }
 
   async onClose() {
