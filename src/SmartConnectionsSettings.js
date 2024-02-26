@@ -3,6 +3,7 @@ const { SmartObsidianSettings } = require("./SmartObsidianSettings");
 const smart_embed_models = require("smart-embed/models");
 const views = require("../build/views.json");
 const { SmartView } = require("./SmartView");
+const smart_chat_models = require("../smart-model/models");
 
 // Smart Connections Specific Settings
 class SmartConnectionsSettings extends SmartObsidianSettings {
@@ -59,9 +60,10 @@ class SmartConnectionsSettings extends SmartObsidianSettings {
     elm.setText(`Included files: ${included_files} / Total files: ${total_files}`);
   }
   get self_ref_list() { return "Current: " + ScTranslations[this.config.language].pronouns.join(", "); }
-  get template() { return views["smart_settings"]; }
+  get template() { return views[this.template_name]; }
   get view_data() {
     return {
+      chat_models: smart_chat_models ? Object.keys(smart_chat_models).map(model_key => ({ key: model_key, ...smart_chat_models[model_key] })) : [],
       embedding_models: Object.keys(smart_embed_models).map(model_key => ({ key: model_key, ...smart_embed_models[model_key] })),
       included_files: this.plugin.brain.files.length,
       total_files: this.plugin.brain.all_files.length,

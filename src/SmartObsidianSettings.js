@@ -3,11 +3,12 @@ const { PluginSettingTab, Setting } = require("obsidian");
 const ejs = require("../ejs.min");
 
 class SmartObsidianSettings extends PluginSettingTab {
-  constructor(app, plugin) {
+  constructor(app, plugin, template_name = "smart_settings") {
     super(app, plugin);
     this.plugin = plugin;
     this.config = plugin.settings;
     this.container = this.containerEl;
+    this.template_name = template_name;
   }
   display() { return this.render(); }
   render() {

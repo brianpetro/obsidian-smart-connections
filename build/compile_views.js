@@ -1,29 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const esbuild = require('esbuild');
-
-const templates_dir = './src/views'; // Directory containing EJS files
+const templates_dir = path.join(process.cwd(), 'src', 'views'); // Directory containing EJS files
 let views = {};
 (async () => {
-  // const smart_embed_transformers_web_adapter = await esbuild.build({
-  //   entryPoints: ['smart-embed/smart_embed_web.js'],
-  //   format: 'cjs',
-  //   // format: 'esm',
-  //   bundle: true,
-  //   write: false,
-  //   sourcemap: 'inline',
-  //   target: "es2018",
-  //   logLevel: "info",
-  //   treeShaking: true,
-  //   platform: 'browser',
-  //   external: [
-  //     'obsidian',
-  //     'crypto',
-  //     '@xenova/transformers',
-  //   ],
-  // });
-  // const smart_local_model = smart_embed_transformers_web_adapter.outputFiles[0].text;
-  // // console.log(smart_local_model);
   
   
   fs.readdir(templates_dir, (err, files) => {
@@ -42,8 +21,8 @@ let views = {};
       views[path.basename(file, path.extname(file))] = content;
     });
   
-    // fs.writeFileSync('build/views.json', JSON.stringify(views, null, 2));
-    fs.writeFileSync(path.join(process.cwd(), 'build', 'views.json'), JSON.stringify(views, null, 2));
+    console.log('views', views);
+    fs.writeFileSync('build/views.json', JSON.stringify(views, null, 2));
     console.log('EJS templates compiled into templates.json');
   });
 })();
