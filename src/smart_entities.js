@@ -262,6 +262,7 @@ class SmartNote extends SmartEntity {
     };
   }
   update_data(data) {
+    if(this.last_history && (this.last_history.mtime === data.mtime) && (this.last_history.size === data.size)) return false; // skip if no change
     super.update_data(data);
     if(!this.last_history || (this.last_history.mtime !== this.t_file.stat.mtime) || (this.last_history.size !== this.t_file.stat.size)){
       this.data.history.push({ blocks: [], mtime: this.t_file.stat.mtime, size: this.t_file.stat.size }); // add history entry
