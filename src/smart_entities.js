@@ -340,6 +340,7 @@ class SmartNote extends SmartEntity {
   get last_history() { return this.data.history.length ? this.data.history[this.data.history.length - 1] : null; }
   get mean_block_vec() { return this._mean_block_vec ? this._mean_block_vec : this._mean_block_vec = this.block_vecs.reduce((acc, vec) => acc.map((val, i) => val + vec[i]), Array(384).fill(0)).map(val => val / this.block_vecs.length); }
   get median_block_vec() { return this._median_block_vec ? this._median_block_vec : this._median_block_vec = this.block_vecs[0]?.map((val, i) => this.block_vecs.map(vec => vec[i]).sort()[Math.floor(this.block_vecs.length / 2)]); }
+  get note_name() { return this.path.split("/").pop().replace(".md", ""); }
   get t_file() { return this.brain.get_tfile(this.data.path); }
 }
 class SmartBlocks extends SmartEntities {
@@ -461,6 +462,7 @@ class SmartBlock extends SmartEntity {
   get name() { return (!this.brain.main.settings.show_full_path ? this.data.path.split("/").pop() : this.data.path.split("/").join(" > ")).split("#").join(" > ").replace(".md", ""); }
   get note() { return this.brain.smart_notes.get(this.note_key); }
   get note_key() { return this.data.path.split("#")[0]; }
+  get note_name() { return this.note.note_name; }
   // backwards compatibility (DEPRECATED)
   get link() { return this.data.path; }
 }
