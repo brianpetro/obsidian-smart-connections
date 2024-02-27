@@ -70,11 +70,8 @@ class SmartEntities extends Collection {
     if(!this.smart_embed) return console.log("SmartEmbed not loaded for " + this.collection_name);
     if(this.smart_embed.is_embedding) return console.log("already embedding, skipping ensure_embeddings", this.smart_embed.queue_length);
     const unembedded_items = this.unembedded_items; // gets all without vec
-    console.log("unembedded_items: ", unembedded_items.map(item => item.name));
-    if(unembedded_items.length === 0){
-      // console.log("no unembedded items");
-      return true; // skip if no unembedded items
-    }
+    // console.log("unembedded_items: ", unembedded_items.map(item => item.name));
+    if(unembedded_items.length === 0) return true; // skip if no unembedded items
     const batch_size = this.smart_embed.batch_size;
     const performance_notice_msg = "(This is a resource intensive operation)";
     if((show_notice !== false) && (unembedded_items.length > 30)) {
