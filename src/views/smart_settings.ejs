@@ -1,10 +1,15 @@
 <h2>Supporter Features</h2>
 <p>As a Smart Connections "Supporter", fast-track your PKM journey with priority perks and pioneering innovations.</p>
 <ul>
-  <li>Swift, top-priority support by replying to your supporter license key email.</li>
-  <li>Access your notes in ChatGPT with the <a href="https://chat.openai.com/g/g-SlDDp07bm-smart-connections-for-obsidian" target="_blank">Smart Connections GPT</a>.</li>
-  <li>Gain early access new versions and experimental features.</li>
-  <li>Stay informed and engaged with exclusive supporter-only communications.</li>
+  <li>Swift, top-priority support via email and chat.</li>
+  <li>Access to the <a href="https://chat.smartconnections.app">private chat</a>.</li>
+  <li>Early access new versions and experimental features:
+    <ul>
+      <li>Access your notes in ChatGPT with the original <a href="#og-gpt">Smart Connections GPT</a>.</li>
+      <li>Chat with your notes <i>without</i> uploading your notes to the cloud! Supporters get early access to the new Smart Connect software and <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2">Smart Connections 2</a> GPT.</li>
+      <li>Early access to v2.1 (coming soon!)</li>
+    </ul>
+  </li>
 </ul>
 <div class="setting-component"
   data-name="Supporter License Key"
@@ -20,18 +25,11 @@
   data-href="https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
 ></div>
 <div class="setting-component"
-  data-name="ChatGPT Integration (supporter-only)"
-  data-btn-text="Sync Notes"
-  data-description="Sync your notes for use with the Smart Connections GPT and ChatGPT Plugin. Respects your file and folder exclusion settings. Required to use the Smart Connections GPT."
+  data-name="Smart Connections 2"
+  data-btn-text="Open GPT"
+  data-description='Chat with your notes in ChatGPT without uploading your notes to the cloud!'
   data-type="button"
-  data-callback="sync_for_chatgpt"
-></div>
-<div class="setting-component"
-  data-name="Open Smart Connections GPT"
-  data-btn-text="Open"
-  data-description='Chat with your notes in ChatGPT. Requires a ChatGPT Plus account.'
-  data-type="button"
-  data-href="https://chat.openai.com/g/g-SlDDp07bm-smart-connections-for-obsidian"
+  data-href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2"
 ></div>
 <h2>Embedding Models</h2>
 <p>Notes about embedding models:</p>
@@ -133,7 +131,7 @@
   data-setting="show_full_path"
   data-callback="refresh_smart_view"
 ></div>
-<h3>Data Management</h3>
+<h2>Data Management</h2>
 <div class="setting-component"
   data-name="Refresh Notes"
   data-description="Clear notes data and reprocess."
@@ -157,7 +155,7 @@
   data-callback="update_smart_connections_folder"
   data-button="Save"
 ></div>
-<h3>Force Refresh</h3>
+<h2>Force Refresh</h2>
 <div class="setting-component"
   data-name="force_refresh"
   data-description="WARNING: DO NOT use unless you know what you are doing! This will delete all of your current embeddings from OpenAI and trigger reprocessing of your entire vault!"
@@ -179,3 +177,20 @@
 <% } else { %>
   <p>No muted notices.</p>
 <% } %>
+<h2 name="og-gpt" id="og-gpt">Original Smart Connections GPT</h2>
+<p>This GPT can browser folders and read notes. It requires manually synchronization for your notes to be accessible by ChatGPT.</p>
+<div class="setting-component"
+  data-name="ChatGPT Integration (supporter-only)"
+  data-btn-text="Sync Notes"
+  data-description="Sync your notes for use with the Smart Connections GPT and ChatGPT Plugin. Respects your file and folder exclusion settings. Required to use the Smart Connections GPT."
+  data-type="button"
+  data-callback="sync_for_chatgpt"
+></div>
+<div class="setting-component"
+  data-name="Open Smart Connections GPT"
+  data-btn-text="Open"
+  data-description='Chat with your notes in ChatGPT. Requires a ChatGPT Plus account.'
+  data-type="button"
+  data-href="https://chat.openai.com/g/g-SlDDp07bm-smart-connections-for-obsidian"
+></div>
+<em>Try the <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2">Smart Connections 2</a> GPT for more advanced features like creating notes and embedding search.</em>

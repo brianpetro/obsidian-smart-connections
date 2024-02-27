@@ -462,7 +462,7 @@ class SmartBlock extends SmartEntity {
   get name() { return (!this.brain.main.settings.show_full_path ? this.data.path.split("/").pop() : this.data.path.split("/").join(" > ")).split("#").join(" > ").replace(".md", ""); }
   get note() { return this.brain.smart_notes.get(this.note_key); }
   get note_key() { return this.data.path.split("#")[0]; }
-  get note_name() { return this.note.note_name; }
+  get note_name() { return this.note_key.split("/").pop().replace(".md", ""); }
   // backwards compatibility (DEPRECATED)
   get link() { return this.data.path; }
 }
