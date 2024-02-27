@@ -10,7 +10,8 @@ const {
   TFile,
 } = require("obsidian");
 // const { ObsidianAJSON } = require("smart-collections"); // NPM
-const { ObsidianAJSON } = require("../smart-collections/ObsidianAJSON.js"); // Local
+// const { ObsidianAJSON } = require("../smart-collections/ObsidianAJSON.js"); // Local
+const { ObsAJSON } = require("../smart-collections/ObsAJSON.js"); // Local
 const { ScBrain } = require("./sc_brain");
 const { default_settings } = require("./default_settings");
 const { SmartView } = require("./SmartView");
@@ -102,7 +103,7 @@ class SmartConnectionsPlugin extends Plugin {
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this)); // code-block renderer (DEPRECATE?)
     this.notices = new SmartNotices(this);
     this.obsidian = { document, Notice, request, requestUrl, TFile };
-    this.brain = new ScBrain(this, ObsidianAJSON);
+    this.brain = new ScBrain(this, ObsAJSON);
     setTimeout(() => {
       // PARTIALLY DEPRECATED: should only apply if using local model VIA Web connector (excludes APIs and local via Smart Connect)
       if(!SmartChatView.is_open(this.app.workspace) && !SmartView.is_open(this.app.workspace)) this.notices.show_requires_smart_view();

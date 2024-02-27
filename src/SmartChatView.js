@@ -725,7 +725,7 @@ class SmartChatView extends SmartObsidianView {
       if (context.length >= MAX_SOURCES) break;
       if (char_accum >= MAX_CHARS) break;
       const max_available_chars = MAX_CHARS - char_accum; // get max available chars to add to context
-      const block_content = await this.plugin.brain.smart_blocks.get(nearest[i].key).get_as_context_for_chat();
+      const block_content = await this.plugin.brain.smart_blocks.get(nearest[i].key).get_embed_input();
       if (!block_content || block_content.length === 0) continue;
       const new_context = block_content.slice(0, max_available_chars);
       char_accum += new_context.length; // add to char_accum
