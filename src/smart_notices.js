@@ -9,7 +9,7 @@ class SmartNotices {
     // if notice is muted, return
     if (this.main.settings.muted_notices?.[id]) {
       // console.log("Notice is muted");
-      if (opts.confirm) opts.confirm.callback(); // if confirm callback, run it
+      if(opts.confirm && typeof opts.confirm.callback === 'function') opts.confirm.callback.call(); // if confirm callback, run it
       return;
     }
     const content = this.build(id, message, opts);

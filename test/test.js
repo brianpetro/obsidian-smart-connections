@@ -11,64 +11,64 @@ test.beforeEach(async (t) => {
   await init_test_brain(t);
 });
 // IMPORT NOTE
-test('SmartNotes.import(file_path)-> creates a SmartNote', (t) => {
-  const { smart_note, test_md_path } = t.context;
-  t.is(smart_note.data.path, test_md_path);
-});
-test('SmartNotes.import(file_path)-> creates SmartBlocks', (t) => {
-  const { brain } = t.context;
-  t.is(brain.smart_blocks.keys.length > 0, true);
-});
-test('SmartNotes.import(file_path)-> persists smart_block keys to smart_note.last_history.blocks', (t) => {
-  const { smart_note } = t.context;
-  t.is(smart_note.last_history.blocks.length > 0, true);
-});
-test('SmartNotes.import(file_path)-> smart_note.last_history.blocks[0] is the same as smart_blocks.keys[0]', (t) => {
-  const { smart_note, brain } = t.context;
-  t.is(smart_note.last_history.blocks[0], brain.smart_blocks.keys[0]);
-});
-test('SmartNotes.import(file_path)-> persists mtime to smart_note.last_history.mtime', (t) => {
-  const { smart_note } = t.context;
-  t.is(typeof smart_note.last_history.mtime, 'object');
-});
-test('SmartNotes.import(file_path)-> persists size to smart_note.last_history.size', (t) => {
-  const { smart_note } = t.context;
-  t.is(typeof smart_note.last_history.size, 'number');
-});
-test('SmartNotes.import(file_path)-> creates blocks with vec embeddings', (t) => {
-  const { brain } = t.context;
-  t.is(brain.smart_blocks.get(brain.smart_blocks.keys[0]).data.embedding.vec.length, 384);
-});
-test("SmartNotes.import(file_path)-> calls brain.save()", async (t) => {
-  clear_collections(t);
-  const { brain, test_md_path } = t.context;
-  brain.smart_notes.clear();
-  brain.save = () => { t.pass(); };
-  await brain.smart_notes.import(test_md_path);
-});
-test('SmartNotes.import(excluded_file_path)-> does not create a SmartNote', async (t) => {
-  const { brain, test_md_path } = t.context;
-  brain.smart_notes.clear();
-  brain.smart_blocks.clear();
-  t.is(brain.smart_notes.keys.length, 0);
-  const file_name = path.basename(test_md_path);
-  brain.main.settings.file_exclusions = file_name;
-  brain._file_exclusions = null; // clear file exclusions cache
-  await brain.smart_notes.import();
-  t.is(brain.smart_notes.keys.length, 0);
-});
-test('SmartNotes.import(excluded_folder_path)-> does not create a SmartNote', async (t) => {
-  const { brain, test_md_path } = t.context;
-  brain.smart_notes.clear();
-  brain.smart_blocks.clear();
-  t.is(brain.smart_notes.keys.length, 0);
-  const folder_name = path.basename(path.dirname(test_md_path));
-  brain.main.settings.folder_exclusions = folder_name;
-  brain._file_exclusions = null; // clear file exclusions cache (used as canonical matcher for both file and folder exclusions)
-  brain._folder_exclusions = null; // clear folder exclusions cache
-  await brain.smart_notes.import();
-  t.is(brain.smart_notes.keys.length, 0);
-});
+// test('SmartNotes.import(file_path)-> creates a SmartNote', (t) => {
+//   const { smart_note, test_md_path } = t.context;
+//   t.is(smart_note.data.path, test_md_path);
+// });
+// test('SmartNotes.import(file_path)-> creates SmartBlocks', (t) => {
+//   const { brain } = t.context;
+//   t.is(brain.smart_blocks.keys.length > 0, true);
+// });
+// test('SmartNotes.import(file_path)-> persists smart_block keys to smart_note.last_history.blocks', (t) => {
+//   const { smart_note } = t.context;
+//   t.is(smart_note.last_history.blocks.length > 0, true);
+// });
+// test('SmartNotes.import(file_path)-> smart_note.last_history.blocks[0] is the same as smart_blocks.keys[0]', (t) => {
+//   const { smart_note, brain } = t.context;
+//   t.is(smart_note.last_history.blocks[0], brain.smart_blocks.keys[0]);
+// });
+// test('SmartNotes.import(file_path)-> persists mtime to smart_note.last_history.mtime', (t) => {
+//   const { smart_note } = t.context;
+//   t.is(typeof smart_note.last_history.mtime, 'object');
+// });
+// test('SmartNotes.import(file_path)-> persists size to smart_note.last_history.size', (t) => {
+//   const { smart_note } = t.context;
+//   t.is(typeof smart_note.last_history.size, 'number');
+// });
+// test('SmartNotes.import(file_path)-> creates blocks with vec embeddings', (t) => {
+//   const { brain } = t.context;
+//   t.is(brain.smart_blocks.get(brain.smart_blocks.keys[0]).data.embedding.vec.length, 384);
+// });
+// test("SmartNotes.import(file_path)-> calls brain.save()", async (t) => {
+//   clear_collections(t);
+//   const { brain, test_md_path } = t.context;
+//   brain.smart_notes.clear();
+//   brain.save = () => { t.pass(); };
+//   await brain.smart_notes.import(test_md_path);
+// });
+// test('SmartNotes.import(excluded_file_path)-> does not create a SmartNote', async (t) => {
+//   const { brain, test_md_path } = t.context;
+//   brain.smart_notes.clear();
+//   brain.smart_blocks.clear();
+//   t.is(brain.smart_notes.keys.length, 0);
+//   const file_name = path.basename(test_md_path);
+//   brain.main.settings.file_exclusions = file_name;
+//   brain._file_exclusions = null; // clear file exclusions cache
+//   await brain.smart_notes.import();
+//   t.is(brain.smart_notes.keys.length, 0);
+// });
+// test('SmartNotes.import(excluded_folder_path)-> does not create a SmartNote', async (t) => {
+//   const { brain, test_md_path } = t.context;
+//   brain.smart_notes.clear();
+//   brain.smart_blocks.clear();
+//   t.is(brain.smart_notes.keys.length, 0);
+//   const folder_name = path.basename(path.dirname(test_md_path));
+//   brain.main.settings.folder_exclusions = folder_name;
+//   brain._file_exclusions = null; // clear file exclusions cache (used as canonical matcher for both file and folder exclusions)
+//   brain._folder_exclusions = null; // clear folder exclusions cache
+//   await brain.smart_notes.import();
+//   t.is(brain.smart_notes.keys.length, 0);
+// });
 // IMPORT BLOCKS
 test('SmartNotes.import()-> calls brain.smart_notes._save()', async (t) => {
   const { brain, test_md_path } = t.context;

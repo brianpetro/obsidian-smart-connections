@@ -178,17 +178,10 @@ class SmartEntity extends CollectionItem {
 class SmartNotes extends SmartEntities {
   async import(opts= {}) {
     const {
-      file_path = null,
       reset = false,
       show_notice = false,
     } = opts;
     // if(reset) this.clear();
-    if(file_path){
-      const smart_note = await this.create_or_update({ path: file_path });
-      if(this.smart_embed) await this.smart_embed.embed_batch([smart_note]);
-      if(this.brain.smart_blocks.smart_embed) await this.brain.smart_blocks.smart_embed.embed_batch(smart_note.blocks);
-      return;
-    }
     if(reset) this.prune(true);
     try{
       // const files = this.brain.files.filter(file => !this.get(file.path)?.vec); // get files that aren't already imported or unembedded
@@ -278,12 +271,11 @@ class SmartNote extends SmartEntity {
       // console.log(this);
       const start_embedding_btn = {
         text: "Start embedding",
-        callback: async () => {
-          await this.collection.import({ file_path: this.path });
-          this.brain.main.view.render_nearest(this);
+        callback: () => {
+          this.collection.import().then(() => this.brain.main.view.render_nearest(this));
         }
       };
-      this.brain.main.notices.show('no embedding found', `No embeddings found for ${this.name}.`, { button: start_embedding_btn });
+      this.brain.main.notices.show('no embedding found', `No embeddings found for ${this.name}.`, { confirm: start_embedding_btn });
       return results;
     }
     if(this.vec && this.median_block_vec && this.brain.smart_blocks.smart_embed && this.collection.smart_embed){
