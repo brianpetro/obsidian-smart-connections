@@ -9,8 +9,11 @@ const {
 // } = require('smart-embed');
 } = require('../smart-embed/smart_embed');
 const { SmartEmbedTransformersNodeAdapter } = require('../smart-embed/SmartEmbedTransformersNodeAdapter');
-const { SmartEmbedElectronConnector } = require("../../smart-embed/SmartEmbedElectronConnector");
-const { SmartEmbedWebSocketConnector } = require("../../smart-embed/SmartEmbedWebSocketConnector");
+const { SmartEmbedElectronConnector } = require("../smart-embed/SmartEmbedElectronConnector");
+const { SmartEmbedWebSocketConnector } = require("../smart-embed/SmartEmbedWebSocketConnector");
+// const { SmartEmbedTransformersNodeAdapter } = require('smart-embed/SmartEmbedTransformersNodeAdapter');
+// const { SmartEmbedElectronConnector } = require("smart-embed/SmartEmbedElectronConnector");
+// const { SmartEmbedWebSocketConnector } = require("smart-embed/SmartEmbedWebSocketConnector");
 class SmartEntities extends Collection {
   constructor(brain) {
     super(brain);
