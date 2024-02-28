@@ -28,7 +28,6 @@
   },
   "homepage": "https://smartconnections.app",
   "devDependencies": {
-    "@xenova/transformers": "^2.15.0",
     "archiver": "^6.0.1",
     "ava": "^6.1.1",
     "axios": "^1.6.7",
@@ -39,8 +38,8 @@
   },
   "dependencies": {
     "ejs": "^3.1.9",
-    "smart-chunks": "latest",
-    "smart-collections": "latest",
-    "smart-embed": "latest"
+    "smart-chunks": "file:../smart-chunks",
+    "smart-collections": "file:../smart-collections",
+    "smart-embed": "file:../smart-embed"
   }
 }
