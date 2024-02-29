@@ -1,5 +1,4 @@
 const { Brain } = require("smart-collections/Brain");
-// const { SmartMarkdown } = require("../smart-chunks/smart-chunks"); // local
 const { SmartMarkdown } = require("smart-chunks"); // npm
 const {
   SmartNotes,
