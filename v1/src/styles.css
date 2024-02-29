@@ -128,7 +128,7 @@
   user-select: text;
 }
 .sc-message-container {
-  border: 1px solid var(--blockquote-border-color);
+  border: 1px solid var(--divider-color);
   border-radius: 10px;
   margin: 0.5rem 0;
   display: flex;
@@ -147,9 +147,8 @@
 }
 
 .sc-message.assistant {
-  background-color: #00000000;
-  color: var(--text-normal);
-  border: 1px solid var(--blockquote-border-color);
+  background-color: var(--nav-item-background-active);
+  color: var(--nav-item-color);
 }
 .sc-message.user {
   background-color: var(--background-modifier-form-field);
