@@ -1,18 +1,11 @@
-// const { Collection } = require("../smart-collections/Collection"); // local
-// const { CollectionItem } = require("../smart-collections/CollectionItem"); // local
 const { Collection } = require("smart-collections/Collection"); // npm
 const { CollectionItem } = require("smart-collections/CollectionItem"); // npm
 const { script: web_script } = require('smart-embed/web_connector.json');
-// const {script: web_script} = require('../smart-embed/web_connector.json'); // issues compiling this file with esbuild in smart_embed.js
 const {
   SmartEmbedTransformersWebAdapter,
   SmartEmbedOpenAIAdapter, 
   SmartEmbed,
 } = require('smart-embed');
-// } = require('../smart-embed/smart_embed');
-// const { SmartEmbedTransformersNodeAdapter } = require('../smart-embed/SmartEmbedTransformersNodeAdapter');
-// const { SmartEmbedElectronConnector } = require("../smart-embed/SmartEmbedElectronConnector");
-// const { SmartEmbedWebSocketConnector } = require("../smart-embed/SmartEmbedWebSocketConnector");
 const { SmartEmbedTransformersNodeAdapter } = require('smart-embed/SmartEmbedTransformersNodeAdapter');
 const { SmartEmbedElectronConnector } = require("smart-embed/SmartEmbedElectronConnector");
 const { SmartEmbedWebSocketConnector } = require("smart-embed/SmartEmbedWebSocketConnector");

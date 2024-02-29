@@ -10,8 +10,7 @@ const {
   TFile,
 } = require("obsidian");
 // const { ObsidianAJSON } = require("smart-collections"); // NPM
-// const { ObsidianAJSON } = require("../smart-collections/ObsidianAJSON.js"); // Local
-const { ObsAJSON } = require("../smart-collections/ObsAJSON.js"); // Local
+const { ObsAJSON } = require("smart-collections/ObsAJSON.js"); // Local
 const { ScBrain } = require("./sc_brain");
 const { default_settings } = require("./default_settings");
 const { SmartView } = require("./SmartView");
