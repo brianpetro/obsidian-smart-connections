@@ -63,7 +63,7 @@ class SmartEntities extends Collection {
           this.smart_embed = await SmartEmbedTransformersNodeAdapter.create(this.smart_embed_model); // initialize smart embed
         }
       } else { // is API model
-        this.smart_embed = await SmartEmbedOpenAIAdapter.create(this.smart_embed_model, this.brain.main.obsidian.requestUrl, this.config.api_key); // initialize smart embed
+        this.smart_embed = await SmartEmbedOpenAIAdapter.create(this.smart_embed_model, this.brain.main.obsidian?.requestUrl, this.config.api_key); // initialize smart embed
       }
     }
   }
