@@ -5,16 +5,6 @@
 .vscode
 dist
 node_modules
-notes
-obsidian-1
-obsidian-localhost
-obsidian-plugins
 package-lock.json
-sc-desktop
-sc-v1
-smart-chunks
-smart-collections
-smart-embed
-smart-plugins
 stylesheets
-vec_lite
+ref
