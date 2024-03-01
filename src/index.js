@@ -70,7 +70,7 @@ class SmartConnectionsPlugin extends Plugin {
   }
   async load_settings() {
     Object.assign(this.settings, await this.loadData());
-    this.handle_deprecated_v1_settings(); // HANDLE DEPRECATED SETTINGS
+    this.handle_deprecated_settings(); // HANDLE DEPRECATED SETTINGS
   }
   async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
@@ -231,13 +231,6 @@ class SmartConnectionsPlugin extends Plugin {
     return this.notices.show(notice_id, message, opts);
   }
 
-  // backwards compatibility
-  handle_deprecated_v1_settings() {
-    if (this.settings.header_exclusions) {
-      this.settings.excluded_headings = this.settings.header_exclusions;
-      delete this.settings.header_exclusions;
-    }
-  }
   open_view(active=true) { SmartView.open(this.app.workspace, active); }
   open_chat() { SmartChatView.open(this.app.workspace); }
   get view() { return SmartView.get_view(this.app.workspace); } 
@@ -321,5 +314,17 @@ class SmartConnectionsPlugin extends Plugin {
   }
   // is smart view open
   is_smart_view_open() { return SmartView.is_open(this.app.workspace); }
+  // backwards compatibility
+  handle_deprecated_settings() {
+    if(this.settings.smart_notes_embed_model === "None"){
+      this.settings.smart_notes_embed_model = "TaylorAI/bge-micro-v2";
+      this.save_settings();
+    }
+    // V1 relics
+    if (this.settings.header_exclusions) {
+      this.settings.excluded_headings = this.settings.header_exclusions;
+      delete this.settings.header_exclusions;
+    }
+  }
 }
 module.exports = SmartConnectionsPlugin;

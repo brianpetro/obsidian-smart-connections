@@ -47,8 +47,7 @@
   data-setting="smart_notes_embed_model"
   data-type="dropdown"
   data-description="Select a model to use for embedding your notes."
-  data-option-0="None|None"
-  <%- embedding_models.map((model, i) => `data-option-${i + 1}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
+  <%- embedding_models.map((model, i) => `data-option-${i}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
   data-callback="reload_brain"
 ></div>
 <div class="setting-component"

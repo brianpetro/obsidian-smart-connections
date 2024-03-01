@@ -2,8 +2,8 @@ function default_settings() {
   return {
     settings: {
       chat_folder: "smart chat",
-      smart_notes_embed_model: "None",
-      smart_blocks_embed_model: "TaylorAI/bge-micro-v2",
+      smart_notes_embed_model: "TaylorAI/bge-micro-v2",
+      smart_blocks_embed_model: "None",
       smart_connections_folder: ".smart-connections",
       smart_connections_folder_last: ".smart-connections",
       // Smart Blocks Settings (chunking)
