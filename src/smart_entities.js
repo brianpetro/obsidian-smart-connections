@@ -207,7 +207,7 @@ class SmartNotes extends SmartEntities {
   }
   async ensure_embeddings(show_notice = false) {
     const resp = await super.ensure_embeddings(show_notice);
-    if(resp) this.brain.smart_blocks.import({show_notice}); // trigger block-level import
+    if(resp && this.brain.smart_blocks?.smart_embed) this.brain.smart_blocks.import({show_notice}); // trigger block-level import
   }
   prune(override = false) {
     const remove = [];
@@ -250,7 +250,7 @@ class SmartNote extends SmartEntity {
     if(this.last_history && (this.last_history.mtime === data.mtime) && (this.last_history.size === data.size)) return false; // DO: necessary?
     super.update_data(data);
     if(!this.last_history || (this.last_history.mtime !== this.t_file.stat.mtime) || (this.last_history.size !== this.t_file.stat.size)){
-      this.data.history.push({ blocks: [], mtime: this.t_file.stat.mtime, size: this.t_file.stat.size }); // add history entry
+      this.data.history.push({ blocks: {}, mtime: this.t_file.stat.mtime, size: this.t_file.stat.size }); // add history entry
       this.data.embedding = {}; // clear embedding
     }
     return true;
@@ -348,17 +348,28 @@ class SmartBlocks extends SmartEntities {
       reset = false,
       show_notice = false,
     } = opts;
-    await Promise.all(Object.values(this.brain.smart_notes.items)
-      .map(async note => {
-        const content = await note.get_content();
-        const { blocks } = this.brain.smart_markdown.parse({ content, file_path: note.data.path });
-        blocks.forEach(block => this.create_or_update(block));
+    // this.brain.main.notices.show('importing blocks', [`Importing blocks...`], { timeout: 0 });
+    const changed_notes = Object.values(this.brain.smart_notes.items)
+      .filter(note => {
+        const block_keys = Object.keys(note.last_history.blocks);
+        // console.log(note.key, block_keys);
+        if(block_keys.length) return false; // skip if last_history.blocks length is > 0
+        return true;
       })
-    );
+    ;
+    // this.brain.main.notices.show('importing blocks', [`Processing ${changed_notes.length} changed notes for blocks...`], { timeout: 0 });
+    await Promise.all(changed_notes.map(async (note, i, arr) => {
+      const content = await note.get_content();
+      const { blocks } = this.brain.smart_markdown.parse({ content, file_path: note.data.path });
+      blocks.forEach(block => this.create_or_update(block));
+    }));
+    // this.brain.main.notices.remove('importing blocks');
+    // this.brain.main.notices.show('done importing blocks', [`Done importing blocks.`], { timeout: 3000 });
     this.prune(true); // after create_or_update (otherwise all blocks are gone)
     // console.log("done importing blocks");
     // console.log(this.keys.length);
     await this.ensure_embeddings(show_notice);
+    this.brain.smart_notes._save(); // save blocks in history
   }
   prune(override = false) {
     const remove = [];
@@ -428,6 +439,7 @@ class SmartBlock extends SmartEntity {
   init() {
     // console.log(this.key, this._embed_input);
     // console.log(this.data);
+    if(Array.isArray(this.note.last_history.blocks)) this.note.last_history.blocks = {}; // convert to object
     this.note.last_history.blocks[this.key] = true; // add block key to note history entry
   }
   async get_content() {

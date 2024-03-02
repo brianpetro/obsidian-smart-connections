@@ -70,7 +70,7 @@ class ScBrain extends Brain {
       if (this.main.last_user_activity && ((Date.now() - this.main.last_user_activity) < 60000)) return this.save(); // reset save timeout
       await this._save();
       this.save_timeout = null;
-    }, 60000); // set save timeout
+    }, 20000); // set save timeout
   }
   async _save() { await Promise.all(Object.keys(this.collections).map(async (collection_name) => await this[collection_name]._save())); }
   // getters
