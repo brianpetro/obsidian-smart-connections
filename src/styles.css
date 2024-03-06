@@ -127,7 +127,8 @@
   user-select: text;
 }
 .sc-message-container {
-  border: 1px solid var(--blockquote-border-color);
+  /* border: 1px solid var(--blockquote-border-color); */
+  border: 1px solid var(--divider-color);
   border-radius: 10px;
   margin: 0.5rem 0;
   display: flex;
@@ -145,14 +146,20 @@
   word-break: break-word;
 }
 
-.sc-message.assistant {
-  background-color: #007bff;
-  color: #fff;
+.sc-message.assistant, .sc-message.system {
+  /* background-color: #007bff;
+  color: #fff; */
+  background-color: var(--nav-item-background-active);
+  color: var(--nav-item-color);
 }
 .sc-message.user {
-  background-color: #333;
-  color: #fff;
+  /* background-color: #333;
+  color: #fff; */
   align-self: flex-end;
+  background-color: var(--background-modifier-form-field);
+  color: var(--text-normal);
+  align-self: flex-end;
+  border: var(--input-border-width) solid var(--background-modifier-border);
 }
 
 .sc-message-content {

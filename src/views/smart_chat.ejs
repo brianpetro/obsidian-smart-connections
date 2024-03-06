@@ -1,7 +1,8 @@
 <div class="workspace-leaf-content" data-type="smart-connections-chat-view">
   <div class="sc-chat-container">
     <div class="sc-top-bar-container">
-      <input class="sc-chat-name-input" type="text" value="UNTITLED">
+      <input class="sc-chat-name-input" type="text" value="<%= name %>" placeholder="Chat Name">
+      <button title="Open Conversation Note"><%- this.get_icon('external-link') %></button>
       <button title="Smart View"><%- this.get_icon('smart-connections') %></button>
       <button title="Save Chat"><%- this.get_icon('save') %></button>
       <button title="Chat History"><%- this.get_icon('history') %></button>
@@ -10,11 +11,9 @@
     <div class="sc-chat-box">
       <div class="sc-message-container">
         <div class="sc-message assistant">
-          <div class="sc-message-content">
-            <p>Hi, I'm ChatGPT with access to your notes via Smart Connections. Ask me a question about your notes and
-              I'll try to answer it.</p>
-          </div>
+          <div class="sc-message-content">Hi there, welcome to the Smart Chat.&nbsp;Ask me a question about your notes and I'll try to answer it.</div>
         </div>
+        <%- messages %>
       </div>
     </div>
     <div class="sc-chat-form"><textarea class="sc-chat-input"
