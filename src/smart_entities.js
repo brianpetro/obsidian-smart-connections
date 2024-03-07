@@ -162,7 +162,8 @@ class SmartEntity extends CollectionItem {
     this.collection.set(this);
     this.brain.save();
   }
-  get ajson() { return `"${this.key.replace(/"/g, '\\"')}": ${JSON.stringify(this.data)}`; }
+  // get ajson() { return `"${this.key.replace(/"/g, '\\"')}": ${JSON.stringify(this.data)}`; }
+  get ajson() { return `${JSON.stringify(this.key)}: ${JSON.stringify(this.data)}`; }
   get embed_link() { return `![[${this.data.path}]]`; }
   get name() { return (!this.brain.main.settings.show_full_path ? this.path.split("/").pop() : this.path.split("/").join(" > ")).split("#").join(" > ").replace(".md", ""); }
   get path() { return this.data.path; }
