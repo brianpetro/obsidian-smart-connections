@@ -440,6 +440,7 @@ class SmartBlock extends SmartEntity {
   init() {
     // console.log(this.key, this._embed_input);
     // console.log(this.data);
+    if(!this.note) return console.log({"no note for block": this.data});
     if(Array.isArray(this.note.last_history.blocks)) this.note.last_history.blocks = {}; // convert to object
     this.note.last_history.blocks[this.key] = true; // add block key to note history entry
   }
