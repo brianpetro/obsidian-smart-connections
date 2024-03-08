@@ -162,7 +162,12 @@ class SmartEntity extends CollectionItem {
     this.collection.set(this);
     this.brain.save();
   }
-  // get ajson() { return `"${this.key.replace(/"/g, '\\"')}": ${JSON.stringify(this.data)}`; }
+  async get_as_context(params = {}) {
+    return `---BEGIN NOTE${params.i ? " " + params.i : ""} [[${this.path}]]---\n${await this.get_content()}\n---END NOTE${params.i ? " " + params.i : ""}---`;
+  }
+  async get_content() {} // override in child class
+  async get_embed_input() {} // override in child class
+  // getters
   get ajson() { return `${JSON.stringify(this.key)}: ${JSON.stringify(this.data)}`; }
   get embed_link() { return `![[${this.data.path}]]`; }
   get name() { return (!this.brain.main.settings.show_full_path ? this.path.split("/").pop() : this.path.split("/").join(" > ")).split("#").join(" > ").replace(".md", ""); }
