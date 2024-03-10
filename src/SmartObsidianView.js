@@ -1,4 +1,4 @@
-const { getIcon, ItemView } = require("obsidian");
+const { ItemView } = require("obsidian");
 const views = require("../build/views.json");
 const ejs = require("../ejs.min");
 
@@ -24,7 +24,7 @@ class SmartObsidianView extends ItemView {
       settings: this.plugin.settings,
     };
   }
-  get_icon(name) { return getIcon(name).outerHTML; }
+  get_icon(name) { return this.plugin.obsidian.getIcon(name).outerHTML; }
   static get view_type() { }
   static get_leaf(workspace) { return workspace.getLeavesOfType(this.view_type)?.find((leaf) => leaf.view instanceof this); }
   static get_view(workspace) { return this.get_leaf(workspace)?.view; }

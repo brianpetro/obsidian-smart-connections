@@ -1,4 +1,3 @@
-const { Component, MarkdownRenderer, TFile } = require("obsidian");
 const { SmartObsidianView } = require("./SmartObsidianView");
 const SUPPORTED_FILE_TYPES = ["md", "canvas"];
 
@@ -91,7 +90,7 @@ class SmartView extends SmartObsidianView {
     let results;
     if (typeof context === "string") results = await this.plugin.api.search(context);
     if (typeof context === "undefined") context = this.app.workspace.getActiveFile();
-    if (context instanceof TFile) {
+    if (context instanceof this.plugin.obsidian.TFile) {
       // return if file type is not supported
       if (SUPPORTED_FILE_TYPES.indexOf(context.extension) === -1) return this.plugin.notices.show('unsupported file type', [
         "File: " + context.name,
@@ -147,7 +146,7 @@ class SmartView extends SmartObsidianView {
     const entity_key = elm.title;
     const collection_name = elm.dataset.collection;
     const entity = this.brain[collection_name].get(entity_key);
-    if (should_render_embed()) return MarkdownRenderer.render(this.app, entity.embed_link, elm, entity_key, new Component());
+    if (should_render_embed()) return this.plugin.obsidian.MarkdownRenderer.render(this.app, entity.embed_link, elm, entity_key, new this.plugin.obsidian.Component());
     const content = (await entity?.get_content())?.replace(/```dataview/g, '```\\dataview'); // prevent rendering dataview code blocks (DO: make toggle-able)
     if (!entity || !content) {
       // add not found message <p>
@@ -160,7 +159,7 @@ class SmartView extends SmartObsidianView {
         this.brain.smart_notes.import({ reset: true });
       });
     }
-    MarkdownRenderer.render(this.app, content, elm, entity_key, new Component());
+    this.plugin.obsidian.MarkdownRenderer.render(this.app, content, elm, entity_key, new this.plugin.obsidian.Component());
     function isElementVisible(elem) {
       const rect = elem.getBoundingClientRect();
       return (
