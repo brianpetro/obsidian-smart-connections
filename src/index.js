@@ -209,10 +209,10 @@ class SmartConnectionsPlugin extends Plugin {
       callback: () => {
         const curr_file = this.app.workspace.getActiveFile();
         const curr_note = this.brain?.smart_notes.get(curr_file.path);
-        const nearest_blocks = curr_note.find_connections();
-        const rand = Math.floor(Math.random() * nearest_blocks.length/2); // divide by 2 to limit to top half of results
-        const rand_block = nearest_blocks[rand]; // get random from nearest cache
-        rand_block.note.open(); // open random file
+        const nearest = curr_note.find_connections();
+        const rand = Math.floor(Math.random() * nearest.length/2); // divide by 2 to limit to top half of results
+        const rand_entity = nearest[rand]; // get random from nearest cache
+        rand_entity.note ? rand_entity.note.open() : rand_entity.open(); // open random file
       }
     });
   }
