@@ -18,6 +18,12 @@ const { SmartChatView } = require("./SmartChatView");
 const { SmartConnectionsSettings } = require("./SmartConnectionsSettings");
 const { SmartSearch } = require("./SmartSearch");
 const { SmartNotices } = require("./smart_notices.js");
+const {
+  SmartNotes,
+  SmartBlocks,
+  SmartNote,
+  SmartBlock,
+} = require("./smart_entities");
 class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
   async open_note(target_path, event=null) {
@@ -103,6 +109,14 @@ class SmartConnectionsPlugin extends Plugin {
     this.notices = new SmartNotices(this);
     this.obsidian = { document, Notice, request, requestUrl, TFile };
     this.brain = new ScBrain(this, ObsAJSON);
+    this.brain.collections = {
+      smart_notes: SmartNotes,
+      smart_blocks: SmartBlocks,
+    };
+    this.brain.item_types = {
+      SmartNote,
+      SmartBlock,
+    };
     setTimeout(() => {
       // PARTIALLY DEPRECATED: should only apply if using local model VIA Web connector (excludes APIs and local via Smart Connect)
       if(!SmartChatView.is_open(this.app.workspace) && !SmartView.is_open(this.app.workspace)) this.notices.show_requires_smart_view();

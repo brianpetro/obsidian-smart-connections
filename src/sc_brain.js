@@ -13,14 +13,14 @@ class ScBrain extends Brain {
     this.main = main;
     this.config = this.main.settings;
     this.data_path = this.config.smart_connections_folder;
-    this.collections = {
-      smart_notes: SmartNotes,
-      smart_blocks: SmartBlocks,
-    };
-    this.item_types = {
-      SmartNote,
-      SmartBlock,
-    };
+    // this.collections = {
+    //   smart_notes: SmartNotes,
+    //   smart_blocks: SmartBlocks,
+    // };
+    // this.item_types = {
+    //   SmartNote,
+    //   SmartBlock,
+    // };
     this.save_timeout = null;
     this.smart_embed_active_models = {};
     this.local_model_type = 'Web';
