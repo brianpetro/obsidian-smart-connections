@@ -1,11 +1,11 @@
 const { Brain } = require("smart-collections/Brain");
 const { SmartMarkdown } = require("smart-chunks"); // npm
-const {
-  SmartNotes,
-  SmartBlocks,
-  SmartNote,
-  SmartBlock,
-} = require("./smart_entities");
+// const {
+//   SmartNotes,
+//   SmartBlocks,
+//   SmartNote,
+//   SmartBlock,
+// } = require("./smart_entities");
 const { DataviewSocket } = require("./dataview_socket");
 class ScBrain extends Brain {
   constructor(main, ltm_adapter) {
