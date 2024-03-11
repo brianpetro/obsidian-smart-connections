@@ -13,17 +13,11 @@ const {
 const { ObsAJSON } = require("smart-collections/ObsAJSON.js"); // Local
 const { ScBrain } = require("./sc_brain");
 const { default_settings } = require("./default_settings");
-const { SmartView } = require("./SmartView");
+const { ScSmartView } = require("./sc_smart_view");
 const { SmartChatView } = require("./SmartChatView");
 const { SmartConnectionsSettings } = require("./SmartConnectionsSettings");
 const { SmartSearch } = require("./SmartSearch");
 const { SmartNotices } = require("./smart_notices.js");
-const {
-  SmartNotes,
-  SmartBlocks,
-  SmartNote,
-  SmartBlock,
-} = require("./smart_entities");
 class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
   async open_note(target_path, event=null) {
@@ -107,23 +101,16 @@ class SmartConnectionsPlugin extends Plugin {
     // regist "change" dynamic code block
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this)); // code-block renderer (DEPRECATE?)
     this.notices = new SmartNotices(this);
-    this.obsidian = { document, Notice, request, requestUrl, TFile };
+    // this.obsidian = { document, Notice, request, requestUrl, TFile };
+    this.obsidian = require("obsidian");
     this.brain = new ScBrain(this, ObsAJSON);
-    this.brain.collections = {
-      smart_notes: SmartNotes,
-      smart_blocks: SmartBlocks,
-    };
-    this.brain.item_types = {
-      SmartNote,
-      SmartBlock,
-    };
     setTimeout(() => {
       // PARTIALLY DEPRECATED: should only apply if using local model VIA Web connector (excludes APIs and local via Smart Connect)
-      if(!SmartChatView.is_open(this.app.workspace) && !SmartView.is_open(this.app.workspace)) this.notices.show_requires_smart_view();
+      if(!SmartChatView.is_open(this.app.workspace) && !ScSmartView.is_open(this.app.workspace)) this.notices.show_requires_smart_view();
     }, 1000);
   }
   register_views() {
-    this.registerView(SmartView.view_type, (leaf) => (new SmartView(leaf, this))); // register main view type
+    this.registerView(ScSmartView.view_type, (leaf) => (new ScSmartView(leaf, this))); // register main view type
     this.registerView(SmartChatView.view_type, (leaf) => (new SmartChatView(leaf, this)));
   }
   async check_for_updates() {
@@ -245,9 +232,9 @@ class SmartConnectionsPlugin extends Plugin {
     return this.notices.show(notice_id, message, opts);
   }
 
-  open_view(active=true) { SmartView.open(this.app.workspace, active); }
+  open_view(active=true) { ScSmartView.open(this.app.workspace, active); }
   open_chat() { SmartChatView.open(this.app.workspace); }
-  get view() { return SmartView.get_view(this.app.workspace); } 
+  get view() { return ScSmartView.get_view(this.app.workspace); } 
   get chat_view() { return SmartChatView.get_view(this.app.workspace); }
   // get folders, traverse non-hidden sub-folders
   async get_folders(path = "/") {
@@ -327,7 +314,7 @@ class SmartConnectionsPlugin extends Plugin {
     this.restart_plugin();
   }
   // is smart view open
-  is_smart_view_open() { return SmartView.is_open(this.app.workspace); }
+  is_smart_view_open() { return ScSmartView.is_open(this.app.workspace); }
   // backwards compatibility
   handle_deprecated_settings() {
     if(this.settings.smart_notes_embed_model === "None"){
@@ -339,6 +326,34 @@ class SmartConnectionsPlugin extends Plugin {
       this.settings.excluded_headings = this.settings.header_exclusions;
       delete this.settings.header_exclusions;
     }
+  }
+  async upgrade_to_v21() {
+    // // if license key is not set, return
+    if(!this.settings.license_key) return this.show_notice("Supporter license key required for early access to v2.1");
+    const v2 = await requestUrl({
+      url: "https://sync.smartconnections.app/download_v2",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        license_key: this.settings.license_key,
+      })
+    });
+    if(v2.status !== 200) return console.error("Error downloading version 2", v2);
+    console.log(v2);
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/main.js", v2.json.main); // add new
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", v2.json.manifest); // add new
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/styles.css", v2.json.styles); // add new
+    window.restart_plugin = async (id) => {
+      console.log("restarting plugin", id);
+      await window.app.plugins.disablePlugin(id);
+      console.log("plugin disabled", id);
+      await window.app.plugins.loadManifests();
+      await window.app.plugins.enablePlugin(id);
+      console.log("plugin restarted", id);
+    }
+    window.restart_plugin(this.manifest.id);
   }
 }
 module.exports = SmartConnectionsPlugin;

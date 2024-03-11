@@ -10,7 +10,6 @@ const {
 } = require("obsidian");
 const { ScStreamer } = require("./ScStreamer");
 const { SmartObsidianView } = require("./SmartObsidianView");
-const { SmartView } = require("./SmartView");
 const ScTranslations = require("./ScTranslations");
 
 // BEGIN V1 ARTIFACTS
@@ -42,7 +41,7 @@ class SmartChatView extends SmartObsidianView {
       defaultMod: true,
     });
     setTimeout(() => {
-      if (!SmartView.is_open(this.app.workspace)) this.plugin.notices.show_requires_smart_view(); 
+      if (!this.plugin.is_smart_view_open()) this.plugin.notices.show_requires_smart_view(); 
     }, 1000);
   }
   onClose() {
@@ -297,7 +296,7 @@ class SmartChatView extends SmartObsidianView {
     // }
     // if contains self referential keywords or folder reference
     if (this.should_trigger_retrieval(user_input)) {
-      if (SmartView.is_open(this.app.workspace)) {
+      if (this.plugin.is_smart_view_open()) {
         // get hyde
         const context = await this.get_context_hyde(user_input);
         if(context) {

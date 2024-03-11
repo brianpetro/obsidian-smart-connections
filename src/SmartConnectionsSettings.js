@@ -2,14 +2,13 @@ const ScTranslations = require("./ScTranslations");
 const { SmartObsidianSettings } = require("./SmartObsidianSettings");
 const smart_embed_models = require("smart-embed/models");
 const views = require("../build/views.json");
-const { SmartView } = require("./SmartView");
 // const smart_chat_models = require("../smart-model/models");
 
 // Smart Connections Specific Settings
 class SmartConnectionsSettings extends SmartObsidianSettings {
   async refresh_notes() {
-    if(!SmartView.is_open(this.plugin.app.workspace)){
-      SmartView.open(this.plugin.app.workspace);
+    if(!this.plugin.is_smart_view_open()){
+      this.plugin.open_view();
       // wait for this.plugin.brain.smart_notes.smart_embed or this.plugin.brain.smart_blocks.smart_embed to be ready
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
@@ -36,36 +35,13 @@ class SmartConnectionsSettings extends SmartObsidianSettings {
       console.error("Smart Connections: Error testing API key", err);
     }
   }
-  async test_google_api_key() {
-    const req = {
-      url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${this.plugin.settings.google_api_key}`,
-      method: "POST",
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [
-              { text: "hello" }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.9,
-          topK: 1,
-          topP: 1,
-          maxOutputTokens: 2048,
-          stopSequences: []
-        }
-      }),
-      headers: { "Content-Type": "application/json" },
-    };
-    try{
-      const resp = await this.plugin.obsidian.requestUrl(req);
-      if(resp?.json?.candidates?.length) return this.plugin.notices.show('api key test pass', "Success! API key is valid");
-      this.plugin.notices.show('api key test fail', "Error: API key is invalid!");
+  async upgrade_to_v21() {
+    try {
+      await this.plugin.upgrade_to_v21();
     }catch(err){
-      this.plugin.notices.show('api key test fail', "Error: API key is invalid!");
-      console.error("Smart Connections: Error testing Google API key", err);
+      console.log("Error upgrading to v2.1");
+      console.log(err);
+      this.plugin.show_notice("Error upgrading to v2.1 (invalid license key?)");
     }
   }
   refresh_smart_view() { this.plugin.smart_connections_view.render_nearest(); }

@@ -1,10 +1,10 @@
 const { SmartObsidianView } = require("./SmartObsidianView");
 const SUPPORTED_FILE_TYPES = ["md", "canvas"];
 
-class SmartView extends SmartObsidianView {
+class ScSmartView extends SmartObsidianView {
   static get view_type() { return "smart-connections-view"; }
   // Obsidian
-  getViewType() { return SmartView.view_type; }
+  getViewType() { return this.constructor.view_type; }
   getDisplayText() { return "Smart Connections Files"; }
   getIcon() { return "smart-connections"; }
   async onOpen() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); }
@@ -15,23 +15,23 @@ class SmartView extends SmartObsidianView {
     await this.load_brain();
     this.plugin.smart_connections_view = this;
     this.register_plugin_events();
-    this.app.workspace.registerHoverLinkSource(SmartView.view_type, { display: 'Smart Connections Files', defaultMod: true });
+    this.app.workspace.registerHoverLinkSource(this.constructor.view_type, { display: 'Smart Connections Files', defaultMod: true });
     this.container.innerHTML = this.render_template("smart_connections", { current_path: "", results: [] });
     this.add_top_bar_listeners();
   }
   async load_brain() {
     this.brain = this.plugin.brain;
     await this.brain.reload();
-    this.last_parent_id = SmartView.get_leaf(this.app.workspace)?.parent.id;
+    this.last_parent_id = this.constructor.get_leaf(this.app.workspace)?.parent.id;
   }
 
   async onClose() {
     console.log("closing smart connections view");
     this.brain.unload();
-    this.app.workspace.unregisterHoverLinkSource(SmartView.view_type);
+    this.app.workspace.unregisterHoverLinkSource(this.constructor.view_type);
   }
   onResize() {
-    if (SmartView.get_leaf(this.app.workspace).parent.id !== this.last_parent_id) {
+    if (this.constructor.get_leaf(this.app.workspace).parent.id !== this.last_parent_id) {
       console.log("Parent changed, reloading");
       this.load_brain();
     }
@@ -55,7 +55,7 @@ class SmartView extends SmartObsidianView {
     this.plugin.registerEvent(this.app.workspace.on('active-leaf-change', (leaf) => {
       this.update_last_user_activity_timestamp();
       // if leaf is this view
-      if (leaf.view instanceof SmartView) {
+      if (leaf.view instanceof this.constructor) {
         if (leaf.view.container.querySelectorAll(".search-result").length && (leaf.view.last_note === this.app.workspace.getActiveFile()?.path)) return; // if search results are already rendered, return
         return this.render_nearest();
       }
@@ -197,7 +197,7 @@ class SmartView extends SmartObsidianView {
     elm.addEventListener("mouseover", (event) => {
       this.app.workspace.trigger("hover-link", {
         event,
-        source: SmartView.view_type,
+        source: this.constructor.view_type,
         hoverParent: elm.parentElement,
         targetEl: elm,
         linktext: item.path,
@@ -273,4 +273,4 @@ class SmartView extends SmartObsidianView {
     });
   }
 }
-exports.SmartView = SmartView;
+exports.ScSmartView = ScSmartView;
