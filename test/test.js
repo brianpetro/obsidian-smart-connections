@@ -114,14 +114,14 @@ test('smart_block.update_data-> removes embedding if block content length change
   t.deepEqual(smart_block.data.embedding, {});
 });
 // NEAREST
-test('smart_blocks.nearest()-> respects include_path_begins_with filter', async (t) => {
+test('smart_blocks.nearest()-> respects key_starts_with filter', async (t) => {
   const { brain, smart_block, test_md_path } = t.context;
-  const filter = { include_path_begins_with: path.dirname(test_md_path) };
+  const filter = { key_starts_with: path.dirname(test_md_path) };
   // console.log('filter', filter);
   const nearest = await brain.smart_blocks.nearest(smart_block.vec, filter);
   t.is(nearest.length > 0, true);
   t.is(nearest[0].data.path.startsWith(path.dirname(test_md_path)), true);
-  const filter2 = { include_path_begins_with: "does_not_exist" };
+  const filter2 = { key_starts_with: "does_not_exist" };
   const nearest2 = await brain.smart_blocks.nearest(smart_block.vec, filter2);
   t.is(nearest2.length, 0);
 });
