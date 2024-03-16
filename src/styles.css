@@ -150,7 +150,8 @@
   /* background-color: #007bff;
   color: #fff; */
   background-color: var(--nav-item-background-active);
-  color: var(--nav-item-color);
+  /* color: var(--nav-item-color); */
+  color: var(--text-normal);
 }
 .sc-message.user {
   /* background-color: #333;
