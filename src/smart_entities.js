@@ -87,7 +87,7 @@ class SmartEntities extends Collection {
         this._pause_embeddings = false;
         const restart_btn = {text: "Restart", callback: () => this.ensure_embeddings() };
         this.brain.main.notices.show('restart embedding', [`Embedding ${this.collection_name}...`, `Paused at ${i} / ${unembedded_items.length} ${this.collection_name}`, performance_notice_msg], { timeout: 0, button: restart_btn});
-        this.LTM._save(); // save immediately
+        this.LTM._save(true); // save immediately, overwriting existing embeddings
         return;
       }
       if(i % 10 === 0){
