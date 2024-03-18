@@ -6,6 +6,9 @@ function default_settings() {
       smart_blocks_embed_model: "None",
       smart_connections_folder: ".smart-connections",
       smart_connections_folder_last: ".smart-connections",
+      system_prompts_folder: "smart prompts",
+      smart_chat_folder: "smart-chats",
+      smart_chat_folder_last: "smart-chats",
       // Smart Blocks Settings (chunking)
       embed_input_min_chars: 50,
       multi_heading_blocks: true,
