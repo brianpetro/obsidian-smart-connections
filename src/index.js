@@ -18,6 +18,7 @@ const { SmartChatView } = require("./SmartChatView");
 const { SmartConnectionsSettings } = require("./SmartConnectionsSettings");
 const { SmartSearch } = require("./SmartSearch");
 const { SmartNotices } = require("./smart_notices.js");
+const models = require('smart-embed/models.json');
 class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
   async open_note(target_path, event=null) {
@@ -319,6 +320,15 @@ class SmartConnectionsPlugin extends Plugin {
   handle_deprecated_settings() {
     if(this.settings.smart_notes_embed_model === "None"){
       this.settings.smart_notes_embed_model = "TaylorAI/bge-micro-v2";
+      this.save_settings();
+    }
+    // handle deprecated smart-embed models
+    if(!models[this.settings.smart_notes_embed_model]) {
+      this.settings.smart_notes_embed_model = this.constructor.defaults.smart_notes_embed_model;
+      this.save_settings();
+    }
+    if(!models[this.settings.smart_blocks_embed_model] && this.settings.smart_blocks_embed_model !== "None") {
+      this.settings.smart_blocks_embed_model = this.constructor.defaults.smart_blocks_embed_model;
       this.save_settings();
     }
     // V1 relics

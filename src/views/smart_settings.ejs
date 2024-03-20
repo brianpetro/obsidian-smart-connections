@@ -41,20 +41,15 @@
 <h2>Embedding Models</h2>
 <p>Notes about embedding models:</p>
 <ul>
-  <li>Local models:<ul>
-    <li>Higher dimension models are more accurate but require more storage space.</li>
-    <li>Higher context models include more content in the embedding but require computing power to process.</li>
-    <li>Using a model that is too large for your computer may cause errors. For instance, the Jina-small-4K model works on a Mac M2 8GB, while the Jina-small-8K model fails.</li>
-  </ul></li>
-  <li>Blocks have less content but there are more of them, so it is recommended to use a smaller model for blocks than for notes.</li>
-  <li>API models are not restricted by your computer's computing power, but they require an API key and send your notes to third-party servers for processing.</li>
+  <li>Local model compatibility depends on available CPU and RAM. Try reducing the max tokens (context) if a local model if failing.</li>
+  <li>API models are not dependent on local compute, but they require an API key and send your notes to third-party servers for processing.</li>
 </ul>
 <div class="setting-component"
   data-name="Notes Embedding Model"
   data-setting="smart_notes_embed_model"
   data-type="dropdown"
   data-description="Select a model to use for embedding your notes."
-  <%- embedding_models.map((model, i) => `data-option-${i}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
+  <%- embedding_models.map((model, i) => `data-option-${i + 1}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
   data-callback="reload_brain"
 ></div>
 <div class="setting-component"
@@ -64,6 +59,28 @@
   data-description="Select a model to use for embedding your blocks."
   data-option-0="None|None"
   <%- embedding_models.map((model, i) => `data-option-${i + 1}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
+  data-callback="reload_brain"
+></div>
+<% if(settings.smart_notes_embed_model.includes('/') || settings.smart_blocks_embed_model.includes('/')) { %>
+<div class="setting-component"
+  data-name="Local Embedding Max Tokens"
+  data-description="Reduce max tokens depending on available resources (CPU, RAM)." 
+  data-type="dropdown"
+  data-setting="local_embedding_max_tokens"
+  data-option-1="512"
+  data-option-2="1024"
+  data-option-3="2048|2048 (default)"
+  data-option-4="4096"
+  data-option-5="8192"
+  data-callback="reload_brain"
+></div>
+<% } %>
+<div class="setting-component"
+  data-name="Minimum Embedding Length"
+  data-description="Minimum length of note to embed."
+  data-type="number"
+  data-setting="embed_input_min_chars"
+  data-placeholder="Enter a number"
   data-callback="reload_brain"
 ></div>
 <h2>OpenAI Settings</h2>

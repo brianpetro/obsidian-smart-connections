@@ -9,6 +9,7 @@ function default_settings() {
       system_prompts_folder: "smart prompts",
       smart_chat_folder: "smart-chats",
       smart_chat_folder_last: "smart-chats",
+      local_embedding_max_tokens: 2048,
       // Smart Blocks Settings (chunking)
       embed_input_min_chars: 50,
       multi_heading_blocks: true,
