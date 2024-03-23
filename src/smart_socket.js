@@ -1,75 +1,107 @@
 class SmartSocket {
   constructor(port) {
     this.port = port;
-    this.is_reconnecting = false; // Add a flag to track reconnection status
+    this.is_connecting = false;
+    this.ws_retries = 0;
   }
-  async connect_to_websocket() {
-    // Check if already connected or in the process of reconnecting
-    if (this.is_reconnecting || (this.ws && this.ws.readyState === WebSocket.OPEN)) {
-      console.log("WebSocket is either already connected or reconnecting. Aborting new connection attempt.");
-      return;
-    }
+
+  async connect(retry = false) {
+    if (!this.can_attempt_connection(retry)) return;
+
+    this.is_connecting = true;
+    await this.calculate_backoff(retry);
+
     try {
-      await new Promise((resolve, reject) => {
-        this.ws = new WebSocket(`ws://localhost:${this.port}`);
-        this.ws.onopen = () => {
-          this.on_open();
-          resolve();
-        };
-        this.ws.onclose = () => {
-          const error = new Error('WebSocket closed');
-          reject(error);
-          this.on_close();
-        };
-        this.ws.onerror = (err) => {
-          reject(err);
-          this.on_error(err);
-        };
-        this.ws.onmessage = this.handle_message.bind(this);
-      });
-      console.log("WebSocket connected successfully on port " + this.port);
-      this.is_reconnecting = false; // Reset reconnection flag on successful connection
+      await this.initialize_websocket();
+      this.ws_retries = 0; // Reset retries on successful connection
     } catch (err) {
-      console.error("Failed to connect to WebSocket:", err);
-      // Handle the error appropriately
+      this.handle_connection_error(retry, err);
+    } finally {
+      this.is_connecting = false;
     }
   }
-  on_error(err) {
-    console.error("Websocket error", err);
-    this.reconnect_to_websocket(); // Call reconnect when an error occurs
-  }
-  on_close() {
-    console.log("Disconnected from websocket");
-    this.reconnect_to_websocket();
-  }
-  on_open() { console.log("Connected to websocket on port " + this.port); }
-  async reconnect_to_websocket() {
-    if (this.is_reconnecting) return; // Prevent multiple concurrent reconnection attempts
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) return; // Check if the websocket is already open
-    this.is_reconnecting = true; // Set reconnection flag
-    if (this.ws_retries > 10) {
+
+  can_attempt_connection(retry) {
+    if (this.is_connecting) {
+      console.log("WebSocket is currently connecting/reconnecting. Aborting new connection attempt.");
+      return false;
+    }
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      console.log("WebSocket is already connected. Aborting new connection attempt.");
+      return false;
+    }
+    if (retry && this.ws_retries > 10) {
       console.error("Failed to reconnect after 10 attempts");
-      this.is_reconnecting = false; // Reset reconnection flag if retries exceed limit
+      this.is_connecting = false;
       this.on_fail_to_reconnect();
-      return;
+      return false;
     }
-    this.ws_retries = (this.ws_retries || 0) + 1;
-    const backoffTime = Math.min(1000 * Math.pow(2, this.ws_retries), 30000);
-    console.log(`Attempting to reconnect in ${backoffTime / 1000} seconds...`);
-    setTimeout(async () => {
-      try {
-        await this.connect_to_websocket();
-        this.ws_retries = 0; // Reset retry counter after successful connection
-      } catch (err) {
-        console.error("Reconnection attempt failed, will retry...", err);
-        this.reconnect_to_websocket(); // Retry reconnecting
-      }
-    }, backoffTime);
+    return true;
   }
+
+  calculate_backoff(retry) {
+    if (retry) {
+      this.ws_retries += 1;
+      const backoff_time = Math.min(1000 * Math.pow(2, this.ws_retries), 30000);
+      console.log(`Attempting to reconnect in ${backoff_time / 1000} seconds...`);
+      return new Promise(resolve => setTimeout(resolve, backoff_time));
+    }
+  }
+
+  async initialize_websocket() {
+    await new Promise((resolve, reject) => {
+      const timeout_id = setTimeout(() => {
+        if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+          this.ws?.close();
+          reject(new Error('WebSocket failed to connect'));
+        }
+      }, 10000);
+
+      this.ws = new WebSocket(`ws://localhost:${this.port}`);
+      this.ws.onopen = () => {
+        clearTimeout(timeout_id);
+        this.on_open();
+        resolve();
+      };
+      this.ws.onclose = () => {
+        reject(new Error('WebSocket closed'));
+        this.on_close();
+      };
+      this.ws.onerror = (err) => {
+        reject(err);
+        this.on_error(err);
+      };
+      this.ws.onmessage = this.handle_message.bind(this);
+    });
+  }
+
+  handle_connection_error(retry, err) {
+    if (this.ws_retries < 10) {
+      this.connect(true); // Retry with backoff
+    } else {
+      console.error("Failed to connect to WebSocket:", err);
+    }
+  }
+
+  on_error(err) {
+    // console.error("WebSocket error", err);
+  }
+
+  on_close() {
+    console.log("Disconnected from WebSocket");
+    this.connect(true); // Attempt to reconnect with backoff
+  }
+
+  on_open() {
+    console.log(`Connected to WebSocket on port ${this.port}`);
+  }
+
   handle_message(event) {
-    console.log("Message from server ", event.data);
+    console.log("Message from server", event.data);
   }
-  on_fail_to_reconnect() { console.log("Failed to reconnect, will not retry..."); }
+
+  on_fail_to_reconnect() {
+    console.error("Failed to reconnect, will not retry...");
+  }
 }
 exports.SmartSocket = SmartSocket;
-
