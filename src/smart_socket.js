@@ -59,7 +59,6 @@ class SmartSocket {
     setTimeout(async () => {
       try {
         await this.connect_to_websocket();
-        console.log("Reconnected successfully.");
         this.ws_retries = 0; // Reset retry counter after successful connection
       } catch (err) {
         console.error("Reconnection attempt failed, will retry...", err);
