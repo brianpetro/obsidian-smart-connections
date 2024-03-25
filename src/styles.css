@@ -213,6 +213,27 @@
 #sc-abort-button:hover {
   background-color: var(--nav-item-background-active);
 }
+.sc-change{
+  border: var(--blockquote-border-color);
+  border-width: var(--border-width);
+  border-style: solid;
+  border-radius: var(--callout-radius);
+  padding: 1ch;
+  .actions{
+    display: flex;
+    justify-content: space-between;
+    .sc-brand {
+      position: unset;
+      display: inline-block;
+      background-color: var(--background-primary);
+      color: var(--text-normal);
+    }
+  }
+  .old-content{
+    color: var(--text-muted);
+    text-decoration: line-through;
+  }
+}
 
 /* V2 */
 .sc-list .search-result li h1,
