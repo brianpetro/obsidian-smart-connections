@@ -5,8 +5,10 @@ class SmartSocket {
    */
   constructor(port) {
     this.port = port;
-    this.is_connecting = false;
     this.ws_retries = 0;
+    // Initialize ws as null to indicate no active WebSocket connection initially
+    this.ws = null;
+    this.retry = false;
   }
 
   /**
@@ -14,18 +16,20 @@ class SmartSocket {
    * @param {boolean} [retry=false] Whether to attempt a reconnection.
    */
   async connect(retry = false) {
+    this.retry = retry;
     if (!this.can_attempt_connection(retry)) return;
 
-    this.is_connecting = true;
-    await this.calculate_backoff(retry);
-
+    if(retry) await this.calculate_backoff(retry);
+    
     try {
       await this.initialize_websocket();
-      this.ws_retries = 0; // Reset retries on successful connection
     } catch (err) {
-      this.handle_connection_error(retry, err);
-    } finally {
-      this.is_connecting = false;
+      // console.error(`WebSocket connection error on retry ${this.ws_retries}: ${err.message}`);
+      if (retry && this.ws_retries < 10) {
+        await this.handle_connection_error(true, err);
+      } else {
+        this.on_fail_to_reconnect();
+      }
     }
   }
 
@@ -35,17 +39,13 @@ class SmartSocket {
    * @returns {boolean} True if a connection attempt can be made, false otherwise.
    */
   can_attempt_connection(retry) {
-    if (this.is_connecting) {
-      console.log("WebSocket is currently connecting/reconnecting. Aborting new connection attempt.");
-      return false;
-    }
+    retry = retry || this.retry;
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       console.log("WebSocket is already connected. Aborting new connection attempt.");
       return false;
     }
-    if (retry && this.ws_retries > 10) {
+    if (retry && this.ws_retries >= 10) {
       console.error("Failed to reconnect after 10 attempts");
-      this.is_connecting = false;
       this.on_fail_to_reconnect();
       return false;
     }
@@ -58,12 +58,13 @@ class SmartSocket {
    * @returns {Promise<void>} A promise that resolves after the backoff delay.
    */
   calculate_backoff(retry) {
-    if (retry) {
+    if (retry || this.retry) {
       this.ws_retries += 1;
       const backoff_time = Math.min(1000 * Math.pow(2, this.ws_retries), 30000);
       console.log(`Attempting to reconnect in ${backoff_time / 1000} seconds...`);
       return new Promise(resolve => setTimeout(resolve, backoff_time));
     }
+    return Promise.resolve();
   }
 
   /**
@@ -71,6 +72,9 @@ class SmartSocket {
    * @returns {Promise<void>} A promise that resolves when the WebSocket is successfully opened.
    */
   async initialize_websocket() {
+    // Clean up any existing WebSocket connection before initializing a new one
+    this.cleanup_websocket();
+
     await new Promise((resolve, reject) => {
       const timeout_id = setTimeout(() => {
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
@@ -78,18 +82,22 @@ class SmartSocket {
           reject(new Error('WebSocket failed to connect'));
         }
       }, 10000);
-
+  
       this.ws = new WebSocket(`ws://localhost:${this.port}`);
       this.ws.onopen = () => {
         clearTimeout(timeout_id);
         this.on_open();
+        this.ws_retries = 0; // Reset retries on successful connection
+        this.retry = true; // set retry since we know connection is available
         resolve();
       };
-      this.ws.onclose = () => {
+      this.ws.onclose = (event) => {
+        this.cleanup_websocket(); // Ensure cleanup when the WebSocket is closed
         reject(new Error('WebSocket closed'));
         this.on_close();
       };
       this.ws.onerror = (err) => {
+        this.cleanup_websocket(); // Ensure cleanup on error
         reject(err);
         this.on_error(err);
       };
@@ -97,18 +105,37 @@ class SmartSocket {
     });
   }
 
+  cleanup_websocket() {
+    if (this.ws) {
+      // Remove all event listeners to prevent memory leaks
+      this.ws.onopen = null;
+      this.ws.onclose = null;
+      this.ws.onerror = null;
+      this.ws.onmessage = null;
+      // Close the WebSocket if it's not already closed
+      if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
+        this.ws.close();
+      }
+      this.ws = null; // Clear the reference to facilitate garbage collection
+    }
+  }
+
   /**
    * Handles connection errors and decides whether to retry.
    * @param {boolean} retry Indicates if this is a retry attempt.
    * @param {Error} err The error that occurred during connection.
    */
-  handle_connection_error(retry, err) {
-    if (this.ws_retries < 10) {
-      this.connect(true); // Retry with backoff
-    } else {
-      console.error("Failed to connect to WebSocket:", err);
+  async handle_connection_error(retry, err) {
+    console.log("Handling WebSocket connection error on port " + this.port);
+    if (retry && this.ws_retries < 10) {
+      await this.connect(true); // Retry with backoff
+    } else if (!retry || this.ws_retries >= 10) {
+      console.error("Failed to connect to WebSocket after retries:");
+      console.log(err);
+      this.on_fail_to_reconnect();
     }
   }
+  
 
   /**
    * Placeholder for error handling logic.
@@ -123,8 +150,20 @@ class SmartSocket {
    */
   on_close() {
     console.log("Disconnected from WebSocket");
-    this.connect(true); // Attempt to reconnect with backoff
+  
+    // Now, use the `should_attempt_reconnect` to decide whether to initiate a reconnection.
+    if(this.retry && this.should_attempt_reconnect) {
+      this.connect(true); // Attempt to reconnect with backoff
+    } else {
+      console.log("Reconnection not attempted due to policy (intentional disconnection or retry limit reached).");
+      // Handle the case where no reconnection will be attempted, such as by informing the user.
+    }
   }
+  
+  get should_attempt_reconnect() {
+    return this.ws_retries < 10;
+  }
+  
 
   /**
    * Logs successful WebSocket connection.
@@ -146,6 +185,12 @@ class SmartSocket {
    */
   on_fail_to_reconnect() {
     console.error("Failed to reconnect, will not retry...");
+  }
+  /**
+   * Closes the WebSocket connection.
+   */
+  unload() {
+    this.cleanup_websocket();
   }
 }
 exports.SmartSocket = SmartSocket;
