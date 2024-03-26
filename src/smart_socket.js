@@ -1,10 +1,18 @@
 class SmartSocket {
+  /**
+   * Creates an instance of SmartSocket.
+   * @param {number} port The port number to connect to.
+   */
   constructor(port) {
     this.port = port;
     this.is_connecting = false;
     this.ws_retries = 0;
   }
 
+  /**
+   * Initiates the connection process, with optional retry logic.
+   * @param {boolean} [retry=false] Whether to attempt a reconnection.
+   */
   async connect(retry = false) {
     if (!this.can_attempt_connection(retry)) return;
 
@@ -21,6 +29,11 @@ class SmartSocket {
     }
   }
 
+  /**
+   * Checks if a new connection attempt can be made.
+   * @param {boolean} retry Indicates if this is a retry attempt.
+   * @returns {boolean} True if a connection attempt can be made, false otherwise.
+   */
   can_attempt_connection(retry) {
     if (this.is_connecting) {
       console.log("WebSocket is currently connecting/reconnecting. Aborting new connection attempt.");
@@ -39,6 +52,11 @@ class SmartSocket {
     return true;
   }
 
+  /**
+   * Calculates and applies a backoff delay for reconnection attempts.
+   * @param {boolean} retry Indicates if this is a retry attempt.
+   * @returns {Promise<void>} A promise that resolves after the backoff delay.
+   */
   calculate_backoff(retry) {
     if (retry) {
       this.ws_retries += 1;
@@ -48,6 +66,10 @@ class SmartSocket {
     }
   }
 
+  /**
+   * Initializes the WebSocket connection.
+   * @returns {Promise<void>} A promise that resolves when the WebSocket is successfully opened.
+   */
   async initialize_websocket() {
     await new Promise((resolve, reject) => {
       const timeout_id = setTimeout(() => {
@@ -75,6 +97,11 @@ class SmartSocket {
     });
   }
 
+  /**
+   * Handles connection errors and decides whether to retry.
+   * @param {boolean} retry Indicates if this is a retry attempt.
+   * @param {Error} err The error that occurred during connection.
+   */
   handle_connection_error(retry, err) {
     if (this.ws_retries < 10) {
       this.connect(true); // Retry with backoff
@@ -83,23 +110,40 @@ class SmartSocket {
     }
   }
 
+  /**
+   * Placeholder for error handling logic.
+   * @param {Error} err The error encountered.
+   */
   on_error(err) {
     // console.error("WebSocket error", err);
   }
 
+  /**
+   * Handles WebSocket closure and attempts reconnection.
+   */
   on_close() {
     console.log("Disconnected from WebSocket");
     this.connect(true); // Attempt to reconnect with backoff
   }
 
+  /**
+   * Logs successful WebSocket connection.
+   */
   on_open() {
     console.log(`Connected to WebSocket on port ${this.port}`);
   }
 
+  /**
+   * Handles incoming WebSocket messages.
+   * @param {MessageEvent} event The message event.
+   */
   handle_message(event) {
     console.log("Message from server", event.data);
   }
 
+  /**
+   * Handles failure to reconnect after multiple attempts.
+   */
   on_fail_to_reconnect() {
     console.error("Failed to reconnect, will not retry...");
   }
