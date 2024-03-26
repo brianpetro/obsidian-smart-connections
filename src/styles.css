@@ -222,11 +222,15 @@
   .actions{
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    & > * {
+      display: inline-block;
+      color: var(--text-normal);
+      font-size: var(--font-ui-small);
+    }
     .sc-brand {
       position: unset;
-      display: inline-block;
       background-color: var(--background-primary);
-      color: var(--text-normal);
     }
   }
   .old-content{
