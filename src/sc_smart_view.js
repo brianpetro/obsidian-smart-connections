@@ -9,21 +9,25 @@ class ScSmartView extends SmartObsidianView {
   getIcon() { return "smart-connections"; }
   async onOpen() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); }
   async initialize() {
+    this.env = this.plugin.brain;
+    this.brain = this.env;
+    this.last_parent_id = this.constructor.get_leaf(this.app.workspace)?.parent.id;
     this.container = this.containerEl.children[1]; // get container for views
     this.container.empty();
     this.nearest_cache = {}; // cache nearest results
-    await this.load_brain();
+    // await this.load_brain(); // moved to main plugin initialization
     this.plugin.smart_connections_view = this;
     this.register_plugin_events();
     this.app.workspace.registerHoverLinkSource(this.constructor.view_type, { display: 'Smart Connections Files', defaultMod: true });
     this.container.innerHTML = this.render_template("smart_connections", { current_path: "", results: [] });
     this.add_top_bar_listeners();
   }
-  async load_brain() {
-    this.brain = this.plugin.brain;
-    await this.brain.reload();
-    this.last_parent_id = this.constructor.get_leaf(this.app.workspace)?.parent.id;
-  }
+  // async load_brain() {
+  //   this.env = this.plugin.brain;
+  //   this.brain = this.env;
+  //   // await this.brain.reload();
+  //   this.last_parent_id = this.constructor.get_leaf(this.app.workspace)?.parent.id;
+  // }
 
   async onClose() {
     console.log("closing smart connections view");
@@ -33,7 +37,8 @@ class ScSmartView extends SmartObsidianView {
   onResize() {
     if (this.constructor.get_leaf(this.app.workspace).parent.id !== this.last_parent_id) {
       console.log("Parent changed, reloading");
-      this.load_brain();
+      // this.load_brain();
+      this.initialize();
     }
   }
   // getters
@@ -82,8 +87,8 @@ class ScSmartView extends SmartObsidianView {
   get view_context() {
     return {
       ...super.view_context,
-      blocks: this.brain.smart_blocks.keys.length,
-      notes: this.brain.smart_notes.keys.length,
+      blocks: this.env.smart_blocks?.keys.length,
+      notes: this.env.smart_notes?.keys.length,
     };
   }
   async render_nearest(context, container = this.container) {
