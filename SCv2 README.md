@@ -40,6 +40,7 @@ The Smart View provides real-time note suggestions based on your current note.
 - Click to open a result in the Smart View 
 - Preview connections using the expand/collapse (fold/unfold) button to the left of each result
 - Expand/collapse all feature is displayed below
+
 ![Demo showing the fold/unfold feature which displays or hides the content of the notes in the Smart View](./assets/SCv2-fold-unfold.gif)
 
 ##### Smart View Search
