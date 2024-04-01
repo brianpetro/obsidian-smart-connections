@@ -35,10 +35,10 @@ It's my belief that open-source software that serves individuals directly is one
 - Search feature using embeddings  
 - Previewing and opening notes 
 
-<div style="display: flex; justify-content: space-between;">
-  <img src="./assets/SCv2-Smart-View-light.gif" alt="Smart View Light Mode" style="margin-right: 10px;">
-  <img src="./assets/SCv2-Smart-View-dark.gif" alt="Smart View Dark Mode">
-</div>
+<p align="center">
+  <img src="./assets/SCv2-Smart-View-light.gif" alt="Smart View Light Mode" width="400"/>
+  <img src="./assets/SCv2-Smart-View-dark.gif" alt="Smart View Dark Mode" width="400"/>
+</p>
 ### Smart Command (Find Notes)
 - Section 'Block' Matching
 	- Description of block matching feature
