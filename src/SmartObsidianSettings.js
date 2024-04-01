@@ -30,13 +30,17 @@ class SmartObsidianSettings extends PluginSettingTab {
         setting_elm.addText(text => {
           text.setPlaceholder(elm.dataset.placeholder || "");
           text.setValue(this.get_setting(setting));
+          let debounceTimer;
           if (elm.dataset.button) {
             setting_elm.addButton(button => {
               button.setButtonText(elm.dataset.button);
               button.onClick(async () => this.handle_on_change(setting, text.getValue(), elm));
             });
           } else {
-            text.onChange(async (value) => this.handle_on_change(setting, value, elm));
+            text.onChange(async (value) => {
+              clearTimeout(debounceTimer);
+              debounceTimer = setTimeout(() => this.handle_on_change(setting, value, elm), 500); // Adjust 500ms to your needs
+            });
           }
         });
       } else if (elm.dataset.type === "number") {
@@ -57,7 +61,7 @@ class SmartObsidianSettings extends PluginSettingTab {
               dropdown.addOption(value, name || value);
             });
           dropdown.onChange(async (value) => this.handle_on_change(setting, value, elm));
-          dropdown.setValue(this.plugin.settings[setting]);
+          dropdown.setValue(this.get_setting(setting));
         });
       } else if (elm.dataset.type === "button") {
         setting_elm.addButton(button => {
@@ -73,7 +77,7 @@ class SmartObsidianSettings extends PluginSettingTab {
         });
       } else if (elm.dataset.type === "toggle") {
         setting_elm.addToggle(toggle => {
-          toggle.setValue(this.plugin.settings[setting]);
+          toggle.setValue(this.get_setting(setting));
           toggle.onChange(async (value) => this.handle_on_change(setting, value, elm));
         });
       }
@@ -84,10 +88,32 @@ class SmartObsidianSettings extends PluginSettingTab {
     this.update(setting, value);
     if (elm.dataset.callback) this[elm.dataset.callback](setting, value, elm);
   }
-  get_setting(setting) { return this.plugin.settings[setting] || this.plugin.constructor.defaults[setting]; }
+  get_setting(setting) {
+    if (setting.includes(".")) {
+      let parts = setting.split(".");
+      let obj = this.plugin.settings;
+      for (let part of parts.slice(0, -1)) {
+        if (obj[part] === undefined) return this.plugin.constructor.defaults[setting]; // Fallback to default if path is broken
+        obj = obj[part];
+      }
+      return obj[parts[parts.length - 1]] || this.plugin.constructor.defaults[setting];
+    } else {
+      return this.plugin.settings[setting] || this.plugin.constructor.defaults[setting];
+    }
+  }
   async update(setting, value) {
     console.log("saving setting: " + setting);
-    this.plugin.settings[setting] = (typeof value === "string") ? value.trim() : value;
+    if (setting.includes(".")) {
+      let parts = setting.split(".");
+      let obj = this.plugin.settings;
+      for (let i = 0; i < parts.length - 1; i++) {
+        if (!obj[parts[i]]) obj[parts[i]] = {};
+        obj = obj[parts[i]];
+      }
+      obj[parts[parts.length - 1]] = (typeof value === "string") ? value.trim() : value;
+    } else {
+      this.plugin.settings[setting] = (typeof value === "string") ? value.trim() : value;
+    }
     await this.plugin.save_settings(true);
     console.log("saved settings");
     console.log(this.plugin.settings);
