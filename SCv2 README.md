@@ -5,9 +5,13 @@ The journey of Smart Connections is one I directly share with you. Smart Connect
 Obsidian wasn't my first attempt at trying to manage and make sense of my notes. And in late 2022, like what has happened with all of my past attempts, the system I had built in Obsidian was beginning to fall apart. There were too many notes and I didn't having enough time to organize, link, tag, and otherwise manage them properly.
 ## Introduction to Smart Connections
 ### Smart View - AI Organization
+![Smart View demo showing that the most relevant notes are shown at the top based on the current note.](./assets/SCv2-Smart-View-light.gif)
+
 Smart Connections started as way for me to keep track of my thousands of notes, prevent rework, and make new connections by showing relevant notes/excerpts alongside whatever note I was currently working on via the Smart View.
 ### Smart Chat - AI Synthesis
 By using the same embedding technology that powers the Smart View, we can now use technology like ChatGPT to answer questions based on our notes in the Smart Chat.
+
+## Mission
 ### For Individuals
 Open-source has been around a long time, but, over the past decade it seems that the primary beneficiary of open-source has shifted away from individuals and toward corporate interests. For example, see the many VC-funded open-source projects.
 
@@ -29,14 +33,18 @@ It's my belief that open-source software that serves individuals directly is one
 	- Advanced settings
 ## Features
 ### Smart View
-- Real-time note suggestions
-- Intuitive interface and settings
-- Real-time relevant note suggestions  
-- Search feature using embeddings  
-- Previewing and opening notes 
+The Smart View provides real-time note suggestions based on your current note.
 
-![Smart View demo showing that the most relevant notes are shown at the top based on the current note.](./assets/SCv2-Smart-View-light.gif)
+![Demo showing Smart View results changing based on the current note](./assets/SCv2-Smart-View-dark.gif)
+##### Accessing notes in the Smart View
+- Click to open a result in the Smart View 
+- Preview connections using the expand/collapse (fold/unfold) button to the left of each result
+- Expand/collapse all feature is displayed below
+![Demo showing the fold/unfold feature which displays or hides the content of the notes in the Smart View](./assets/SCv2-fold-unfold.gif)
 
+##### Smart View Search
+Click the search icon to input a search query.
+- note: it's important to remember that embedding search (semantic) does not function like a traditional keyword search (lexical).
 ### Smart Command (Find Notes)
 - Section 'Block' Matching
 	- Description of block matching feature
