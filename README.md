@@ -1,3 +1,5 @@
+*This README is still a work-in-progress so the v1 README is still available below.*
+
 Hey there, I'm Brian, the mind behind Smart Connections (still human, at this point 🤪). I laugh at my own jokes, like to use emojis, and think about thinking.
 
 The journey of Smart Connections is one I directly share with you. Smart Connections isn't just about some new features in Obsidian; it's a reflection of our shared experiences, your invaluable feedback, and a testament to what we can achieve together in the Obsidian community. A journey that's been both exhilarating and profoundly educational.
@@ -249,9 +251,6 @@ Styles are designed to inherit from the user's theme whenever possible.
 ## About the Author
 - [ ] TODO
 - [Brian on Founderoo](https://www.founderoo.co/posts/smart-connections-brian-petro)
-
-## README v2 - WIP
-This README is still a work-in-progress, so I'm including the v1 README below for now.
 
 ---
 
