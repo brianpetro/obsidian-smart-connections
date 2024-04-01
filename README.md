@@ -1,4 +1,4 @@
-*This README is still a work-in-progress so the v1 README is still available below.*
+*This README is a work-in-progress so the v1 README is still available below.*
 
 Hey there, I'm Brian, the mind behind Smart Connections (still human, at this point 🤪). I laugh at my own jokes, like to use emojis, and think about thinking.
 
