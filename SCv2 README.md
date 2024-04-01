@@ -99,7 +99,7 @@ It's my belief that open-source software that serves individuals directly is one
 - ["Thanks for doing this. I love the idea to have OpenAI help look through my notes to find connections"](https://github.com/brianpetro/obsidian-smart-connections/issues/47#issue-1609765217:~:text=Thanks%20for%20doing%20this.%20I%20love%20the%20idea%20to%20have%20OpenAI%20help%20look%20through%20my%20notes%20to%20find%20connections.)
 </details>
 
-
+[Even more love for Smart Connections 🥰](https://smartconnections.app/smart-connections-love/)
 
 ## How it Works  
 - Overview of plugin operation
