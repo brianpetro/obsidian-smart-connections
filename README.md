@@ -77,6 +77,7 @@ It's my belief that open-source software that serves individuals directly is one
 - "Thank you for all your work on Smart Connections." - Ed
 - "In my top 3 of the most useful plugins." - Mickaël 
 - "Thank you for your hard work. - from South Korea" - 오송인
+- ["I love this extension so much. So many potential features by the way."](https://github.com/brianpetro/obsidian-smart-connections/issues/48#issuecomment-1459929611:~:text=I%20love%20this%20extension%0Aso%20much.%20So%20many%20potential%20features%20by%20the%20way.)
 - ["This plugin is fantastic"](https://github.com/brianpetro/obsidian-smart-connections/issues/47#:~:text=This%20plugin%20is%20fantastic)
 - ["This is a terrific idea"](https://github.com/brianpetro/obsidian-smart-connections/issues/54#:~:text=This%20is%20a%20terrific%20idea)
 - ["This plugins could be a Game changer!"](https://github.com/brianpetro/obsidian-smart-connections/issues/54#:~:text=This%20plugins%20could%20be%20a%20Game%20changer!)
@@ -217,7 +218,6 @@ Styles are designed to inherit from the user's theme whenever possible.
 
 <details><summary>Testimonials from Smart Connections Supporters 😊</summary>
 
-- ["I love this extension so much. So many potential features by the way."](https://github.com/brianpetro/obsidian-smart-connections/issues/48#issuecomment-1459929611:~:text=I%20love%20this%20extension%0Aso%20much.%20So%20many%20potential%20features%20by%20the%20way.)
 - [I became a Smart Connections supporter because] "I like to support projects that I see have people behind who are authentically giving their creativity and vision. I like that the developers and the maintainers are outspoken about issues and need for improvements. And it is a great plugin."
 - [I became a Smart Connections supporter because] "I first got into PKM and Obsidian because of the book, "Building A Second Brain." When ChatGPT blew up I thought, "wouldn't this be amazing to train on my notes?" When I stumbled upon Smart Connections I knew this would transform the way I live my life."
 - [I became a Smart Connections supporter because] The ability to leverage my extensive Obsidian vaults with ChatGPT and the excellent results I have had with version 1.x
@@ -243,6 +243,35 @@ Styles are designed to inherit from the user's theme whenever possible.
 - [I became a Smart Connections supporter because] I've been meaning to build this myself, and you saved me from it, and did a better job than I could have with my frontend skills. Thank you!!!
 - [I became a Smart Connections supporter because] want to support development, great tool so fast, esp. the connections!
 - [I became a Smart Connections supporter because] I think this plugin is following one of the most relevant lines of development of generative AI. It's already one I use the most in Obsidian My app of choice for PKM. So I'm betting on it, also if it lacks a lot o functions right now.
+- [I became a Smart Connections supporter because] Ability to test Ollama and gratitude for the work being done here. Thank you.
+- [I became a Smart Connections supporter because] I love the slick UI, integration, and general vision
+- [I became a Smart Connections supporter because] An amazing tool that could make a real difference in my research and in my life.
+- [I became a Smart Connections supporter because] I really like the plugin and want to try out whatever you have planned next as soon as possible
+- [I became a Smart Connections supporter because] To support the project
+- [I became a Smart Connections supporter because] I use this tool constantly, and thought it was worth supporting. Plus, I'm hoping maybe I can get a change added :D
+- [I became a Smart Connections supporter because] to access smart chat and bc this seems intresting enough to try but all new to me
+- [I became a Smart Connections supporter because] PKM can have significant impacts on individuals and society, and the work you are doing is valuable
+- [I became a Smart Connections supporter because] This is a very interesting project to me and want to support Brian and all of his great work.
+- [I became a Smart Connections supporter because] Increasing value in my workflows
+- [I became a Smart Connections supporter because] support the cause
+- [I became a Smart Connections supporter because] I'm a heavy ChatGPT user and the prospect of having access to my notes from Obsidian is Awesome
+- [I became a Smart Connections supporter because] It seem interesting and I want full feature to compare between this and Copilot
+- [I became a Smart Connections supporter because] I want to be able to ask ChatGPT questions about my Obisidan Vault.
+- [I became a Smart Connections supporter because] Smart Connections is awesome and deserves the support :) Hoping that my contribution will help along the process of shifting fully to local models (also for responses), as they become more capable. Please add local Mistral support for prompt responses.
+- [I became a Smart Connections supporter because] I am a PhD researcher and I've been using smart connections for my research. Thanks for your efforts building this app!
+- [I became a Smart Connections supporter because] My love for your work
+- [I became a Smart Connections supporter because] v1 has been a game changer for me excited to be able to support your project and very thankful for your product
+- [I became a Smart Connections supporter because] Chat GPT integration: you are the only serious contender in the chat-your-data game for individuals
+- [I became a Smart Connections supporter because] This is exactly what I want. Originally I planned to spend a few months learning programming and building my own. Now it's already done!
+- [I became a Smart Connections supporter because] Because I love making Smart Connections!
+- [I became a Smart Connections supporter because] I would like to integrate a GPT system into my notes
+- [I became a Smart Connections supporter because] Obsidian integration with OpenAI
+- [I became a Smart Connections supporter because] I want to converse with the contents of my notes and create newsletters and other content from them.
+- [I became a Smart Connections supporter because] The quality of your work and the chatGPT integration
+- [I became a Smart Connections supporter because] To utilize Obsidian's notes in GPT.
+- [I became a Smart Connections supporter because] I find immense value in AI organizing my scattered brain for me, and I want to support efforts to support this.
+- [I became a Smart Connections supporter because] Hoping for seamless integration features with Obsidian and the custom GPT
+- [I became a Smart Connections supporter because] Want to support development
 
 </details>
 
