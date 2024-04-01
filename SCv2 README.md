@@ -36,8 +36,8 @@ It's my belief that open-source software that serves individuals directly is one
 - Previewing and opening notes 
 
 <p align="center">
-  <img src="./assets/SCv2-Smart-View-light.gif" alt="Smart View Light Mode" style="width: 49%;"/>
-  <img src="./assets/SCv2-Smart-View-dark.gif" alt="Smart View Dark Mode" style="width: 49%;"/>
+  <img src="./assets/SCv2-Smart-View-light.gif" alt="Smart View Light Mode" width="49%"/>
+  <img src="./assets/SCv2-Smart-View-dark.gif" alt="Smart View Dark Mode" width="49%"/>
 </p>
 
 ### Smart Command (Find Notes)
