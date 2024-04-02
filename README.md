@@ -134,6 +134,14 @@ The Smart View provides real-time note suggestions based on your current note.
 ##### Smart View Search
 Click the search icon to input a search query.
 - note: it's important to remember that embedding search (semantic) does not function like a traditional keyword search (lexical).
+### Smart Chat
+##### ChatMD (new in `v2.1`)
+- Chat history is now saved as a new note for each conversation.
+
+###### `sc-context` codeblock
+- prevents duplication of notes used as context in the chat history
+- renders a Smart View containing the notes or excerpts used as context
+
 ### Smart Command (Find Notes)
 - Section 'Block' Matching
 	- Description of block matching feature

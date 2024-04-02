@@ -11,6 +11,7 @@ function default_settings() {
       smart_chat_folder_last: "smart-chats",
       local_embedding_max_tokens: 2048,
       smart_connect_embed: false,
+      embedding_file_per_note: false,
       // Smart Blocks Settings (chunking)
       embed_input_min_chars: 50,
       multi_heading_blocks: true,

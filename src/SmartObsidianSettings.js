@@ -84,8 +84,8 @@ class SmartObsidianSettings extends PluginSettingTab {
       if (elm.dataset.disabled) setting_elm.setDisabled(true);
     });
   }
-  handle_on_change(setting, value, elm) {
-    this.update(setting, value);
+  async handle_on_change(setting, value, elm) {
+    await this.update(setting, value);
     if (elm.dataset.callback) this[elm.dataset.callback](setting, value, elm);
   }
   get_setting(setting) {
