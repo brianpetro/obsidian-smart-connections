@@ -17,9 +17,11 @@ By using the same embedding technology that powers the Smart View, we can now us
 
 ## Mission
 ### For Individuals
-Open-source has been around a long time, but, over the past decade it seems that the primary beneficiary of open-source has shifted away from individuals and toward corporate interests. For example, see the many VC-funded open-source projects.
+Open source has been around for a long time. Still, over the past decade, the primary beneficiary of open source has shifted away from individuals and toward corporate interests. This shift can be seen by looking at the many VC-funded "open-source" projects.
 
-It's my belief that open-source software that serves individuals directly is one way we can prevent growing inequality from new AI technologies. Smart Connections is designed for individuals, with an emphasis on non-technical individuals.
+In contrast, Smart Connections is designed for individuals, emphasizing accessibility for the less technical, and is funded directly by users.
+
+I believe that open-source software that serves individuals directly, like Smart Connections, is one of the best ways we can ensure equitable access to AI-provided opportunities.
 ## What People Are Saying
 - ["I actually decided to start using Obsidian BECAUSE of Smart Connections."](https://github.com/brianpetro/obsidian-smart-connections/issues/441#:~:text=I%20actually%20decided%20to%20start%20using%20Obsidian%20BECAUSE%20of%20Smart%20Connections.)
 - ["This is such a game-changingly helpful plugin"](https://github.com/brianpetro/obsidian-smart-connections/issues/329#issuecomment-2002162224:~:text=This%20is%20such%20a%20game%2Dchangingly%20helpful%20plugin)
