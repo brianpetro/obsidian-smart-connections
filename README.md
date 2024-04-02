@@ -135,9 +135,27 @@ The Smart View provides real-time note suggestions based on your current note.
 Click the search icon to input a search query.
 - note: it's important to remember that embedding search (semantic) does not function like a traditional keyword search (lexical).
 ### Smart Chat
+Notes are retrieved to and used as context in the conversation when you in put a self-referential pronoun like "my" in "Based on my notes..." 
+##### chat models
+###### v2.0 (current)
+- OpenAI
+	- `GPT-3.5-turbo` (16K)
+	- `GPT-4` (8K)
+	- `GPT-4-turbo` (128K)
+###### v2.1 (early release)
+- OpenAI models (see current)
+- Google
+	- `gemini-1.0-pro` (30K)
+	- `gemini-1.5-pro-latest` (1MM)
+- Anthropic
+	- `claude-3-opus` (200K)
+	- `claude-3-sonnet` (200K)
+	- `claude-3-haiku` (200K)
+- Custom
+	- Local
+	- API
 ##### ChatMD (new in `v2.1`)
 - Chat history is now saved as a new note for each conversation.
-
 ###### `sc-context` codeblock
 - prevents duplication of notes used as context in the chat history
 - renders a Smart View containing the notes or excerpts used as context
