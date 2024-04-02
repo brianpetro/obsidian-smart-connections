@@ -135,6 +135,11 @@ Click the search icon to input a search query.
 - note: it's important to remember that embedding search (semantic) does not function like a traditional keyword search (lexical).
 ### Smart Chat
 Notes are retrieved to and used as context in the conversation when you in put a self-referential pronoun like "my" in "Based on my notes..." 
+##### ChatMD (new in `v2.1`)
+Chat history is saved as a new note for each conversation.
+###### `sc-context` codeblock
+- prevents duplication of notes used as context in the chat history
+- renders a Smart View containing the notes or excerpts used as context
 ##### chat models
 ###### v2.0 (current)
 - OpenAI
@@ -153,11 +158,6 @@ Notes are retrieved to and used as context in the conversation when you in put a
 - Custom
 	- Local
 	- API
-##### ChatMD (new in `v2.1`)
-- Chat history is now saved as a new note for each conversation.
-###### `sc-context` codeblock
-- prevents duplication of notes used as context in the chat history
-- renders a Smart View containing the notes or excerpts used as context
 
 ### Smart Command (Find Notes)
 - Section 'Block' Matching
