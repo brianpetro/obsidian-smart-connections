@@ -13,8 +13,7 @@ Smart Connections started as way for me to keep track of my thousands of notes, 
 ### Smart Chat - AI Synthesis
 ![Demo showing how Smart Chat can answer the question "Who am I?" based on the notes in Obsidian](./assets/smart-connections-chat-who-am-i.gif)
 
-By using the same embedding technology that powers the Smart View, we can now use technology like ChatGPT to answer questions based on our notes in the Smart Chat.
-
+By using the same embedding technology that powers the Smart View, we can now use technology like ChatGPT to answer questions based on our notes in the Smart Chat. Available models are list below.
 ## Mission
 ### For Individuals
 Open source has been around for a long time. Still, over the past decade, the primary beneficiary of open source has shifted away from individuals and toward corporate interests. This shift can be seen by looking at the many VC-funded "open-source" projects.
