@@ -157,6 +157,7 @@ Chat history is saved as a new note for each conversation.
 	- `claude-3-haiku` (200K)
 - Cohere
 	- `command-r` (128K)
+	- `command-r-plus` (128K)
 - Custom
 	- Local
 	- API
