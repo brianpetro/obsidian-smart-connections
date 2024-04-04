@@ -155,6 +155,8 @@ Chat history is saved as a new note for each conversation.
 	- `claude-3-opus` (200K)
 	- `claude-3-sonnet` (200K)
 	- `claude-3-haiku` (200K)
+- Cohere
+	- `command-r` (128K)
 - Custom
 	- Local
 	- API
