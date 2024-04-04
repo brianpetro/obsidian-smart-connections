@@ -22,16 +22,8 @@ class ScSmartView extends SmartObsidianView {
     this.container.innerHTML = this.render_template("smart_connections", { current_path: "", results: [] });
     this.add_top_bar_listeners();
   }
-  // async load_brain() {
-  //   this.env = this.plugin.brain;
-  //   this.brain = this.env;
-  //   // await this.brain.reload();
-  //   this.last_parent_id = this.constructor.get_leaf(this.app.workspace)?.parent.id;
-  // }
-
   async onClose() {
     console.log("closing smart connections view");
-    this.brain.unload();
     this.app.workspace.unregisterHoverLinkSource(this.constructor.view_type);
   }
   onResize() {

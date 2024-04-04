@@ -5,16 +5,12 @@ class SmartSearch {
   }
   async search(search_text, filter = {}) {
     try {
-      if (!this.main.view?.brain?.smart_blocks?.smart_embed && !this.main.view?.brain?.smart_notes?.smart_embed) {
-        this.main.notices.show_requires_smart_view();
-        return [];
-      }
-      if(!this.plugin.is_smart_view_open()){
-        this.main.notices.show_requires_smart_view();
+      if (!this.plugin.env?.smart_blocks?.smart_embed && !this.plugin.env?.smart_notes?.smart_embed) {
+        this.plugin.notices.show("embed model not loaded", "Embed model not loaded. Please wait for the model to load and try again.");
         return [];
       }
       // has embeddings, complete search
-      const collection = this.main.view?.brain?.smart_blocks?.smart_embed ? this.main.view.brain.smart_blocks : this.main.view.brain.smart_notes;
+      const collection = this.plugin.env?.smart_blocks?.smart_embed ? this.plugin.env.smart_blocks : this.plugin.env.smart_notes;
       const embedding = await collection.smart_embed.embed(search_text);
       if(!embedding?.vec){
         this.main.notices.show("embed search text failed", "Failed to embed search text.")

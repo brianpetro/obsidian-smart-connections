@@ -39,7 +39,7 @@ class SmartObsidianSettings extends PluginSettingTab {
           } else {
             text.onChange(async (value) => {
               clearTimeout(debounceTimer);
-              debounceTimer = setTimeout(() => this.handle_on_change(setting, value, elm), 500); // Adjust 500ms to your needs
+              debounceTimer = setTimeout(() => this.handle_on_change(setting, value, elm), 2000);
             });
           }
         });
@@ -50,7 +50,11 @@ class SmartObsidianSettings extends PluginSettingTab {
           number.inputEl.value = parseInt(this.get_setting(setting));
           number.inputEl.min = elm.dataset.min || 0;
           if (elm.dataset.max) number.inputEl.max = elm.dataset.max;
-          number.onChange(async (value) => this.handle_on_change(setting, parseInt(value), elm));
+          let debounceTimer;
+          number.onChange(async (value) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => this.handle_on_change(setting, parseInt(value), elm), 2000);
+          });
         });
       } else if (elm.dataset.type === "dropdown") {
         setting_elm.addDropdown(dropdown => {
