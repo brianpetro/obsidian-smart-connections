@@ -3,18 +3,30 @@
 Hey there, I'm Brian, the mind behind Smart Connections (still human, at this point 🤪). I laugh at my own jokes, like to use emojis, and think about thinking.
 
 The journey of Smart Connections is one I directly share with you. Smart Connections isn't just about some new features in Obsidian; it's a reflection of our shared experiences, your invaluable feedback, and a testament to what we can achieve together in the Obsidian community. A journey that's been both exhilarating and profoundly educational.
-
+### history
 Obsidian wasn't my first attempt at trying to manage and make sense of my notes. And in late 2022, like what has happened with all of my past attempts, the system I had built in Obsidian was beginning to fall apart. There were too many notes and I didn't having enough time to organize, link, tag, and otherwise manage them properly.
-## Introduction to Smart Connections
-### Smart View - AI Organization
-![Smart View demo showing that the most relevant notes are shown at the top based on the current note.](./assets/SCv2-Smart-View-light.gif)
 
 Smart Connections started as way for me to keep track of my thousands of notes, prevent rework, and make new connections by showing relevant notes/excerpts alongside whatever note I was currently working on via the Smart View.
-### Smart Chat - AI Synthesis
-![Demo showing how Smart Chat can answer the question "Who am I?" based on the notes in Obsidian](./assets/smart-connections-chat-who-am-i.gif)
 
-By using the same embedding technology that powers the Smart View, we can now use technology like ChatGPT to answer questions based on our notes in the Smart Chat. Available models are list below.
+Soon after it's initial release, the community recognized the opportunity for Smart Chat, so you can now chat with your notes, using the same technology behind the Smart View.
+
+From there, the Smart Connections community has continued playing a major part in it's progress, from testing early-release versions, coming up with ideas for new features, solving issues, and enabling me with the resources necessary to spend more time building software that enables individuals with AI!
+## Introduction to Smart Connections
+
+### Smart View: AI-Powered Note Discovery
+Smart View revolutionizes how you find and connect with your notes. By leveraging AI technology, it surfaces the most relevant notes based on your current context, making it easier to discover insights and connections across your vault.
+
+![Smart View demo showing that the most relevant notes are shown at the top based on the current note.](./assets/SCv2-Smart-View-light.gif)
+
+
+### Smart Chat: AI Conversations Based on Your Notes
+Transform your note-taking with Smart Chat. This feature allows you to have dynamic conversations with your notes, powered by the latest AI technology. Whether you're brainstorming, seeking information, or exploring your notes in new ways, Smart Chat makes it possible.
+
+![Demo showing how Smart Chat can answer the question "Who am I?" based on the notes in Obsidian](./assets/smart-connections-chat-who-am-i.gif)
+*AI chat models available in the Smart Chat are listed below.*
 ## Mission
+Our mission with Smart Connections is centered around democratizing AI technology for individual users, emphasizing privacy, and fostering a community-driven development. Unlike many tools that prioritize corporate interests, Smart Connections is a testament to the power of open-source, user-supported software in making advanced technology accessible to everyone.
+
 ### For Individuals
 Open source has been around for a long time. Still, over the past decade, the primary beneficiary of open source has shifted away from individuals and toward corporate interests. This shift can be seen by looking at the many VC-funded "open-source" projects.
 
@@ -110,14 +122,21 @@ I believe that open-source software that serves individuals directly, like Smart
 	- Creating embeddings
 	- Limitations (desktop-only, mobile support coming soon)
 - more details in the features section below
-## Installation  
-- Installing from Obsidian community plugins  
-- Configuration
-	- Defaults
-	- API key, file/folder exclusions, show full path, etc.  
-		- Setting up OpenAI API key
-			- requires pre-paying for tokens
-	- Advanced settings
+
+## Easy Installation
+Getting started with Smart Connections is straightforward. Here's how to do it in a few simple steps:
+### Installing from Obsidian community plugins
+![](./assets/obsidian-community-smart-connections-install.png)
+## Settings
+### Default settings
+##### Local embedding models
+Local embedding models enable leveraging the power of Smart Connections without sending data to any third-party for processing. `BGE-micro` is a small and reliable local embedding model used by default. This allows Smart Connections Smart View to work out-of-box; no API key, additional software or setup required!
+### Additional setup
+- [ ] DO clarified
+	- [ ] file/folder exclusions
+	- [ ] changing AI models
+##### OpenAI API Key
+- requires pre-paying for tokens
 ## Features
 ### Smart View
 The Smart View provides real-time note suggestions based on your current note.
@@ -188,13 +207,17 @@ Chat history is saved as a new note for each conversation.
 - Markdown
 - Obsidian Canvas
 - PDFs (coming soon!)
-## How You Can Contribute
-- Invitation to GitHub discussions
-	- Importance of community feedback
-- Reporting issues on GitHub  
-- Emphasized recording videos on how you use Smart Connections
 
-### non-technical
+## Join Our Community
+There are many ways to contribute to the Smart Connections project, and we value all forms of contributions. Whether you're helping to troubleshoot issues, adding new features, or sharing how you use Smart Connections to inspire others, your support is what makes this project thrive.
+
+- [ ] DO clarified
+	- [ ] Importance of community feedback
+	- [x] Emphasized recording videos on how you use Smart Connections
+
+- [Public Discussions on GitHub](https://github.com/brianpetro/obsidian-smart-connections/discussions)
+- [Report an issue on GitHub](https://github.com/brianpetro/obsidian-smart-connections/issues)
+### How to contribute (non-technical)
 Contributions to the project do not have to be technical. In fact, one of the biggest needs of Smart Connections is non-technical. Creating content that shows how you're using Smart Connections not only helps development, but also helps existing and potential users better understand how they can benefit from utilizing AI, creating an impact that extends beyond this project! 
 ##### Screencasts
 Your contributions through video testimonials on how you use Smart Connections are invaluable. These insights not only help improve the plugin but also assist in showcasing real-world applications to the community.
@@ -406,8 +429,6 @@ Currently taking requests for which external content you would like connected. P
 ![](./assets/search-feature.png)
 
 ## Installation
-
-![](./assets/obsidian-community-smart-connections-install.png)
 
 ### Instructions
 1. Install the plugin from the community plugins tab in Obsidian.
