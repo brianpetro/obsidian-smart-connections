@@ -34,14 +34,16 @@ Transform your note-taking with Smart Chat. This feature allows you to have dyna
 ![Demo showing how Smart Chat can answer the question "Who am I?" based on the notes in Obsidian](./assets/smart-connections-chat-who-am-i.gif)
 
 *AI chat models available in the Smart Chat are listed below.*
-## User Testimonials
-Hearing from those who use Smart Connections brings to life the impact it has on individuals' workflows and creativity. Here are some of the things our users have said about how Smart Connections has transformed their note-taking and information management experiences:
 
+## User Testimonials
+Hearing from those who use Smart Connections brings to life the impact it has on individuals' workflows and creativity. The transformative impact of Smart Connections on our users' workflows and creativity cannot be overstated. Here's what some of them have to say:
+
+- "Smart Connections is revolutionary for my process of attempting to wrangle decades of sprawling unorganized notes, journals etc. Amazing work! Look forward to seeing it evolve." - Ronny
+- ["I've switched over from Mem to Obsidian when I found this plugin"](https://discord.com/channels/686053708261228577/694233507500916796/1091164112425320538)
 - ["I actually decided to start using Obsidian BECAUSE of Smart Connections."](https://github.com/brianpetro/obsidian-smart-connections/issues/441#:~:text=I%20actually%20decided%20to%20start%20using%20Obsidian%20BECAUSE%20of%20Smart%20Connections.)
 - ["This is such a game-changingly helpful plugin"](https://github.com/brianpetro/obsidian-smart-connections/issues/329#issuecomment-2002162224:~:text=This%20is%20such%20a%20game%2Dchangingly%20helpful%20plugin)
 - ["This plugin has become a vital part of my life"](https://github.com/brianpetro/obsidian-smart-connections/issues/120#issuecomment-1492842117:~:text=This%20plugin%20has%20become%20a%20vital%20part%20of%20my%20life)
 - ["This is by far my favourite Obsidian plug-in and it is immensely helpful. I'll be doing a full video about using it for PhD research"](https://github.com/brianpetro/obsidian-smart-connections/discussions/371#discussioncomment-7977910:~:text=This%20is%20by%20far%20my%20favourite%20Obsidian%20plug%2Din%20and%20it%20is%20immensely%20helpful.%20I%27ll%20be%20doing%20a%20full%20video%20about%20using%20it%20for%20PhD%20research)
-- ["I've switched over from Mem to Obsidian when I found this plugin"](https://discord.com/channels/686053708261228577/694233507500916796/1091164112425320538)
 - ["It's astonishing the power it provides to deal with scientific research and scientific articles included in the vault."](https://github.com/brianpetro/obsidian-smart-connections/issues/250#issuecomment-1595108987:~:text=It%27s%20astonishing%20the%20power%20it%20provids%20to%20deal%20with%20scientific%20research%20and%20scientific%20articles%20included%20in%20the%20vault.)
 - ["Smart Connections is easily in my Top 3 [plugins], it changes radically the use of [Obsidian], many thanks for that."](https://github.com/brianpetro/obsidian-smart-connections/issues/64#issuecomment-1484212168:~:text=Smart%20connections%20is%20easily%20in%20my%20Top%203%2C%20it%20changes%20radically%20the%20use%20of%20the%20Soft%2C%20many%20thanks%20for%20that.)
 - ["[Smart Connections] significantly changed how I use PKM"](https://discord.com/channels/686053708261228577/710585052769157141/1091163849190801468)
@@ -49,7 +51,6 @@ Hearing from those who use Smart Connections brings to life the impact it has on
 - ["Hopping on to also say thanks. I have been wanting this feature in something ever since reading about tad starners remembrance agent in the 90s! And this is even better."](https://github.com/brianpetro/obsidian-smart-connections/issues/47#issuecomment-1471441869:~:text=Hopping%20on%20to%20also%20say%20thanks.%20I%20have%20been%20wanting%20this%20feature%20in%20something%20ever%20since%20reading%20about%20tad%20starners%20remembrance%20agent%20in%20the%2090s!%20And%20this%20is%20even%20better.)
 - ["I'm having so much fun using your chat plugin to search my notes better and get insights."](https://github.com/brianpetro/obsidian-smart-connections/issues/57#:~:text=Hi%2C-,I%27m%20having%20so%20much%20fun%20using%20your%20chat%20plugin%20to%20search%20my%20notes%20better%20and%20get%20insights,-.%20I%20was%20just)
 - ["This is undoubtedly an excellent plugin that makes a significant improvement in how we interact with our notes."](https://github.com/brianpetro/obsidian-smart-connections/pull/219#issuecomment-1562572364:~:text=This%20is%20undoubtedly%20an%20excellent%20plugin%20that%20makes%20a%20significant%20improvement%20in%20how%20we%20interact%20with%20our%20notes.)
-- "Smart Connections is revolutionary for my process of attempting to wrangle decades of sprawling unorganized notes, journals etc. Amazing work! Look forward to seeing it evolve." - Ronny
 - "I have been using Smart Connections with Obsidian. It is excellent. I am finding more and more uses for it. I am intrigued by the idea of being able to use a local embedding model." - Eamonn
 - "Huge fan of Smart Connections so much that I even [wrote a post about how I use it to massively save time on summarizing legal cases](https://careylening.substack.com/p/the-power-of-links-and-second-brains-d1d) (I also talk about my whole crazy workflow and the other tools I use, but SC gets a big shout-out)" - Carey
 - "I love the latest version of Smart Connections and just used it for an amazing use case: I took my Obsidian notes and used them for qualifying my yearly performance review." - Jarrett
@@ -121,13 +122,13 @@ Hearing from those who use Smart Connections brings to life the impact it has on
 [Even more love for Smart Connections 🥰](https://smartconnections.app/smart-connections-love/)
 
 ## How it Works  
-- Overview of plugin operation
-	- Creating embeddings
-	- Limitations (desktop-only, mobile support coming soon)
-- more details in the features section below
-
+- [ ] DO clarified
+	- [ ] Overview of plugin operation
+		- [ ] Creating embeddings
+		- [ ] Limitations (desktop-only, mobile support coming soon)
+	- [ ] more details in the features section below
 ## Easy Installation
-Getting started with Smart Connections is straightforward. Here's how to do it in a few simple steps:
+Getting started with Smart Connections is easier than ever. Simply install Smart Connections from the Obsidian Community plugins and begin enhancing your Obsidian experience with AI-powered functionalities.
 ### Installing from Obsidian community plugins
 ![](./assets/obsidian-community-smart-connections-install.png)
 ## Settings
@@ -211,12 +212,11 @@ Chat history is saved as a new note for each conversation.
 - Obsidian Canvas
 - PDFs (coming soon!)
 
-## Join Our Community
-There are many ways to contribute to the Smart Connections project, and we value all forms of contributions. Whether you're helping to troubleshoot issues, adding new features, or sharing how you use Smart Connections to inspire others, your support is what makes this project thrive.
 
-- [ ] DO clarified
-	- [ ] Importance of community feedback
-	- [x] Emphasized recording videos on how you use Smart Connections
+## Join Our Community
+Your involvement is crucial to the evolution of Smart Connections. From troubleshooting issues to adding new features or sharing your unique uses of Smart Connections, every contribution enriches our community and drives the project forward.
+
+There are many ways to contribute to the Smart Connections project, and we value all forms of contributions. Whether you're helping to troubleshoot issues, adding new features, or sharing how you use Smart Connections to inspire others, your support is what makes this project thrive.
 
 - [Public Discussions on GitHub](https://github.com/brianpetro/obsidian-smart-connections/discussions)
 - [Report an issue on GitHub](https://github.com/brianpetro/obsidian-smart-connections/issues)
@@ -230,12 +230,12 @@ Screen recording tools like Loom make it easy to record and share screencasts. I
 ## Content & Resources
 - Videos added to README
 - SC Backlinks (third-party content)
-## Under the hood
-- [x] Local models
-- [ ] Dependencies listed in SC Readme
-	- [ ] first-party
-	- [x] third-party
-- [x] Themes & Styles
+
+## Smart Connections Architecture
+Delve into the architecture behind Smart Connections, designed with efficiency and user benefit in mind. Key design principles include:
+- minimizing external dependencies for easy to audit code
+- working out-of-box to maximize ease-of-use
+- modular open-source components for re-use in other project
 ### Local Models
 - Local models are an important development because they enable utilizing AI without sending potentially sensitive data to third-party providers like OpenAI.
 - Smart Connections `v2.0` introduced built-in local embedding models. Built-in models are easy-to-use and do not require installing or configuring third-party software. The default embedding model for new users is a local model.
