@@ -19,7 +19,7 @@ Open-source has been around for a long time. Still, over the past decade, the pr
 In contrast, Smart Connections is designed for individuals, emphasizing accessibility for the less technical, and is funded directly by users.
 
 > "I believe that open-source software that serves individuals directly, like Smart Connections, is one of the best ways we can ensure equitable access to AI-provided opportunities."
-> - 🌴 Brian
+> 🌴 Brian
 
 ## Discover Smart Connections
 Smart Connections goes beyond just being a plugin; it's a bridge that connects your thoughts, notes, and insights in Obsidian, making your information management seamless and intuitive. Let's explore what makes Smart Connections stand out:
