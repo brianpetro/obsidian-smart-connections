@@ -219,7 +219,6 @@ Your involvement is crucial to the evolution of Smart Connections. From troubles
 There are many ways to contribute to the Smart Connections project, and we value all forms of contributions. Whether you're helping to troubleshoot issues, adding new features, or sharing how you use Smart Connections to inspire others, your support is what makes this project thrive.
 
 - [Public Discussions on GitHub](https://github.com/brianpetro/obsidian-smart-connections/discussions)
-- [Report an issue on GitHub](https://github.com/brianpetro/obsidian-smart-connections/issues)
 ### How to contribute (non-technical)
 Contributions to the project do not have to be technical. In fact, one of the biggest needs of Smart Connections is non-technical. Creating content that shows how you're using Smart Connections not only helps development, but also helps existing and potential users better understand how they can benefit from utilizing AI, creating an impact that extends beyond this project! 
 ##### Screencasts
@@ -258,6 +257,20 @@ These are modules that I developed with the same principle of minimizing depende
 	- This dependency is loaded within an iframe which "sandboxes" the code.  
 ### Themes & Styles
 Styles are designed to inherit from the user's theme whenever possible.
+
+## Troubleshooting Common Issues
+
+### Embedding process keeps restarting or is slow
+- This is not normal behavior. First, try switching to the reliable BGE-micro embedding model in the settings. 
+- If issues persist, check the developer console for any error messages and share screenshots of the errors to get further assistance.
+
+### OpenAI API errors
+- Make sure you have pre-paid API credits in your OpenAI account. OpenAI recently changed their billing system to require pre-paid credits.
+- Double check that the API key you entered in the Smart Connections settings matches the account you added credit to. There are separate API key settings for embeddings and chat.
+- Share screenshots of the specific API errors from the developer console to get more targeted troubleshooting help.
+
+For quickest support, always include screenshots, especially of any errors in the developer console (View -> Toggle Developer Tools). Searching existing issues on GitHub is also recommended for Obsidian plugin problems.
+- [Report an issue on GitHub](https://github.com/brianpetro/obsidian-smart-connections/issues)
 
 ## Developers  
 - Benefits of using Smart Connections embeddings in your plug-in
