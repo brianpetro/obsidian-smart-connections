@@ -18,11 +18,13 @@ Open-source has been around for a long time. Still, over the past decade, the pr
 
 In contrast, Smart Connections is designed for individuals, emphasizing accessibility for the less technical, and is funded directly by users.
 
+
 > "I believe that open-source software that serves individuals directly, like Smart Connections, is one of the best ways we can ensure equitable access to AI-provided opportunities."
 > 🌴 Brian
 
 ## Discover Smart Connections
 Smart Connections goes beyond just being a plugin; it's a bridge that connects your thoughts, notes, and insights in Obsidian, making your information management seamless and intuitive. Let's explore what makes Smart Connections stand out:
+
 ### Smart View: AI-Powered Note Discovery
 Smart View revolutionizes how you find and connect with your notes. By leveraging AI technology, it surfaces the most relevant notes based on your current context, making it easier to discover insights and connections across your vault.
 
@@ -127,8 +129,10 @@ Hearing from those who use Smart Connections brings to life the impact it has on
 		- [ ] Creating embeddings
 		- [ ] Limitations (desktop-only, mobile support coming soon)
 	- [ ] more details in the features section below
+
 ## Easy Installation
-Getting started with Smart Connections is easier than ever. Simply install Smart Connections from the Obsidian Community plugins and begin enhancing your Obsidian experience with AI-powered functionalities.
+Getting started with Smart Connections is easy. Simply install Smart Connections from the Obsidian Community plugins to begin enhancing your Obsidian experience with AI-powered functionalities.
+
 ### Installing from Obsidian community plugins
 ![](./assets/obsidian-community-smart-connections-install.png)
 ## Settings
