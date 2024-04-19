@@ -11,13 +11,15 @@ Smart Connections started as way for me to keep track of my thousands of notes, 
 Soon after it's initial release, the community recognized the opportunity for Smart Chat, so you can now chat with your notes, using the same technology behind the Smart View.
 
 From there, the Smart Connections community has continued playing a major part in it's progress, from testing early-release versions, coming up with ideas for new features, solving issues, and enabling me with the resources necessary to spend more time building software that enables individuals with AI!
+
 ## Mission
-The Smart Connections mission is centered around AI technology for individual users, emphasizing accessibility, and fostering a community-driven development. Unlike many tools that prioritize corporate interests, Smart Connections is a testament to the power of open-source, user-supported software in making advanced technology accessible to everyone.
+Smart Connections is about more than technology; it's about community, collaboration, and the shared journey of enhancing our note-taking experiences. Here's a brief look at the motivation behind Smart Connections, followed by heartfelt testimonials from our users.
+
+The Smart Connections mission is making AI technology for individuals, emphasizing accessibility, and fostering a community-driven development. Unlike many tools that prioritize corporate interests, Smart Connections is a testament to the power of open-source, user-supported software in making advanced technology accessible to everyone.
 
 Open-source has been around for a long time. Still, over the past decade, the primary beneficiary of open source has shifted away from individuals and toward corporate interests. This shift can be seen by looking at the many VC-funded "open-source" projects.
 
 In contrast, Smart Connections is designed for individuals, emphasizing accessibility for the less technical, and is funded directly by users.
-
 
 > "I believe that open-source software that serves individuals directly, like Smart Connections, is one of the best ways we can ensure equitable access to AI-provided opportunities."
 > 🌴 Brian
@@ -25,10 +27,13 @@ In contrast, Smart Connections is designed for individuals, emphasizing accessib
 ## Discover Smart Connections
 Smart Connections goes beyond just being a plugin; it's a bridge that connects your thoughts, notes, and insights in Obsidian, making your information management seamless and intuitive. Let's explore what makes Smart Connections stand out:
 
+
 ### Smart View: AI-Powered Note Discovery
-Smart View revolutionizes how you find and connect with your notes. By leveraging AI technology, it surfaces the most relevant notes based on your current context, making it easier to discover insights and connections across your vault.
+The Smart View feature dynamically offers real-time suggestions of related notes, based on your current activity. It uses AI embeddings to surface relevant notes based on your current context. This not only enhances your creativity but also significantly improves your productivity by illuminating connections you might not have seen.
+
 
 ![Smart View demo showing that the most relevant notes are shown at the top based on the current note.](./assets/SCv2-Smart-View-light.gif)
+
 
 ### Smart Chat: AI Conversations Based on Your Notes
 Transform your note-taking with Smart Chat. This feature allows you to have dynamic conversations with your notes, powered by the latest AI technology. Whether you're brainstorming, seeking information, or exploring your notes in new ways, Smart Chat makes it possible.
@@ -38,7 +43,9 @@ Transform your note-taking with Smart Chat. This feature allows you to have dyna
 *AI chat models available in the Smart Chat are listed below.*
 
 ## User Testimonials
-Hearing from those who use Smart Connections brings to life the impact it has on individuals' workflows and creativity. The transformative impact of Smart Connections on our users' workflows and creativity cannot be overstated. Here's what some of them have to say:
+Hearing from those who use Smart Connections brings to life the impact it has on individuals' workflows and creativity. 
+
+Here's what some of them have to say:
 
 - "Smart Connections is revolutionary for my process of attempting to wrangle decades of sprawling unorganized notes, journals etc. Amazing work! Look forward to seeing it evolve." - Ronny
 - ["I've switched over from Mem to Obsidian when I found this plugin"](https://discord.com/channels/686053708261228577/694233507500916796/1091164112425320538)
@@ -122,8 +129,10 @@ Hearing from those who use Smart Connections brings to life the impact it has on
 </details>
 
 [Even more love for Smart Connections 🥰](https://smartconnections.app/smart-connections-love/)
+  
 
-## How it Works  
+## How it Works
+
 - [ ] DO clarified
 	- [ ] Overview of plugin operation
 		- [ ] Creating embeddings
@@ -145,7 +154,9 @@ Local embedding models enable leveraging the power of Smart Connections without 
 	- [ ] changing AI models
 ##### OpenAI API Key
 - requires pre-paying for tokens
+
 ## Features
+
 ### Smart View
 The Smart View provides real-time note suggestions based on your current note.
 
@@ -248,6 +259,9 @@ Delve into the architecture behind Smart Connections, designed with efficiency a
 *Minimizing dependencies has been a key principle in the development of Smart Connections.* 
 ##### First-party Dependencies
 These are modules that I developed with the same principle of minimizing dependencies.
+
+- [`smart-chat-model`](https://github.com/brianpetro/smart-chat-model)
+
 - [ ] DO: Introduction to Smart Modules
 	- [ ] SmartCollections
 	- [ ] SmartEmbed
@@ -365,9 +379,13 @@ Behind Smart Connections is a vision to transform how we interact with our notes
 # 🧩 Smart Connections: AI-Powered Note Connections for Obsidian
 Ever felt overwhelmed by a growing collection of notes in Obsidian, wondering how to uncover hidden connections and insights? Discover Smart Connections, an AI-powered plugin that transforms your note-taking experience and helps you tap into the full potential of your ideas.
 
-Our goal is to democratize access to AI technology and empower individuals with innovative tools. By creating open-source AI solutions like Smart Connections, we're breaking down barriers and ensuring that Obsidian users of all backgrounds can benefit from AI-enhanced productivity and creativity. Imagine a world where the power of AI is harnessed to amplify the knowledge and insights hidden within your notes, making the entire Obsidian community more interconnected and insightful.
+Our goal is to democratize access to AI technology and empower individuals with innovative tools. 
 
-As an Obsidian enthusiast and AI researcher, I experienced firsthand the challenges of managing and connecting a growing vault of notes. I remember spending hours trying to find the perfect link between ideas or the insight that would spark a new project. It was during one of these late-night note-sifting sessions that I realized the potential of AI to transform the way we interact with our notes. Driven by this revelation, I dedicated myself to developing Smart Connections, an open-source plugin designed to bring the power of AI to every Obsidian user and unlock the true potential of their ideas.
+Imagine a world where the power of AI is harnessed to amplify the knowledge and insights hidden within your notes, making the entire Obsidian community more interconnected and insightful.
+
+As an Obsidian enthusiast and AI researcher, I experienced firsthand the challenges of managing and connecting a growing vault of notes. 
+
+It was during one of these late-night note-sifting sessions that I realized the potential of AI to transform the way we interact with our notes. Driven by this revelation, I dedicated myself to developing Smart Connections, an open-source plugin designed to bring the power of AI to every Obsidian user and unlock the true potential of their ideas.
 
 [Introducing Smart Connections](https://wfhbrian.com/introducing-obsidian-smart-connections/), your AI-powered plugin for [Obsidian](https://obsidian.md/). With features like [Smart View](#smart-view) for real-time relevant note suggestions and [Smart Chat](#smart-chat-transform-your-notes-into-interactive-conversations) for  chatting with your notes, Smart Connections makes it easier than ever to stay organized and uncover hidden connections between your notes. Its intuitive interface and customizable settings ensure a seamless experience, tailored to your unique needs and preferences. 
 
@@ -502,3 +520,4 @@ The plugin integrates [OpenAI Embeddings](https://beta.openai.com/docs/guides/em
 	- **Note**: This feature is currently in beta. Create a GitHub issue if you want to learn how to use the beta version of this feature.
 - This plugin is designed to manage the vector interpretation ("embeddings") of the notes in your vaults. The requirements for managing this can be extensive.
 - While there are many ways to interpret the vector relationships and make them useful this plugin is focused on delivering the core capabilities required to utilize such a system.
+

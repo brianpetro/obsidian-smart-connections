@@ -20,12 +20,20 @@ class SmartSocket {
     if (!this.can_attempt_connection(retry)) return;
 
     if(retry) await this.calculate_backoff(retry);
+    if(typeof this.is_server_running === 'function'){
+      const is_running = await this.is_server_running();
+      if(!is_running){
+        console.log("Smart Connect is not running, will try to connect again later");
+        this.connect(true);
+        return;
+      }
+    }
     
     try {
       await this.initialize_websocket();
     } catch (err) {
       // console.error(`WebSocket connection error on retry ${this.ws_retries}: ${err.message}`);
-      if (retry && this.ws_retries < 10) {
+      if (retry && ((this.ws_retries < 10) || (typeof this.is_server_running === 'function'))) {
         await this.handle_connection_error(true, err);
       } else {
         this.on_fail_to_reconnect();
@@ -60,7 +68,7 @@ class SmartSocket {
   calculate_backoff(retry) {
     if (retry || this.retry) {
       this.ws_retries += 1;
-      const backoff_time = Math.min(1000 * Math.pow(2, this.ws_retries), 30000);
+      const backoff_time = Math.min(1000 * Math.pow(2, this.ws_retries), 60000);
       console.log(`Attempting to reconnect in ${backoff_time / 1000} seconds...`);
       return new Promise(resolve => setTimeout(resolve, backoff_time));
     }
