@@ -12,6 +12,7 @@ function default_settings() {
       local_embedding_max_tokens: 2048,
       embedding_file_per_note: false,
       chat_model_platform_key: "open_router",
+      open_router: {},
       // Smart Blocks Settings (chunking)
       embed_input_min_chars: 50,
       multi_heading_blocks: true,
