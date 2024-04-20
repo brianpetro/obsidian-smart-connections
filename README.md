@@ -1,3 +1,6 @@
+# 🧩 Smart Connections: AI-Powered Note Connections `v2.1`
+Easy AI tools to chat with your notes & make real-time connections in Obsidian.
+
 *This README is a work-in-progress so the v1 README is still available below.*
 
 Hey there, I'm Brian, the mind behind Smart Connections (still human, at this point 🤪). I laugh at my own jokes, like to use emojis, and think about thinking.
@@ -376,7 +379,7 @@ Behind Smart Connections is a vision to transform how we interact with our notes
 
 ---
 
-# 🧩 Smart Connections: AI-Powered Note Connections for Obsidian
+# 🧩 Smart Connections: AI-Powered Note Connections for Obsidian `v1`
 Ever felt overwhelmed by a growing collection of notes in Obsidian, wondering how to uncover hidden connections and insights? Discover Smart Connections, an AI-powered plugin that transforms your note-taking experience and helps you tap into the full potential of your ideas.
 
 Our goal is to democratize access to AI technology and empower individuals with innovative tools. 

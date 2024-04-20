@@ -1,11 +1,7 @@
 const esbuild = require('esbuild');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 require('dotenv').config();
-
-// Compile views (EJS templates and LocalModel JS)
-execSync('node build/compile_views.js', {stdio: 'inherit'});
 
 const main_path = path.join(process.cwd(), 'dist', 'main.js');
 const manifest_path = path.join(process.cwd(), 'manifest.json');

@@ -83,7 +83,7 @@ class ScEnv extends Brain {
     this.plugin.is_initializing_entities = false; // Reset flag after initialization is complete
   }
   // initiate import of smart notes, shows notice before starting embedding
-  async init_import() { if (this.smart_notes.smart_embed || this.smart_blocks.smart_embed) this.smart_notes.import({ reset: true, show_notice: true }); }
+  async init_import() { if (this.smart_notes.smart_embed || this.smart_blocks.smart_embed) this.smart_notes.import(this.files, { reset: true, show_notice: true }); }
   init_chat_model() {
     let chat_model_config = {};
     if(this.config.chat_model_platform_key === 'open_router' && !this.config[this.config.chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
@@ -109,7 +109,7 @@ class ScEnv extends Brain {
   async force_refresh() {
     this.smart_blocks.clear();
     this.smart_notes.clear();
-    this.smart_notes.import(); // trigger making new connections
+    this.smart_notes.import(this.files); // trigger making new connections
   }
   // prevent saving too often (large files can cause lag)
   save() {

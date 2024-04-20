@@ -1,4 +1,4 @@
-const { SmartObsidianView } = require("./SmartObsidianView");
+const { SmartObsidianView } = require("./smart_obsidian_view.js");
 const SUPPORTED_FILE_TYPES = ["md", "canvas"];
 
 class ScSmartView extends SmartObsidianView {
@@ -65,10 +65,10 @@ class ScSmartView extends SmartObsidianView {
     // on quit
     this.plugin.registerEvent(this.app.workspace.on('quit', async () => {
       // console.log("quit");
-      // save if this.brain.save_timeout is set (currently failing to save on quit)
-      if (this.brain.save_timeout) {
-        clearTimeout(this.brain.save_timeout);
-        await this.brain._save();
+      // save if this.env.save_timeout is set (currently failing to save on quit)
+      if (this.env.save_timeout) {
+        clearTimeout(this.env.save_timeout);
+        await this.env._save();
         console.log("Smart Connections saved");
       }
     }));
@@ -93,18 +93,18 @@ class ScSmartView extends SmartObsidianView {
         "File: " + context.name,
         "Unsupported file type (Supported: " + SUPPORTED_FILE_TYPES.join(", ") + ")"
       ]);
-      if (!this.brain.smart_notes.get(context.path)) {
+      if (!this.env.smart_notes.get(context.path)) {
         // check if excluded
-        if(this.brain.is_included(context.path)){
-          await this.brain.smart_notes.import();
+        if(this.env.is_included(context.path)){
+          await this.env.smart_notes.import(this.env.files);
         }else{
           return this.plugin.notices.show('excluded file', "File is excluded: " + context.path, {timeout: 3000});
         }
       }
-      results = this.brain.smart_notes.get(context.path)?.find_connections();
+      results = this.env.smart_notes.get(context.path)?.find_connections();
     }
-    if (context instanceof this.brain.item_types.SmartBlock) results = context.find_connections();
-    if (context instanceof this.brain.item_types.SmartNote) results = context.find_connections();
+    if (context instanceof this.env.item_types.SmartBlock) results = context.find_connections();
+    if (context instanceof this.env.item_types.SmartNote) results = context.find_connections();
     if (!results) return this.plugin.notices.show('no smart connections found', "No Smart Connections found.");
     if (typeof context === "object") context = context.key || context.path;
     this.last_note = this.app.workspace.getActiveFile().path; // for checking if results are already rendered (ex: on active-leaf-change)
@@ -153,7 +153,7 @@ class ScSmartView extends SmartObsidianView {
       refresh_button.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.brain.smart_notes.import({ reset: true });
+        this.env.smart_notes.import(this.env.files, { reset: true });
       });
     }
     this.plugin.obsidian.MarkdownRenderer.render(this.app, content, elm, entity_key, new this.plugin.obsidian.Component());

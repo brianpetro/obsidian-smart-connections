@@ -37,11 +37,11 @@ class ScSettings extends SmartSettings {
       // wait for this.plugin.env.smart_notes.smart_embed or this.plugin.env.smart_blocks.smart_embed to be ready
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
-    this.plugin.env.smart_notes.import({ reset: true });
+    this.env.smart_notes.import(this.env.files, { reset: true });
   }
-  reload_env() { this.plugin.env.reload(); } // DEPRECATED
+  reload_env() { this.env.reload(); } // DEPRECATED
   restart_plugin() { this.plugin.restart_plugin(); }
-  force_refresh() { this.plugin.env.force_refresh(); }
+  force_refresh() { this.env.force_refresh(); }
   sync_for_chatgpt() { this.plugin.sync_notes(); }
   update_smart_connections_folder() { this.plugin.update_smart_connections_folder(); }
   refresh_smart_view() { this.plugin.smart_connections_view.render_nearest(); }
