@@ -85,7 +85,6 @@ class SmartConnectionsPlugin extends Plugin {
   }
   // check for update
   async check_for_update() {
-    return this.check_for_updates_v21();
     // fail silently, ex. if no internet connection
     try {
       // get latest release version from github
@@ -384,49 +383,6 @@ class SmartConnectionsPlugin extends Plugin {
   }
   // is smart view open
   is_smart_view_open() { return ScSmartView.is_open(this.app.workspace); }
-  async check_for_updates_v21() {
-    // // if license key is not set, return
-    if(!this.settings.license_key) return this.show_notice("Supporter license key required for early access to v2.1");
-    const v2 = await requestUrl({
-      url: "https://sync.smartconnections.app/download_v2",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        license_key: this.settings.license_key,
-        manifest: true,
-      })
-    });
-    if(v2.status !== 200) return console.error("Error downloading version 2", v2.json);
-    console.log(v2.json);
-    const version = JSON.parse(v2.json.manifest).version;
-    console.log(version);
-    const curr_versions = [this.manifest.version, this.settings.version];
-    if(curr_versions.includes(version)) return console.log("Already up to date");
-    else this.show_notice(`A new version is available! (v${version})`);
-    await this.update_v21();
-  }
-  async update_v21() {
-    // // if license key is not set, return
-    if(!this.settings.license_key) return this.show_notice("Supporter license key required for early access to v2.1");
-    const v2 = await requestUrl({
-      url: "https://sync.smartconnections.app/download_v2",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        license_key: this.settings.license_key,
-      })
-    });
-    if(v2.status !== 200) return console.error("Error downloading version 2", v2);
-    console.log(v2.json);
-    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/main.js", v2.json.main); // add new
-    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", v2.json.manifest); // add new
-    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/styles.css", v2.json.styles); // add new
-    this.restart_plugin();
-  }
   // backwards compatibility
   async handle_deprecated_settings() {
     // move api keys (api_key_PLATFORM) to PLATFORM.api_key
@@ -477,17 +433,6 @@ class SmartConnectionsPlugin extends Plugin {
       this.settings.excluded_headings = this.settings.header_exclusions;
       delete this.settings.header_exclusions;
     }
-  }
-  // revert to v2.0
-  async revert_to_v20() {
-    const manifest_path = ".obsidian/plugins/smart-connections/manifest.json";
-    // set manifest version to 0.0.0
-    const manifest = await this.app.vault.adapter.read(manifest_path);
-    const new_manifest = manifest.replace(/"version": "2\.1\.\d+"/g, '"version": "0.0.0"');
-    await this.app.vault.adapter.write(manifest_path, new_manifest);
-    await window.app.plugins.loadManifests()
-    // notice to restart and update plugin using "Check for Updates" in the community plugins tab
-    this.show_notice("Click 'Check for Updates' in the community plugins tab and complete the update for Smart Connections to finish reverting to v2.0.", { timeout: 0 });
   }
 }
 module.exports = SmartConnectionsPlugin;
