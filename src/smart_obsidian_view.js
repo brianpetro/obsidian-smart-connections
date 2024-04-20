@@ -10,6 +10,7 @@ class SmartObsidianView extends ItemView {
     this.plugin = plugin;
     this.settings = plugin.settings;
     this.templates = views;
+    this.ejs = ejs;
   }
   render_template(template_name, data) {
     // console.log("rendering template", template_name);

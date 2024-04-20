@@ -1,0 +1,142 @@
+<div class="setting-component"
+  data-name="Model Platform"
+  data-setting="chat_model_platform_key"
+  data-type="dropdown"
+  data-description="Select a model platform to use with Smart Chat."
+  <%- chat_platforms.map((platform, i) => `data-option-${i + 1}="${platform.key}|${platform.description}"`).join('\n') %>
+  data-callback="changed_smart_chat_model"
+></div>
+<% if(chat_platform.fetch_models) { %>
+  <% if(settings[settings.chat_model_platform_key].api_key) { %>
+    <div class="setting-component"
+      data-name="Model Name"
+      data-type="dropdown"
+      data-setting="<%= settings.chat_model_platform_key %>.model_name"
+      data-callback="changed_smart_chat_model"
+      <%- platform_chat_models.map((model, i) => `data-option-${i}="${model.key}|${model.model_name} (${model.description})"`).join('\n') %>
+    ></div>
+  <% } %>
+  <% if(!platform_chat_models.length) { %>
+    <div class="setting-component"
+      data-name="Refresh Models List"
+      data-type="button"
+      data-callback="changed_smart_chat_model"
+    ></div>
+  <% } %>
+  <div class="setting-component"
+    data-name="<%= chat_platform.description %> API Key"
+    data-type="text"
+    data-setting="<%= settings.chat_model_platform_key %>.api_key"
+    data-description="API Key for <%= chat_platform.description %>."
+    data-placeholder="Enter an API Key"
+    data-button="Save"
+    data-callback="test_chat_api_key"
+  ></div>
+<% } %>
+<% if (settings.chat_model_platform_key.startsWith('custom_local')) { %>
+  <h3>Custom Local Model</h3>
+  <div class="setting-component"
+    data-name="Model Name"
+    data-type="text"
+    data-setting="custom_local.model_name"
+    data-description="Name of the custom model."
+    data-placeholder="Enter a model name"
+    data-callback="changed_smart_chat_model"
+  ></div>
+  <div class="setting-component"
+    data-name="protocol"
+    data-type="text"
+    data-setting="custom_local.protocol"
+    data-description="Protocol for chat server (http or https)."
+    data-placeholder="Enter a protocol"
+    data-callback="changed_smart_chat_model"
+  ></div>
+  <div class="setting-component"
+    data-name="hostname"
+    data-type="text"
+    data-setting="custom_local.hostname"
+    data-description="Host for local chat server."
+    data-placeholder="Enter a host"
+    data-callback="changed_smart_chat_model"
+  ></div>
+  <div class="setting-component"
+    data-name="port"
+    data-type="number"
+    data-setting="custom_local.port"
+    data-description="Port for local chat server."
+    data-placeholder="Enter a port number"
+    data-callback="changed_smart_chat_model"
+  ></div>
+  <div class="setting-component"
+    data-name="path"
+    data-type="text"
+    data-setting="custom_local.path"
+    data-description="Path for local chat server."
+    data-placeholder="Enter a path"
+    data-callback="changed_smart_chat_model"
+  ></div>
+  <div class="setting-component"
+    data-name="streaming"
+    data-type="toggle"
+    data-setting="custom_local.streaming"
+    data-description="Enable streaming for local chat server. Disable if you are getting CORS errors."
+    data-callback="changed_smart_chat_model"
+  ></div>
+  <div class="setting-component"
+    data-name="Max input tokens"
+    data-description="Maximum number of tokens for input to the model."
+    data-type="number"
+    data-setting="custom_local.max_input_tokens"
+    data-placeholder="Enter a number"
+    data-callback="changed_smart_chat_model"
+  ></div>
+<% } else if(settings.chat_model_platform_key.startsWith('custom_api')) { %>
+  <h3>Custom Server</h3>
+  <div class="setting-component"
+    data-name="Model Name"
+    data-type="text"
+    data-setting="custom_server.model_name"
+    data-description="Name of the custom model."
+    data-placeholder="Enter a model name"
+    data-callback="changed_smart_chat_model"
+  ></div>
+  <div class="setting-component"
+    data-name="protocol"
+    data-type="text"
+    data-setting="custom_server.protocol"
+    data-description="Protocol for chat server (http or https)."
+    data-placeholder="Enter a protocol"
+    data-callback="changed_smart_chat_model"
+  ></div>
+  <div class="setting-component"
+    data-name="hostname"
+    data-type="text"
+    data-setting="custom_server.hostname"
+    data-description="Host for chat server."
+    data-placeholder="Enter a host"
+    data-callback="changed_smart_chat_model"
+  ></div>
+  <div class="setting-component"
+    data-name="path"
+    data-type="text"
+    data-setting="custom_server.path"
+    data-description="Path for chat server."
+    data-placeholder="Enter a path"
+    data-callback="changed_smart_chat_model"
+  ></div>
+  <div class="setting-component"
+    data-name="streaming"
+    data-type="toggle"
+    data-setting="custom_server.streaming"
+    data-description="Enable streaming for chat server. Disable if you are getting CORS errors."
+    data-callback="changed_smart_chat_model"
+  ></div>
+  <div class="setting-component"
+    data-name="Max input tokens"
+    data-description="Maximum number of tokens for input to the model."
+    data-type="number"
+    data-setting="custom_server.max_input_tokens"
+    data-placeholder="Enter a number"
+    data-callback="changed_smart_chat_model"
+  ></div>
+<% } %>

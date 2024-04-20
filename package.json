@@ -28,18 +28,23 @@
   },
   "homepage": "https://smartconnections.app",
   "devDependencies": {
+    "@xenova/transformers": "latest",
     "archiver": "^6.0.1",
-    "ava": "^6.1.1",
+    "ava": "^6.0.1",
     "axios": "^1.6.7",
     "child_process": "^1.0.2",
     "dotenv": "^16.3.1",
-    "esbuild": "^0.17.19",
-    "obsidian": "latest"
+    "esbuild": "^0.17.19"
   },
   "dependencies": {
-    "ejs": "^3.1.9",
-    "smart-chunks": "file:../smart-chunks",
-    "smart-collections": "file:../smart-collections",
-    "smart-embed": "file:../smart-embed"
+    "ejs": "file:./ejs.min",
+    "obsidian": "latest",
+    "smart-chat-model": "file:../jsbrains/smart-chat-model",
+    "smart-chats": "file:../jsbrains/smart-chats",
+    "smart-chunks": "file:../jsbrains/smart-chunks",
+    "smart-collections": "file:../jsbrains/smart-collections",
+    "smart-embed-model": "file:../jsbrains/smart-embed-model",
+    "smart-entities": "file:../smart-entities",
+    "smart-models": "file:../smart-models"
   }
 }

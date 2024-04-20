@@ -11,6 +11,7 @@ function default_settings() {
       smart_chat_folder_last: "smart-chats",
       local_embedding_max_tokens: 2048,
       embedding_file_per_note: false,
+      chat_model_platform_key: "open_router",
       // Smart Blocks Settings (chunking)
       embed_input_min_chars: 50,
       multi_heading_blocks: true,
@@ -25,8 +26,8 @@ function default_settings() {
       log_render: false,
       log_render_files: false,
       recently_sent_retry_notice: false,
-      smart_chat_model: "gpt-3.5-turbo-0125",
       version: "",
+      // smart_chat_model: "gpt-3.5-turbo-0125",
       // skip_sections: false, // DEPRECATED
       // group_nearest_by_file: false, // DEPRECATED
       // path_only: "", // DEPRECATED

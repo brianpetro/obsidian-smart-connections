@@ -2,6 +2,7 @@ const esbuild = require('esbuild');
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+require('dotenv').config();
 
 // Compile views (EJS templates and LocalModel JS)
 execSync('node build/compile_views.js', {stdio: 'inherit'});
@@ -45,6 +46,9 @@ esbuild.build({
     'crypto',
     '@xenova/transformers',
   ],
+  define: {
+    'process.env.DEFAULT_OPEN_ROUTER_API_KEY': JSON.stringify(process.env.DEFAULT_OPEN_ROUTER_API_KEY),
+  },
 }).then(() => {
   // Copy the dist folder to ./DESTINATION_VAULT/.obsidian/plugins/smart-connections/
   const release_file_paths = [manifest_path, styles_path, main_path];

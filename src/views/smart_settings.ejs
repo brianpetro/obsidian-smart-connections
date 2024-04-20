@@ -1,13 +1,12 @@
-<h2>Supporter Features</h2>
+<h1>Supporter Features</h1>
 <p>As a Smart Connections "Supporter", fast-track your PKM journey with priority perks and pioneering innovations.</p>
 <ul>
   <li>Swift, top-priority support via email and chat.</li>
   <li>Access to the <a href="https://chat.smartconnections.app">private chat</a>.</li>
-  <li>Early access new versions and experimental features:
+  <li>Early access to new versions &amp; experimental features:
     <ul>
-      <li>Access your notes in ChatGPT with the original <a href="#og-gpt">Smart Connections GPT</a>.</li>
-      <li>Chat with your notes <i>without</i> uploading your notes to the cloud! Supporters get early access to the new Smart Connect software and <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2">Smart Connections 2</a> GPT.</li>
-      <li>Early access to v2.1</li>
+      <li>Anthropic Claude, Google Gemini, Cohere Command-R+ &amp; Custom Local (Ollama) models for the Smart Chat.</li>
+      <li>Use ChatGPT with your notes <i>without</i> uploading your notes to the cloud with Smart Connect and the <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2">Smart Connect - Obsidian</a> GPT.</li>
     </ul>
   </li>
 </ul>
@@ -19,18 +18,11 @@
   data-placeholder="Enter your license_key"
 ></div>
 <div class="setting-component"
-  data-name="Smart Connections 2"
+  data-name="Smart Connect - Obsidian GPT"
   data-btn-text="Open GPT"
   data-description='Chat with your notes in ChatGPT without uploading your notes to the cloud!'
   data-type="button"
   data-href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2"
-></div>
-<div class="setting-component"
-  data-name="Early access to v2.1"
-  data-btn-text="Upgrade to v2.1"
-  data-description="Use Anthropic Claude, Google Gemini, and more!"
-  data-type="button"
-  data-callback="upgrade_to_v21"
 ></div>
 <div class="setting-component"
   data-name="Become a Supporter"
@@ -38,7 +30,7 @@
   data-type="button"
   data-href="https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
 ></div>
-<h2>Embedding Models</h2>
+<h1>Embedding Models</h1>
 <p>Notes about embedding models:</p>
 <ul>
   <li>Local model compatibility depends on available CPU and RAM. Try reducing the max tokens (context) if a local model if failing.</li>
@@ -50,7 +42,7 @@
   data-type="dropdown"
   data-description="Select a model to use for embedding your notes."
   <%- embedding_models.map((model, i) => `data-option-${i + 1}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
-  data-callback="reload_brain"
+  data-callback="restart_plugin"
 ></div>
 <div class="setting-component"
   data-name="Blocks Embedding Model"
@@ -59,8 +51,26 @@
   data-description="Select a model to use for embedding your blocks."
   data-option-0="None|None"
   <%- embedding_models.map((model, i) => `data-option-${i + 1}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
-  data-callback="reload_brain"
+  data-callback="restart_plugin"
 ></div>
+<div class="setting-component"
+  data-name="Minimum Embedding Length"
+  data-description="Minimum length of note to embed."
+  data-type="number"
+  data-setting="embed_input_min_chars"
+  data-placeholder="Enter a number"
+  data-callback="reload_env"
+></div>
+<% if(!settings.smart_notes_embed_model.includes('/') || !settings.smart_blocks_embed_model.includes('/')) { %>
+<div class="setting-component"
+  data-name="OpenAI API Key for embeddings"
+  data-type="text"
+  data-setting="api_key"
+  data-placeholder="Enter your OpenAI API Key"
+  data-button="Save"
+  data-callback="test_api_key_openai_embeddings"
+></div>
+<% } %>
 <% if(settings.smart_notes_embed_model.includes('/') || settings.smart_blocks_embed_model.includes('/')) { %>
 <div class="setting-component"
   data-name="Local Embedding Max Tokens"
@@ -72,35 +82,27 @@
   data-option-3="2048|2048 (default)"
   data-option-4="4096"
   data-option-5="8192"
-  data-callback="reload_brain"
+  data-callback="reload_env"
 ></div>
+<div class="setting-component"
+  data-name="Connect to Smart Connect"
+  data-description="Faster local embeddings."
+  data-type="button"
+  data-callback="connect_to_smart_connect"
+></div>
+<a href='https://github.com/brianpetro/smart-connect'>Smart Connect</a> is free to use for faster embeddings.
 <% } %>
+<h1>Smart Chat</h1>
+<%- smart_chat_settings %>
+<h3>System Prompts</h3>
 <div class="setting-component"
-  data-name="Minimum Embedding Length"
-  data-description="Minimum length of note to embed."
-  data-type="number"
-  data-setting="embed_input_min_chars"
-  data-placeholder="Enter a number"
-  data-callback="reload_brain"
-></div>
-<h2>OpenAI Settings</h2>
-<div class="setting-component"
-  data-name="OpenAI API Key"
+  data-name="System Prompts Folder"
+  data-description="Folder to store system prompts. Available in chat by typing '@'"
   data-type="text"
-  data-setting="api_key"
-  data-description="Required: an OpenAI API key is currently required to use Smart Chat. Your API key will be tested when you click save."
-  data-placeholder="Enter your api_key"
+  data-setting="system_prompts_folder"
+  data-placeholder="Enter a folder name"
+  data-callback="update_system_prompts_folder"
   data-button="Save"
-  data-callback="test_api_key"
-></div>
-<div class="setting-component"
-  data-name="Smart Chat Model"
-  data-setting="smart_chat_model"
-  data-type="dropdown"
-  data-description="Select a model to use with Smart Chat."
-  data-option-1="gpt-3.5-turbo-0125|gpt-3.5-turbo (16k)"
-  data-option-2="gpt-4|gpt-4 (limited access, 8k)"
-  data-option-3="gpt-4-turbo-preview|gpt-4-turbo (128k)"
 ></div>
 <div class="setting-component"
   data-name="Default Language"
@@ -115,7 +117,7 @@
   data-callback="update_language"
 ></div>
 <span id="self-referential-pronouns">Current: my, I, me, mine, our, ours, us, we</span>
-<h2>Exclusions</h2>
+<h1>Exclusions</h1>
 <p id="file-counts">Included files: <%= included_files %> / Total files: <%= total_files %></p>
 <div class="setting-component"
   data-name="File Exclusions"
@@ -146,7 +148,7 @@
   data-setting="excluded_headings"
   data-placeholder="drawings,prompts/logs"
 ></div>
-<h2>Smart View</h2>
+<h1>Smart View</h1>
 <div class="setting-component"
   data-name="Show Full Path"
   data-description="Show full path in view."
@@ -154,20 +156,12 @@
   data-setting="show_full_path"
   data-callback="refresh_smart_view"
 ></div>
-<h2>Data Management</h2>
+<h3>Data Management</h3>
 <div class="setting-component"
   data-name="Refresh Notes"
   data-description="Clear notes data and reprocess."
   data-type="button"
   data-callback="refresh_notes"
-></div>
-<div class="setting-component"
-  data-name="Minimum Embedding Length"
-  data-description="Minimum length of note to embed."
-  data-type="number"
-  data-setting="embed_input_min_chars"
-  data-placeholder="Enter a number"
-  data-callback="reload_brain"
 ></div>
 <div class="setting-component"
   data-name="Smart Connections Folder"
@@ -176,9 +170,25 @@
   data-setting="smart_connections_folder"
   data-placeholder="Enter a folder name"
   data-callback="update_smart_connections_folder"
-  data-button="Save"
+  data-button="rename"
 ></div>
-<h2>Force Refresh</h2>
+<div class="setting-component"
+  data-name="Smart Chat History Folder"
+  data-description="Folder to store Smart Chat history."
+  data-type="text"
+  data-setting="smart_chat_folder"
+  data-placeholder="Enter a folder name"
+  data-callback="update_smart_chat_folder"
+  data-button="rename"
+></div>
+<div class="setting-component"
+  data-name="Embedding file per note (EXPERIMENTAL)"
+  data-description="Save embedding data in a separate file per note."
+  data-type="toggle"
+  data-setting="embedding_file_per_note"
+  data-callback="restart_plugin"
+></div>
+<h1>Force Refresh</h1>
 <div class="setting-component"
   data-name="force_refresh"
   data-description="WARNING: DO NOT use unless you know what you are doing! This will delete all of your current embeddings from OpenAI and trigger reprocessing of your entire vault!"
@@ -186,7 +196,17 @@
   data-type="button"
   data-callback="force_refresh"
 ></div>
-<h2>Muted Notices</h2>
+<!-- Native JS confirm focussing bug -->
+<!--  
+<h3>Force Refresh</h3>
+<div class="setting-component"
+  data-name="force_refresh"
+  data-description="WARNING: DO NOT use unless you know what you are doing! This will delete all of your current embeddings from OpenAI and trigger reprocessing of your entire vault!"
+  data-confirm="Are you sure you want to Force Refresh? By clicking yes you confirm that you understand the consequences of this action."
+  data-type="button"
+  data-callback="force_refresh"
+></div> -->
+<h1>Muted Notices</h1>
 <% if(muted_notices && Object.keys(muted_notices).length) { %>
   <% for(const notice in muted_notices) { %>
     <div class="setting-component"
@@ -200,7 +220,7 @@
 <% } else { %>
   <p>No muted notices.</p>
 <% } %>
-<h2 name="og-gpt" id="og-gpt">Original Smart Connections GPT</h2>
+<h1 name="og-gpt" id="og-gpt">Original Smart Connections GPT</h1>
 <p>This GPT can browser folders and read notes. It requires manually synchronization for your notes to be accessible by ChatGPT.</p>
 <div class="setting-component"
   data-name="ChatGPT Integration (supporter-only)"
@@ -217,3 +237,12 @@
   data-href="https://chat.openai.com/g/g-SlDDp07bm-smart-connections-for-obsidian"
 ></div>
 <em>Try the <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2">Smart Connections 2</a> GPT for more advanced features like creating notes and embedding search.</em>
+<!-- DO: REMOVE FROM STABLE RELEASE -->
+<h1>Early Release (beta)</h1>
+<div class="setting-component"
+  data-name="Revert to v2.0"
+  data-description="Revert to Smart Connections v2.0."
+  data-type="button"
+  data-confirm="Are you sure you want to revert to v2.0?"
+  data-callback="revert_to_v20"
+></div>

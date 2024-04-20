@@ -1,25 +1,32 @@
 const { SmartSocket } = require("./smart_socket");
 
 class DataviewSocket extends SmartSocket {
-  constructor(brain, port) {
+  constructor(env, port) {
     super(port);
-    this.brain = brain;
+    this.env = env;
+    this.brain = this.env; // DEPRECATED
     this.dataview_api = null;
   }
-  static async create(brain, port) {
-    const socket = new DataviewSocket(brain, port);
-    await socket.init();
-    brain.dv_ws = socket;
-    return socket;
+  static async create(env, port) {
+    const smart_socket = new DataviewSocket(env, port);
+    env.dv_ws = smart_socket;
+    await smart_socket.init();
+    return smart_socket;
   }
   async init() {
     await this.get_dataview_api();
-    await this.connect_to_websocket();
-    console.log("DataviewSocket initialized");
+    await this.connect();
+    // console.log("DataviewSocket initialized");
   }
-  unload() {
-    if (this.ws) this.ws.close();
-    this.ws = null;
+  async is_server_running(){
+    try{
+      const sc_local = await this.env.main.obsidian?.requestUrl({url: 'http://localhost:37421/', method: 'GET'});
+      console.log(sc_local);
+      return sc_local?.status === 200;
+    }catch(err){
+      // console.error(err);
+      return false;
+    }
   }
   async get_dataview_api(retries = 0) {
     this.dataview_api = window["DataviewAPI"];
@@ -28,7 +35,7 @@ class DataviewSocket extends SmartSocket {
         await new Promise(resolve => setTimeout(resolve, retries * 1000));
         return this.get_dataview_api(retries + 1);
       } else {
-        this.brain.main.notices.show("Dataview API not found", "Dataview API not found");
+        this.brain.main.show_notice("Dataview API not found");
       }
     }
   }
@@ -44,17 +51,6 @@ class DataviewSocket extends SmartSocket {
       console.error(err);
       this.ws.send(JSON.stringify({ status: "error", message: err }));
     }
-  }
-  on_open() {
-    console.log("Connected to websocket");
-    this.brain.local_model_type = "websocket";
-    // this.brain.reload();
-  }
-  on_close() {
-    console.log("Disconnected from websocket", event.reason);
-    this.brain.local_model_type = "Web";
-    // this.brain.reload();
-    // this.reconnect_to_websocket();
   }
 }
 exports.DataviewSocket = DataviewSocket;

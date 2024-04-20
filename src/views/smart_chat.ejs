@@ -3,9 +3,9 @@
     <div class="sc-top-bar-container">
       <input class="sc-chat-name-input" type="text" value="<%= name %>" placeholder="Chat Name">
       <button title="Open Conversation Note"><%- this.get_icon('external-link') %></button>
-      <button title="Smart View"><%- this.get_icon('smart-connections') %></button>
-      <button title="Save Chat"><%- this.get_icon('save') %></button>
       <button title="Chat History"><%- this.get_icon('history') %></button>
+      <button title="Smart View"><%- this.get_icon('smart-connections') %></button>
+      <button title="Settings"><%- this.get_icon('gear') %></button>
       <button title="New Chat"><%- this.get_icon('plus') %></button>
     </div>
     <div class="sc-chat-box">
@@ -27,6 +27,7 @@
         <button class="send-button" id="sc-send-button">Send</button>
       </div>
     </div>
+    <div id="settings"></div>
   </div>
   <%- this.attribution %>
 </div>

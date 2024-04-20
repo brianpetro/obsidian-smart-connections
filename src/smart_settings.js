@@ -1,24 +1,41 @@
-const { PluginSettingTab, Setting } = require("obsidian");
-// const ejs = require("ejs");
-const ejs = require("../ejs.min");
-
-class SmartObsidianSettings extends PluginSettingTab {
-  constructor(app, plugin, template_name = "smart_settings") {
-    super(app, plugin);
-    this.plugin = plugin;
-    this.config = plugin.settings;
-    this.container = this.containerEl;
+const { Setting } = require("obsidian");
+// const ejs = require("../ejs.min");
+class SmartSettings {
+  constructor(env, container, template_name = "smart_settings") {
+    this.env = env;
+    this.plugin = this.env.plugin;
+    this.settings = this.plugin.settings;
+    this.container = container;
     this.template_name = template_name;
+    this.ejs = this.env.ejs;
+    this.templates = this.env.templates;
   }
-  display() { return this.render(); }
-  render() {
-    this.render_template();
+  async render() {
+    const view_data = (typeof this.get_view_data === "function") ? await this.get_view_data() : this.view_data;
+    this.render_template(view_data);
     this.render_components();
   }
-  render_template() {
+  render_template(view_data = null) {
     if (!this.template) throw new Error(`Settings template not found.`);
     this.container.empty();
-    this.container.innerHTML = ejs.render(this.template, this.view_data, { context: this });
+    this.container.innerHTML = this.ejs.render(this.template, view_data || this.view_data, { context: this });
+  }
+  async update(setting, value) {
+    console.log("saving setting: " + setting);
+    if (setting.includes(".")) {
+      let parts = setting.split(".");
+      let obj = this.plugin.settings;
+      for (let i = 0; i < parts.length - 1; i++) {
+        if (!obj[parts[i]]) obj[parts[i]] = {};
+        obj = obj[parts[i]];
+      }
+      obj[parts[parts.length - 1]] = (typeof value === "string") ? value.trim() : value;
+    } else {
+      this.plugin.settings[setting] = (typeof value === "string") ? value.trim() : value;
+    }
+    await this.plugin.save_settings(true);
+    console.log("saved settings");
+    console.log(this.plugin.settings);
   }
   render_components() {
     this.container.querySelectorAll(".setting-component").forEach(elm => {
@@ -105,25 +122,8 @@ class SmartObsidianSettings extends PluginSettingTab {
       return this.plugin.settings[setting] || this.plugin.constructor.defaults[setting];
     }
   }
-  async update(setting, value) {
-    console.log("saving setting: " + setting);
-    if (setting.includes(".")) {
-      let parts = setting.split(".");
-      let obj = this.plugin.settings;
-      for (let i = 0; i < parts.length - 1; i++) {
-        if (!obj[parts[i]]) obj[parts[i]] = {};
-        obj = obj[parts[i]];
-      }
-      obj[parts[parts.length - 1]] = (typeof value === "string") ? value.trim() : value;
-    } else {
-      this.plugin.settings[setting] = (typeof value === "string") ? value.trim() : value;
-    }
-    await this.plugin.save_settings(true);
-    console.log("saved settings");
-    console.log(this.plugin.settings);
-  }
   // override in subclass (required)
   get template() { return ""; } // ejs template string
   get view_data() { return {}; } // object properties available in template
 }
-exports.SmartObsidianSettings = SmartObsidianSettings;
+exports.SmartSettings = SmartSettings;
