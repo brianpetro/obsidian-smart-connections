@@ -184,6 +184,7 @@ Chat history is saved as a new note for each conversation.
 - prevents duplication of notes used as context in the chat history
 - renders a Smart View containing the notes or excerpts used as context
 ##### chat models
+![Access model settings in the Smart Chat](./assets/smart-chat-settings.png)
 ###### v2.0 (current)
 - OpenAI
 	- `GPT-3.5-turbo` (16K)
