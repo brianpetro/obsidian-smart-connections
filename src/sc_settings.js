@@ -68,7 +68,7 @@ class ScSettings extends SmartSettings {
       url: `https://api.openai.com/v1/embeddings`,
       method: "POST",
       body: JSON.stringify({ model: "text-embedding-ada-002", input: "test" }),
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${this.plugin.settings.api_key_openai}` },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${this.plugin.settings.api_key}` },
     };
     try{
       const resp = await this.plugin.obsidian.requestUrl(req);
