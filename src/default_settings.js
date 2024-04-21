@@ -1,6 +1,7 @@
 function default_settings() {
   return {
     settings: {
+      new_user: true,
       chat_folder: "smart chat",
       smart_notes_embed_model: "TaylorAI/bge-micro-v2",
       smart_blocks_embed_model: "None",

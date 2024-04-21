@@ -33,7 +33,8 @@ class SmartConnectionsPlugin extends Plugin {
   async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
     console.log("unloading plugin");
-    this.brain?.unload();
+    this.env?.unload();
+    this.env = null;
     this.brain = null;
     this.notices?.unload();
   }
@@ -62,6 +63,7 @@ class SmartConnectionsPlugin extends Plugin {
     this.registerMarkdownCodeBlockProcessor("sc-change", this.change_code_block.bind(this));
     this.notices = new SmartNotices(this);
     this.obsidian = require("obsidian");
+    this.new_user();
     await this.load_env();
     console.log("Smart Connections v2 loaded");
   }
@@ -70,7 +72,15 @@ class SmartConnectionsPlugin extends Plugin {
     this.brain = this.env; // DEPRECATED (use this.env instead)
     await this.env.init();
   }
-
+  new_user() {
+    if(!this.settings.new_user) return;
+    this.settings.new_user = false;
+    this.settings.version = this.manifest.version;
+    this.open_view();
+    this.open_chat();
+    if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
+    this.save_settings();
+  }
   register_views() {
     this.registerView(ScSmartView.view_type, (leaf) => (new ScSmartView(leaf, this))); // register main view type
     this.registerView(ScChatView.view_type, (leaf) => (new ScChatView(leaf, this)));
