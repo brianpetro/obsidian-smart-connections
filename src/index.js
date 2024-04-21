@@ -57,6 +57,8 @@ class SmartConnectionsPlugin extends Plugin {
     <circle cx="80" cy="70" r="9" fill="currentColor"/>
     <circle cx="50" cy="100" r="9" fill="currentColor"/>
     <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
+    this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_view(); });
+    this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat(); });
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this)); // code-block renderer
     this.registerMarkdownCodeBlockProcessor("sc-context", this.render_code_block_context.bind(this)); // code-block renderer
     // "AI change" dynamic code block
