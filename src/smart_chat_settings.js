@@ -30,7 +30,7 @@ class SmartChatSettings extends SmartSettings {
     const view_data = {
       settings: this.plugin.settings,
       chat_platform: this.env.chat_model.platforms[this.plugin.settings.chat_model_platform_key],
-      chat_platforms: this.env.chat_model?.platforms ? Object.keys(this.env.chat_model.platforms).map(platform_key => ({ key: platform_key, ...this.env.chat_model.platforms[platform_key] })) : [],
+      chat_platforms: this.env.chat_model?.platforms ? Object.keys(this.env.chat_model.platforms).map(platform_key => ({ key: platform_key, ...(this.env.chat_model?.platforms[platform_key] || {}) })) : [],
     };
     view_data.platform_chat_models = await this.plugin.env.chat_model.get_models();
     view_data.smart_chat_settings = this.ejs.render(this.template, view_data);
