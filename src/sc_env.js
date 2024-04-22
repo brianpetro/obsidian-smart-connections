@@ -59,11 +59,11 @@ class ScEnv extends Brain {
     await this.init_entities();
   }
   async init() {
+    this.init_chat_model();
     DataviewSocket.create(this, 37042); // Smart Connect
     this.smart_markdown = new SmartMarkdown({ ...this.config, skip_blocks_with_headings_only: true }); // initialize smart markdown (before collections, b/c collections use smart markdown)
     await this.init_entities();
     await this.init_import(); // refresh smart notes and init "Start embedding" notification
-    this.init_chat_model();
     await this.init_chat();
   }
   // load one at a time to re-use embed models
