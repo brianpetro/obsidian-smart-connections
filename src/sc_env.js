@@ -48,6 +48,7 @@ class ScEnv extends Brain {
     if(this.dv_ws) this.dv_ws.unload();
   }
   unload_entities() {
+    this.entities_loaded = false;
     if (this.smart_notes) this.smart_notes.unload();
     this.smart_notes = null;
     if (this.smart_blocks) this.smart_blocks.unload();
@@ -81,6 +82,7 @@ class ScEnv extends Brain {
       await Promise.all(Object.values(this.collections).map(async (static_collection) => await static_collection.load(this)));
     }
     this.plugin.is_initializing_entities = false; // Reset flag after initialization is complete
+    this.entities_loaded = true;
   }
   // initiate import of smart notes, shows notice before starting embedding
   async init_import() { if (this.smart_notes.smart_embed || this.smart_blocks.smart_embed) this.smart_notes.import(this.files, { reset: true, show_notice: true }); }

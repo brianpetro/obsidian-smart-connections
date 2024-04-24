@@ -84,6 +84,12 @@ class ScSmartView extends SmartObsidianView {
     };
   }
   async render_nearest(context, container = this.container) {
+    if(!this.env.entities_loaded){
+      // render loading message
+      container.innerHTML = "Loading Smart Connections...";
+      // wait for entities to load
+      while(!this.env.entities_loaded) await new Promise(r => setTimeout(r, 2000));
+    }
     let results;
     if (typeof context === "string") results = await this.plugin.api.search(context);
     if (typeof context === "undefined") context = this.app.workspace.getActiveFile();
