@@ -410,7 +410,7 @@ class SmartConnectionsPlugin extends Plugin {
         const platform = key.replace(/^api_key_/, "");
         if(!this.settings[platform]) this.settings[platform] = {};
         if(!this.settings[platform].api_key) this.settings[platform].api_key = value;
-        if(this.settings.smart_chat_model.startsWith(platform)){
+        if(this.settings.smart_chat_model?.startsWith(platform)){
           const model_name = this.settings.smart_chat_model.replace(platform+"-", "");
           if(!this.settings[platform].model_name) this.settings[platform].model_name = model_name;
           delete this.settings.smart_chat_model;
