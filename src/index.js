@@ -419,6 +419,13 @@ class SmartConnectionsPlugin extends Plugin {
         this.save_settings();
       }
     });
+    // if excluded folders does not include smart-chats, add it
+    if(!this.settings.file_exclusions.includes("Untitled")) {
+      // if not empty, add comma
+      if(this.settings.file_exclusions.length) this.settings.file_exclusions += ",";
+      this.settings.file_exclusions += "Untitled";
+      this.save_settings();
+    }
     // if no smart notes model, set to default
     if(this.settings.smart_notes_embed_model === "None"){
       this.settings.smart_notes_embed_model = "TaylorAI/bge-micro-v2";
