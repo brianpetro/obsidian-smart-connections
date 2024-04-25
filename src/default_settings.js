@@ -20,8 +20,8 @@ function default_settings() {
       // V1
       api_key: "",
       excluded_headings: "",
-      file_exclusions: "",
-      folder_exclusions: "",
+      file_exclusions: "Untitled",
+      folder_exclusions: "smart-chats",
       show_full_path: false,
       expanded_view: true,
       language: "en",
