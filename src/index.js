@@ -419,7 +419,7 @@ class SmartConnectionsPlugin extends Plugin {
         this.save_settings();
       }
     });
-    // if excluded folders does not include smart-chats, add it
+    // if excluded files does not include Untitled, add it
     if(!this.settings.file_exclusions.includes("Untitled")) {
       // if not empty, add comma
       if(this.settings.file_exclusions.length) this.settings.file_exclusions += ",";
