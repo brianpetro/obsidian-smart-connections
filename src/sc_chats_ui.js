@@ -60,7 +60,8 @@ class ScChatsUI extends SmartChatsUI {
     // get from data-content or textContent
     const text = msg_elm.getAttribute("data-content") || text_elm.textContent;
     text_elm.innerHTML = '';
-    await this.obsidian.MarkdownRenderer.renderMarkdown(text, text_elm, '?no-dataview', new this.obsidian.Component());
+    // await this.obsidian.MarkdownRenderer.renderMarkdown(text, text_elm, '?no-dataview', new this.obsidian.Component());
+    await this.obsidian.MarkdownRenderer.render(this.env.plugin.app, text, text_elm, '?no-dataview', new this.obsidian.Component());
   }
   handle_links_in_message(msg_elm) {
     const links = msg_elm.querySelectorAll("a");
