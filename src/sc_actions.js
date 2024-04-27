@@ -178,6 +178,15 @@ exports.contains_internal_link = contains_internal_link;
 function contains_folder_reference(user_input) {
   if (user_input.indexOf("/") === -1) return false;
   if (user_input.indexOf("/") === user_input.lastIndexOf("/")) return false;
+  // returns false if slash is wrapped in parentheses
+  if (user_input.indexOf("(") !== -1 && user_input.indexOf(")") !== -1){
+    const start = user_input.indexOf("(");
+    const end = user_input.indexOf(")");
+    // remove content in parentheses
+    const without_content_in_parentheses = user_input.slice(0, start) + user_input.slice(end+1);
+    if (without_content_in_parentheses.indexOf("/") !== -1) return false;
+    if (without_content_in_parentheses.indexOf("/") === without_content_in_parentheses.lastIndexOf("/")) return false;
+  }
   return true;
 }
 exports.contains_folder_reference = contains_folder_reference;

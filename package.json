@@ -46,5 +46,12 @@
     "smart-embed-model": "file:../jsbrains/smart-embed-model",
     "smart-entities": "file:../jsbrains/smart-entities",
     "smart-models": "file:../smart-models"
+  },
+  "ava": {
+    "files": [
+      "smart-chat/*.test.js",
+      "src/*.test.js"
+    ],
+    "require": []
   }
 }
