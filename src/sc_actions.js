@@ -177,7 +177,7 @@ exports.contains_internal_link = contains_internal_link;
 // check if contains folder reference (ex. /folder/, or /folder/subfolder/)
 function contains_folder_reference(user_input) {
   if (user_input.indexOf("/") === -1) return false;
-  if (user_input.indexOf("/") === user_input.lastIndexOf("/")) return false;
+  if (user_input.lastIndexOf("/") - user_input.indexOf("/") <= 1) return false; // if slashes are the same or JavaScript-style comment
   // returns false if slash is wrapped in parentheses
   if (user_input.indexOf("(") !== -1 && user_input.indexOf(")") !== -1){
     const start = user_input.indexOf("(");

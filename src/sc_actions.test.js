@@ -54,6 +54,10 @@ test('returns false if wrapped in parentheses', t => {
   const userInput = 'This is a (/folder/reference/)';
   t.false(contains_folder_reference(userInput));
 });
+test('returns false if is JavaScript comment', t => {
+  const userInput = 'This is a //comment';
+  t.false(contains_folder_reference(userInput));
+});
 
 // get_nearest_until_next_dev_exceeds_std_dev
 test('returns the nearest items until the next deviation exceeds the standard deviation', t => {

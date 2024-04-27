@@ -6,7 +6,7 @@
     "build": "npm run compile && node build/esbuild.js",
     "compile": "node build/compile.js",
     "release": "node build/release.js",
-    "test": "npx ava --verbose test"
+    "test": "npx ava --verbose"
   },
   "repository": {
     "type": "git",
