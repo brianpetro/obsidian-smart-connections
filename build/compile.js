@@ -16,7 +16,7 @@ const swagger_jsdoc = require('swagger-jsdoc');
       const content = fs.readFileSync(file_path, 'utf8');
       views[path.basename(file, path.extname(file))] = content;
     });
-    console.log('views', views);
+    // console.log('views', views);
     fs.writeFileSync('build/views.json', JSON.stringify(views, null, 2));
     console.log('EJS templates compiled into templates.json');
   });

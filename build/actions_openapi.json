@@ -5,7 +5,7 @@
       "post": {
         "operationId": "lookup",
         "summary": "Semantic search",
-        "description": "Performs a semantic search of the user's data.",
+        "description": "Performs a semantic search of the user's data. Required: hypothetical_1 and hypothetical_2. Optional: hypothetical_3.",
         "requestBody": {
           "content": {
             "application/json": {
