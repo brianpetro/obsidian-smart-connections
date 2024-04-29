@@ -23,9 +23,6 @@ class ScChatsUI extends SmartChatsUI {
       let leaf = this.env.plugin.app.workspace.getLeaf(true);
       leaf.openFile(link_tfile);
     });
-    // smart view button
-    const smart_view_btn = this.container.querySelector("button[title='Smart View']");
-    smart_view_btn.addEventListener("click", () => { this.env.plugin.open_view(); });
     // settings button
     const settings_btn = this.container.querySelector("button[title='Settings']");
     settings_btn.addEventListener("click", async () => {

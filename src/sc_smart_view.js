@@ -222,8 +222,6 @@ class ScSmartView extends SmartObsidianView {
 
   add_top_bar_listeners(container = this.container) {
     const top_bar = container.querySelector(".sc-top-bar");
-    const chat_button = container.querySelector(".sc-chat-button"); // get chat button
-    chat_button.addEventListener("click", (event) => this.plugin.open_chat()); // add click listener
     const search_button = container.querySelector(".sc-search-button"); // get search button
     search_button.addEventListener("click", () => {
       const og_top_bar = top_bar.innerHTML;
