@@ -212,8 +212,11 @@ class ScSmartView extends SmartObsidianView {
     event.stopPropagation(); // prevent event from bubbling up
     const search_result = event.target.classList.contains(".search-result") ? event.target : event.target.closest(".search-result"); // find parent containing search-result class
     if (event.target instanceof SVGElement) return this.toggle_search_result_visibility(search_result); // if event target element is svg, toggle sc-collapsed class
-    if (search_result.classList.contains("sc-collapsed")) this.toggle_search_result_visibility(search_result); // render result (method handles if already rendered)
-    else this.plugin.open_note(search_result.dataset.path, event); // if sc-collapsed class is removed, add click listener to search-result
+    // if sc-collapsed class is removed, add click listener to search-result
+    if (search_result.classList.contains("sc-collapsed")){
+      if(this.plugin.obsidian.Keymap.isModEvent(event)) this.plugin.open_note(search_result.dataset.path, event);
+      else this.toggle_search_result_visibility(search_result);
+    }else this.plugin.open_note(search_result.dataset.path, event);
   }
   toggle_search_result_visibility(search_result_elm) {
     search_result_elm.classList.toggle("sc-collapsed"); // toggle sc-collapsed class
