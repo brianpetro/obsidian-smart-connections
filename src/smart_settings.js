@@ -41,7 +41,7 @@ class SmartSettings {
     this.container.querySelectorAll(".setting-component").forEach(elm => {
       const setting_elm = new Setting(elm);
       if (elm.dataset.name) setting_elm.setName(elm.dataset.name);
-      if (elm.dataset.description) setting_elm.setDesc(elm.dataset.description);
+      if (elm.dataset.description) setting_elm.descEl.innerHTML = elm.dataset.description;
       const setting = elm.dataset.setting;
       if (elm.dataset.type === "text") {
         setting_elm.addText(text => {

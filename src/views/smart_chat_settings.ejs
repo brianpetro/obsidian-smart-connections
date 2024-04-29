@@ -27,7 +27,11 @@
     data-name="<%= chat_platform.description %> API Key"
     data-type="text"
     data-setting="<%= settings.chat_model_platform_key %>.api_key"
-    data-description="API Key for <%= chat_platform.description %>."
+    <% if(chat_platform.signup_url) { %>
+      data-description="<a href='<%= chat_platform.signup_url %>'>Get API Key</a> for <%= chat_platform.description %>."
+    <% } else { %>
+      data-description="API Key for <%= chat_platform.description %>."
+    <% } %>
     data-placeholder="Enter an API Key"
     data-button="Save"
     data-callback="test_chat_api_key"
