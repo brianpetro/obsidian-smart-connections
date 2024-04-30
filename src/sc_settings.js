@@ -32,11 +32,11 @@ class ScSettings extends SmartSettings {
 
 
   async refresh_notes() {
-    if(!this.plugin.is_smart_view_open()){
-      this.plugin.open_view();
-      // wait for this.plugin.env.smart_notes.smart_embed or this.plugin.env.smart_blocks.smart_embed to be ready
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
+    // if(!this.plugin.is_smart_view_open()){
+    //   this.plugin.open_view();
+    //   // wait for this.plugin.env.smart_notes.smart_embed or this.plugin.env.smart_blocks.smart_embed to be ready
+    //   await new Promise(resolve => setTimeout(resolve, 1000));
+    // }
     this.env.smart_notes.import(this.env.files, { reset: true });
   }
   reload_env() { this.env.reload(); } // DEPRECATED
