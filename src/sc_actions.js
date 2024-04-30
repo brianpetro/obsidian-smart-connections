@@ -77,11 +77,11 @@ class ScActions {
     // if contains self referential keywords or folder reference
     if (this.should_trigger_retrieval(user_input)) {
       console.log("should trigger retrieval");
-      // DO: deprecated/removed SmartView open requirement
-      if (!this.plugin.is_smart_view_open()) {
-        const btn = { text: "Open Smart View", callback: () => this.plugin.open_view(false) };
-        this.plugin.show_notice("Smart View must be open to utilize all Smart Chat features. For example, asking things like \"Based on my notes...\" requires Smart View to be open.", { button: btn, timeout: 0 });
-      }
+      // // DO: deprecated/removed SmartView open requirement
+      // if (!this.plugin.is_smart_view_open()) {
+      //   const btn = { text: "Open Smart View", callback: () => this.plugin.open_view(false) };
+      //   this.plugin.show_notice("Smart View must be open to utilize all Smart Chat features. For example, asking things like \"Based on my notes...\" requires Smart View to be open.", { button: btn, timeout: 0 });
+      // }
       if(this.actions.lookup && this.env.chat_model.config.actions){
         // sets current.tool_choice to lookup
         this.env.chats.current.tool_choice = "lookup";

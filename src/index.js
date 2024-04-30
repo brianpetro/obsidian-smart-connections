@@ -394,7 +394,7 @@ class SmartConnectionsPlugin extends Plugin {
     this.env.chats.folder = this.settings.smart_chat_folder; 
   }
   // is smart view open
-  is_smart_view_open() { return ScSmartView.is_open(this.app.workspace); }
+  // is_smart_view_open() { return ScSmartView.is_open(this.app.workspace); }
   // backwards compatibility
   async handle_deprecated_settings() {
     // move api keys (api_key_PLATFORM) to PLATFORM.api_key
