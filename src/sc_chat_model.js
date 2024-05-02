@@ -19,7 +19,9 @@ class ScChatModel extends SmartChatModel {
         msg.content = context_start + "\n" + JSON.parse(msg.content).map(c => c.path).join('\n') + "\n```";
       }
       if (msg.role === "system" && msg.content.includes(context_start)) {
-        const raw_contents = msg.content.substring(msg.content.indexOf(context_start) + context_start.length, msg.content.lastIndexOf("```"));
+        const context_start_i = msg.content.indexOf(context_start) + context_start.length;
+        const context_end_i = msg.content.substring(context_start_i).indexOf("```");
+        const raw_contents = msg.content.substring(context_start_i, context_start_i + context_end_i);
         const entities = this.env.plugin.get_entities_from_context_codeblock(raw_contents);
         let context = [];
         let tokens = [];
@@ -40,6 +42,20 @@ class ScChatModel extends SmartChatModel {
             return acc + c;
           }, '');
         msg.content = this.get_prompt_context_prefix({ ct }) + '\n' + context;
+      }
+      const sys_start = "```sc-system";
+      if (msg.role === "system" && msg.content.includes(sys_start)) {
+        const sys_start_i = msg.content.indexOf(sys_start) + sys_start.length;
+        const sys_end_i = msg.content.substring(sys_start_i).indexOf("```");
+        const sys_prompts = msg.content.substring(sys_start_i, sys_start_i + sys_end_i).split('\n').filter(ln => ln.trim());
+        console.log(sys_prompts);
+        msg.content = "";
+        for (const sys_prompt of sys_prompts) {
+          const tfile = this.env.system_prompts.find(file => file.basename === sys_prompt);
+          const note_content = await this.env.plugin.brain.cached_read(tfile);
+          if (msg.content) msg.content += '\n';
+          msg.content += note_content;
+        }
       }
       return msg;
     }));

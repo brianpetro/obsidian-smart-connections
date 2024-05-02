@@ -169,6 +169,11 @@
     color: var(--text-normal);
   }
 }
+.sc-system {
+  align-self: center;
+  font-style: italic;
+  color: var(--text-faint);
+}
 
 
 .sc-message-content {

@@ -1,63 +1,11 @@
 const test = require('ava');
 const {
-  contains_internal_link,
-  contains_folder_reference,
   get_nearest_until_next_dev_exceeds_std_dev,
   sort_by_len_adjusted_similarity,
-  extract_folder_references,
   get_top_k_by_sim,
   top_acc,
 } = require('./sc_actions');
 
-// contains_internal_link
-test('returns true if user input contains internal link', t => {
-  const userInput = 'This is a [[link]]';
-  t.true(contains_internal_link(userInput));
-});
-
-test('returns false if user input does not contain internal link', t => {
-  const userInput = 'This is a normal text';
-  t.false(contains_internal_link(userInput));
-});
-
-test('returns false if user input only contains opening bracket', t => {
-  const userInput = '[[ This is an opening bracket';
-  t.false(contains_internal_link(userInput));
-});
-
-test('returns false if user input only contains closing bracket', t => {
-  const userInput = 'This is a closing bracket ]]';
-  t.false(contains_internal_link(userInput));
-});
-
-test('returns false if user input does not contain both opening and closing brackets', t => {
-  const userInput = 'This is a [link]';
-  t.false(contains_internal_link(userInput));
-});
-
-// contains_folder_reference
-test('returns true if user input contains folder reference', t => {
-  const userInput = 'This is a /folder/reference/';
-  t.true(contains_folder_reference(userInput));
-});
-
-test('returns false if user input does not contain folder reference', t => {
-  const userInput = 'This is a normal text';
-  t.false(contains_folder_reference(userInput));
-});
-
-test('returns false if user input only contains one slash', t => {
-  const userInput = 'This is a /';
-  t.false(contains_folder_reference(userInput));
-});
-test('returns false if wrapped in parentheses', t => {
-  const userInput = 'This is a (/folder/reference/)';
-  t.false(contains_folder_reference(userInput));
-});
-test('returns false if is JavaScript comment', t => {
-  const userInput = 'This is a //comment';
-  t.false(contains_folder_reference(userInput));
-});
 
 // get_nearest_until_next_dev_exceeds_std_dev
 test('returns the nearest items until the next deviation exceeds the standard deviation', t => {
@@ -139,24 +87,6 @@ test('returns an empty array if there are no items to sort', t => {
   const result = sort_by_len_adjusted_similarity(nearest);
   t.deepEqual(result, expected);
 });
-
-// extract_folder_references
-test('returns an array of folder references found in the user input', t => {
-  const folders = ['/folder/subfolder/', '/folder/'];
-  const user_input = 'This is a /folder/subfolder/ and /folder/ reference';
-  const expected = ['/folder/subfolder/', '/folder/'];
-  const result = extract_folder_references(folders, user_input);
-  t.deepEqual(result, expected);
-});
-
-test('returns an empty array if no folder references are found in the user input', t => {
-  const folders = ['/folder/subfolder/', '/folder/'];
-  const user_input = 'This is a normal text';
-  const expected = [];
-  const result = extract_folder_references(folders, user_input);
-  t.deepEqual(result, expected);
-});
-
 
 // get_top_k_by_sim
 test('returns the top k items by similarity', t => {

@@ -31,7 +31,7 @@ class ScActions {
       // const { [action.function.name]: handler } = handlers[action.function.name];
       this.actions[action.function.name] = {
         json: action,
-        handler: handlers[action.function.name].bind(null, this.env),
+        handler: handlers[action.function.name],
       }
     });
   }
@@ -57,31 +57,9 @@ class ScActions {
   }
   // v2.1
   async new_user_message(user_input) {
-    this.env.chats.current.scope = {}; // reset scope
-    // if contains internal link represented by [[link]]
-    if (contains_internal_link(user_input)) {
-      const notes = this.extract_internal_links(user_input);
-      console.log(notes);
-      if (notes.length) {
-        const context = '```sc-context\n' + notes.map(n => `${n.path}`).join('\n') + '\n```';
-        await this.env.chats.current.add_message({ role: "system", content: context });
-      }
-    }
-    // if contains folder reference represented by /folder/
-    if (contains_folder_reference(user_input)) { // tested
-      const folders = await this.plugin.get_folders(); // get folder references
-      const folder_refs = extract_folder_references(folders, user_input);
-      // if folder references are valid (string or array of strings)
-      if (folder_refs) this.env.chats.current.scope.key_starts_with_any = folder_refs;
-    }
     // if contains self referential keywords or folder reference
     if (this.should_trigger_retrieval(user_input)) {
       console.log("should trigger retrieval");
-      // // DO: deprecated/removed SmartView open requirement
-      // if (!this.plugin.is_smart_view_open()) {
-      //   const btn = { text: "Open Smart View", callback: () => this.plugin.open_view(false) };
-      //   this.plugin.show_notice("Smart View must be open to utilize all Smart Chat features. For example, asking things like \"Based on my notes...\" requires Smart View to be open.", { button: btn, timeout: 0 });
-      // }
       if(this.actions.lookup && this.env.chat_model.config.actions){
         // sets current.tool_choice to lookup
         this.env.chats.current.tool_choice = "lookup";
@@ -94,23 +72,13 @@ class ScActions {
   should_trigger_retrieval(user_input) {
     // if(!this.plugin?.brain?.smart_blocks?.keys.length) return false; // if no smart blocks, return false
     if (this.contains_self_referential_keywords(user_input)) return true;
-    if (contains_folder_reference(user_input)) return true;
+    if (this.env.chats.current.scope.key_starts_with_any) return true; // if scope.key_starts_with_any is set, return true (has folder reference)
     return false;
   }
   // check if includes keywords referring to one's own notes
   contains_self_referential_keywords(user_input) {
     if (user_input.match(new RegExp(`\\b(${ScTranslations[this.config.language].pronouns.join("|")})\\b`, "gi"))) return true;
     return false;
-  }
-  // extract internal links
-  extract_internal_links(user_input) {
-    const matches = user_input.match(/\[\[(.*?)\]\]/g);
-    console.log(matches);
-    // return array of TFile objects
-    if (matches) return matches.map(match => {
-      return this.plugin.app.metadataCache.getFirstLinkpathDest(match.replace("[[", "").replace("]]", ""), "/");
-    });
-    return [];
   }
   // BACKWARD COMPATIBILITY for non-function-calling models
   async get_context_hyde(user_input) {
@@ -165,48 +133,3 @@ function parse_lookup_tool_output(tool_output) {
   content += "```";
   return { role: "system", content };
 }
-
-// check if contains internal link
-function contains_internal_link(user_input) {
-  if (user_input.indexOf("[[") === -1) return false;
-  if (user_input.indexOf("]]") === -1) return false;
-  return true;
-}
-exports.contains_internal_link = contains_internal_link;
-
-// check if contains folder reference (ex. /folder/, or /folder/subfolder/)
-function contains_folder_reference(user_input) {
-  if (user_input.indexOf("/") === -1) return false;
-  if (user_input.lastIndexOf("/") - user_input.indexOf("/") <= 1) return false; // if slashes are the same or JavaScript-style comment
-  // returns false if slash is wrapped in parentheses
-  if (user_input.indexOf("(") !== -1 && user_input.indexOf(")") !== -1){
-    const start = user_input.indexOf("(");
-    const end = user_input.indexOf(")");
-    // remove content in parentheses
-    const without_content_in_parentheses = user_input.slice(0, start) + user_input.slice(end+1);
-    if (without_content_in_parentheses.indexOf("/") !== -1) return false;
-    if (without_content_in_parentheses.indexOf("/") === without_content_in_parentheses.lastIndexOf("/")) return false;
-  }
-  return true;
-}
-exports.contains_folder_reference = contains_folder_reference;
-
-// get folder references from user input
-function extract_folder_references(folders, user_input) {
-  // use this.folders to extract folder references by longest first (ex. /folder/subfolder/ before /folder/) to avoid matching /folder/subfolder/ as /folder/
-  folders = folders.slice(); // copy folders array
-  const matches = folders.sort((a, b) => b.length - a.length).map(folder => {
-    // check if folder is in user_input
-    if (user_input.indexOf(folder) !== -1) {
-      // remove folder from user_input to prevent matching /folder/subfolder/ as /folder/
-      user_input = user_input.replace(folder, "");
-      return folder;
-    }
-    return false;
-  }).filter(folder => folder);
-  console.log(matches);
-  // return array of matches
-  if (matches) return matches;
-  return false;
-}
-exports.extract_folder_references = extract_folder_references;

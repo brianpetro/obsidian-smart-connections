@@ -38,10 +38,12 @@ async function lookup(env, params={}) {
   if(!collection || !collection.smart_embed) return {error: "Embedding search is not enabled."};
   const embeddings = await collection.smart_embed.embed_batch(hypotheticals.map(h => ({embed_input: h})));
   console.log(embeddings);
+  console.log({scope: env.chats?.current?.scope});
   const filter = {
     ...(env.chats?.current?.scope || {}),
     ...(params.filter || {}),
   };
+  console.log({filter});
   const results = embeddings.flatMap((embedding, i) => {
     return collection.nearest(embedding.vec, filter);
   });
