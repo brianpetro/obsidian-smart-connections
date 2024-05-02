@@ -25,6 +25,12 @@ const { ScActionsUx } = require("./sc_actions_ux.js");
 const { open_note } = require("./open_note.js");
 class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
+  get item_views() {
+    return {
+      ScSmartView,
+      ScChatView,
+    }
+  }
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
   async load_settings() {
     Object.assign(this.settings, await this.loadData());
@@ -84,8 +90,9 @@ class SmartConnectionsPlugin extends Plugin {
     this.save_settings();
   }
   register_views() {
-    this.registerView(ScSmartView.view_type, (leaf) => (new ScSmartView(leaf, this))); // register main view type
-    this.registerView(ScChatView.view_type, (leaf) => (new ScChatView(leaf, this)));
+    Object.values(this.item_views).forEach(View => {
+      this.registerView(View.view_type, (leaf) => (new View(leaf, this)));
+    });
   }
   async check_for_updates() {
     if(this.settings.version !== this.manifest.version){
