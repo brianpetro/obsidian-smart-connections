@@ -1,4 +1,5 @@
 const { SmartObsidianView } = require("./smart_obsidian_view.js");
+const { SmartEmbedSettings } = require("./smart_embed_settings.js");
 const SUPPORTED_FILE_TYPES = ["md", "canvas"];
 
 class ScSmartView extends SmartObsidianView {
@@ -274,6 +275,22 @@ class ScSmartView extends SmartObsidianView {
       });
       this.plugin.settings.expanded_view = true;
       this.plugin.save_settings();
+    });
+
+    // settings button
+    const settings_btn = this.container.querySelector("button[title='Settings']");
+    settings_btn.addEventListener("click", async () => {
+      const settings_container = this.container.querySelector("#settings");
+      // if has contents, clear
+      if(settings_container.innerHTML) return settings_container.innerHTML = "";
+      // if no settings, create
+      if(!this.embed_settings) this.embed_settings = new SmartEmbedSettings(this.env, settings_container);
+      else this.embed_settings.container = settings_container;
+      this.embed_settings.render();
+      // Enhanced transition: smooth background color change with ease-in-out effect
+      settings_container.style.transition = "background-color 0.5s ease-in-out";
+      settings_container.style.backgroundColor = "var(--bold-color)";
+      setTimeout(() => { settings_container.style.backgroundColor = ""; }, 500);
     });
   }
 }

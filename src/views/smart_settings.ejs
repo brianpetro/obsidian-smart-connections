@@ -1,3 +1,20 @@
+<div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout">
+  <div class="callout-title">
+    <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="svg-icon lucide-info">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M12 16v-4"></path>
+        <path d="M12 8h.01"></path>
+      </svg></div>
+    <div class="callout-title-inner">
+      <blockquote>
+        <p><b>User Agreement:</b> By using Smart Connections you agree to share how it helps you with at least one other person
+          😊🌴</p>
+      </blockquote>
+    </div>
+  </div>
+</div>
 <h1>Supporter Features</h1>
 <p>As a Smart Connections "Supporter", fast-track your PKM journey with priority perks and pioneering innovations.</p>
 <ul>
@@ -9,13 +26,15 @@
       <li>Ask questions and share your insights with other supporters.</li>
     </ul>
   </li>
-  <li>Early access to Smart Connect: Use ChatGPT with your notes <i>without</i> uploading your notes to the cloud using <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connect-obsidian">Smart Connect - Obsidian</a> GPT.</li>
   <li>Early access to new &amp; experimental features:
     <ul>
-      <li>Coming soon: Actions in the Smart Chat</li>
-      <li>Coming soon: Advanced filters in the Smart View</li>
+      <li>Coming soon in v2.2: Multi-modal Smart Chat</li>
+      <li>Coming soon in v2.2: Re-ranking in the Smart View</li>
+      <li>Coming soon in v2.2: Actions in the Smart Chat</li>
+      <li>Coming soon in v2.2: Advanced filters in the Smart View</li>
     </ul>
   </li>
+  <li><i>For a limited time</i>: Early access to Smart Connect: Use ChatGPT with your notes <i>without</i> uploading your notes to the cloud using <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connect-obsidian">Smart Connect - Obsidian</a> GPT.</li>
 </ul>
 <div class="setting-component"
   data-name="Supporter License Key"
@@ -37,68 +56,13 @@
   data-type="button"
   data-href="https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
 ></div>
-<h1>Embedding Models</h1>
+<h1>Smart View & Embeddings</h1>
 <p>Notes about embedding models:</p>
 <ul>
   <li>Local model compatibility depends on available CPU and RAM. Try reducing the max tokens (context) if a local model if failing.</li>
   <li>API models are not dependent on local compute, but they require an API key and send your notes to third-party servers for processing.</li>
 </ul>
-<div class="setting-component"
-  data-name="Notes Embedding Model"
-  data-setting="smart_notes_embed_model"
-  data-type="dropdown"
-  data-description="Select a model to use for embedding your notes."
-  <%- embedding_models.map((model, i) => `data-option-${i + 1}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
-  data-callback="restart_plugin"
-></div>
-<div class="setting-component"
-  data-name="Blocks Embedding Model"
-  data-setting="smart_blocks_embed_model"
-  data-type="dropdown"
-  data-description="Select a model to use for embedding your blocks."
-  data-option-0="None|None"
-  <%- embedding_models.map((model, i) => `data-option-${i + 1}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
-  data-callback="restart_plugin"
-></div>
-<div class="setting-component"
-  data-name="Minimum Embedding Length"
-  data-description="Minimum length of note to embed."
-  data-type="number"
-  data-setting="embed_input_min_chars"
-  data-placeholder="Enter a number"
-  data-callback="reload_env"
-></div>
-<% if(!settings.smart_notes_embed_model.includes('/') || !settings.smart_blocks_embed_model.includes('/')) { %>
-<div class="setting-component"
-  data-name="OpenAI API Key for embeddings"
-  data-type="text"
-  data-setting="api_key"
-  data-placeholder="Enter your OpenAI API Key"
-  data-button="Save"
-  data-callback="test_api_key_openai_embeddings"
-></div>
-<% } %>
-<% if(settings.smart_notes_embed_model.includes('/') || settings.smart_blocks_embed_model.includes('/')) { %>
-<div class="setting-component"
-  data-name="Local Embedding Max Tokens"
-  data-description="Reduce max tokens depending on available resources (CPU, RAM)." 
-  data-type="dropdown"
-  data-setting="local_embedding_max_tokens"
-  data-option-1="512"
-  data-option-2="1024"
-  data-option-3="2048|2048 (default)"
-  data-option-4="4096"
-  data-option-5="8192"
-  data-callback="reload_env"
-></div>
-<div class="setting-component"
-  data-name="Connect to Smart Connect"
-  data-description="Faster local embeddings."
-  data-type="button"
-  data-callback="connect_to_smart_connect"
-></div>
-<a href='https://github.com/brianpetro/smart-connect'>Smart Connect</a> is free to use for faster embeddings.
-<% } %>
+<%- smart_embed_settings %>
 <h1>Smart Chat</h1>
 <%- smart_chat_settings %>
 <h3>System Prompts</h3>
@@ -154,14 +118,6 @@
   data-type="text"
   data-setting="excluded_headings"
   data-placeholder="drawings,prompts/logs"
-></div>
-<h1>Smart View</h1>
-<div class="setting-component"
-  data-name="Show Full Path"
-  data-description="Show full path in view."
-  data-type="toggle"
-  data-setting="show_full_path"
-  data-callback="refresh_smart_view"
 ></div>
 <h3>Data Management</h3>
 <div class="setting-component"
@@ -227,7 +183,20 @@
 <% } else { %>
   <p>No muted notices.</p>
 <% } %>
-<h1 name="og-gpt" id="og-gpt">Original Smart Connections GPT</h1>
+<hr>
+<h5 name="og-gpt" id="og-gpt">The Original Smart Connections GPT</h5>
+<div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout">
+  <div class="callout-title">
+    <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="svg-icon lucide-alert-triangle">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+        <path d="M12 9v4"></path>
+        <path d="M12 17h.01"></path>
+      </svg></div>
+    <div class="callout-title-inner"><p><i>This will be removed in a future version.</i> Please use the <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connect-obsidian">Smart Connect - Obsidian</a> GPT for more advanced features like creating notes and embedding search.</p></div>
+  </div>
+</div>
 <p>This GPT can browser folders and read notes. It requires manually synchronization for your notes to be accessible by ChatGPT.</p>
 <div class="setting-component"
   data-name="ChatGPT Integration (supporter-only)"
@@ -243,4 +212,3 @@
   data-type="button"
   data-href="https://chat.openai.com/g/g-SlDDp07bm-smart-connections-for-obsidian"
 ></div>
-<em>Try the <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2">Smart Connections 2</a> GPT for more advanced features like creating notes and embedding search.</em>

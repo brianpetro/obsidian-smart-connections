@@ -2,6 +2,7 @@ const { SmartSettings } = require("./smart_settings");
 const smart_embed_models = require("smart-embed-model/models.json");
 const { PluginSettingTab } = require("obsidian");
 const { SmartChatSettings } = require("./smart_chat_settings");
+const { SmartEmbedSettings } = require("./smart_embed_settings");
 
 class ScSettingsTab extends PluginSettingTab {
   constructor(app, plugin) {
@@ -21,6 +22,7 @@ class ScSettings extends SmartSettings {
   constructor(env, container, template_name = "smart_settings") {
     super(env, container, template_name);
     this.chat_settings = new SmartChatSettings(env, container, template_name);
+    this.embed_settings = new SmartEmbedSettings(env, container, template_name);
   }
   update_smart_chat_folder() { this.chat_settings.update_smart_chat_folder(); }
   async changed_smart_chat_model(){
@@ -30,13 +32,7 @@ class ScSettings extends SmartSettings {
   async test_chat_api_key(){ await this.chat_settings.test_chat_api_key(); }
   get self_ref_list() { return this.chat_settings.self_ref_list; }
 
-
   async refresh_notes() {
-    // if(!this.plugin.is_smart_view_open()){
-    //   this.plugin.open_view();
-    //   // wait for this.plugin.env.smart_notes.smart_embed or this.plugin.env.smart_blocks.smart_embed to be ready
-    //   await new Promise(resolve => setTimeout(resolve, 1000));
-    // }
     this.env.smart_notes.import(this.env.files, { reset: true });
   }
   reload_env() { this.env.reload(); } // DEPRECATED
@@ -44,44 +40,10 @@ class ScSettings extends SmartSettings {
   force_refresh() { this.env.force_refresh(); }
   sync_for_chatgpt() { this.plugin.sync_notes(); }
   update_smart_connections_folder() { this.plugin.update_smart_connections_folder(); }
-  refresh_smart_view() { this.plugin.smart_connections_view.render_nearest(); }
-  async connect_to_smart_connect(){
-    // check if already is connected
-    if(this.plugin.env.smart_notes?.smart_embed?.is_smart_connect){
-      this.plugin.notices.show('smart connect already connected', 'Already connected to local Smart Connect for embedding.');
-      return;
-    }
-    // check if http://localhost:37420/embed is available
-    // console.log('Checking for local Smart Connect server...');
-    try{
-      await this.plugin.obsidian.requestUrl({url: 'http://localhost:37421/', method: 'GET'});
-      this.plugin.notices.show('smart connect found', 'Local Smart Connect server found. Connecting...');
-      // restart env if available but smart_embed is not set to use SmartConnect
-      this.plugin.restart_plugin();
-    }catch(err){
-      this.plugin.notices.show('smart connect not found', 'Could not connect to local Smart Connect server');
-    }
-  }
+  refresh_smart_view() { this.embed_settings.refresh_smart_view(); }
+  async connect_to_smart_connect(){ await this.embed_settings.connect_to_smart_connect(); }
   // test API key
-  async test_api_key_openai_embeddings() {
-    const req = {
-      url: `https://api.openai.com/v1/embeddings`,
-      method: "POST",
-      body: JSON.stringify({ model: "text-embedding-ada-002", input: "test" }),
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${this.plugin.settings.api_key}` },
-    };
-    try{
-      const resp = await this.plugin.obsidian.requestUrl(req);
-      if(resp?.json?.data?.[0]?.embedding?.length){
-        await this.changed_smart_chat_model();
-        return this.plugin.notices.show('api key test pass', "Success! OpenAI API key is valid");
-      }
-      this.plugin.notices.show('api key test fail', "Error: OpenAI API key is invalid!");
-    }catch(err){
-      this.plugin.notices.show('api key test fail', "Error: OpenAI API key is invalid!");
-      console.error("Smart Connections: Error testing OpenAI API key", err);
-    }
-  }
+  async test_api_key_openai_embeddings() { await this.embed_settings.test_api_key_openai_embeddings(); }
   async exclude_all_top_level_folders() {
     const folders = (await this.app.vault.adapter.list("/")).folders;
     const input = this.container.querySelector("div[data-setting='folder_exclusions'] input");
@@ -113,14 +75,8 @@ class ScSettings extends SmartSettings {
       total_files: this.plugin.env.all_files.length,
       muted_notices: this.plugin.settings.muted_notices || false,
       ...((await this.chat_settings.get_view_data()) || {}),
-      // chat_platform: this.env.chat_model.platforms[this.plugin.settings.chat_model_platform_key],
-
+      ...((await this.embed_settings.get_view_data()) || {}),
     };
-    // view_data.platform_chat_models = await this.plugin.env.chat_model.get_models();
-    // view_data.smart_chat_settings = this.ejs.render(this.templates['smart_chat_settings'], view_data);
-    // const platforms = this.env.chat_model?.platforms;
-    // if(!platforms) setTimeout(() => this.render(), 3000); // if no smart_chat_models, set timeout to re render the settings
-    // view_data.chat_platforms = platforms ? Object.keys(platforms).map(platform_key => ({ key: platform_key, ...platforms[platform_key] })) : [];
     return view_data;
   }
   unmute_notice(setting) {
