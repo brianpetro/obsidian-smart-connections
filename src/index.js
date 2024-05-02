@@ -158,6 +158,28 @@ class SmartConnectionsPlugin extends Plugin {
         else this.view.render_nearest();
       }
     });
+    // make connections command
+    this.addCommand({
+      id: "sc-refresh-connections",
+      name: "Refresh & Make Connections",
+      icon: "pencil_icon",
+      hotkeys: [],
+      editorCallback: async (editor) => {
+        // get current note
+        const curr_file = this.app.workspace.getActiveFile();
+        // const curr_note = this.env?.smart_notes.get(curr_file.path);
+        // delete note entity from cache
+        delete this.view?.nearest_cache[curr_file.path];
+        // delte note entity from collection
+        this.env.smart_notes.delete(curr_file.path);
+        // import note
+        await this.env.smart_notes.import([curr_file]);
+        setTimeout(() => {
+          // refresh view
+          this.view.render_nearest();
+        }, 1000);
+      }
+    });
     // open view command
     this.addCommand({
       id: "smart-connections-view",
