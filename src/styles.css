@@ -217,6 +217,7 @@ div[data-type="smart-connections-view"] > .view-content {
   border-radius: 10px;
   resize: none;
   height: auto;
+  min-height: 4lh;
   max-height: 100%;
   border: 1px solid var(--blockquote-border-color);
 }
@@ -314,5 +315,30 @@ div[data-type="smart-connections-view"] > .view-content {
     max-width: 100%;
     width: 100%;
   }
+}
+
+.sc-supporters{
+  max-height: 37ch;
+  border: 1px solid var(--h1-color);
+  border-radius: 10px;
+  padding: 10px;
+  margin-left: -10px;
+  box-shadow: 0 1px 0 1px var(--shadow-300);
+  overflow: auto;
+  text-wrap: balance;
+
+  > p{
+    margin-top: 0;
+    margin-bottom: 5px;
+  }
+
+  > ul {
+    margin-top: 5px; 
+  }
+
+  > * li {
+    margin-top: 0.37em;
+  }
+
 }
 

@@ -17,6 +17,8 @@ function default_settings() {
       // Smart Blocks Settings (chunking)
       embed_input_min_chars: 50,
       multi_heading_blocks: true,
+      // v2.2
+      enable_mobile: true,
       // V1
       api_key: "",
       excluded_headings: "",

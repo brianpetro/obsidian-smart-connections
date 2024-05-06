@@ -1,4 +1,9 @@
 <h1>Smart Connections</h1>
+<% if(this.env.plugin.EARLY_ACCESS && this.env.plugin.obsidian.Platform.isMobile && !this.env.plugin.settings.enable_mobile) { %>
+<div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout"><div class="callout-title"><div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon lucide-alert-triangle"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg></div><div class="callout-title-inner">Mobile is DISABLED.</div></div><div class="callout-content">
+<p>Toggle "Enable mobile" setting to activate mobile.</p>
+</div></div>
+<% } %>
 <div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout">
   <div class="callout-title">
     <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -16,47 +21,98 @@
     </div>
   </div>
 </div>
-<h1>Supporter Features</h1>
-<p>As a Smart Connections "Supporter", fast-track your PKM journey with priority perks and pioneering innovations.</p>
-<ul>
-  <li>Access to the supporter-only <a href="https://chat.smartconnections.app">private chat</a>:
-    <ul>
-      <li>Swift, top-priority support.</li>
-      <li>Learn about the latest features and improvements before they are released.</li>
-      <li>Opportunity to influence the future of Smart Connections.</li>
-      <li>Ask questions and share your insights with other supporters.</li>
-    </ul>
-  </li>
-  <li>Early access to new &amp; experimental features:
-    <ul>
-      <li>Coming soon in v2.2: Multi-modal Smart Chat</li>
-      <li>Coming soon in v2.2: Re-ranking in the Smart View</li>
-      <li>Coming soon in v2.2: Actions in the Smart Chat</li>
-      <li>Coming soon in v2.2: Advanced filters in the Smart View</li>
-    </ul>
-  </li>
-  <li><i>For a limited time</i>: Early access to Smart Connect: Use ChatGPT with your notes <i>without</i> uploading your notes to the cloud using <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connect-obsidian">Smart Connect - Obsidian</a> GPT.</li>
-</ul>
-<div class="setting-component"
-  data-name="Supporter License Key"
-  data-type="text"
-  data-setting="license_key"
-  data-description="Note: this is not required to use Smart Connections."
-  data-placeholder="Enter your license_key"
-></div>
-<div class="setting-component"
-  data-name="Smart Connect - Obsidian GPT"
-  data-btn-text="Open GPT"
-  data-description='Chat with your notes in ChatGPT without uploading your notes to the cloud!'
-  data-type="button"
-  data-href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2"
-></div>
-<div class="setting-component"
-  data-name="Become a Supporter"
-  data-description="Become a Supporter"
-  data-type="button"
-  data-href="https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
-></div>
+<div class="sc-supporters">
+  <h1>Supporter Community</h1>
+  <% if(!this.env.plugin.EARLY_ACCESS){ %>
+  <p>The success of Smart Connections is a direct result of our community of supporters who generously fund and evaluate new features. Their unwavering commitment to our privacy-focused, open-source software benefits all. Together, we can continue to innovate and make a positive impact on the world.</p>
+  <p><b>Supporter benefits include:</b></p>
+  <ul>
+    <li>Early access to new &amp; experimental features:
+      <ul>
+        <li>Early access to new versions enables supporters to help ensure new features are ready for the broader community.</li>
+        <li><i>Available in v2.2 (Early Release):</i><ul>
+          <li>🖼️ Multimodal Smart Chat (images)</li>
+          <li>📲 Mobile compatibility</li>
+        </ul></li>
+        <li><i>Coming soon:</i><ul>
+          <li>Re-ranking in the Smart View</li>
+          <li>Actions in the Smart Chat</li>
+          <li>Advanced filters in the Smart View</li>
+        </ul></li>
+      </ul>
+    </li>
+    <li>Access to the supporter-only <a href="https://chat.smartconnections.app">private chat</a>:
+      <ul>
+        <li><i>Community:</i>
+          <ul>
+            <li>Ask questions and share insights with other supporters.</li>
+          </ul>
+        </li>
+        <li><i>Help &amp; Support (priority):</i>
+          <ul>
+            <li>Swift, top-priority support in the <a href="https://chat.smartconnections.app">Supporter Chat</a>.</li>
+          </ul>
+        </li>
+        <li><i>Feature Requests (priority):</i>
+          <ul>
+            <li>Influence the future of Smart Connections with priority feature requests in the <a href="https://chat.smartconnections.app">Supporter Chat</a>.</li>
+          </ul>
+        </li>
+        <li><i>Insider Updates:</i>
+          <ul>
+            <li>Learn about the latest features &amp; improvements before they are announced.</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><b>For a very limited time:</b> Early access to Smart Connect: Use ChatGPT with your notes <i>without</i> uploading your notes to the cloud using <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connect-obsidian">Smart Connect - Obsidian</a> GPT.</li>
+  </ul>
+  <% } %>
+  <div class="setting-component"
+    data-name="Supporter License Key"
+    data-type="text"
+    data-setting="license_key"
+    data-description="Note: this is not required to use Smart Connections."
+    data-placeholder="Enter your license_key"
+  ></div>
+  <div class="setting-component"
+    data-name="Smart Connect - Obsidian GPT"
+    data-btn-text="Open GPT"
+    data-description='Chat with your notes in ChatGPT without uploading your notes to the cloud!'
+    data-type="button"
+    data-href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2"
+  ></div>
+  <div class="setting-component"
+    data-name="Enable Mobile (EXPERIMENTAL)"
+    data-description="Enable mobile support for Smart Connections."
+    data-type="toggle"
+    <%- this.env.plugin.EARLY_ACCESS ? '' : 'data-disabled=true' %>
+    data-setting="enable_mobile"
+    data-callback="toggle_mobile"
+  ></div>
+  <div class="setting-component"
+    data-name="Open Supporter Community Chat"
+    data-btn-text="Open Chat"
+    data-description='Join the supporter community chat.'
+    data-type="button"
+    data-href="https://chat.smartconnections.app"
+  ></div>
+  <% if(!this.env.plugin.EARLY_ACCESS){ %>
+  <div class="setting-component"
+    data-name="Upgrade to Early Access Version (v2.2)"
+    data-description="Upgrade to v2.2 (Early Access) to access new features and improvements."
+    data-type="button"
+    data-btn-text="Upgrade to v2.2"
+    data-callback="upgrade_to_early_access"
+  ></div>
+  <div class="setting-component"
+    data-name="Become a Supporter"
+    data-description="Become a Supporter"
+    data-type="button"
+    data-href="https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
+  ></div>
+  <% } %>
+</div>
 <h1>Smart View & Embeddings</h1>
 <p>Notes about embedding models:</p>
 <ul>
@@ -160,16 +216,6 @@
   data-type="button"
   data-callback="force_refresh"
 ></div>
-<!-- Native JS confirm focussing bug -->
-<!--  
-<h3>Force Refresh</h3>
-<div class="setting-component"
-  data-name="force_refresh"
-  data-description="WARNING: DO NOT use unless you know what you are doing! This will delete all of your current embeddings from OpenAI and trigger reprocessing of your entire vault!"
-  data-confirm="Are you sure you want to Force Refresh? By clicking yes you confirm that you understand the consequences of this action."
-  data-type="button"
-  data-callback="force_refresh"
-></div> -->
 <h1>Muted Notices</h1>
 <% if(muted_notices && Object.keys(muted_notices).length) { %>
   <% for(const notice in muted_notices) { %>
@@ -213,3 +259,13 @@
   data-type="button"
   data-href="https://chat.openai.com/g/g-SlDDp07bm-smart-connections-for-obsidian"
 ></div>
+<hr>
+<% if(this.env.plugin.EARLY_ACCESS){ %>
+<div class="setting-component"
+  data-name="Revert to Stable Release"
+  data-btn-text="Revert"
+  data-description='Revert to the stable release of Smart Connections. Requires "Check for Updates" and then "Update Plugin" to complete the process.'
+  data-type="button"
+  data-callback="revert_to_stable_release"
+></div>
+<% } %>

@@ -6,7 +6,7 @@
   <%- chat_platforms.map((platform, i) => `data-option-${i + 1}="${platform.key}|${platform.description}"`).join('\n') %>
   data-callback="changed_smart_chat_model"
 ></div>
-<% if(chat_platform.fetch_models) { %>
+<% if(chat_platform?.fetch_models) { %>
   <% if(settings[settings.chat_model_platform_key]?.api_key) { %>
     <div class="setting-component"
       data-name="Model Name"

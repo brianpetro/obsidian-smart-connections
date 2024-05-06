@@ -120,6 +120,52 @@ class ScChatsUI extends SmartChatsUI {
     if (!this.system_prompt_selector) this.system_prompt_selector = new ScSystemPromptSelectModal(this.env.plugin.app, this.env);
     this.system_prompt_selector.open();
   }
+  add_chat_input_listeners(){
+    // register default events in super
+    super.add_chat_input_listeners();
+    // register custom events
+    const chat_input = this.container.querySelector(".sc-chat-form");
+    this.brackets_ct = 0;
+    this.prevent_input = false;
+    chat_input.addEventListener("keyup", this.key_up_handler.bind(this));
+  }
+  key_up_handler(e){
+    const textarea = this.container.querySelector(".sc-chat-form textarea");
+    if(!["/", "@", "["].includes(e.key)) return;
+    const caret_pos = textarea.selectionStart;
+    // if key is open square bracket
+    if (e.key === "[") {
+      // if previous char is [
+      if (textarea.value[caret_pos - 2] === "[") {
+        // open file suggestion modal
+        this.open_file_suggestion_modal();
+        return;
+      }
+    } else {
+      this.brackets_ct = 0;
+    }
+    // if / is pressed
+    if (e.key === "/") {
+      // get caret position
+      // if this is first char or previous char is space
+      if (textarea.value.length === 1 || textarea.value[caret_pos - 2] === " ") {
+        // open folder suggestion modal
+        this.open_folder_suggestion_modal();
+        return;
+      }
+    }
+    // if @ is pressed
+    if (e.key === "@") {
+      // console.log("caret_pos", caret_pos);
+      // get caret position
+      // if this is first char or previous char is space
+      if (textarea.value.length === 1 || textarea.value[caret_pos - 2] === " ") {
+        // open system prompt suggestion modal
+        this.open_system_prompt_modal();
+        return;
+      }
+    }
+  }
 }
 exports.ScChatsUI = ScChatsUI;
 

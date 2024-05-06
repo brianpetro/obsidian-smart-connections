@@ -11,7 +11,7 @@ const swagger_jsdoc = require('swagger-jsdoc');
       return;
     }
     files.forEach(file => {
-      if(path.extname(file) !== '.ejs') return;
+      if(!['.ejs', '.md'].includes(path.extname(file))) return;
       const file_path = path.join(templates_dir, file);
       const content = fs.readFileSync(file_path, 'utf8');
       views[path.basename(file, path.extname(file))] = content;

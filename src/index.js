@@ -19,7 +19,8 @@ const { SmartSearch } = require("./smart_search.js"); // rename to sc_search.js
 const { SmartNotices } = require("./smart_notices.js"); // rename to sc_notices.js (extract smart_notices.js as standard structure first)
 // v2.1
 const { ScChatView } = require("./sc_chat_view.js");
-const { ScSettingsTab } = require("./sc_settings.js");
+const { ScSettings } = require("./sc_settings.js");
+const { ScSettingsTab } = require("./sc_settings_tab.js");
 const embed_models = require('smart-embed-model/models.json');
 const { ScActionsUx } = require("./sc_actions_ux.js");
 const { open_note } = require("./open_note.js");
@@ -31,8 +32,10 @@ class SmartConnectionsPlugin extends Plugin {
       ScChatView,
     }
   }
+  get ScSettings() { return ScSettings };
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
   async load_settings() {
+    Object.assign(this, this.constructor.defaults);
     Object.assign(this.settings, await this.loadData());
     this.handle_deprecated_settings(); // HANDLE DEPRECATED SETTINGS
   }
@@ -46,7 +49,6 @@ class SmartConnectionsPlugin extends Plugin {
   }
   async initialize() {
     console.log("Loading Smart Connections v2...");
-    Object.assign(this, this.constructor.defaults);
     await this.load_settings();
     this.smart_connections_view = null;
     this.add_commands(); // add commands
@@ -136,7 +138,7 @@ class SmartConnectionsPlugin extends Plugin {
       await window.app.plugins.enablePlugin(id);
       console.log("plugin restarted", id);
     };
-    window.restart_plugin(this.manifest.id);
+    await window.restart_plugin(this.manifest.id);
   }
 
   add_commands() {
@@ -241,14 +243,19 @@ class SmartConnectionsPlugin extends Plugin {
   get chat_view() { return ScChatView.get_view(this.app.workspace); }
   // get folders, traverse non-hidden sub-folders
   async get_folders(path = "/") {
-    const folders = (await this.app.vault.adapter.list(path)).folders;
-    let folder_list = [];
-    for (let i = 0; i < folders.length; i++) {
-      if (folders[i].startsWith(".")) continue;
-      folder_list.push(folders[i]);
-      folder_list = folder_list.concat(await this.get_folders(folders[i] + "/"));
+    try {
+      const folders = (await this.app.vault.adapter.list(path)).folders;
+      let folder_list = [];
+      for (let i = 0; i < folders.length; i++) {
+        if (folders[i].startsWith(".")) continue;
+        folder_list.push(folders[i]);
+        folder_list = folder_list.concat(await this.get_folders(folders[i] + "/"));
+      }
+      return folder_list;
+    } catch (error) {
+      console.warn("Error getting folders", error);
+      return [];
     }
-    return folder_list;
   }
   // SUPPORTERS
   async sync_notes() {
@@ -352,9 +359,30 @@ class SmartConnectionsPlugin extends Plugin {
     // update chat history conversation folder
     this.env.chats.folder = this.settings.smart_chat_folder; 
   }
-  // is smart view open
-  // is_smart_view_open() { return ScSmartView.is_open(this.app.workspace); }
-  // backwards compatibility
+  
+  async update_early_access() {
+    // // if license key is not set, return
+    if(!this.settings.license_key) return this.show_notice("Supporter license key required for early access update");
+    const v2 = await this.obsidian.requestUrl({
+      url: "https://sync.smartconnections.app/download_v2",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        license_key: this.settings.license_key,
+      })
+    });
+    if(v2.status !== 200) return console.error("Error downloading early access update", v2);
+    console.log(v2.json);
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/main.js", v2.json.main); // add new
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", v2.json.manifest); // add new
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/styles.css", v2.json.styles); // add new
+    await window.app.plugins.loadManifests();
+    await this.restart_plugin();
+  }
+
+  // BEGIN BACKWARD COMPATIBILITY (DEPRECATED: remove before 2.2 stable release)
   async handle_deprecated_settings() {
     // move api keys (api_key_PLATFORM) to PLATFORM.api_key
     Object.entries(this.settings).forEach(([key, value]) => {

@@ -1,21 +1,7 @@
 const { SmartSettings } = require("./smart_settings");
 const smart_embed_models = require("smart-embed-model/models.json");
-const { PluginSettingTab } = require("obsidian");
 const { SmartChatSettings } = require("./smart_chat_settings");
 const { SmartEmbedSettings } = require("./smart_embed_settings");
-
-class ScSettingsTab extends PluginSettingTab {
-  constructor(app, plugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-    this.config = plugin.settings;
-  }
-  display() {
-    this.smart_settings = new ScSettings(this.plugin.env, this.containerEl);
-    return this.smart_settings.render();
-  }
-}
-exports.ScSettingsTab = ScSettingsTab;
 
 // Smart Connections Specific Settings
 class ScSettings extends SmartSettings {
@@ -86,10 +72,9 @@ class ScSettings extends SmartSettings {
     this.update("muted_notices", this.plugin.settings.muted_notices);
     this.render(); // re-render settings
   }
-
-  // DO: REMOVE FROM STABLE RELEASE
-  revert_to_v20() {
-    this.plugin.revert_to_v20();
+  // upgrade to early access
+  async upgrade_to_early_access() {
+    await this.plugin.update_early_access();
   }
 }
 exports.ScSettings = ScSettings;
