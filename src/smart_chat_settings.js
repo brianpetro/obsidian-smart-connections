@@ -10,13 +10,13 @@ class SmartChatSettings extends SmartSettings {
     if(smart_chat_model_config.model_name){
       const platform_models = await this.plugin.env.chat_model.get_models();
       const model_config = platform_models.find(m => m.model_name === smart_chat_model_config.model_name);
-      console.log("model_config", model_config);
+      // console.log("model_config", model_config);
       smart_chat_model_config = {
         ...(smart_chat_model_config || {}),
         ...(platform_config || {}),
         ...(model_config || {}),
       };
-      console.log("smart_chat_model_config", smart_chat_model_config);
+      // console.log("smart_chat_model_config", smart_chat_model_config);
       this.plugin.settings[this.plugin.settings.chat_model_platform_key] = smart_chat_model_config;
     }
     await this.plugin.save_settings(true);
