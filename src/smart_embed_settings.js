@@ -30,7 +30,6 @@ class SmartEmbedSettings extends SmartSettings {
     try{
       const resp = await this.plugin.obsidian.requestUrl(req);
       if(resp?.json?.data?.[0]?.embedding?.length){
-        await this.changed_smart_chat_model();
         return this.plugin.notices.show('api key test pass', "Success! OpenAI API key is valid");
       }
       this.plugin.notices.show('api key test fail', "Error: OpenAI API key is invalid!");

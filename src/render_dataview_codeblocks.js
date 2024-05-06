@@ -5,6 +5,7 @@ async function render_dataview_codeblocks(file_content, note_path, opts = {}) {
   };
   const dataview_api = window?.["DataviewAPI"]; // use window to get dataview api
   if (!dataview_api) return file_content; // skip if dataview api not found
+  if(!file_content) return file_content; // skip if file_content is empty
   const dataview_code_blocks = file_content.match(/```dataview(.*?)```/gs);
   if(!dataview_code_blocks) return file_content; // skip if no dataview code blocks found
   // for each dataview code block
