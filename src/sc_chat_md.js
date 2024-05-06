@@ -4,6 +4,16 @@ const { contains_internal_link } = require("./contains_internal_link");
 const { contains_folder_reference } = require('./contains_folder_reference');
 
 class ScChatMD extends SmartChatMD {
+  async new_user_message(content){
+    const og_content = content;
+    try{
+      await super.new_user_message(content);
+    }catch(e){
+      this.env.plugin.notices.show(e.message, e.message);
+      console.warn(e);
+      this.env.chat_ui.set_chat_input_text(og_content);
+    }
+  }
   /**
    * Parses a user message to handle special syntax like mentions and converts them into system messages.
    * @param {string} content - The user message content.

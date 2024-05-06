@@ -56,7 +56,17 @@ class ScActions {
     return body;
   }
   // v2.1
+  // DO: decided: rename to parse_user_message?
   async new_user_message(user_input) {
+    // DO: decided: replace this with og_content input in chat.new_user_message?
+    if(Array.isArray(user_input)){
+      for(let i = 0; i < user_input.length; i++){
+        if(user_input[i].type === "text"){
+          await this.new_user_message(user_input[i].text);
+        }
+      }
+      return;
+    }
     // if contains self referential keywords or folder reference
     if (this.should_trigger_retrieval(user_input)) {
       console.log("should trigger retrieval");
@@ -80,7 +90,7 @@ class ScActions {
     if (user_input.match(new RegExp(`\\b(${ScTranslations[this.config.language].pronouns.join("|")})\\b`, "gi"))) return true;
     return false;
   }
-  // BACKWARD COMPATIBILITY for non-function-calling models
+  // BACKWARD COMPATIBILITY for non-function-calling models (DEPRECATED)
   async get_context_hyde(user_input) {
     console.log("get_context_hyde");
     // count current chat ml messages to determine 'question' or 'chat log' wording
