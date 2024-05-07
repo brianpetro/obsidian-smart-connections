@@ -108,7 +108,8 @@ class ScChatHistoryModal extends FuzzySuggestModal {
     this.setPlaceholder("Type the name of a chat session...");
   }
   // getItems() { return (this.view.files) ? this.view.files : []; }
-  getItems() { return Object.keys(this.env.chats.items); }
+  // sort alphabetically & then by startsWith UNITITLED
+  getItems() { return Object.keys(this.env.chats.items).sort((a, b) => a.localeCompare(b)).sort((a, b) => b.startsWith("UNTITLED") ? -1 : 1); }
   // if not UNTITLED, remove date after last em dash
   getItemText(item) { return (item.indexOf("UNTITLED") === -1) ? item.replace(/—[^—]*$/, "") : item; }
   // onChooseItem(session) { this.view.open_chat(session); }
