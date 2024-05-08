@@ -1,6 +1,5 @@
 const { SmartChats } = require("smart-chats");
-// const { chat_ml_to_markdown } = require("smart-chats/smart_chat_md");
-const { ScChatMD } = require("./sc_chat_md");
+const { ScChat } = require("./sc_chat");
 const { FuzzySuggestModal } = require("obsidian");
 
 class ScChats extends SmartChats {
@@ -8,7 +7,7 @@ class ScChats extends SmartChats {
     super(env, opts);
     this.plugin = this.env.plugin;
     this.folder = this.env.config.smart_chat_folder || this.folder;
-    this.formats.md = ScChatMD; // override default format
+    this.chat_class = ScChat;
   }
   async new_user_message(message) {
     // notify users of limited 

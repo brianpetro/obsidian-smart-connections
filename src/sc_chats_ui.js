@@ -19,7 +19,8 @@ class ScChatsUI extends SmartChatsUI {
     // open conversation in note button
     const open_in_note_btn = this.container.querySelector("button[title='Open Conversation Note']");
     open_in_note_btn.addEventListener("click", () => {
-      const link_tfile = this.env.plugin.app.metadataCache.getFirstLinkpathDest(this.env.chats.current.name, "/");
+      const link_path = this.env.chats.current.file_path;
+      const link_tfile = this.env.plugin.app.metadataCache.getFirstLinkpathDest(link_path, "/");
       let leaf = this.env.plugin.app.workspace.getLeaf(true);
       leaf.openFile(link_tfile);
     });

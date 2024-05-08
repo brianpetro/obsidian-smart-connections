@@ -1,9 +1,9 @@
-const { SmartChatMD } = require('smart-chats/smart_chat_md');
+const { SmartChat } = require('smart-chats/smart_chat');
 const { extract_folder_references } = require("./extract_folder_references");
 const { contains_internal_link } = require("./contains_internal_link");
 const { contains_folder_reference } = require('./contains_folder_reference');
 
-class ScChatMD extends SmartChatMD {
+class ScChat extends SmartChat {
   async new_user_message(content){
     const og_content = content;
     try{
@@ -64,7 +64,7 @@ class ScChatMD extends SmartChatMD {
     await this.env.chat_ui.render_dotdotdot();
   }
 }
-exports.ScChatMD = ScChatMD;
+exports.ScChat = ScChat;
 
 function extract_internal_links(env, user_input) {
   const matches = user_input.match(/\[\[(.*?)\]\]/g);
