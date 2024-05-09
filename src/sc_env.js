@@ -37,6 +37,7 @@ class ScEnv extends Brain {
     this.ejs = ejs;
     this.templates = templates;
   }
+  get chat_classes() { return { ScActions, ScChatsUI, ScChats, ScChatModel }; }
   async reload() {
     this.unload();
     this.config = this.plugin.settings;
@@ -91,16 +92,16 @@ class ScEnv extends Brain {
     chat_model_platform_key = chat_model_platform_key ?? this.config.chat_model_platform_key;
     if(chat_model_platform_key === 'open_router' && !this.config[chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
     else chat_model_config = this.config[chat_model_platform_key] ?? {};
-    this.chat_model = new ScChatModel(this, chat_model_platform_key, {...chat_model_config });
+    this.chat_model = new this.chat_classes.ScChatModel(this, chat_model_platform_key, {...chat_model_config });
     this.chat_model._request_adapter = this.plugin.obsidian.requestUrl;
   }
   async init_chat(){
-    this.actions = new ScActions(this);
+    this.actions = new this.chat_classes.ScActions(this);
     this.actions.init();
     // wait for chat_view containerEl to be available
     while (!this.plugin.chat_view?.containerEl) await new Promise(r => setTimeout(r, 300));
-    this.chat_ui = new ScChatsUI(this, this.plugin.chat_view.containerEl);
-    this.chats = new ScChats(this);
+    this.chat_ui = new this.chat_classes.ScChatsUI(this, this.plugin.chat_view.containerEl);
+    this.chats = new this.chat_classes.ScChats(this);
     await this.chats.load_all();
   }
   get_tfile(file_path) { return this.plugin.app.vault.getAbstractFileByPath(file_path); }

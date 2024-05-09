@@ -12,6 +12,8 @@ class SmartObsidianView extends ItemView {
     this.templates = views;
     this.ejs = ejs;
   }
+  get env() { return this.plugin.env; }
+  get config() { return this.plugin.settings; }
   render_template(template_name, data) {
     // console.log("rendering template", template_name);
     if (!this.templates[template_name]) throw new Error(`Template '${template_name}' not found.`);
@@ -24,6 +26,16 @@ class SmartObsidianView extends ItemView {
       get_icon: this.get_icon.bind(this),
       settings: this.plugin.settings,
     };
+  }
+  async wait_for_env_to_load() {
+    if (!this.env?.entities_loaded) {
+      // set loading message
+      this.containerEl.children[1].innerHTML = "Loading Smart Connections...";
+      // wait for entities to be initialized
+      while (!this.env?.entities_loaded){
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
   }
   get_icon(name) { return this.plugin.obsidian.getIcon(name).outerHTML; }
   static get view_type() { }

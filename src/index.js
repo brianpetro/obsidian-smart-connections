@@ -49,6 +49,7 @@ class SmartConnectionsPlugin extends Plugin {
   }
   async initialize() {
     this.obsidian = require("obsidian");
+    this.notices = new SmartNotices(this);
     console.log("Loading Smart Connections v2...");
     await this.load_settings();
     this.smart_connections_view = null;
@@ -72,7 +73,6 @@ class SmartConnectionsPlugin extends Plugin {
     this.registerMarkdownCodeBlockProcessor("sc-context", this.render_code_block_context.bind(this)); // code-block renderer
     // "AI change" dynamic code block
     this.registerMarkdownCodeBlockProcessor("sc-change", this.change_code_block.bind(this));
-    this.notices = new SmartNotices(this);
     this.new_user();
     await this.load_env();
     console.log("Smart Connections v2 loaded");

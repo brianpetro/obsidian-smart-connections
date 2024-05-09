@@ -10,8 +10,8 @@ class ScSmartView extends SmartObsidianView {
   getIcon() { return "smart-connections"; }
   async onOpen() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); }
   async initialize() {
-    this.env = this.plugin.brain;
-    this.brain = this.env;
+    this.brain = this.env; // DEPRECATED
+    await this.wait_for_env_to_load();
     this.last_parent_id = this.constructor.get_leaf(this.app.workspace)?.parent.id;
     this.container = this.containerEl.children[1]; // get container for views
     this.container.empty();
@@ -85,11 +85,11 @@ class ScSmartView extends SmartObsidianView {
     };
   }
   async render_nearest(context, container = this.container) {
-    if(!this.env.entities_loaded){
+    if(!this.env?.entities_loaded){
       // render loading message
       container.innerHTML = "Loading Smart Connections...";
       // wait for entities to load
-      while(!this.env.entities_loaded) await new Promise(r => setTimeout(r, 2000));
+      while(!this.env?.entities_loaded) await new Promise(r => setTimeout(r, 2000));
     }
     let results;
     if (typeof context === "string") results = await this.plugin.api.search(context);
