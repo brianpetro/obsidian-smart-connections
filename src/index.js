@@ -48,13 +48,14 @@ class SmartConnectionsPlugin extends Plugin {
     this.notices?.unload();
   }
   async initialize() {
+    this.obsidian = require("obsidian");
     console.log("Loading Smart Connections v2...");
     await this.load_settings();
     this.smart_connections_view = null;
     this.add_commands(); // add commands
     this.register_views(); // register chat view type
     this.addSettingTab(new ScSettingsTab(this.app, this, "smart_settings_21")); // add settings tab
-    this.check_for_updates();
+    await this.check_for_updates();
     this.add_to_gitignore("\n\n# Ignore Smart Connections folder\n.smart-connections"); 
     this.api = new SmartSearch(this);
     (window["SmartSearch"] = this.api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
@@ -72,7 +73,6 @@ class SmartConnectionsPlugin extends Plugin {
     // "AI change" dynamic code block
     this.registerMarkdownCodeBlockProcessor("sc-change", this.change_code_block.bind(this));
     this.notices = new SmartNotices(this);
-    this.obsidian = require("obsidian");
     this.new_user();
     await this.load_env();
     console.log("Smart Connections v2 loaded");
