@@ -8,14 +8,14 @@
   > svg, > p {
     display: inline;
     margin: 0 0.1rem 0 0.3rem;
-    font-size: 0.77rem;
+    color: var(--text-muted);
+    font-size: var(--font-smallest);
     line-height: 1;
-    color: var(--tab-text-color-focused-active-current);
     height: 0.88rem;
     width: auto;
   }
   > p > a {
-    color: var(--tab-text-color-focused-active-current);
+    color: var(--text-muted);
   }
 }
 .sc-context {
@@ -248,28 +248,50 @@ div[data-type="smart-connections-view"] > .view-content {
   background-color: var(--nav-item-background-active);
 }
 .sc-change{
-  border: var(--blockquote-border-color);
-  border-width: var(--border-width);
-  border-style: solid;
-  border-radius: var(--callout-radius);
-  padding: 1ch;
-  .actions{
+  .sc-change-footer{
     display: flex;
     justify-content: space-between;
     align-items: center;
     & > * {
       display: inline-block;
-      color: var(--text-normal);
-      font-size: var(--font-ui-small);
+      color: var(--text-muted);
+      font-size: var(--font-smallest);
     }
     .sc-brand {
       position: unset;
       background-color: var(--background-primary);
     }
   }
-  .old-content{
-    color: var(--text-muted);
-    text-decoration: line-through;
+  .sc-variation{
+    --new-content-color: hsl(124, 75%, 55%, 0.13);
+    --old-content-color: hsl(3, 43%, 47%, 0.13);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    &:has(.new-content){
+      background-color: var(--new-content-color);
+      > button{
+        background-color: var(--new-content-color) !important;
+      }
+    }
+    &:has(.old-content){
+      background-color: var(--old-content-color);
+      > button{
+        background-color: var(--old-content-color) !important;
+      }
+    }
+    > div{
+      > *:last-child{
+        margin-bottom: 0;
+      }
+    }
+    .old-content{
+      color: var(--text-muted);
+      text-decoration: line-through;
+      > *:first-child{
+        margin-top: 0;
+      }
+    }
   }
 }
 

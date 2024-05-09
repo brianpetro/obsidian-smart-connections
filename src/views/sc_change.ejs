@@ -1,13 +1,15 @@
 <div class="sc-change">
-  <div class="actions">
+  <div class="sc-variation">
+    <div class="new-content"></div>
     <button>Accept</button>
+  </div>
+  <div class="sc-variation">
+    <div class="old-content"></div>
     <button>Reject</button>
-    <button>Show Old</button>
-    <button style="display: none;">Hide Old</button>
-    <div>Time saved: <%= time_saved %></div>
+  </div>
+  <div class="sc-change-footer">
+    <i>Time saved: <%= time_saved %></i>
     <%- this.attribution %>
   </div>
-  <div class="old-content" style="display: none;"></div>
-  <div class="new-content"></div>
 </div>
 

@@ -21,19 +21,6 @@ class ScActionsUx {
     const old_content_container = this.container.querySelector('.old-content');
     this.plugin.obsidian.MarkdownRenderer.renderMarkdown(new_content, new_content_container, note_path, new this.plugin.obsidian.Component());
     this.plugin.obsidian.MarkdownRenderer.renderMarkdown(old_content, old_content_container, note_path, new this.plugin.obsidian.Component());
-    // Show old content (button where button text is "Show Old")
-    const show_old_button = this.get_button_by_text("Show Old");
-    const hide_old_button = this.get_button_by_text("Hide Old");
-    show_old_button.onclick = () => {
-      old_content_container.style.display = 'block';
-      show_old_button.style.display = 'none';
-      hide_old_button.style.display = 'inline-block';
-    }
-    hide_old_button.onclick = () => {
-      old_content_container.style.display = 'none';
-      show_old_button.style.display = 'inline-block';
-      hide_old_button.style.display = 'none';
-    }
     // approve (accept) button
     const approve_button = this.get_button_by_text("Accept");
     approve_button.onclick = async () => {
