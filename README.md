@@ -187,13 +187,11 @@ Chat history is saved as a new note for each conversation.
 - renders a Smart View containing the notes or excerpts used as context
 ##### chat models
 ![Access model settings in the Smart Chat](./assets/smart-chat-settings.png)
-###### v2.0 (current)
+###### v2.1 (current)
 - OpenAI
 	- `GPT-3.5-turbo` (16K)
 	- `GPT-4` (8K)
 	- `GPT-4-turbo` (128K)
-###### v2.1 (early release)
-- OpenAI models (see current)
 - Google
 	- `gemini-1.0-pro` (30K)
 	- `gemini-1.5-pro-latest` (1MM)
@@ -201,6 +199,9 @@ Chat history is saved as a new note for each conversation.
 	- `claude-3-opus` (200K)
 	- `claude-3-sonnet` (200K)
 	- `claude-3-haiku` (200K)
+- Open Router
+	- `llama-3-70b`
+	- *Too many models to list here*
 - Cohere
 	- `command-r` (128K)
 	- `command-r-plus` (128K)
@@ -267,15 +268,12 @@ Delve into the architecture behind Smart Connections, designed with efficiency a
 *Minimizing dependencies has been a key principle in the development of Smart Connections.* 
 ##### First-party Dependencies
 These are modules that I developed with the same principle of minimizing dependencies.
-
-- [`smart-chat-model`](https://github.com/brianpetro/smart-chat-model)
-
-- [ ] DO: Introduction to Smart Modules
-	- [ ] SmartCollections
-	- [ ] SmartEmbed
-	- [ ] SmartChat
-	- [ ] SmartChunks
-	- [ ] SmartEntities
+- [`smart-chat-model`](https://github.com/brianpetro/jsbrains/tree/main/smart-chat-model)
+- [`smart-embed-model`](https://github.com/brianpetro/jsbrains/tree/main/smart-embed-model)
+- [`smart-chats`](https://github.com/brianpetro/jsbrains/tree/main/smart-chats)
+- [`smart-chunks`](https://github.com/brianpetro/jsbrains/tree/main/smart-chunks)
+- [`smart-chunks`](https://github.com/brianpetro/jsbrains/tree/main/smart-chunks)
+- [`smart-entities`](https://github.com/brianpetro/jsbrains/tree/main/smart-entities)
 ##### Third-party Dependencies
 - `ejs`: a template engine used for rendering UI components
 	- Uses `ejs.min`, benefiting from being a minimized, standalone file that removes unnecessary dependencies like `fs`.
@@ -422,7 +420,6 @@ The Smart Connections plug-in uses a retrieval strategy known as HyDE. Put simpl
 If you ask questions on a topic which can be found across more than those 20 or 30 notes, the response may be less comprehensive. It is better to be as specific as possible with your questions, so that the HyDE process can feed only the most relevant notes to the GPT AI.
 
 #### Chat Features
-- **GPT-4 Support**: State-of-the-art AI model, GPT-4, is integrated into Smart Chat, offering advanced capabilities and improved performance in generating human-like responses.
 - **Context-aware responses**: Smart Chat understands the context of your notes, providing responses that are accurate and relevant to your specific content.
 - **Natural language processing**: The AI-powered feature interprets and responds to your questions in a conversational manner, simulating a chat with a real person.
 - **Multilingual support**: Smart Chat can understand and respond to queries in multiple languages, allowing you to interact with your notes in your preferred language.
@@ -463,19 +460,12 @@ To create a dynamic code block for Smart Connections, follow these steps:
 3.  Close the code block by typing three backticks on a new line after your content.
 ![](./assets/sc-dynamic-codeblock-code.png)
 ![](./assets/sc-dynamic-codeblock-rendered.png)
-
-### External Connections
-**Coming soon:** See connections to external content!
-
-Currently taking requests for which external content you would like connected. Please comment on [this issue](https://github.com/brianpetro/obsidian-smart-connections/issues/27) with your suggestions.
-
 ### Section 'block' matching
 - Smart Connections plugin will use 'blocks' of text in your notes to find the most relevant connections.
 - Currently, a 'block' is a section of text that is separated by a heading.
     - For example, if you have a note that contains the following text: `# Header 1\nThis is a block of text.\n# Header 2\nThis is another block of text`, then the plugin will search for similar blocks of text in addition to making smart connections with similar files.
 
 ### Highlight to find Smart Connections
-
 - Highlighted text will be used to find Smart Connections when you run the "Find Smart Connections" command
 
 ![](./assets/search-feature.png)
@@ -491,38 +481,18 @@ Currently taking requests for which external content you would like connected. P
 - The plugin will only process notes that are in the current vault. It will not process notes in other vaults.
 - The cost of the initial processing is proportional to the number of notes in your vault. Without any exclusions configured in the settings, the amount of tokens used in the initial processing is approximately 2X the total number of "tokens" in your entire vault. A rough calculation for this is `the total number of characters in the vault` divided by `2`. For example, if your vault contains 100,000 characters, then the initial processing will cost approximately 50,000 tokens. The current token cost is $0.0004 per 1,000 tokens (as of [2021-08-01](https://openai.com/api/pricing/)) which is estimated to be ~$1 USD for 3,000 pages (assuming 800 tokens per page).
 
-## Limitations
-- The plugin is currently a desktop-only plugin.
-  - **Coming soon**: mobile-support for the _Smart Chat_ feature.
-
 ## Settings
-- `API Key` - Enter your OpenAI API key.
 - `File Exclusions` - Enter a comma-separated list of file or folder names to exclude from the search completely. For example, if you want to exclude all files that contain the word "drawings" in the file name, you can enter "drawings" in the field. If you want to exclude all files that contain the word "drawings" or "prompts" in the file name, you can enter "drawings,prompts" in the field.
 - `Folder Exclusions` - similar to `File Exclusions` but only matches folders instead of anything in the file path.
-- `Path Only` - Enter a comma-separated list of file or folder names. Notes matching these patterns will use only the file names and paths of files to make connections. 
 - `Heading Exclusions` - Enter a comma-separated list of headings to exclude. Smart Connections will exclude 'Blocks' with headings that match the Heading Exclusions from the search. 
 	- For example, use this if you have a commonly occurring "Archive" section in many files and do not want the contents to be included when making smart connections.  
 	- This only applies to 'blocks' and does not change the content used for matching entire files.
 - `Show Full Path` - Show the full path of the file in the Smart Connections Pane. If turned off, only the file name will be shown.
 
 ### Settings (Advanced)
-- `Log Render` - this will print logs containing details about the embedding process.
-- `Log Render Files` - this will print logs containing details about the files that are being processed.
-- `Skip Sections` - skips making connections to specific sections within your notes. This feature is not recommended but may be helpful in some situations, like debugging.
-- `Previously Failed Files` - this will show a list of previously failed files. You can retry the failed files by clicking the "Retry" button.
 - `Force Refresh` - this will force the plugin to recalculate the embeddings for all files in your vault. This plugin is designed so that you SHOULD NOT need to use this feature.
-
 ## Error handling
 - If you encounter an error, please open an issue on the [GitHub repository](https://github.com/brianpetro/obsidian-smart-connections/issues).
-- Failed requests due to rate limitting will be retried up to 3 times using exponential backoff, then the plugin will stop trying to process the file.
-- After the 3rd failed request, the plugin will save the failed request to a file called `failed-embeddings.txt` in the `.smart-connections` folder in your vault. 
-- You can manually retry the failed files using the "Retry" button in the settings.
-
-## Under the hood
-The plugin integrates [OpenAI Embeddings](https://beta.openai.com/docs/guides/embeddings), a technology from the organization behind ChatGPT, to use AI that finds connections between notes. Instead of matching keywords, the AI interprets your notes as 1,536-dimension vectors!
-
-*Note: This does mean that your notes are sent to OpenAI's servers to be processed and are subject to their [Terms of Service](https://openai.com/terms).* The `File Exclusions` and `Folder Exclusions` settings are designed to help you control which notes are processed.
-
 ## Developing Add-ons
 - **Coming soon**: Use Smart Connections in your plugin! Prevent the headaches of managing vector storage and save your users money by reusing their existing embeddings.
 	- **Note**: This feature is currently in beta. Create a GitHub issue if you want to learn how to use the beta version of this feature.
