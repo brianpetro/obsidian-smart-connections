@@ -9,7 +9,7 @@ class SmartChatSettings extends SmartSettings {
     this.plugin.env.chat_model = null;
     this.plugin.env.init_chat_model(this.plugin.settings.chat_model_platform_key);
     const platform_config = this.plugin.env.chat_model.platforms[this.plugin.settings.chat_model_platform_key];
-    let smart_chat_model_config = this.plugin.settings[this.plugin.settings.chat_model_platform_key];
+    let smart_chat_model_config = this.plugin.settings[this.plugin.settings.chat_model_platform_key] || {};
     if(smart_chat_model_config.model_name){
       const platform_models = await this.plugin.env.chat_model.get_models();
       const model_config = platform_models.find(m => m.model_name === smart_chat_model_config.model_name);
@@ -22,6 +22,7 @@ class SmartChatSettings extends SmartSettings {
       // console.log("smart_chat_model_config", smart_chat_model_config);
       this.plugin.settings[this.plugin.settings.chat_model_platform_key] = smart_chat_model_config;
     }
+    this.plugin.save_settings();
     if(render) this.render();
   }
   async test_chat_api_key(){
