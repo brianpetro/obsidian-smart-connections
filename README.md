@@ -4,9 +4,9 @@
 
 - *Supports **local chat models** like **Llama 3** through **Ollama**, **LM Studio** and many more.*
 - *100s of API models including Anthropic **Claude**, Google **Gemini**, and OpenAI **GPT-4**.*
-- *Supports **local embedding models.***
+- *Supports **local embedding models**.*
 - ***Saves chats as notes** (markdown) and **canvas** (in early release).*
-- *See what **[people are saying](#user-testimonials)***
+- *See what **[people are saying](#user-testimonials)**.*
 
 Hey there, I'm Brian, the mind behind Smart Connections (still human, at this point 🤪). I laugh at my own jokes, like to use emojis, and think about thinking.
 
