@@ -22,7 +22,7 @@ class SmartChatSettings extends SmartSettings {
       // console.log("smart_chat_model_config", smart_chat_model_config);
       this.plugin.settings[this.plugin.settings.chat_model_platform_key] = smart_chat_model_config;
     }
-    this.plugin.save_settings();
+    await this.plugin.save_settings();
     if(render) this.render();
   }
   async test_chat_api_key(){

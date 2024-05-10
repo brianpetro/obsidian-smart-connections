@@ -90,8 +90,8 @@ class ScEnv extends Brain {
   init_chat_model(chat_model_platform_key=null) {
     let chat_model_config = {};
     chat_model_platform_key = chat_model_platform_key ?? this.config.chat_model_platform_key;
-    if(chat_model_platform_key === 'open_router' && !this.config[chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
-    else chat_model_config = this.config[chat_model_platform_key] ?? {};
+    if(chat_model_platform_key === 'open_router' && !this.plugin.settings[chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
+    else chat_model_config = this.plugin.settings[chat_model_platform_key] ?? {};
     this.chat_model = new this.chat_classes.ScChatModel(this, chat_model_platform_key, {...chat_model_config });
     this.chat_model._request_adapter = this.plugin.obsidian.requestUrl;
   }
