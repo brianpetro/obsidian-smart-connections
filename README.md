@@ -2,8 +2,8 @@
 
 **Spend less time** *linking*, *tagging* and *organizing* because **Smart Connections *finds relevant notes*** so you don't have to!
 
-- *Supports **local chat models** like **Llama 3** through **Ollama**, **LM Studio** and any other with OpenAI compatible format.* 
-- *100s of API models available from Anthropic **Claude**, Google **Gemini**, OpenAI **GPT-4**, **Open Router** and Custom API configuration.*
+- *Supports **local chat models** like **Llama 3** through **Ollama**, **LM Studio** and many more.*
+- *100s of API models including Anthropic **Claude**, Google **Gemini**, and OpenAI **GPT-4**.*
 - *Supports **local embedding models.***
 - ***Saves chats as notes** (markdown) and **canvas** (in early release).*
 
