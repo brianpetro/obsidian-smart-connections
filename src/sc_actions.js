@@ -2,6 +2,7 @@ const ScTranslations = require("./ScTranslations");
 const openapi_spec = require('../build/actions_openapi.json');
 const handlers = require('./actions/_actions');
 const { lookup } = require('./actions/lookup');
+const { json_ref_resolve } = require('./json_ref_resolve');
 
 class ScActions {
   constructor(env, opts = {}) {
@@ -12,28 +13,7 @@ class ScActions {
     this.actions = {};
   }
   init(){
-    const actions = Object.entries(openapi_spec.paths)
-      .flatMap(([path, methods]) => Object.entries(methods)
-        .map(([method, {operationId, requestBody, description}]) => ({
-          type: 'function',
-          function: {
-            name: operationId,
-            description,
-            parameters: {
-              type: 'object',
-              properties: requestBody?.content['application/json']?.schema?.properties,
-            }
-          }
-        }))
-      )
-    ;
-    actions.forEach(action => {
-      // const { [action.function.name]: handler } = handlers[action.function.name];
-      this.actions[action.function.name] = {
-        json: action,
-        handler: handlers[action.function.name],
-      }
-    });
+    this.parse_actions_from_openapi(openapi_spec)
   }
   prepare_request_body(body) {
     if(this.env.chats?.current.tool_choice) {
@@ -126,8 +106,37 @@ class ScActions {
   parse_tool_output(tool_name, tool_output) {
     if(tool_name === "lookup") return parse_lookup_tool_output(tool_output);
   }
+  parse_actions_from_openapi(openapi_spec) {
+    openapi_spec = json_ref_resolve(openapi_spec);
+    Object.entries(openapi_spec.paths)
+      .flatMap(([path, methods]) => Object.entries(methods)
+        .forEach(([method, spec]) => {
+          const { operationId, requestBody, description } = spec;
+          this.actions[operationId] = {
+            json: {
+              type: 'function',
+              function: {
+                name: operationId,
+                description,
+                parameters: {
+                  type: 'object',
+                  properties: requestBody?.content['application/json']?.schema?.properties,
+                }
+              }
+            },
+            handler: this.get_handler(operationId, path, method, spec),
+            enabled: (operationId === 'lookup' || operationId === 'create_note')
+          };
+        })
+      )
+    ;
+  }
+  get_handler(operationId, path, method, spec) {
+    return handlers[operationId];
+  }
 }
 exports.ScActions = ScActions;
+
 
 /**
  * Parse lookup tool output

@@ -60,7 +60,7 @@ class ScChatModel extends SmartChatModel {
       return msg;
     }));
     // remove assistant messages without content (including tool calls)
-    opts.messages = opts.messages.filter(msg => msg.role !== "assistant" || msg.content);
+    opts.messages = opts.messages.filter(msg => msg.role !== "assistant" || msg.content || !msg.tool_calls?.find(call => call.id === "lookup"));
     console.log(opts.messages);
     return opts;
   }

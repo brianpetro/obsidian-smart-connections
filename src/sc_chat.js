@@ -11,6 +11,7 @@ class ScChat extends SmartChat {
     }catch(e){
       this.env.plugin.notices.show(e.message, e.message);
       console.warn(e);
+      this.env.chat_ui.undo_last_message();
       this.env.chat_ui.set_chat_input_text(og_content);
     }
   }
