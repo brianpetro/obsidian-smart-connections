@@ -1,7 +1,10 @@
 # 🧩 Smart Connections: AI-Powered Note Connections `v2.1`
-Easy AI tools to chat with your notes & make real-time connections in Obsidian.
+***Spend less time** linking, tagging and organizing because **Smart Connections finds relevant notes** so you don't have to!*
 
-*Supports **local models**, Anthropic **Claude**, Google **Gemini**, Cohere Command-R, OpenAI **GPT-4** & Open Router with over 100 models including **Llama 3**.*
+- *Supports **local chat models** like **Llama 3** through **Ollama**, **LM Studio** and any other with OpenAI compatible format.* 
+- *100s of API models available from Anthropic **Claude**, Google **Gemini**, OpenAI **GPT-4**, **Open Router** and Custom API configuration.*
+- *Supports **local embedding models.***
+- ***Saves chats as notes** (markdown) and **canvas** (in early release).*
 
 Hey there, I'm Brian, the mind behind Smart Connections (still human, at this point 🤪). I laugh at my own jokes, like to use emojis, and think about thinking.
 
