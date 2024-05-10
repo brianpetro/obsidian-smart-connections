@@ -1,6 +1,6 @@
 # 🧩 Smart Connections: AI-Powered Note Connections `v2.1`
 
-***Spend less time** linking, tagging and organizing because **Smart Connections finds relevant notes** so you don't have to!*
+**Spend less time** *linking*, *tagging* and *organizing* because **Smart Connections *finds relevant notes*** so you don't have to!
 
 - *Supports **local chat models** like **Llama 3** through **Ollama**, **LM Studio** and any other with OpenAI compatible format.* 
 - *100s of API models available from Anthropic **Claude**, Google **Gemini**, OpenAI **GPT-4**, **Open Router** and Custom API configuration.*
