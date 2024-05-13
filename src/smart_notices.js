@@ -32,9 +32,9 @@ class SmartNotices {
     const actions = frag.createEl("div", { cls: "sc-notice-actions" });
     if (typeof message === 'string') content.innerText = message;
     else if (Array.isArray(message)) content.innerHTML = message.join("<br>");
-    if(!opts.immutable) this.add_mute_btn(id, actions);
     if(opts.confirm) this.add_btn(opts.confirm, actions);
     if(opts.button) this.add_btn(opts.button, actions);
+    if(!opts.immutable) this.add_mute_btn(id, actions);
     return frag;
   }
   add_btn(button, container) {

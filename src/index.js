@@ -32,6 +32,8 @@ class SmartConnectionsPlugin extends Plugin {
       ScChatView,
     }
   }
+  get ScEnv() { return ScEnv };
+  get sc_adapter_class() { return this.settings.embedding_file_per_note ? ObsMultiAJSON : ObsAJSON; }
   get ScSettings() { return ScSettings };
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
   async load_settings() {
@@ -78,7 +80,7 @@ class SmartConnectionsPlugin extends Plugin {
     console.log("Smart Connections v2 loaded");
   }
   async load_env() {
-    this.env = new ScEnv(this, (this.settings.embedding_file_per_note ? ObsMultiAJSON : ObsAJSON));
+    this.env = new this.ScEnv(this, {sc_adapter_class: this.sc_adapter_class});
     this.brain = this.env; // DEPRECATED (use this.env instead)
     await this.env.init();
   }

@@ -1,4 +1,3 @@
-const { Brain } = require("smart-collections/Brain");
 const { SmartMarkdown } = require("smart-chunks"); // npm
 const {
   SmartNotes,
@@ -13,9 +12,11 @@ const { ScChatModel } = require("./sc_chat_model");
 const { ScChatsUI } = require("./sc_chats_ui");
 const { ScChats } = require("./sc_chats");
 const { ScActions } = require("./sc_actions");
-class ScEnv extends Brain {
-  constructor(plugin, ltm_adapter) {
-    super(ltm_adapter);
+// class ScEnv extends Brain {
+class ScEnv {
+  constructor(plugin, opts={}) {
+    this.sc_adapter_class = opts.sc_adapter_class;
+    this.ltm_adapter = opts.sc_adapter_class; // DEPRECATED in v2.2
     this.plugin = plugin;
     this.main = this.plugin; // DEPRECATED
     this.config = this.plugin.settings;
@@ -23,6 +24,10 @@ class ScEnv extends Brain {
     this.collections = {
       smart_notes: SmartNotes,
       smart_blocks: SmartBlocks,
+    };
+    this.collection_types = {
+      SmartNotes,
+      SmartBlocks,
     };
     this.item_types = {
       SmartNote,
@@ -149,5 +154,7 @@ class ScEnv extends Brain {
     return this._excluded_headings = (this.plugin.settings.excluded_headings?.length) ? this.plugin.settings.excluded_headings.split(",").map((heading) => heading.trim()) : [];
   }
   get system_prompts() { return this.plugin.app.vault.getMarkdownFiles().filter(file => file.path.includes(this.config.system_prompts_folder) || file.path.includes('.prompt') || file.path.includes('.sp')); }
+  // from deprecated env (brain)
+  get_ref(ref) { return this[ref.collection_name].get(ref.key); }
 }
 exports.ScEnv = ScEnv;

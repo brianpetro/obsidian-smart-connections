@@ -18,23 +18,18 @@
       </div>
     </div>
 <% } %>
-<div class="sc-supporters">
-  <div class="cm-embed-block cm-callout" tabindex="-1" contenteditable="false">
-    <div class="markdown-rendered show-indentation-guide">
-      <div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" dir="auto">
-        <div class="callout-title" dir="auto">
-          <div class="callout-icon" dir="auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" class="svg-icon lucide-info">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M12 16v-4"></path>
-              <path d="M12 8h.01"></path>
-            </svg></div>
-          <div class="callout-title-inner" dir="auto"><strong>User Agreement:</strong> By using Smart Connections you agree to share how it helps you with at least one other person 😊🌴</div>
-        </div>
-      </div>
-    </div>
+<!-- unset mix-blend-mode to prevent rendering issues -->
+<div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
+  <div class="callout-title">
+    <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon lucide-info">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M12 16v-4"></path>
+        <path d="M12 8h.01"></path>
+      </svg></div>
+    <div class="callout-title-inner"><p><strong>User Agreement:</strong> By using Smart Connections you agree to share how it helps you with at least one other person 😊🌴</p></div>
   </div>
+</div>
+<div class="sc-supporters">
   <h1>Supporter Community</h1>
   <% if(!this.env.plugin.EARLY_ACCESS){ %>
   <p>The success of Smart Connections is a direct result of our community of supporters who generously fund and evaluate new features. Their unwavering commitment to our privacy-focused, open-source software benefits all. Together, we can continue to innovate and make a positive impact on the world.</p>
