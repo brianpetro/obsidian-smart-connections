@@ -194,9 +194,10 @@ Chat history is saved as a new note for each conversation.
 ![Access model settings in the Smart Chat](./assets/smart-chat-settings.png)
 ###### v2.1 (current)
 - OpenAI
-	- `GPT-3.5-turbo` (16K)
-	- `GPT-4` (8K)
+	- `GPT-4o` (128K)
 	- `GPT-4-turbo` (128K)
+	- `GPT-4` (8K)
+	- `GPT-3.5-turbo` (16K)
 - Google
 	- `gemini-1.0-pro` (30K)
 	- `gemini-1.5-pro-latest` (1MM)
@@ -214,7 +215,10 @@ Chat history is saved as a new note for each conversation.
 	- Ollama
 	- LM Studio
 - Custom API
-
+### Smart Random Note
+Jump to a not-too-random a note.
+- Limits possible random notes to the Smart Connections for the current note.
+- Opens to specific headings within a note.
 ### Smart Command (Find Notes)
 - Section 'Block' Matching
 	- Description of block matching feature

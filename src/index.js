@@ -74,7 +74,8 @@ class SmartConnectionsPlugin extends Plugin {
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this)); // code-block renderer
     this.registerMarkdownCodeBlockProcessor("sc-context", this.render_code_block_context.bind(this)); // code-block renderer
     // "AI change" dynamic code block
-    this.registerMarkdownCodeBlockProcessor("sc-change", this.change_code_block.bind(this));
+    this.registerMarkdownCodeBlockProcessor("sc-change", this.change_code_block.bind(this)); // DEPRECATED
+    this.registerMarkdownCodeBlockProcessor("smart-change", this.change_code_block.bind(this));
     this.new_user();
     await this.load_env();
     console.log("Smart Connections v2 loaded");
@@ -199,7 +200,7 @@ class SmartConnectionsPlugin extends Plugin {
     // open random note from nearest cache
     this.addCommand({
       id: "smart-connections-random",
-      name: "Open: Random Note from Smart Connections",
+      name: "Random Note",
       callback: () => {
         const curr_file = this.app.workspace.getActiveFile();
         const curr_note = this.brain?.smart_notes.get(curr_file.path);
