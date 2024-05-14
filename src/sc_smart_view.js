@@ -9,6 +9,7 @@ class ScSmartView extends SmartObsidianView {
   getDisplayText() { return "Smart Connections Files"; }
   getIcon() { return "smart-connections"; }
   async onOpen() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); }
+  get template_name() { return "smart_connections"; }
   async initialize() {
     this.brain = this.env; // DEPRECATED
     await this.wait_for_env_to_load();
@@ -20,7 +21,7 @@ class ScSmartView extends SmartObsidianView {
     this.plugin.smart_connections_view = this;
     this.register_plugin_events();
     this.app.workspace.registerHoverLinkSource(this.constructor.view_type, { display: 'Smart Connections Files', defaultMod: true });
-    this.container.innerHTML = this.render_template("smart_connections", { current_path: "", results: [] });
+    this.container.innerHTML = this.render_template(this.template_name, { current_path: "", results: [] });
     this.add_top_bar_listeners();
   }
   async onClose() {
@@ -117,7 +118,7 @@ class ScSmartView extends SmartObsidianView {
     this.last_note = this.app.workspace.getActiveFile().path; // for checking if results are already rendered (ex: on active-leaf-change)
 
     // console.log(results);
-    container.innerHTML = this.render_template("smart_connections", { current_path: context, results });
+    container.innerHTML = this.render_template(this.template_name, { current_path: context, results });
     this.add_top_bar_listeners(container);
     container.querySelectorAll(".search-result").forEach((elm, i) => this.add_link_listeners(elm, results[i]));
     container.querySelectorAll(".search-result:not(.sc-collapsed) ul li").forEach(this.render_result.bind(this));
@@ -149,7 +150,7 @@ class ScSmartView extends SmartObsidianView {
     console.log("rendering result");
     const entity_key = elm.title;
     const collection_name = elm.dataset.collection;
-    const entity = this.brain[collection_name].get(entity_key);
+    const entity = this.env[collection_name].get(entity_key);
     if (should_render_embed()) return this.plugin.obsidian.MarkdownRenderer.render(this.app, entity.embed_link, elm, entity_key, new this.plugin.obsidian.Component());
     const content = (await entity?.get_content())?.replace(/```dataview/g, '```\\dataview'); // prevent rendering dataview code blocks (DO: make toggle-able)
     if (!entity || !content) {

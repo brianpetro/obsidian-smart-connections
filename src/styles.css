@@ -25,20 +25,21 @@
   width: 100%;
 }
 
-div[data-type="smart-connections-view"] > .view-content {
-  #settings {
-    position: fixed;
-    bottom: 0;
-    background-color: var(--background-primary-alt);
-    left: 0;
-    padding: var(--size-4-4);
-    max-width: 100%;
-    max-height: 50%;
-    overflow-y: auto;
-
-    .setting-item {
-      flex-direction: column;
-      align-items: flex-start;
+div[data-type="smart-connections-view"] {
+  > .view-content {
+    display: flex;
+    flex-direction: column;
+    #settings {
+      background-color: var(--background-primary-alt);
+      max-width: 100%;
+      max-height: 50%;
+      &:has(.setting-component){
+        padding: var(--size-4-4);
+      }
+      .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   }
 }

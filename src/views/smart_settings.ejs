@@ -209,6 +209,7 @@
   data-callback="update_smart_chat_folder"
   data-button="rename"
 ></div>
+<% if(!this.env.plugin.EARLY_ACCESS){ %>
 <div class="setting-component"
   data-name="Embedding file per note (EXPERIMENTAL)"
   data-description="Save embedding data in a separate file per note."
@@ -216,6 +217,7 @@
   data-setting="embedding_file_per_note"
   data-callback="restart_plugin"
 ></div>
+<% } %>
 <h1>Force Refresh</h1>
 <div class="setting-component"
   data-name="force_refresh"
