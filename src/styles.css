@@ -296,6 +296,11 @@ div[data-type="smart-connections-view"] > .view-content {
     }
   }
 }
+.markdown-source-view.mod-cm6 .cm-embed-block:not(.cm-table-widget):hover:has(.sc-change){
+  overflow: unset;
+  box-shadow: unset;
+  cursor: unset;
+}
 
 /* V2 */
 .sc-list .search-result li h1,
