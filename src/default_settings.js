@@ -18,7 +18,7 @@ function default_settings() {
       embed_input_min_chars: 50,
       multi_heading_blocks: true,
       // v2.2
-      enable_mobile: true,
+      enable_mobile: false,
       // V1
       api_key: "",
       excluded_headings: "",
