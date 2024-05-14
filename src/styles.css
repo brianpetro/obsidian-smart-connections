@@ -268,8 +268,8 @@ div[data-type="smart-connections-view"] > .view-content {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    margin: 0 -30px;
-    padding: 0 30px;
+    margin: 0 -300px;
+    padding: 0 300px;
     &:has(.new-content){
       background-color: var(--new-content-color);
       > button{
