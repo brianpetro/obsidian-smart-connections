@@ -2,9 +2,10 @@ const ejs = require("../ejs.min");
 const views = require("../build/views.json");
 
 class ScActionsUx {
-  constructor(plugin, container) {
+  constructor(plugin, container, codeblock_type) {
     this.plugin = plugin;
     this.container = container;
+    this.codeblock_type = codeblock_type;
   }
   change_code_block(code) {
     const active_file = this.plugin.app.workspace.getActiveFile();
@@ -24,9 +25,10 @@ class ScActionsUx {
     // approve (accept) button
     const approve_button = this.get_button_by_text("Accept");
     approve_button.onclick = async () => {
+      console.log("Accepted");
       // update note to replace code block with new content
       const content = await this.plugin.app.vault.cachedRead(active_file);
-      const updated_content = content.replace("```sc-change\n" + code + "\n```", new_content.trim());
+      const updated_content = content.replace("```" + this.codeblock_type + "\n" + code + "\n```", new_content.trim());
       await this.plugin.app.vault.modify(active_file, updated_content);
       // appended to accepted_changes file
       await this.append_accepted_changes({ note_path, old_content, new_content, time_saved });
@@ -37,7 +39,7 @@ class ScActionsUx {
     reject_button.onclick = async () => {
       // update note to replace code block with old content
       const content = await this.plugin.app.vault.cachedRead(active_file);
-      const updated_content = content.replace("```sc-change\n" + code + "\n```", old_content.trim());
+      const updated_content = content.replace("```" + this.codeblock_type + "\n" + code + "\n```", old_content.trim());
       await this.plugin.app.vault.modify(active_file, updated_content);
     }
 

@@ -327,8 +327,9 @@ class SmartConnectionsPlugin extends Plugin {
   }
   // change code block
   async change_code_block(source, el, ctx) {
-    console.log(source);
-    const renderer = new ScActionsUx(this, el);
+    const el_class = el.classList[0];
+    const codeblock_type = el_class.replace("block-language-", "");
+    const renderer = new ScActionsUx(this, el, codeblock_type);
     renderer.change_code_block(source);
   }
 
