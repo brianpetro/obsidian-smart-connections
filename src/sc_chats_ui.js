@@ -130,7 +130,32 @@ class ScChatsUI extends SmartChatsUI {
     this.prevent_input = false;
     chat_input.addEventListener("keyup", this.key_up_handler.bind(this));
   }
+  key_down_handler(e) {
+    if (e.key === "Enter" && this.is_mod_key) {
+      e.preventDefault();
+      this.handle_send();
+    }
+    this.is_mod_key = this.env.plugin.obsidian.Keymap.isModifier(e, "Mod");
+  }
+  handle_send() {
+    const chat_input = this.container.querySelector(".sc-chat-form");
+    const textarea = chat_input.querySelector("textarea");
+    if (this.prevent_input) {
+      this.show_notice("Wait until current response is finished.");
+      return;
+    }
+    // get text from textarea
+    let user_input = textarea.value;
+    if(!user_input.trim()) return this.env.plugin.notices.show("empty chat input", "Chat input is empty.");
+    // clear textarea
+    textarea.value = "";
+    // initiate response from assistant
+    this.env.chats.current.new_user_message(user_input);
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight) + 'px';
+  }
   key_up_handler(e){
+    this.is_mod_key = false;
     const textarea = this.container.querySelector(".sc-chat-form textarea");
     if(!["/", "@", "["].includes(e.key)) return;
     const caret_pos = textarea.selectionStart;
