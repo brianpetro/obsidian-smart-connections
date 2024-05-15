@@ -32,7 +32,6 @@ div[data-type="smart-connections-view"] {
     #settings {
       background-color: var(--background-primary-alt);
       max-width: 100%;
-      max-height: 50%;
       &:has(.setting-component){
         padding: var(--size-4-4);
       }
