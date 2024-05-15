@@ -226,42 +226,42 @@ class ScSmartView extends SmartObsidianView {
   }
 
   add_top_bar_listeners(container = this.container) {
-    const top_bar = container.querySelector(".sc-top-bar");
-    const search_button = container.querySelector(".sc-search-button"); // get search button
-    search_button.addEventListener("click", () => {
-      const og_top_bar = top_bar.innerHTML;
-      top_bar.empty(); // empty top bar
+    // const top_bar = container.querySelector(".sc-top-bar");
+    // const search_button = container.querySelector(".sc-search-button"); // get search button
+    // search_button.addEventListener("click", () => {
+    //   const og_top_bar = top_bar.innerHTML;
+    //   top_bar.empty(); // empty top bar
 
-      // create input element
-      const search_container = top_bar.createEl("div", { cls: "search-input-container" });
-      const input = search_container.createEl("input", {
-        cls: "sc-search-input",
-        type: "search",
-        placeholder: "Type to start search...",
-      });
-      input.focus();
-      // add keydown listener to input
-      input.addEventListener("keydown", (event) => {
-        // if escape key is pressed
-        if (event.key === "Escape") {
-          if (this.search_timeout) clearTimeout(this.search_timeout);
-          top_bar.innerHTML = og_top_bar;
-          this.add_top_bar_listeners(container);
-        }
-      });
-      // add keyup listener to input
-      input.addEventListener("keyup", (event) => {
-        if (this.search_timeout) clearTimeout(this.search_timeout);
-        const search_term = input.value; // get search term
-        if (event.key === "Enter" && search_term !== "") this.render_nearest(search_term); // if enter key is pressed
+    //   // create input element
+    //   const search_container = top_bar.createEl("div", { cls: "search-input-container" });
+    //   const input = search_container.createEl("input", {
+    //     cls: "sc-search-input",
+    //     type: "search",
+    //     placeholder: "Type to start search...",
+    //   });
+    //   input.focus();
+    //   // add keydown listener to input
+    //   input.addEventListener("keydown", (event) => {
+    //     // if escape key is pressed
+    //     if (event.key === "Escape") {
+    //       if (this.search_timeout) clearTimeout(this.search_timeout);
+    //       top_bar.innerHTML = og_top_bar;
+    //       this.add_top_bar_listeners(container);
+    //     }
+    //   });
+    //   // add keyup listener to input
+    //   input.addEventListener("keyup", (event) => {
+    //     if (this.search_timeout) clearTimeout(this.search_timeout);
+    //     const search_term = input.value; // get search term
+    //     if (event.key === "Enter" && search_term !== "") this.render_nearest(search_term); // if enter key is pressed
 
-        // if any other key is pressed and input is not empty then wait 500ms
-        else if (search_term !== "") {
-          if (this.search_timeout) clearTimeout(this.search_timeout);
-          this.search_timeout = setTimeout(() => this.render_nearest(search_term), 700);
-        }
-      });
-    });
+    //     // if any other key is pressed and input is not empty then wait 500ms
+    //     else if (search_term !== "") {
+    //       if (this.search_timeout) clearTimeout(this.search_timeout);
+    //       this.search_timeout = setTimeout(() => this.render_nearest(search_term), 700);
+    //     }
+    //   });
+    // });
     const fold_all_button = container.querySelector(".sc-fold-all"); // get fold all button
     fold_all_button.addEventListener("click", (e) => {
       container.querySelectorAll(".search-result").forEach((elm) => elm.classList.add("sc-collapsed"));

@@ -29,7 +29,8 @@ div[data-type="smart-connections-view"] {
   > .view-content {
     display: flex;
     flex-direction: column;
-    #settings {
+    #settings, /* DEPRECATED v2.2 */
+    .sc-overlay {
       background-color: var(--background-primary-alt);
       max-width: 100%;
       &:has(.setting-component){
@@ -38,6 +39,31 @@ div[data-type="smart-connections-view"] {
       .setting-item {
         flex-direction: column;
         align-items: flex-start;
+      }
+      .sc-search-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        .sc-search-input {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          > textarea {
+            border-radius: 1.5rem;
+            margin-right: -4rem;
+            flex-grow: 1;
+            height: 4lh;
+            padding: 1rem 3rem 1rem 1rem;
+          }
+          > button {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 99999px;
+            margin: auto;
+            margin-right: 1rem;
+          }
+        }
+
       }
     }
   }
@@ -393,4 +419,3 @@ div[data-type="smart-connections-view"] {
   }
 
 }
-
