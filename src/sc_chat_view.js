@@ -7,7 +7,7 @@ class ScChatView extends SmartObsidianView {
   async onOpen() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); }
   async initialize() {
     await this.wait_for_env_to_load();
-    if(this.env.chat_ui) this.env.chat_ui.container = this.containerEl; // set new container if chat_ui exists
+    if(this.env.chat_ui) this.env.chat_ui.container = this.container; // set new container if chat_ui exists
     // wait for chats to be initialized
     while (!this.env.chats) await new Promise(r => setTimeout(r, 300));
     await this.env.chats.new();

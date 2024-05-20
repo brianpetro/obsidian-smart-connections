@@ -47,5 +47,6 @@ class SmartObsidianView extends ItemView {
     if(workspace.rightSplit.collapsed) workspace.rightSplit.toggle();
   }
   static is_open(workspace) { return this.get_leaf(workspace)?.view instanceof this; }
+  get container() { return this.containerEl.children[1]; }
 }
 exports.SmartObsidianView = SmartObsidianView;

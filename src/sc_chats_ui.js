@@ -12,6 +12,7 @@ class ScChatsUI extends SmartChatsUI {
   }
   get obsidian() { return this.env.plugin.obsidian; }
   show_notice(message) { this.env.plugin.show_notice(message); }
+  get overlay_container() { return this.container.querySelector(".sc-overlay"); }
   add_listeners() {
     // chat name input
     const chat_name_input = this.container.querySelector(".sc-chat-name-input");
@@ -24,20 +25,19 @@ class ScChatsUI extends SmartChatsUI {
       let leaf = this.env.plugin.app.workspace.getLeaf(true);
       leaf.openFile(link_tfile);
     });
-    // settings button
-    const settings_btn = this.container.querySelector("button[title='Settings']");
+    // chat settings button
+    const settings_btn = this.container.querySelector("button[title='Chat Settings']");
     settings_btn.addEventListener("click", async () => {
-      const settings_container = this.container.querySelector("#settings");
       // if has contents, clear
-      if(settings_container.innerHTML) return settings_container.innerHTML = "";
+      if(this.overlay_container.innerHTML) return this.overlay_container.innerHTML = "";
       // if no settings, create
-      if(!this.chat_settings) this.chat_settings = new SmartChatSettings(this.env, settings_container);
-      else this.chat_settings.container = settings_container;
+      if(!this.chat_settings) this.chat_settings = new SmartChatSettings(this.env, this.overlay_container);
+      else this.chat_settings.container = this.overlay_container;
       this.chat_settings.render();
       // Enhanced transition: smooth background color change with ease-in-out effect
-      settings_container.style.transition = "background-color 0.5s ease-in-out";
-      settings_container.style.backgroundColor = "var(--bold-color)";
-      setTimeout(() => { settings_container.style.backgroundColor = ""; }, 500);
+      this.overlay_container.style.transition = "background-color 0.5s ease-in-out";
+      this.overlay_container.style.backgroundColor = "var(--bold-color)";
+      setTimeout(() => { this.overlay_container.style.backgroundColor = ""; }, 500);
     });
     // chat history button
     const history_btn = this.container.querySelector("button[title='Chat History']");
@@ -156,8 +156,9 @@ class ScChatsUI extends SmartChatsUI {
   }
   key_up_handler(e){
     this.is_mod_key = false;
-    const textarea = this.container.querySelector(".sc-chat-form textarea");
+    this.resize_chat_input();
     if(!["/", "@", "["].includes(e.key)) return;
+    const textarea = this.container.querySelector(".sc-chat-form textarea");
     const caret_pos = textarea.selectionStart;
     // if key is open square bracket
     if (e.key === "[") {
@@ -191,6 +192,15 @@ class ScChatsUI extends SmartChatsUI {
         return;
       }
     }
+  }
+
+  resize_chat_input() {
+    clearTimeout(this.resize_debounce);
+    this.resize_debounce = setTimeout(() => {
+      const textarea = this.container.querySelector(".sc-chat-form textarea");
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }, 200);
   }
 }
 exports.ScChatsUI = ScChatsUI;

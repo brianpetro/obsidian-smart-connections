@@ -14,7 +14,6 @@ class ScSmartView extends SmartObsidianView {
     this.brain = this.env; // DEPRECATED
     await this.wait_for_env_to_load();
     this.last_parent_id = this.constructor.get_leaf(this.app.workspace)?.parent.id;
-    this.container = this.containerEl.children[1]; // get container for views
     this.container.empty();
     this.nearest_cache = {}; // cache nearest results
     // await this.load_brain(); // moved to main plugin initialization

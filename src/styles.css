@@ -25,7 +25,7 @@
   width: 100%;
 }
 
-div[data-type="smart-connections-view"] {
+div[data-type^="smart-connections-"] {
   > .view-content {
     display: flex;
     flex-direction: column;
@@ -167,7 +167,6 @@ div[data-type="smart-connections-view"] {
   align-items: center;
   justify-content: flex-end;
   height: 100%;
-  padding: 10px;
   background-color: var(--background-primary-alt);
 }
 .sc-chat-box {
@@ -240,7 +239,7 @@ div[data-type="smart-connections-view"] {
     border-radius: 1.5rem;
     resize: none;
     height: auto;
-    min-height: 4lh;
+    min-height: 4.2lh;
     max-height: 100%;
     background-color: var(--background-primary);
     color: var(--text-normal);

@@ -105,7 +105,7 @@ class ScEnv {
     this.actions.init();
     // wait for chat_view containerEl to be available
     while (!this.plugin.chat_view?.containerEl) await new Promise(r => setTimeout(r, 300));
-    this.chat_ui = new this.chat_classes.ScChatsUI(this, this.plugin.chat_view.containerEl);
+    this.chat_ui = new this.chat_classes.ScChatsUI(this, this.plugin.chat_view.container);
     this.chats = new this.chat_classes.ScChats(this);
     await this.chats.load_all();
   }
