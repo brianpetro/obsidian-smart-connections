@@ -19,6 +19,9 @@ function default_settings() {
       multi_heading_blocks: true,
       // v2.2
       enable_mobile: false,
+      actions: {
+        "lookup": true
+      },
       // V1
       api_key: "",
       excluded_headings: "",

@@ -2,6 +2,7 @@ const { SmartChatsUI } = require("smart-chats/smart_chats_ui");
 const { ScChatView } = require("./sc_chat_view");
 const { FuzzySuggestModal, } = require("obsidian");
 const { SmartChatSettings } = require("./smart_chat_settings");
+const { on_open_overlay } = require("./on_open_overlay");
 
 class ScChatsUI extends SmartChatsUI {
   get view_context() {
@@ -35,9 +36,10 @@ class ScChatsUI extends SmartChatsUI {
       else this.chat_settings.container = this.overlay_container;
       this.chat_settings.render();
       // Enhanced transition: smooth background color change with ease-in-out effect
-      this.overlay_container.style.transition = "background-color 0.5s ease-in-out";
-      this.overlay_container.style.backgroundColor = "var(--bold-color)";
-      setTimeout(() => { this.overlay_container.style.backgroundColor = ""; }, 500);
+      this.on_open_overlay();
+      // this.overlay_container.style.transition = "background-color 0.5s ease-in-out";
+      // this.overlay_container.style.backgroundColor = "var(--bold-color)";
+      // setTimeout(() => { this.overlay_container.style.backgroundColor = ""; }, 500);
     });
     // chat history button
     const history_btn = this.container.querySelector("button[title='Chat History']");
@@ -48,6 +50,7 @@ class ScChatsUI extends SmartChatsUI {
     // add chat input listeners
     this.add_chat_input_listeners();
   }
+  on_open_overlay(){ on_open_overlay(this.overlay_container); }
   async message_post_process(msg_elm) {
     await this.render_md_as_html(msg_elm);
     this.handle_links_in_message(msg_elm);

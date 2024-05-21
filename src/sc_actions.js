@@ -112,6 +112,7 @@ class ScActions {
       .flatMap(([path, methods]) => Object.entries(methods)
         .forEach(([method, spec]) => {
           const { operationId, requestBody, description } = spec;
+          const server_url = openapi_spec.servers?.[0]?.url;
           this.actions[operationId] = {
             json: {
               type: 'function',
@@ -124,14 +125,15 @@ class ScActions {
                 }
               }
             },
-            handler: this.get_handler(operationId, path, method, spec),
-            enabled: (operationId === 'lookup' || operationId === 'create_note')
+            server: server_url,
+            handler: this.get_handler(operationId, path, method, server_url),
+            enabled: (operationId === 'lookup' || !!this.env.config.actions?.[operationId])
           };
         })
       )
     ;
   }
-  get_handler(operationId, path, method, spec) {
+  get_handler(operationId, path, method, server_url) {
     return handlers[operationId];
   }
 }

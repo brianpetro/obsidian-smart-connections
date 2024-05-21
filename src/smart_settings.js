@@ -117,9 +117,9 @@ class SmartSettings {
         if (obj[part] === undefined) return this.plugin.constructor.defaults[setting]; // Fallback to default if path is broken
         obj = obj[part];
       }
-      return obj[parts[parts.length - 1]] || this.plugin.constructor.defaults[setting];
+      return obj[parts[parts.length - 1]] ?? this.plugin.constructor.defaults[setting];
     } else {
-      return this.plugin.settings[setting] || this.plugin.constructor.defaults[setting];
+      return this.plugin.settings[setting] ?? this.plugin.constructor.defaults[setting];
     }
   }
   // override in subclass (required)
