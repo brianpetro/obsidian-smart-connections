@@ -80,8 +80,8 @@ class ScSmartView extends SmartObsidianView {
   get view_context() {
     return {
       ...super.view_context,
-      blocks: this.env.smart_blocks?.keys.length,
-      notes: this.env.smart_notes?.keys.length,
+      blocks_ct: this.env.smart_blocks?.keys.length,
+      notes_ct: this.env.smart_notes?.keys.length,
     };
   }
   async render_nearest(context, container = this.container) {
