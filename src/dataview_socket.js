@@ -43,6 +43,7 @@ class DataviewSocket extends SmartSocket {
     console.log("Message from server ", event.data);
     console.log(typeof event.data);
     const data = JSON.parse(event.data);
+    if(data.fx === 'full_render') return await this.full_render(data);
     try {
       const resp = await this.dataview_api.queryMarkdown(data.query, data.rel_path, null);
       console.log(resp);
@@ -51,6 +52,23 @@ class DataviewSocket extends SmartSocket {
       console.error(err);
       this.ws.send(JSON.stringify({ status: "error", message: err }));
     }
+  }
+  async full_render(data){
+    const html_elm = document.createElement("div");
+    const { MarkdownRenderer, htmlToMarkdown, Component } = this.env.plugin.obsidian;
+    await MarkdownRenderer.render(this.env.plugin.app, data.markdown, html_elm, data.rel_path, new Component());
+    // wait for no more changes to the html_elm
+    let html = html_elm.innerHTML;
+    await new Promise(resolve => setTimeout(resolve, 200));
+    while(html !== html_elm.innerHTML){
+      html = html_elm.innerHTML;
+      await new Promise(resolve => setTimeout(resolve, 200));
+      console.log("waiting for changes");
+    }
+    // note: htmlToMarkdown returns markdown links instead of wiki links
+    // would have expected it to be consistent with Obsidian wikilinks usage since it's an Obsidian method
+    const md = htmlToMarkdown(html_elm.innerHTML);
+    this.ws.send(JSON.stringify({ status: "ok", rendered: md }));
   }
 }
 exports.DataviewSocket = DataviewSocket;
