@@ -1,4 +1,3 @@
-const { SmartMarkdown } = require("smart-chunks"); // npm
 const {
   SmartNotes,
   SmartBlocks,
@@ -12,6 +11,7 @@ const { ScChatModel } = require("./sc_chat_model");
 const { ScChatsUI } = require("./sc_chats_ui");
 const { ScChats } = require("./sc_chats");
 const { ScActions } = require("./sc_actions");
+const { SmartChunks } = require('smart-chunks/smart_chunks');
 // class ScEnv extends Brain {
 class ScEnv {
   constructor(plugin, opts={}) {
@@ -66,27 +66,24 @@ class ScEnv {
     await this.init_entities();
   }
   async init() {
+    this.smart_chunks = new SmartChunks(this, {...this.config, skip_blocks_with_headings_only: true});
     this.init_chat_model();
     DataviewSocket.create(this, 37042); // Smart Connect
-    this.smart_markdown = new SmartMarkdown({ ...this.config, skip_blocks_with_headings_only: true }); // initialize smart markdown (before collections, b/c collections use smart markdown)
+    // this.smart_markdown = new SmartMarkdown({ ...this.config, skip_blocks_with_headings_only: true }); // initialize smart markdown (before collections, b/c collections use smart markdown)
     await this.init_entities();
     await this.init_import(); // refresh smart notes and init "Start embedding" notification
     await this.init_chat();
   }
-  // load one at a time to re-use embed models
+  // load one at a time to re-use embed models (smart-entities-2)
   async init_entities() {
     if(this.plugin.is_initializing_entities) return console.log('already init entities'); // Check if already initializing
     this.plugin.is_initializing_entities = true; // Set flag to true to indicate initialization has started
-    if(this.config.embedding_file_per_note) {
-      this.smart_notes = new SmartNotes(this);
-      this.smart_blocks = new SmartBlocks(this);
-      this.smart_notes.merge_defaults();
-      this.smart_blocks.merge_defaults();
-      await this.smart_blocks.load_smart_embed();
-      await this.smart_notes.load(); // also loads smart blocks
-    }else{
-      await Promise.all(Object.values(this.collections).map(async (static_collection) => await static_collection.load(this)));
-    }
+    this.smart_notes = new this.collection_types.SmartNotes(this, { adapter_class: this.sc_adapter_class });
+    this.smart_blocks = new this.collection_types.SmartBlocks(this, { adapter_class: this.sc_adapter_class });
+    this.smart_notes.merge_defaults();
+    this.smart_blocks.merge_defaults();
+    await this.smart_blocks.load_smart_embed();
+    await this.smart_notes.load(); // also loads smart blocks
     this.plugin.is_initializing_entities = false; // Reset flag after initialization is complete
     this.entities_loaded = true;
   }

@@ -9,8 +9,6 @@ const {
   TAbstractFile,
   TFile,
 } = require("obsidian");
-const { ObsAJSON } = require("smart-collections/ObsAJSON.js"); // Local
-const { ObsMultiAJSON } = require("smart-collections/ObsMultiAJSON.js"); // Local
 const { ScEnv } = require("./sc_env");
 const { default_settings } = require("./default_settings");
 // rename modules
@@ -24,6 +22,7 @@ const { ScSettingsTab } = require("./sc_settings_tab.js");
 const embed_models = require('smart-embed-model/models.json');
 const { ScActionsUx } = require("./sc_actions_ux.js");
 const { open_note } = require("./open_note.js");
+const { ObsidianAdapter } = require("smart-collections/adapters/obsidian");
 class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
   get item_views() {
@@ -33,7 +32,7 @@ class SmartConnectionsPlugin extends Plugin {
     }
   }
   get ScEnv() { return ScEnv };
-  get sc_adapter_class() { return this.settings.embedding_file_per_note ? ObsMultiAJSON : ObsAJSON; }
+  get sc_adapter_class() { return ObsidianAdapter; }
   get ScSettings() { return ScSettings };
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
   async load_settings() {
