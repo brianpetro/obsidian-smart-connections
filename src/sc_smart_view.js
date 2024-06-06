@@ -184,29 +184,31 @@ class ScSmartView extends SmartObsidianView {
   }
   add_link_listeners(elm, item) {
     elm.addEventListener("click", this.handle_search_result_click.bind(this));
-    // drag-on
-    // currently only works with full-file links
-    elm.setAttr('draggable', 'true');
-    elm.addEventListener('dragstart', (event) => {
-      const dragManager = this.app.dragManager;
-      const file_path = item.path.split("#")[0];
-      const file = this.app.metadataCache.getFirstLinkpathDest(file_path, '');
-      const dragData = dragManager.dragFile(event, file);
-      // console.log(dragData);
-      dragManager.onDragStart(event, dragData);
-    });
-    // if curr.link contains curly braces, return (incompatible with hover-link)
-    if (item.path.indexOf("{") > -1) return;
-    // trigger hover event on link
-    elm.addEventListener("mouseover", (event) => {
-      this.app.workspace.trigger("hover-link", {
-        event,
-        source: this.constructor.view_type,
-        hoverParent: elm.parentElement,
-        targetEl: elm,
-        linktext: item.path,
+    if(item.path){
+      // drag-on
+      // currently only works with full-file links
+      elm.setAttr('draggable', 'true');
+      elm.addEventListener('dragstart', (event) => {
+        const dragManager = this.app.dragManager;
+        const file_path = item.path.split("#")[0];
+        const file = this.app.metadataCache.getFirstLinkpathDest(file_path, '');
+        const dragData = dragManager.dragFile(event, file);
+        // console.log(dragData);
+        dragManager.onDragStart(event, dragData);
       });
-    });
+      // if curr.link contains curly braces, return (incompatible with hover-link)
+      if (item.path.indexOf("{") > -1) return;
+      // trigger hover event on link
+      elm.addEventListener("mouseover", (event) => {
+        this.app.workspace.trigger("hover-link", {
+          event,
+          source: this.constructor.view_type,
+          hoverParent: elm.parentElement,
+          targetEl: elm,
+          linktext: item.path,
+        });
+      });
+    }
   }
   handle_search_result_click(event) {
     event.preventDefault(); // prevent default click behavior
