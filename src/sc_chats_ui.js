@@ -139,7 +139,7 @@ class ScChatsUI extends SmartChatsUI {
       e.preventDefault();
       return this.handle_send();
     }
-    console.log("key", e.key);
+    // console.log("key", e.key);
     if(!["/", "@", "["].includes(e.key)) return;
     const textarea = this.container.querySelector(".sc-chat-form textarea");
     // get cursor position
