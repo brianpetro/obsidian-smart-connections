@@ -23,6 +23,8 @@ const embed_models = require('smart-embed-model/models.json');
 const { ScActionsUx } = require("./sc_actions_ux.js");
 const { open_note } = require("./open_note.js");
 const { ObsidianAdapter } = require("smart-collections/adapters/obsidian");
+const { SmartChatGPTView } = require("./sc_chatgpt_view.js");
+
 class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
   get item_views() {
@@ -34,7 +36,6 @@ class SmartConnectionsPlugin extends Plugin {
   get ScEnv() { return ScEnv };
   get sc_adapter_class() { return ObsidianAdapter; }
   get ScSettings() { return ScSettings };
-  async open_note(target_path, event=null) { await open_note(this, target_path, event); }
   async load_settings() {
     Object.assign(this, this.constructor.defaults);
     Object.assign(this.settings, await this.loadData());
@@ -210,6 +211,12 @@ class SmartConnectionsPlugin extends Plugin {
         this.open_note(rand_entity.path);
       }
     });
+    // open chat command
+    this.addCommand({
+      id: "smart-connections-chatgpt",
+      name: "Open: Smart ChatGPT",
+      callback: () => { this.open_chatgpt(); }
+    });
   }
   async make_connections(selected_text=null) {
     if(!this.view) await this.open_view(); // open view if not open
@@ -239,10 +246,13 @@ class SmartConnectionsPlugin extends Plugin {
     const notice_id = typeof message === 'string' ? message : message[0];
     return this.notices.show(notice_id, message, opts);
   }
-  open_view(active=true) { ScSmartView.open(this.app.workspace, active); }
+  get chat_view() { return ScChatView.get_view(this.app.workspace); }
   open_chat() { ScChatView.open(this.app.workspace); }
   get view() { return ScSmartView.get_view(this.app.workspace); } 
-  get chat_view() { return ScChatView.get_view(this.app.workspace); }
+  open_view(active=true) { ScSmartView.open(this.app.workspace, active); }
+
+  open_chatgpt() { SmartChatGPTView.open(this.app.workspace); }
+  async open_note(target_path, event=null) { await open_note(this, target_path, event); }
   // get folders, traverse non-hidden sub-folders
   async get_folders(path = "/") {
     try {
