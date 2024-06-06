@@ -31,6 +31,7 @@ class SmartConnectionsPlugin extends Plugin {
     return {
       ScSmartView,
       ScChatView,
+      SmartChatGPTView,
     }
   }
   get ScEnv() { return ScEnv };

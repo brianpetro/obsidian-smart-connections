@@ -1,9 +1,5 @@
 const { ItemView } = require("obsidian");
 class SmartChatGPTView extends ItemView {
-  constructor(leaf, plugin) {
-    super(leaf);
-    this.plugin = plugin;
-  }
   static get view_type() { return 'smart_chatgpt'; }
   static get_leaf(workspace) { return workspace.getLeavesOfType(this.view_type)?.find((leaf) => leaf.view instanceof this); }
   static open(workspace, active = true) {
