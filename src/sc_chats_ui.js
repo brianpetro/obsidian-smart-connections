@@ -134,11 +134,45 @@ class ScChatsUI extends SmartChatsUI {
     chat_input.addEventListener("keyup", this.key_up_handler.bind(this));
   }
   key_down_handler(e) {
-    if (e.key === "Enter" && this.is_mod_key) {
+    const mod = this.env.plugin.obsidian.Keymap.isModEvent(e); // properly handle if the meta/ctrl key is pressed
+    if (e.key === "Enter" && mod) {
       e.preventDefault();
-      this.handle_send();
+      return this.handle_send();
     }
-    this.is_mod_key = this.env.plugin.obsidian.Keymap.isModifier(e, "Mod");
+    console.log("key", e.key);
+    if(!["/", "@", "["].includes(e.key)) return;
+    const textarea = this.container.querySelector(".sc-chat-form textarea");
+    // get cursor position
+    const pos = textarea.selectionStart;
+    // if key is open square bracket
+    if (e.key === "[") {
+      // if previous char is [
+      if (textarea.value[pos - 1] === "[") {
+        // open file suggestion modal (timeout so that last key is added to input)
+        setTimeout(() => { this.open_file_suggestion_modal() }, 10);
+        return;
+      }
+    } else {
+      this.brackets_ct = 0;
+    }
+    // if / is pressed
+    if (e.key === "/") {
+      // if this is first char or previous char is space (timeout so that last key is added to input)
+      if (textarea.value.length === 0 || textarea.value[pos - 1] === " ") {
+        // open folder suggestion modal (timeout so that last key is added to input)
+        setTimeout(() => { this.open_folder_suggestion_modal() }, 10);
+        return;
+      }
+    }
+    // if @ is pressed
+    if (e.key === "@") {
+      // if this is first char or previous char is space
+      if (textarea.value.length === 0 || textarea.value[pos - 1] === " ") {
+        // open system prompt suggestion modal (timeout so that last key is added to input)
+        setTimeout(() => { this.open_system_prompt_modal() }, 10);
+        return;
+      }
+    }
   }
   handle_send() {
     const chat_input = this.container.querySelector(".sc-chat-form");
@@ -157,45 +191,7 @@ class ScChatsUI extends SmartChatsUI {
     textarea.style.height = 'auto';
     textarea.style.height = (textarea.scrollHeight) + 'px';
   }
-  key_up_handler(e){
-    this.is_mod_key = false;
-    this.resize_chat_input();
-    if(!["/", "@", "["].includes(e.key)) return;
-    const textarea = this.container.querySelector(".sc-chat-form textarea");
-    const caret_pos = textarea.selectionStart;
-    // if key is open square bracket
-    if (e.key === "[") {
-      // if previous char is [
-      if (textarea.value[caret_pos - 2] === "[") {
-        // open file suggestion modal
-        this.open_file_suggestion_modal();
-        return;
-      }
-    } else {
-      this.brackets_ct = 0;
-    }
-    // if / is pressed
-    if (e.key === "/") {
-      // get caret position
-      // if this is first char or previous char is space
-      if (textarea.value.length === 1 || textarea.value[caret_pos - 2] === " ") {
-        // open folder suggestion modal
-        this.open_folder_suggestion_modal();
-        return;
-      }
-    }
-    // if @ is pressed
-    if (e.key === "@") {
-      // console.log("caret_pos", caret_pos);
-      // get caret position
-      // if this is first char or previous char is space
-      if (textarea.value.length === 1 || textarea.value[caret_pos - 2] === " ") {
-        // open system prompt suggestion modal
-        this.open_system_prompt_modal();
-        return;
-      }
-    }
-  }
+  key_up_handler(e) { this.resize_chat_input(); }
 
   resize_chat_input() {
     clearTimeout(this.resize_debounce);
