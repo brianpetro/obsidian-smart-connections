@@ -63,13 +63,6 @@ class SmartConnectionsPlugin extends Plugin {
     this.add_to_gitignore("\n\n# Ignore Smart Connections folder\n.smart-connections"); 
     this.api = new SmartSearch(this);
     (window["SmartSearch"] = this.api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
-    addIcon("smart-connections", `<path d="M50,20 L80,40 L80,60 L50,100" stroke="currentColor" stroke-width="4" fill="none"/>
-    <path d="M30,50 L55,70" stroke="currentColor" stroke-width="5" fill="none"/>
-    <circle cx="50" cy="20" r="9" fill="currentColor"/>
-    <circle cx="80" cy="40" r="9" fill="currentColor"/>
-    <circle cx="80" cy="70" r="9" fill="currentColor"/>
-    <circle cx="50" cy="100" r="9" fill="currentColor"/>
-    <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
     this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_view(); });
     this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat(); });
     this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this)); // code-block renderer
@@ -96,6 +89,13 @@ class SmartConnectionsPlugin extends Plugin {
     this.save_settings();
   }
   register_views() {
+    this.obsidian.addIcon("smart-connections", `<path d="M50,20 L80,40 L80,60 L50,100" stroke="currentColor" stroke-width="4" fill="none"/>
+    <path d="M30,50 L55,70" stroke="currentColor" stroke-width="5" fill="none"/>
+    <circle cx="50" cy="20" r="9" fill="currentColor"/>
+    <circle cx="80" cy="40" r="9" fill="currentColor"/>
+    <circle cx="80" cy="70" r="9" fill="currentColor"/>
+    <circle cx="50" cy="100" r="9" fill="currentColor"/>
+    <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
     Object.values(this.item_views).forEach(View => {
       this.registerView(View.view_type, (leaf) => (new View(leaf, this)));
     });
