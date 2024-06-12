@@ -39,6 +39,7 @@ function default_settings() {
       // group_nearest_by_file: false, // DEPRECATED
       // path_only: "", // DEPRECATED
       // header_exclusions: "", // DEPRECATED use excluded_headings instead
+      open_in_main_tab: false,
     },
     api: null,
     embeddings_loaded: false,
