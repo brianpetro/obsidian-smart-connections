@@ -10,12 +10,14 @@
 
 Hey there, I'm Brian, the mind behind Smart Connections (still human, at this point 🤪). I laugh at my own jokes, like to use emojis, and think about thinking.
 
-The journey of Smart Connections is one I directly share with you. Smart Connections isn't just about some new features in Obsidian; it's a reflection of our shared experiences, your invaluable feedback, and a testament to what we can achieve together in the Obsidian community. A journey that's been both exhilarating and profoundly educational.
+Smart Connections is a [mission-driven](https://youtu.be/RtlpPTrEQ7c) software that's funded by users. Smart Connections is designed by an individual to enhance individual abilities so you can reach your goals and realize your visions for the future with software that's aligned with you. Follow [@wfhbrian](https://x.com/wfhbrian) for feature sneak peeks and other updates about the process of developing Smart Connections.
 
 ![Easy to install and use](./assets/smart-connections-install.gif)
 
 *This README is a work-in-progress so the v1 README is still available below.*
 ## A brief history
+The journey of Smart Connections is one I directly share with you. Smart Connections isn't just about some new features in Obsidian; it's a reflection of our shared experiences, your invaluable feedback, and a testament to what we can achieve together in the Obsidian community. A journey that's been both exhilarating and profoundly educational.
+
 Obsidian wasn't my first attempt at trying to manage and make sense of my notes. And in late 2022, like what has happened with all of my past attempts, the system I had built in Obsidian was beginning to fall apart. There were too many notes and I didn't having enough time to organize, link, tag, and otherwise manage them properly.
 
 Smart Connections started as way for me to keep track of my thousands of notes, prevent rework, and make new connections by showing relevant notes/excerpts alongside whatever note I was currently working on via the Smart View.
