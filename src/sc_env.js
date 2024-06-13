@@ -80,8 +80,8 @@ class ScEnv {
   async init_entities() {
     if(this.plugin.is_initializing_entities) return console.log('already init entities'); // Check if already initializing
     this.plugin.is_initializing_entities = true; // Set flag to true to indicate initialization has started
-    this.smart_notes = new this.collection_types.SmartNotes(this, { adapter_class: this.sc_adapter_class });
-    this.smart_blocks = new this.collection_types.SmartBlocks(this, { adapter_class: this.sc_adapter_class });
+    this.smart_notes = new this.collection_types.SmartNotes(this, { adapter_class: this.sc_adapter_class, custom_collection_name: 'smart_notes' });
+    this.smart_blocks = new this.collection_types.SmartBlocks(this, { adapter_class: this.sc_adapter_class, custom_collection_name: 'smart_blocks' });
     this.smart_notes.merge_defaults();
     this.smart_blocks.merge_defaults();
     await this.smart_blocks.load_smart_embed();
