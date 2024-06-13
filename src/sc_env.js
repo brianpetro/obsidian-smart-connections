@@ -12,6 +12,7 @@ const { ScChatsUI } = require("./sc_chats_ui");
 const { ScChats } = require("./sc_chats");
 const { ScActions } = require("./sc_actions");
 const { SmartChunks } = require('smart-chunks/smart_chunks');
+const { SmartEmbedModel } = require("smart-embed-model");
 // class ScEnv extends Brain {
 class ScEnv {
   constructor(plugin, opts={}) {
@@ -41,6 +42,7 @@ class ScEnv {
     // references
     this.ejs = ejs;
     this.templates = templates;
+    this.modules = { SmartEmbedModel };
   }
   get chat_classes() { return { ScActions, ScChatsUI, ScChats, ScChatModel }; }
   async reload() {
