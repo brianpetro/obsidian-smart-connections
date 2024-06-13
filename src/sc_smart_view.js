@@ -84,17 +84,27 @@ class ScSmartView extends SmartObsidianView {
       notes_ct: this.env.smart_notes?.keys.length,
     };
   }
-  async render_nearest(context, container = this.container) {
-    if(!this.env?.entities_loaded){
+  async prepare_to_render_nearest(container) {
+    if (this.overlay_container?.innerHTML) this.overlay_container.innerHTML = "";
+    if (!this.env.entities_loaded) {
       // render loading message
       container.innerHTML = "Loading Smart Connections...";
       // wait for entities to load
-      while(!this.env?.entities_loaded) await new Promise(r => setTimeout(r, 2000));
+      while (!this.env.entities_loaded) await new Promise(r => setTimeout(r, 2000));
     }
-    let results;
-    if (typeof context === "string") results = await this.plugin.api.search(context);
+  }
+  async render_nearest(context, container = this.container) {
+    if(typeof this.results === "undefined") this.results = {};
+    await this.prepare_to_render_nearest(container);
+    let context_key;
+    if (typeof context === "string"){
+      context_key = context;
+      // if(this.results[context]) return this.render_results(context, container, this.results[context]);
+      this.results[context_key] = this.results[context_key] || await this.plugin.api.search(context);
+    }
     if (typeof context === "undefined") context = this.app.workspace.getActiveFile();
     if (context instanceof this.plugin.obsidian.TFile) {
+      context_key = context.path;
       // return if file type is not supported
       if (SUPPORTED_FILE_TYPES.indexOf(context.extension) === -1) return this.plugin.notices.show('unsupported file type', [
         "File: " + context.name,
@@ -103,21 +113,34 @@ class ScSmartView extends SmartObsidianView {
       if (!this.env.smart_notes.get(context.path)) {
         // check if excluded
         if(this.env.is_included(context.path)){
-          await this.env.smart_notes.import(this.env.files);
+          await this.env.smart_notes.import([context]);
         }else{
           return this.plugin.notices.show('excluded file', "File is excluded: " + context.path, {timeout: 3000});
         }
       }
-      results = this.env.smart_notes.get(context.path)?.find_connections();
+      context = this.env.smart_notes.get(context.path);
     }
-    if (context instanceof this.env.item_types.SmartBlock) results = context.find_connections();
-    if (context instanceof this.env.item_types.SmartNote) results = context.find_connections();
-    if (!results) return this.plugin.notices.show('no smart connections found', "No Smart Connections found.");
-    if (typeof context === "object") context = context.key || context.path;
-    this.last_note = this.app.workspace.getActiveFile().path; // for checking if results are already rendered (ex: on active-leaf-change)
+    if(this.results[context_key]?.length) return this.render_results(context_key, container, this.results[context_key]); // if results already cached, render
+    // Get results
+    if (context instanceof this.env.item_types.SmartBlock || context instanceof this.env.item_types.SmartNote){
+      context_key = context.key;
+      this.results[context_key] = context.find_connections();
+    }
+    if (!this.results[context_key]?.length) return this.plugin.notices.show('no smart connections found', "No Smart Connections found.");
+    this.render_results(context_key, container, this.results[context_key]);
+  }
+  render_results(context, container, results) {
+    results = results
+      .sort((a, b) => {
+        if(a.score === b.score) return 0;
+        return (a.score > b.score) ? -1 : 1;
+      })
+    ;
+    const topbar_context = (typeof context === "object") ? (context.key || context.path) : context;
+    this.last_note = this.app.workspace.getActiveFile()?.path; // for checking if results are already rendered (ex: on active-leaf-change)
 
     // console.log(results);
-    container.innerHTML = this.render_template(this.template_name, { current_path: context, results });
+    container.innerHTML = this.render_template(this.template_name, { current_path: topbar_context, results });
     this.add_top_bar_listeners(container);
     container.querySelectorAll(".search-result").forEach((elm, i) => this.add_link_listeners(elm, results[i]));
     container.querySelectorAll(".search-result:not(.sc-collapsed) ul li").forEach(this.render_result.bind(this));
