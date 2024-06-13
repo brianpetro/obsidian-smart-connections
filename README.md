@@ -243,8 +243,7 @@ Jump to a not-too-random a note.
 	- Section 'block' matching  
 	- Highlight to find Smart Connections
 ### Note vs Block Level Smart Connections
-- Note-level embeddings
-	- these embeddings are 
+[Note-Level vs. Block-Level Embeddings in Smart Connections: What's the Difference?](https://youtu.be/9YG8gwihz3Q)
 ### Notifications and Progress Indicators
 - muting notifications
 ## File-type Compatibility
