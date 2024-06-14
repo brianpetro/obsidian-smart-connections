@@ -62,6 +62,7 @@ class ScSettings extends SmartSettings {
       muted_notices: this.plugin.settings.muted_notices || false,
       ...((await this.chat_settings.get_view_data()) || {}),
       ...((await this.embed_settings.get_view_data()) || {}),
+      open_in_main_tab: this.plugin.settings.open_in_main_tab
     };
     return view_data;
   }

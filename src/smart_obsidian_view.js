@@ -32,7 +32,7 @@ class SmartObsidianView extends ItemView {
       // set loading message
       this.containerEl.children[1].innerHTML = "Loading Smart Connections...";
       // wait for entities to be initialized
-      while (!this.env?.entities_loaded){
+      while (!this.env?.entities_loaded) {
         await new Promise(r => setTimeout(r, 2000));
       }
     }
@@ -42,9 +42,19 @@ class SmartObsidianView extends ItemView {
   static get_leaf(workspace) { return workspace.getLeavesOfType(this.view_type)?.find((leaf) => leaf.view instanceof this); }
   static get_view(workspace) { return this.get_leaf(workspace)?.view; }
   static open(workspace, active = true) {
-    if (this.get_leaf(workspace)) this.get_leaf(workspace).setViewState({ type: this.view_type, active });
-    else workspace.getRightLeaf(false).setViewState({ type: this.view_type, active });
-    if(workspace.rightSplit.collapsed) workspace.rightSplit.toggle();
+    const openInMainTab = workspace.plugin.settings.open_in_main_tab;
+    if (this.get_leaf(workspace)) {
+      this.get_leaf(workspace).setViewState({ type: this.view_type, active });
+    } else {
+      if (openInMainTab) {
+        workspace.getLeaf(true).setViewState({ type: this.view_type, active });
+      } else {
+        workspace.getRightLeaf(false).setViewState({ type: this.view_type, active });
+      }
+    }
+    if (workspace.rightSplit.collapsed) {
+      workspace.rightSplit.toggle();
+    }
   }
   static is_open(workspace) { return this.get_leaf(workspace)?.view instanceof this; }
   get container() { return this.containerEl.children[1]; }
