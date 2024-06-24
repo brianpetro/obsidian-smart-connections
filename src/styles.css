@@ -422,3 +422,12 @@ div[data-type^="smart-connections-"] {
   }
 
 }
+
+/* settings */
+.vertical-tab-content:has(> .sc-supporters){
+  .setting-item-control{
+    > select {
+      max-width: 500px;
+    }
+  }
+}
