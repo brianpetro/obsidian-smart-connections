@@ -38,8 +38,8 @@ class SmartConnectionsPlugin extends Plugin {
   get sc_adapter_class() { return ObsidianAdapter; }
   get ScSettings() { return ScSettings };
   async load_settings() {
-    Object.assign(this, this.constructor.defaults);
-    Object.assign(this.settings, await this.loadData());
+    Object.assign(this, this.constructor.defaults); // set defaults
+    Object.assign(this.settings, await this.loadData()); // overwrites defaults with saved settings
     this.handle_deprecated_settings(); // HANDLE DEPRECATED SETTINGS
   }
   async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready

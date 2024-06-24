@@ -5,8 +5,8 @@ function default_settings() {
       chat_folder: "smart chat",
       smart_notes_embed_model: "TaylorAI/bge-micro-v2",
       smart_blocks_embed_model: "None",
-      smart_connections_folder: ".smart-connections",
-      smart_connections_folder_last: ".smart-connections",
+      smart_connections_folder: ".smart-env",
+      smart_connections_folder_last: ".smart-env",
       system_prompts_folder: "smart prompts",
       smart_chat_folder: "smart-chats",
       smart_chat_folder_last: "smart-chats",
@@ -15,7 +15,7 @@ function default_settings() {
       chat_model_platform_key: "open_router",
       open_router: {},
       // Smart Blocks Settings (chunking)
-      embed_input_min_chars: 50,
+      embed_input_min_chars: 100,
       multi_heading_blocks: true,
       // v2.2
       enable_mobile: false,
@@ -34,11 +34,6 @@ function default_settings() {
       log_render_files: false,
       recently_sent_retry_notice: false,
       version: "",
-      // smart_chat_model: "gpt-3.5-turbo-0125",
-      // skip_sections: false, // DEPRECATED
-      // group_nearest_by_file: false, // DEPRECATED
-      // path_only: "", // DEPRECATED
-      // header_exclusions: "", // DEPRECATED use excluded_headings instead
     },
     api: null,
     embeddings_loaded: false,
