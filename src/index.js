@@ -346,6 +346,7 @@ class SmartConnectionsPlugin extends Plugin {
   // update smart connections folder
   async update_smart_connections_folder() {
     if(this.settings.smart_connections_folder === this.settings.smart_connections_folder_last) return; // if folder is the same as last, return
+    const last_folder = this.settings.smart_connections_folder_last + '/';
     if(!confirm("Are you sure you want to update the Smart Connections folder? This will move all Smart Connections files to the new folder and restart the plugin.")){
       this.settings.smart_connections_folder = this.settings.smart_connections_folder_last; // reset folder to last folder if user cancels
       return;
@@ -355,6 +356,14 @@ class SmartConnectionsPlugin extends Plugin {
     this.settings.smart_connections_folder_last = this.settings.smart_connections_folder;
     // save settings
     await this.save_settings();
+    // add folder to .obsidian/app.json userIgnoreFilters[]
+    const app_json = await this.app.vault.adapter.read(".obsidian/app.json");
+    const app_json_obj = JSON.parse(app_json);
+    app_json_obj.userIgnoreFilters = app_json_obj.userIgnoreFilters || [];
+    app_json_obj.userIgnoreFilters = app_json_obj.userIgnoreFilters.filter(folder => folder !== last_folder);
+    let smart_connections_folder = this.settings.smart_connections_folder + '/';
+    app_json_obj.userIgnoreFilters.push(smart_connections_folder);
+    await this.app.vault.adapter.write(".obsidian/app.json", JSON.stringify(app_json_obj, null, 2));
     // reload plugin
     this.restart_plugin();
   }
