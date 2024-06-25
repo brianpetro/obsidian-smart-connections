@@ -254,6 +254,7 @@ Jump to a not-too-random a note.
 This [plugin](https://github.com/Mossy1022/Smart-Connections-Visualizer) integrates seamlessly with Smart Connections, offering an advanced, interactive way to visualize connections between your notes. The goal is to enhance your ability to discover relationships and insights within your notes more easily, while transforming the way you interact with and understand your information. There will be much more functionality added to this in the near future.  Evan Moscoso, is the developer behind this plugin.  
 
 Demo:
+![Visualizer](./assets/SCViz.png)
 https://www.youtube.com/watch?v=dbFRyJBkxS0
 
 ## File-type Compatibility
