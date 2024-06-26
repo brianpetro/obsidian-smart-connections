@@ -101,6 +101,11 @@ class SmartSettings {
           toggle.setValue(this.get_setting(setting));
           toggle.onChange(async (value) => this.handle_on_change(setting, value, elm));
         });
+      } else if (elm.dataset.type === "textarea") {
+        setting_elm.addTextArea(textarea => {
+          textarea.setValue(this.get_setting(setting));
+          textarea.onChange(async (value) => this.handle_on_change(setting, value, elm));
+        });
       }
       if (elm.dataset.disabled) setting_elm.setDisabled(true);
     });

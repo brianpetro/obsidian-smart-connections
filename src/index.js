@@ -58,7 +58,7 @@ class SmartConnectionsPlugin extends Plugin {
     this.smart_connections_view = null;
     this.add_commands(); // add commands
     this.register_views(); // register chat view type
-    this.addSettingTab(new ScSettingsTab(this.app, this, "smart_settings_21")); // add settings tab
+    this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
     await this.check_for_updates();
     this.add_to_gitignore("\n\n# Ignore Smart Connections folder\n.smart-connections"); 
     this.api = new SmartSearch(this);
