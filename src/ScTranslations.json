@@ -5,7 +5,7 @@
     "initial_message": "Hi, I'm ChatGPT with access to your notes via Smart Connections. Ask me a question about your notes and I'll try to answer it."
   },
   "es": {
-    "pronouns": ["mi", "yo", "mí", "tú"],
+    "pronouns": ["mi", "yo", "mí", "tú", "mis"],
     "prompt": "Basándose en sus notas",
     "initial_message": "Hola, soy ChatGPT con acceso a tus apuntes a través de Smart Connections. Hazme una pregunta sobre tus apuntes e intentaré responderte."
   },

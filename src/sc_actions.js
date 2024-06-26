@@ -1,8 +1,8 @@
-const ScTranslations = require("./ScTranslations");
 const openapi_spec = require('../build/actions_openapi.json');
 const handlers = require('./actions/_actions');
 const { lookup } = require('./actions/lookup');
 const { json_ref_resolve } = require('./json_ref_resolve');
+const { contains_self_referential_keywords } = require("./contains_self_referential_keywords");
 
 class ScActions {
   constructor(env, opts = {}) {
@@ -47,8 +47,9 @@ class ScActions {
       }
       return;
     }
+    const should_trigger_lookup = await this.should_trigger_retrieval(user_input);
     // if contains self referential keywords or folder reference
-    if (this.should_trigger_retrieval(user_input)) {
+    if (should_trigger_lookup) {
       console.log("should trigger retrieval");
       if(this.actions.lookup && this.env.chat_model.config.actions){
         // sets current.tool_choice to lookup
@@ -59,15 +60,10 @@ class ScActions {
       }
     }
   }
-  should_trigger_retrieval(user_input) {
+  async should_trigger_retrieval(user_input) {
     // if(!this.plugin?.brain?.smart_blocks?.keys.length) return false; // if no smart blocks, return false
-    if (this.contains_self_referential_keywords(user_input)) return true;
+    if (await contains_self_referential_keywords(this.env, user_input, this.config.language)) return true;
     if (this.env.chats.current.scope.key_starts_with_any) return true; // if scope.key_starts_with_any is set, return true (has folder reference)
-    return false;
-  }
-  // check if includes keywords referring to one's own notes
-  contains_self_referential_keywords(user_input) {
-    if (user_input.match(new RegExp(`\\b(${ScTranslations[this.config.language].pronouns.join("|")})\\b`, "gi"))) return true;
     return false;
   }
   // BACKWARD COMPATIBILITY for non-function-calling models (DEPRECATED)

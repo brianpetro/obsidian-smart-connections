@@ -2,6 +2,8 @@ const { SmartChat } = require('smart-chats/smart_chat');
 const { extract_folder_references } = require("./extract_folder_references");
 const { contains_internal_link } = require("./contains_internal_link");
 const { contains_folder_reference } = require('./contains_folder_reference');
+const { extract_internal_links } = require('./extract_internal_links');
+const { contains_system_prompt_ref, extract_system_prompt_ref } = require('./contains_system_prompt_ref');
 
 class ScChat extends SmartChat {
   async new_user_message(content){
@@ -23,9 +25,8 @@ class ScChat extends SmartChat {
   async parse_user_message(content) {
     this.env.chats.current.scope = {}; // reset scope
     // DO: decided: should this be moved to new_user_message()??? Partially as sc-context???
-    if (content.includes("@\"")) {
-      const mention_pattern = /@\"([^"]+)\"/;
-      const mention = content.match(mention_pattern)[1];
+    if (contains_system_prompt_ref(content)) {
+      const { mention, mention_pattern } = extract_system_prompt_ref(content);
       const sys_msg = {
         role: "system",
         content: "```sc-system\n" + mention + "\n```"
@@ -67,14 +68,4 @@ class ScChat extends SmartChat {
 }
 exports.ScChat = ScChat;
 
-function extract_internal_links(env, user_input) {
-  const matches = user_input.match(/\[\[(.*?)\]\]/g);
-  console.log(matches);
-  // return array of TFile objects
-  if (matches) return matches.map(match => {
-    const tfile = env.plugin.app.metadataCache.getFirstLinkpathDest(match.replace("[[", "").replace("]]", ""), "/");
-    return tfile;
-  });
-  return [];
-}
-exports.extract_internal_links = extract_internal_links;
+
