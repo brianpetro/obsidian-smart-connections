@@ -65,15 +65,26 @@ class SmartConnectionsPlugin extends Plugin {
     (window["SmartSearch"] = this.api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
     this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_view(); });
     this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat(); });
-    this.registerMarkdownCodeBlockProcessor("smart-connections", this.render_code_block.bind(this)); // code-block renderer
-    this.registerMarkdownCodeBlockProcessor("sc-context", this.render_code_block_context.bind(this)); // code-block renderer
-    // "AI change" dynamic code block
-    this.registerMarkdownCodeBlockProcessor("sc-change", this.change_code_block.bind(this)); // DEPRECATED
-    this.registerMarkdownCodeBlockProcessor("smart-change", this.change_code_block.bind(this));
+    this.register_code_blocks();
     this.new_user();
     await this.load_env();
     console.log("Smart Connections v2 loaded");
   }
+  register_code_blocks() {
+    this.register_code_block("smart-connections", "render_code_block"); // code-block renderer
+    this.register_code_block("sc-context", "render_code_block_context"); // code-block renderer
+    // "AI change" dynamic code block
+    this.register_code_block("sc-change", "change_code_block"); // DEPRECATED
+    this.register_code_block("smart-change", "change_code_block");
+  }
+  register_code_block(name, callback_name) {
+    try{
+      this.registerMarkdownCodeBlockProcessor(name, this[callback_name].bind(this));
+    } catch (error) {
+      console.warn(`Error registering code block: ${name}`, error);
+    }
+  }
+
   async load_env() {
     this.env = new this.ScEnv(this, {sc_adapter_class: this.sc_adapter_class});
     this.brain = this.env; // DEPRECATED (use this.env instead)
