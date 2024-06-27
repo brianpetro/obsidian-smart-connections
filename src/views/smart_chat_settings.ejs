@@ -25,7 +25,7 @@
   <% } %>
   <div class="setting-component"
     data-name="<%= chat_platform.description %> API Key"
-    data-type="text"
+    data-type="password"
     data-setting="<%= settings.chat_model_platform_key %>.api_key"
     <% if(chat_platform.signup_url) { %>
       data-description="<a href='<%= chat_platform.signup_url %>'>Get API Key</a> for <%= chat_platform.description %>."

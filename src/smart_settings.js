@@ -60,6 +60,14 @@ class SmartSettings {
             });
           }
         });
+      } else if (elm.dataset.type === "password") {
+        setting_elm.addText(text => {
+          text.inputEl.type = "password";
+          text.setPlaceholder(elm.dataset.placeholder || "");
+          const setting_value = this.get_setting(setting);
+          if (setting_value) text.setValue(setting_value);
+          text.onChange(async (value) => this.handle_on_change(setting, value, elm));
+        });
       } else if (elm.dataset.type === "number") {
         setting_elm.addText(number => {
           number.inputEl.type = "number";
