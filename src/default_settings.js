@@ -35,7 +35,6 @@ function default_settings() {
       recently_sent_retry_notice: false,
       version: "",
     },
-    api: null,
     embeddings_loaded: false,
     folders: [],
     has_new_embeddings: false,

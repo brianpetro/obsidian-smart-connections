@@ -37,6 +37,7 @@ class SmartConnectionsPlugin extends Plugin {
   get ScEnv() { return ScEnv };
   get sc_adapter_class() { return ObsidianAdapter; }
   get ScSettings() { return ScSettings };
+  get api() { return this._api; }
   async load_settings() {
     Object.assign(this, this.constructor.defaults); // set defaults
     Object.assign(this.settings, await this.loadData()); // overwrites defaults with saved settings
@@ -60,9 +61,8 @@ class SmartConnectionsPlugin extends Plugin {
     this.register_views(); // register chat view type
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
     await this.check_for_updates();
-    this.add_to_gitignore("\n\n# Ignore Smart Connections folder\n.smart-connections"); 
-    this.api = new SmartSearch(this);
-    (window["SmartSearch"] = this.api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
+    this._api = new SmartSearch(this);
+    (window["SmartSearch"] = this._api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
     this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_view(); });
     this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat(); });
     this.register_code_blocks();
@@ -97,6 +97,7 @@ class SmartConnectionsPlugin extends Plugin {
     this.open_view();
     this.open_chat();
     if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
+    this.add_to_gitignore("\n\n# Ignore Smart Connections folder\n.smart-connections"); 
     this.save_settings();
   }
   register_views() {
