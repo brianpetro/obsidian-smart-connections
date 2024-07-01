@@ -1,4 +1,4 @@
-const { SmartSettings } = require("./smart_settings");
+const { SmartSettings } = require("smart-setting");
 const smart_embed_models = require("smart-embed-model/models.json");
 // Smart Connections Specific Settings
 class SmartEmbedSettings extends SmartSettings {

@@ -1,5 +1,5 @@
 const ScTranslations = require("./ScTranslations");
-const { SmartSettings } = require("./smart_settings");
+const { SmartSettings } = require("smart-setting");
 // Smart Connections Specific Settings
 class SmartChatSettings extends SmartSettings {
   update_smart_chat_folder() { this.plugin.update_smart_chat_folder(); }
