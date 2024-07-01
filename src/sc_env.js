@@ -13,7 +13,6 @@ const { ScChats } = require("./sc_chats");
 const { ScActions } = require("./sc_actions");
 const { SmartChunks } = require('smart-chunks/smart_chunks');
 const { SmartEmbedModel } = require("smart-embed-model");
-// class ScEnv extends Brain {
 class ScEnv {
   constructor(plugin, opts={}) {
     this.sc_adapter_class = opts.sc_adapter_class;
