@@ -119,6 +119,8 @@ class ScSmartView extends SmartObsidianView {
         }
       }
       context = this.env.smart_notes.get(context.path);
+      // wait for context.vec (prevent infinite loop)
+      while (!context.vec) await new Promise(r => setTimeout(r, 1000));
     }
     if(this.results[context_key]?.length) return this.render_results(context_key, container, this.results[context_key]); // if results already cached, render
     // Get results
