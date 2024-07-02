@@ -12,12 +12,13 @@ class ScChats extends SmartChats {
   async new_user_message(message) {
     // notify users of limited 
     if(this.env.config.chat_model_platform_key === 'open_router' && !this.env.config.open_router?.api_key) {
-      this.env.config.free_chat_uses = this.env.config.free_chat_uses || 0;
-      this.env.config.free_chat_uses++;
-      if(this.env.config.free_chat_uses > 2) {
+      const free_chat_uses = this.plugin.settings.free_chat_uses ? (this.plugin.settings.free_chat_uses + 1) : 1;
+      this.plugin.settings.free_chat_uses = free_chat_uses;
+      await this.plugin.save_settings();
+      if(free_chat_uses > 20) throw new Error("You have used up your free chat limit! Please add your own API key in the Smart Chat settings to enable unlimited personal usage and prevent exhausting the shared community account limit.");
+      else if(free_chat_uses > 2) {
         this.env.plugin.notices.show("shared usage", "Your chats are currently using a community account with very limited usage. Please add your own API key in the Smart Chat settings to enable unlimited personal usage and prevent exhausting the shared account limit.", {immutable: true, timeout: 20000});
       }
-      return;
     }
     return message;
   }
