@@ -128,7 +128,7 @@ class ScSmartView extends SmartObsidianView {
       context_key = context.key;
       this.results[context_key] = context.find_connections();
     }
-    if (!this.results[context_key]?.length) return this.plugin.notices.show('no smart connections found', "No Smart Connections found.");
+    if (!this.results[context_key]?.length) return; // this.plugin.notices.show('no smart connections found', "No Smart Connections found.");
     this.render_results(context_key, container, this.results[context_key]);
   }
   render_results(context, container, results) {
