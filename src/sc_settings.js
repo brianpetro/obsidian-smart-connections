@@ -31,7 +31,7 @@ class ScSettings extends SmartSettings {
   // test API key
   async test_api_key_openai_embeddings() { await this.embed_settings.test_api_key_openai_embeddings(); }
   async exclude_all_top_level_folders() {
-    const folders = (await this.app.vault.adapter.list("/")).folders;
+    const folders = (await this.plugin.app.vault.adapter.list("/")).folders;
     const input = this.container.querySelector("div[data-setting='folder_exclusions'] input");
     input.value = folders.join(", ");
     input.dispatchEvent(new Event("input")); // send update event
