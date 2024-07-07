@@ -24,6 +24,7 @@ const { ScActionsUx } = require("./sc_actions_ux.js");
 const { open_note } = require("./open_note.js");
 const { ObsidianAdapter } = require("smart-collections/adapters/obsidian");
 const { SmartChatGPTView } = require("./sc_chatgpt_view.js");
+const { SmartPrivateChatView } = require("./sc_private_chat_view.js");
 
 class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -32,6 +33,7 @@ class SmartConnectionsPlugin extends Plugin {
       ScSmartView,
       ScChatView,
       SmartChatGPTView,
+      SmartPrivateChatView,
     }
   }
   get ScEnv() { return ScEnv };
@@ -230,6 +232,12 @@ class SmartConnectionsPlugin extends Plugin {
       name: "Open: Smart ChatGPT",
       callback: () => { this.open_chatgpt(); }
     });
+    // open private chat command
+    this.addCommand({
+      id: "smart-connections-private-chat",
+      name: "Open: Smart Connections Supporter Private Chat",
+      callback: () => { this.open_private_chat(); }
+    });
   }
   async make_connections(selected_text=null) {
     if(!this.view) await this.open_view(); // open view if not open
@@ -265,6 +273,7 @@ class SmartConnectionsPlugin extends Plugin {
   open_view(active=true) { ScSmartView.open(this.app.workspace, active); }
 
   open_chatgpt() { SmartChatGPTView.open(this.app.workspace); }
+  open_private_chat() { SmartPrivateChatView.open(this.app.workspace); }
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
   // get folders, traverse non-hidden sub-folders
   async get_folders(path = "/") {
