@@ -35,7 +35,7 @@ class DataviewSocket extends SmartSocket {
         await new Promise(resolve => setTimeout(resolve, retries * 1000));
         return this.get_dataview_api(retries + 1);
       } else {
-        this.brain.main.show_notice("Dataview API not found");
+        console.log("Dataview API not found. No dataview connection for Smart Connect.");
       }
     }
   }
