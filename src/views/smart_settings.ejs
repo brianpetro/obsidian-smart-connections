@@ -1,5 +1,5 @@
 <h1>Smart Connections</h1>
-<% if(this.env.plugin.EARLY_ACCESS && !this.env.plugin.app.plugins.enabledPlugins["smart-templates"]){ %>
+<% if(this.env.plugin.EARLY_ACCESS && !this.env.plugin.app.plugins.enabledPlugins.has("smart-templates")){ %>
   <div data-callout-metadata="" data-callout-fold="" data-callout="success" class="callout" style="mix-blend-mode: unset;">
     <div class="callout-title">
       <div class="callout-icon" dir="auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -9,7 +9,7 @@
         </svg></div>
       <div class="callout-title-inner"><p><strong>Smart Templates:</strong> Try out the new <a href="https://github.com/brianpetro/obsidian-smart-templates">Smart Templates</a>.</p>
         <div class="setting-component"
-          data-name="Install Smart Templates"
+          data-name="Easy Install"
           data-description="Install the latest version of Smart Templates."
           data-type="button"
           data-callback="install_smart_templates_latest"
