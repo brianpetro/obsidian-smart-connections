@@ -7,13 +7,24 @@ const { SmartEmbedSettings } = require("./smart_embed_settings");
 class ScSettings extends SmartSettings {
   constructor(env, container, template_name = "smart_settings") {
     super(env, container, template_name);
-    this.chat_settings = new SmartChatSettings(env, container, template_name);
-    this.embed_settings = new SmartEmbedSettings(env, container, template_name);
   }
   update_smart_chat_folder() { this.chat_settings.update_smart_chat_folder(); }
   async changed_smart_chat_model(){
     await this.chat_settings.changed_smart_chat_model(false);
     this.render();
+  }
+  async render(){
+    await super.render();
+    const chat_settings_elm = this.container.querySelector(".smart-chat-settings");
+    if(chat_settings_elm){
+      this.chat_settings = new SmartChatSettings(this.env, chat_settings_elm, "smart_chat_settings");
+      await this.chat_settings.render();
+    }
+    const embed_settings_elm = this.container.querySelector(".smart-embed-settings");
+    if(embed_settings_elm){
+      this.embed_settings = new SmartEmbedSettings(this.env, embed_settings_elm, "smart_embed_settings");
+      await this.embed_settings.render();
+    }
   }
   async test_chat_api_key(){ await this.chat_settings.test_chat_api_key(); }
   get self_ref_list() { return this.chat_settings.self_ref_list; }
@@ -22,9 +33,11 @@ class ScSettings extends SmartSettings {
     this.env.smart_notes.import(this.env.files, { reset: true });
   }
   reload_env() { this.env.reload(); } // DEPRECATED
-  restart_plugin() { this.plugin.restart_plugin(); }
+  restart_plugin() {
+    this.plugin.notices.show('restarting_for_settings_to_take_effect', "Restarting for settings to take effect...", {timeout: 3000});
+    this.plugin.restart_plugin(); 
+  }
   force_refresh() { this.env.force_refresh(); }
-  sync_for_chatgpt() { this.plugin.sync_notes(); }
   update_smart_connections_folder() { this.plugin.update_smart_connections_folder(); }
   refresh_smart_view() { this.embed_settings.refresh_smart_view(); }
   async connect_to_smart_connect(){ await this.embed_settings.connect_to_smart_connect(); }
@@ -60,8 +73,6 @@ class ScSettings extends SmartSettings {
       included_files: this.plugin.env.files.length,
       total_files: this.plugin.env.all_files.length,
       muted_notices: this.plugin.settings.muted_notices || false,
-      ...((await this.chat_settings.get_view_data()) || {}),
-      ...((await this.embed_settings.get_view_data()) || {}),
     };
     return view_data;
   }

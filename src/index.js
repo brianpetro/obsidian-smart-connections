@@ -42,7 +42,13 @@ class SmartConnectionsPlugin extends Plugin {
   get api() { return this._api; }
   async load_settings() {
     Object.assign(this, this.constructor.defaults); // set defaults
-    Object.assign(this.settings, await this.loadData()); // overwrites defaults with saved settings
+    const saved_settings = await this.loadData();
+    if(!saved_settings){
+      this.notices.show("fail-load-settings", "Failed to load settings. Restarting plugin...");
+      this.restart_plugin();
+      throw new Error("Failed to load settings. Restarting plugin...");
+    }
+    Object.assign(this.settings, saved_settings); // overwrites defaults with saved settings
     this.handle_deprecated_settings(); // HANDLE DEPRECATED SETTINGS
   }
   async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
@@ -292,52 +298,6 @@ class SmartConnectionsPlugin extends Plugin {
     }
   }
   // SUPPORTERS
-  async sync_notes() {
-    // if license key is not set, return
-    if(!this.settings.license_key){
-      new Notice("Smart Connections: Supporter license key is required to sync notes to the ChatGPT Plugin server.");
-      return;
-    }
-    console.log("syncing notes");
-    const files = this.brain.files;
-    const notes = await this.build_notes_object(files);
-    // POST notes object to server
-    const response = await requestUrl({
-      url: "https://sync.smartconnections.app/sync",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      contentType: "application/json",
-      body: JSON.stringify({
-        license_key: this.settings.license_key,
-        notes: notes
-      })
-    });
-    console.log(response);
-  }
-  async build_notes_object(files) {
-    let output = {};
-    for(let i = 0; i < files.length; i++) {
-      let file = files[i];
-      let parts = file.path.split("/");
-      let current = output;
-      for (let ii = 0; ii < parts.length; ii++) {
-        let part = parts[ii];
-        if (ii === parts.length - 1) {
-          // This is a file
-          current[part] = await this.app.vault.cachedRead(file);
-        } else {
-          // This is a directory
-          if (!current[part]) {
-            current[part] = {};
-          }
-          current = current[part];
-        }
-      }
-    }
-    return output;
-  }
   async render_code_block(contents, container, ctx) {
     console.log(container);
     return this.view.render_nearest((contents.trim().length? contents : ctx.sourcePath), container);

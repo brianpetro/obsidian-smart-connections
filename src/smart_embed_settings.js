@@ -39,7 +39,10 @@ class SmartEmbedSettings extends SmartSettings {
     }
   }
   reload_env() { this.env.reload(); } // DEPRECATED
-  restart_plugin() { this.plugin.restart_plugin(); }
+  restart_plugin() {
+    this.plugin.notices.show('restarting_for_settings_to_take_effect', "Restarting for settings to take effect...", {timeout: 3000});
+    this.plugin.restart_plugin(); 
+  }
   get template() { return this.templates['smart_embed_settings']; }
   async get_view_data() {
     const view_data = {

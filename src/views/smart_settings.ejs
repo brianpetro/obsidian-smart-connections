@@ -1,4 +1,23 @@
 <h1>Smart Connections</h1>
+<% if(this.env.plugin.EARLY_ACCESS && !this.env.plugin.app.plugins.enabledPlugins["smart-templates"]){ %>
+  <div data-callout-metadata="" data-callout-fold="" data-callout="success" class="callout" style="mix-blend-mode: unset;">
+    <div class="callout-title">
+      <div class="callout-icon" dir="auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="svg-icon lucide-check">
+          <path d="M20 6 9 17l-5-5"></path>
+        </svg></div>
+      <div class="callout-title-inner"><p><strong>Smart Templates:</strong> Try out the new <a href="https://github.com/brianpetro/obsidian-smart-templates">Smart Templates</a>.</p>
+        <div class="setting-component"
+          data-name="Install Smart Templates"
+          data-description="Install the latest version of Smart Templates."
+          data-type="button"
+          data-callback="install_smart_templates_latest"
+        ></div>
+      </div>
+    </div>
+  </div>
+<% } %>
 <% if(this.env.plugin.EARLY_ACCESS && this.env.plugin.obsidian.Platform.isMobile && !this.env.plugin.settings.enable_mobile) { %>
     <div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout">
       <div class="callout-title">
@@ -124,12 +143,13 @@
 <h1>Smart View & Embeddings</h1>
 <p>Notes about embedding models:</p>
 <ul>
+  <li>IMPORTANT: make sure local bge-micro-v2 embedding model works before trying other local models.</li>
   <li>Local model compatibility depends on available CPU and RAM. Try reducing the max tokens (context) if a local model if failing.</li>
   <li>API models are not dependent on local compute, but they require an API key and send your notes to third-party servers for processing.</li>
 </ul>
-<%- smart_embed_settings %>
+<div class="smart-embed-settings"></div>
 <h1>Smart Chat</h1>
-<%- smart_chat_settings %>
+<div class="smart-chat-settings"></div>
 <h3>System Prompts</h3>
 <div class="setting-component"
   data-name="System Prompts Folder"

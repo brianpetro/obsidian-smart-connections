@@ -23,7 +23,7 @@ class SmartSocket {
     if(typeof this.is_server_running === 'function'){
       const is_running = await this.is_server_running();
       if(!is_running){
-        console.log("Smart Connect is not running, will try to connect again later");
+        // console.log("Smart Connect is not running, will try to connect again later");
         this.connect(true);
         return;
       }
@@ -49,11 +49,11 @@ class SmartSocket {
   can_attempt_connection(retry) {
     retry = retry || this.retry;
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      console.log("WebSocket is already connected. Aborting new connection attempt.");
+      // console.log("WebSocket is already connected. Aborting new connection attempt.");
       return false;
     }
     if (retry && this.ws_retries >= 10) {
-      console.error("Failed to reconnect after 10 attempts");
+      console.error("Failed to connect to Smart Connect after 10 attempts");
       this.on_fail_to_reconnect();
       return false;
     }
@@ -69,7 +69,7 @@ class SmartSocket {
     if (retry || this.retry) {
       this.ws_retries += 1;
       const backoff_time = Math.min(1000 * Math.pow(2, this.ws_retries), 60000);
-      console.log(`Attempting to reconnect in ${backoff_time / 1000} seconds...`);
+      // console.log(`Attempting to connect to Smart Connect in ${backoff_time / 1000} seconds...`);
       return new Promise(resolve => setTimeout(resolve, backoff_time));
     }
     return Promise.resolve();
