@@ -158,7 +158,7 @@ class ScChatsUI extends SmartChatsUI {
     // if / is pressed
     if (e.key === "/") {
       // if this is first char or previous char is space (timeout so that last key is added to input)
-      if (textarea.value.length === 0 || textarea.value[pos - 1] === " ") {
+      if (textarea.value.length === 0 || [" ", "\n"].includes(textarea.value[pos - 1])) {
         // open folder suggestion modal (timeout so that last key is added to input)
         setTimeout(() => { this.open_folder_suggestion_modal() }, 10);
         return;
@@ -167,7 +167,7 @@ class ScChatsUI extends SmartChatsUI {
     // if @ is pressed
     if (e.key === "@") {
       // if this is first char or previous char is space
-      if (textarea.value.length === 0 || textarea.value[pos - 1] === " ") {
+      if (textarea.value.length === 0 || [" ", "\n"].includes(textarea.value[pos - 1])) {
         // open system prompt suggestion modal (timeout so that last key is added to input)
         setTimeout(() => { this.open_system_prompt_modal() }, 10);
         return;
