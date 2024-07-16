@@ -23,5 +23,10 @@
     "pronouns": ["mio", "mia", "miei", "mie", "noi", "nostro", "nostri", "nostra", "nostre"],
     "prompt": "Sulla base degli appunti",
     "initial_message": "Ciao, sono ChatGPT e ho accesso ai tuoi appunti tramite Smart Connections. Fatemi una domanda sui vostri appunti e cercherò di rispondervi."
+  },
+  "zh": {
+    "pronouns": ["我", "我的", "我们", "我们的"],
+    "prompt": "根据你的笔记",
+    "initial_message": "你好，我是 ChatGPT，可以通过 Smart Connections 访问你的笔记。问我一个关于你笔记的问题，我会尽力回答。"
   }
 }

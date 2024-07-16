@@ -31,7 +31,7 @@ class SmartChatSettings extends SmartSettings {
     if(resp) return this.plugin.notices.show('api key test pass', "Success! API key is valid");
     this.plugin.notices.show('api key test fail', "Error: API key is invalid!");
   }
-  get self_ref_list() { return "Current: " + ScTranslations[this.config.language].pronouns.join(", "); }
+  get self_ref_list() { return "Current: " + ScTranslations[this.settings.language].pronouns.join(", "); }
   get template() { return this.templates['smart_chat_settings']; }
   async get_view_data() {
     const view_data = {
