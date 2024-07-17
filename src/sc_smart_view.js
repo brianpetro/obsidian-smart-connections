@@ -94,13 +94,13 @@ class ScSmartView extends SmartObsidianView {
     }
   }
   async render_nearest(context, container = this.container) {
-    if(typeof this.results === "undefined") this.results = {};
+    if(typeof this.nearest_cache === "undefined") this.nearest_cache = {};
     await this.prepare_to_render_nearest(container);
     let context_key;
     if (typeof context === "string"){
       context_key = context;
-      // if(this.results[context]) return this.render_results(context, container, this.results[context]);
-      this.results[context_key] = this.results[context_key] || await this.plugin.api.search(context);
+      // if(this.nearest_cache[context]) return this.render_results(context, container, this.nearest_cache[context]);
+      this.nearest_cache[context_key] = this.nearest_cache[context_key] || await this.plugin.api.search(context);
     }
     if (typeof context === "undefined") context = this.app.workspace.getActiveFile();
     if (context instanceof this.plugin.obsidian.TFile) {
@@ -110,7 +110,8 @@ class ScSmartView extends SmartObsidianView {
         "File: " + context.name,
         "Unsupported file type (Supported: " + SUPPORTED_FILE_TYPES.join(", ") + ")"
       ]);
-      if (!this.env.smart_notes.get(context.path)) {
+      if (this.should_import_context(context)) {
+        if(this.nearest_cache[context_key]) delete this.nearest_cache[context_key];
         // check if excluded
         if(this.env.is_included(context.path)){
           await this.env.smart_notes.import([context]);
@@ -122,15 +123,19 @@ class ScSmartView extends SmartObsidianView {
       // wait for context.vec (prevent infinite loop)
       while (!context.vec) await new Promise(r => setTimeout(r, 1000));
     }
-    if(this.results[context_key]?.length) return this.render_results(context_key, container, this.results[context_key]); // if results already cached, render
+    if(this.nearest_cache[context_key]?.length) return this.render_results(context_key, container, this.nearest_cache[context_key]); // if results already cached, render
     // Get results
     if (context instanceof this.env.item_types.SmartBlock || context instanceof this.env.item_types.SmartNote){
       context_key = context.key;
-      this.results[context_key] = context.find_connections();
+      this.nearest_cache[context_key] = context.find_connections();
     }
-    if (!this.results[context_key]?.length) return; // this.plugin.notices.show('no smart connections found', "No Smart Connections found.");
-    this.render_results(context_key, container, this.results[context_key]);
+    if (!this.nearest_cache[context_key]?.length) return; // this.plugin.notices.show('no smart connections found', "No Smart Connections found.");
+    this.render_results(context_key, container, this.nearest_cache[context_key]);
   }
+  should_import_context(context) {
+    return !this.env.smart_notes.get(context.path);
+  }
+
   render_results(context, container, results) {
     results = results
       .sort((a, b) => {

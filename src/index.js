@@ -254,7 +254,7 @@ class SmartConnectionsPlugin extends Plugin {
     await this.load_settings(); // re-load settings into memory
     // re-render view if set to true (for example, after adding API key)
     if(rerender) {
-      this.nearest_cache = {};
+      if(this.view) this.view.nearest_cache = {};
       console.log("rerendering view");
       await this.make_connections();
     }
