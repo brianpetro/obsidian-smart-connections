@@ -16,7 +16,7 @@ const { ScSmartView } = require("./sc_smart_view"); // rename to sc_view.js
 const { SmartSearch } = require("./smart_search.js"); // rename to sc_search.js
 const { SmartNotices } = require("./smart_notices.js"); // rename to sc_notices.js (extract smart_notices.js as standard structure first)
 // v2.1
-const { ScChatView } = require("./sc_chat_view.js");
+const { ScChatView } = require("./chat/sc_chat_view.js");
 const { ScSettings } = require("./sc_settings.js");
 const { ScSettingsTab } = require("./sc_settings_tab.js");
 const embed_models = require('smart-embed-model/models.json');

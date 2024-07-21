@@ -1,4 +1,4 @@
-const { SmartObsidianView } = require("./smart_obsidian_view");
+const { SmartObsidianView } = require("../smart_obsidian_view");
 class ScChatView extends SmartObsidianView {
   static get view_type() { return "smart-connections-chat-view"; }
   getDisplayText() { return "Smart Connections Chat"; }

@@ -7,9 +7,9 @@ const {
 const { DataviewSocket } = require("./dataview_socket");
 const templates = require("../build/views.json");
 const ejs = require("../ejs.min");
-const { ScChatModel } = require("./sc_chat_model");
-const { ScChatsUI } = require("./sc_chats_ui");
-const { ScChats } = require("./sc_chats");
+const { ScChatModel } = require("./chat/sc_chat_model");
+const { ScChatsUI } = require("./chat/sc_chats_ui.js");
+const { ScChats } = require("./chat/sc_chats.js");
 const { ScActions } = require("./sc_actions");
 const { SmartChunks } = require('smart-chunks/smart_chunks');
 const { SmartEmbedModel } = require("smart-embed-model");

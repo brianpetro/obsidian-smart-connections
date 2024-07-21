@@ -2,7 +2,7 @@ const openapi_spec = require('../build/actions_openapi.json');
 const handlers = require('./actions/_actions');
 const { lookup } = require('./actions/lookup');
 const { json_ref_resolve } = require('./json_ref_resolve');
-const { contains_self_referential_keywords } = require("./contains_self_referential_keywords");
+const { contains_self_referential_keywords } = require("./chat/contains_self_referential_keywords");
 
 class ScActions {
   constructor(env, opts = {}) {

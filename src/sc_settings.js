@@ -1,6 +1,6 @@
 const { SmartSettings } = require("smart-setting");
 const smart_embed_models = require("smart-embed-model/models.json");
-const { SmartChatSettings } = require("./smart_chat_settings");
+const { SmartChatSettings } = require("./chat/smart_chat_settings");
 const { SmartEmbedSettings } = require("./smart_embed_settings");
 
 // Smart Connections Specific Settings

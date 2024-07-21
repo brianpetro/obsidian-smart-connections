@@ -2,7 +2,7 @@ const { SmartChatsUI } = require("smart-chats/smart_chats_ui");
 const { ScChatView } = require("./sc_chat_view");
 const { FuzzySuggestModal, } = require("obsidian");
 const { SmartChatSettings } = require("./smart_chat_settings");
-const { on_open_overlay } = require("./on_open_overlay");
+const { on_open_overlay } = require("../on_open_overlay");
 
 class ScChatsUI extends SmartChatsUI {
   get view_context() {
