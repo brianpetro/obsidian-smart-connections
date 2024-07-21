@@ -27,7 +27,7 @@ class SmartNotices {
   }
   build(id, message, opts = {}) {
     const frag = document.createDocumentFragment();
-    const head = frag.createEl("p", { cls: "sc-notice-head", text: "[Smart Connections]" });
+    const head = frag.createEl("p", { cls: "sc-notice-head", text: `[Smart Connections v${this.main.manifest.version}]` });
     const content = frag.createEl("p", { cls: "sc-notice-content" });
     const actions = frag.createEl("div", { cls: "sc-notice-actions" });
     if (typeof message === 'string') content.innerText = message;

@@ -143,7 +143,7 @@
 <h1>Smart View & Embeddings</h1>
 <p>Notes about embedding models:</p>
 <ul>
-  <li>IMPORTANT: make sure local bge-micro-v2 embedding model works before trying other local models.</li>
+  <li>IMPORTANT: make sure local <code>BGE-micro-v2</code> embedding model works before trying other local models.</li>
   <li>Local model compatibility depends on available CPU and RAM. Try reducing the max tokens (context) if a local model if failing.</li>
   <li>API models are not dependent on local compute, but they require an API key and send your notes to third-party servers for processing.</li>
 </ul>
@@ -220,7 +220,7 @@
 ></div>
 <div class="setting-component"
   data-name="Smart Chat History Folder"
-  data-description="Folder to store Smart Chat history."
+  data-description="Folder to store Smart Chat history. Use a preceeding <code>.</code> to hide it (ex. <code>.smart-chats</code>)."
   data-type="text"
   data-setting="smart_chat_folder"
   data-placeholder="Enter a folder name"
