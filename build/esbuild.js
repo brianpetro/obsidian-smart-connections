@@ -1,7 +1,9 @@
-const esbuild = require('esbuild');
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config();
+import esbuild from 'esbuild';
+import fs from 'fs';
+import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const main_path = path.join(process.cwd(), 'dist', 'main.js');
 const manifest_path = path.join(process.cwd(), 'manifest.json');
@@ -31,7 +33,7 @@ esbuild.build({
   bundle: true,
   write: true,
   sourcemap: 'inline',
-  target: "es2018",
+  target: "es2022",
 	logLevel: "info",
   treeShaking: true,
   platform: 'node',

@@ -1,11 +1,10 @@
-const test = require('ava');
-const {
+import test from 'ava';
+import {
   get_nearest_until_next_dev_exceeds_std_dev,
   sort_by_len_adjusted_similarity,
   get_top_k_by_sim,
   top_acc,
-} = require('./sc_actions');
-
+} from './sc_actions.js';
 
 // get_nearest_until_next_dev_exceeds_std_dev
 test('returns the nearest items until the next deviation exceeds the standard deviation', t => {

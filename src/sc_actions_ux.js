@@ -1,7 +1,7 @@
-const ejs = require("../ejs.min");
-const views = require("../build/views.json");
+import ejs from "../ejs.min.cjs";
+import views from "../build/views.json";
 
-class ScActionsUx {
+export class ScActionsUx {
   constructor(plugin, container, codeblock_type) {
     this.plugin = plugin;
     this.container = container;
@@ -61,5 +61,3 @@ class ScActionsUx {
   get attribution() { return views.attribution; }
 }
 function get_button_by_text(container, text) { return Array.from(container.querySelectorAll('button')).find(button => button.textContent === text); }
-exports.ScActionsUx = ScActionsUx;
-

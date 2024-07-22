@@ -1,5 +1,5 @@
-const test = require('ava');
-const { json_ref_resolve } = require('./json_ref_resolve');
+import test from 'ava';
+import { json_ref_resolve } from './json_ref_resolve.js';
 
 const schema = {
   "definitions": {

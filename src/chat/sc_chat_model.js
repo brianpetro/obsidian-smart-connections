@@ -1,6 +1,7 @@
-const ScTranslations = require("./ScTranslations");
-const { SmartChatModel } = require("smart-chat-model");
-class ScChatModel extends SmartChatModel {
+import ScTranslations from "./ScTranslations.json" assert { type: "json" };
+import { SmartChatModel } from "smart-chat-model";
+
+export class ScChatModel extends SmartChatModel {
   async done_handler(full_str) {
     await this.env.chat_ui.new_message(full_str, "assistant");
     this.env.chats.current.add_message({ role: "assistant", content: full_str });
@@ -70,4 +71,3 @@ class ScChatModel extends SmartChatModel {
       + ` Begin responses with "${ScTranslations[this.env.plugin.settings.language].prompt}..."`;
   }
 }
-exports.ScChatModel = ScChatModel;

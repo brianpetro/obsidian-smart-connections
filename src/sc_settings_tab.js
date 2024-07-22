@@ -1,6 +1,6 @@
-const { PluginSettingTab } = require("obsidian");
+import { PluginSettingTab } from "obsidian";
 
-class ScSettingsTab extends PluginSettingTab {
+export class ScSettingsTab extends PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
@@ -11,4 +11,3 @@ class ScSettingsTab extends PluginSettingTab {
     return this.smart_settings.render();
   }
 }
-exports.ScSettingsTab = ScSettingsTab;

@@ -1,7 +1,8 @@
-const ScTranslations = require("./ScTranslations");
-const { SmartSettings } = require("smart-setting");
+import ScTranslations from "./ScTranslations.json" assert { type: "json" };
+import { SmartSettings } from "smart-setting";
+
 // Smart Connections Specific Settings
-class SmartChatSettings extends SmartSettings {
+export class SmartChatSettings extends SmartSettings {
   update_smart_chat_folder() { this.plugin.update_smart_chat_folder(); }
   async changed_smart_chat_model(render = true){
     console.log(this.plugin.settings.chat_model_platform_key);
@@ -44,4 +45,3 @@ class SmartChatSettings extends SmartSettings {
     return view_data;
   }
 }
-exports.SmartChatSettings = SmartChatSettings;

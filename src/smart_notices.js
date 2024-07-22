@@ -1,5 +1,6 @@
-const { setIcon } = require("obsidian");
-class SmartNotices {
+import { setIcon } from "obsidian";
+
+export class SmartNotices {
   constructor(main) {
     this.main = main; // main plugin instance
     this.active = {};
@@ -77,4 +78,3 @@ class SmartNotices {
     this.show('requires smart view', msg, { button: btn, timeout: 0 });
   }
 }
-exports.SmartNotices = SmartNotices;

@@ -1,10 +1,10 @@
-const { SmartChatsUI } = require("smart-chats/smart_chats_ui");
-const { ScChatView } = require("./sc_chat_view");
-const { FuzzySuggestModal, } = require("obsidian");
-const { SmartChatSettings } = require("./smart_chat_settings");
-const { on_open_overlay } = require("../on_open_overlay");
+import { SmartChatsUI } from "smart-chats/smart_chats_ui.js";
+import { ScChatView } from "./sc_chat_view.js";
+import { FuzzySuggestModal, } from "obsidian";
+import { SmartChatSettings } from "./smart_chat_settings.js";
+import { on_open_overlay } from "../on_open_overlay.js";
 
-class ScChatsUI extends SmartChatsUI {
+export class ScChatsUI extends SmartChatsUI {
   get view_context() {
     return {
       attribution: this.templates.attribution,
@@ -202,7 +202,6 @@ class ScChatsUI extends SmartChatsUI {
     }, 200);
   }
 }
-exports.ScChatsUI = ScChatsUI;
 
 // File Select Fuzzy Suggest Modal
 class ScFileSelectModal extends FuzzySuggestModal {

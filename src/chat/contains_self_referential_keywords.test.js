@@ -1,5 +1,6 @@
-const test = require('ava');
-const { contains_self_referential_keywords } = require('./contains_self_referential_keywords');
+import test from 'ava';
+import { contains_self_referential_keywords } from './contains_self_referential_keywords.js';
+
 const mock_env = {
   plugin: {
     get_folders: () => {

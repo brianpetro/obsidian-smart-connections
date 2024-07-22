@@ -1,8 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-const templates_dir = path.join(process.cwd(), 'src', 'views'); // Directory containing EJS files
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import swaggerJsdoc from 'swagger-jsdoc';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const templates_dir = path.join(__dirname, '..', 'src', 'views'); // Directory containing EJS files
 let views = {};
-const swagger_jsdoc = require('swagger-jsdoc');
 (async () => {
   // Compile EJS templates into JSON
   fs.readdir(templates_dir, (err, files) => {
@@ -25,14 +30,15 @@ const swagger_jsdoc = require('swagger-jsdoc');
   const apis = [];
   // get action file paths from src/actions
   const action_names = fs.readdirSync(path.join(process.cwd(), 'src', 'actions')).filter(file => file.endsWith('.js'));
-  action_names.forEach(action_name => {
-      if(action_name.startsWith('_')) return;
-      console.log(action_name);
-      const action_path = path.join(process.cwd(), 'src', 'actions', action_name);
-      const { [path.basename(action_name, '.js')]: action } = require(action_path);
-      if(typeof action !== 'function') return console.log(`${action_path} is not a function: ${typeof action}`);
-      apis.push(action_path);
-  });
-  const openapi_spec = swagger_jsdoc({ definition: {openapi: '3.0.0'}, apis });
+  // action_names.forEach(action_name => {
+  for(const action_name of action_names) {
+    if(action_name.startsWith('_')) continue;
+    console.log(action_name);
+    const action_path = path.join(process.cwd(), 'src', 'actions', action_name);
+    const { [path.basename(action_name, '.js')]: action } = await import(action_path);
+    if(typeof action !== 'function') return console.log(`${action_path} is not a function: ${typeof action}`);
+    apis.push(action_path);
+  }
+  const openapi_spec = swaggerJsdoc({ definition: {openapi: '3.0.0'}, apis });
   fs.writeFileSync(path.join(process.cwd(), 'build', 'actions_openapi.json'), JSON.stringify(openapi_spec, null, 2));
 })();

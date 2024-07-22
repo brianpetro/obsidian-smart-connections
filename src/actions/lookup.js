@@ -25,7 +25,7 @@
  *               - hypothetical_2
  * 
  */
-async function lookup(env, params={}) {
+export async function lookup(env, params={}) {
   // TODO 
   console.log("lookup", params);
   const { hypotheticals = [], hypothetical_1, hypothetical_2, hypothetical_3 } = params;
@@ -74,7 +74,6 @@ async function lookup(env, params={}) {
   console.log(`Found and returned ${top_k.length} ${collection.collection_name}.`);
   return top_k;
 }
-exports.lookup = lookup;
 
   // // IN DEVELOPMENT (Collection.retrieve(strategy, opts))
   // get retrieve_nearest_strategy() {
@@ -97,7 +96,7 @@ function cos_sim(vector1, vector2) {
   const normB = Math.sqrt(vector2.reduce((acc, val) => acc + val * val, 0));
   return normA === 0 || normB === 0 ? 0 : dotProduct / (normA * normB);
 }
-function top_acc(_acc, item, ct = 10) {
+export function top_acc(_acc, item, ct = 10) {
   if (_acc.items.size < ct) {
     _acc.items.add(item);
   } else if (item.sim > _acc.min) {
@@ -107,10 +106,9 @@ function top_acc(_acc, item, ct = 10) {
     _acc.min = _acc.minItem.sim;
   }
 }
-exports.top_acc = top_acc;
 
 // get nearest until next deviation exceeds std dev
-function get_nearest_until_next_dev_exceeds_std_dev(nearest) {
+export function get_nearest_until_next_dev_exceeds_std_dev(nearest) {
   if(nearest.length === 0) return []; // return empty array if no items
   // get std dev of similarity
   const sims = nearest.map((n) => n.sim);
@@ -133,10 +131,9 @@ function get_nearest_until_next_dev_exceeds_std_dev(nearest) {
   nearest = nearest.slice(0, slice_i + 1);
   return nearest;
 }
-exports.get_nearest_until_next_dev_exceeds_std_dev = get_nearest_until_next_dev_exceeds_std_dev;
 
 // sort by quotient of similarity divided by len DESC
-function sort_by_len_adjusted_similarity(nearest) {
+export function sort_by_len_adjusted_similarity(nearest) {
   // re-sort by quotient of similarity divided by len DESC
   nearest = nearest.sort((a, b) => {
     const a_score = a.sim / a.tokens;
@@ -152,9 +149,8 @@ function sort_by_len_adjusted_similarity(nearest) {
   });
   return nearest;
 }
-exports.sort_by_len_adjusted_similarity = sort_by_len_adjusted_similarity;
 
-function get_top_k_by_sim(results, opts) {
+export function get_top_k_by_sim(results, opts) {
   return Array.from((results.reduce((acc, item) => {
     if(!item.data.embedding?.vec) return acc; // skip if no vec
     item.sim = cos_sim(opts.vec, item.data.embedding.vec);
@@ -162,4 +158,3 @@ function get_top_k_by_sim(results, opts) {
     return acc;
   }, { min: 0, items: new Set() })).items);
 }
-exports.get_top_k_by_sim = get_top_k_by_sim;

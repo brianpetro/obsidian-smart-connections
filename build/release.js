@@ -1,16 +1,17 @@
-require('dotenv').config();
-const fs = require('fs');
-const readline = require('readline');
-const archiver = require('archiver');
-const axios = require('axios');
+import dotenv from 'dotenv';
+import fs from 'fs';
+import readline from 'readline';
+import archiver from 'archiver';
+import axios from 'axios';
+import { exec } from 'child_process';
+
+dotenv.config();
 
 // Read package.json and manifest.json
 const package_json = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 const manifest_json = JSON.parse(fs.readFileSync('./manifest.json', 'utf8'));
 const version = package_json.version;
 const manifest_id = manifest_json.id;
-
-const { exec } = require('child_process');
 
 
 // Replace calls to uploadAsset with uploadAssetCurl in your existing code

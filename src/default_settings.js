@@ -1,4 +1,4 @@
-function default_settings() {
+export function default_settings() {
   return {
     settings: {
       new_user: true,
@@ -55,4 +55,3 @@ function default_settings() {
     update_available: false,
   };
 }
-exports.default_settings = default_settings;

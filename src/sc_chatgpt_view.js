@@ -1,5 +1,6 @@
-const { ItemView } = require("obsidian");
-class SmartChatGPTView extends ItemView {
+import { ItemView } from "obsidian";
+
+export class SmartChatGPTView extends ItemView {
   static get view_type() { return 'smart_chatgpt'; }
   static get_leaf(workspace) { return workspace.getLeavesOfType(this.view_type)?.find((leaf) => leaf.view instanceof this); }
   static open(workspace, active = true) {
@@ -38,6 +39,3 @@ class SmartChatGPTView extends ItemView {
     return this.frame;
   }
 }
-
-exports.SmartChatGPTView = SmartChatGPTView;
-

@@ -1,8 +1,8 @@
-const { SmartChats } = require("smart-chats");
-const { ScChat } = require("./sc_chat");
-const { FuzzySuggestModal } = require("obsidian");
+import { SmartChats } from "smart-chats";
+import { ScChat } from "./sc_chat.js";
+import { FuzzySuggestModal } from "obsidian";
 
-class ScChats extends SmartChats {
+export class ScChats extends SmartChats {
   constructor(env, opts = {}) {
     super(env, opts);
     this.plugin = this.env.plugin;
@@ -96,9 +96,8 @@ class ScChats extends SmartChats {
   //   }
   // }
 }
-exports.ScChats = ScChats;
 
-class ScChatHistoryModal extends FuzzySuggestModal {
+export class ScChatHistoryModal extends FuzzySuggestModal {
   constructor(app, env) {
     super(app);
     this.app = app;

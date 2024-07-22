@@ -1,10 +1,10 @@
-const { SmartSettings } = require("smart-setting");
-const smart_embed_models = require("smart-embed-model/models.json");
-const { SmartChatSettings } = require("./chat/smart_chat_settings");
-const { SmartEmbedSettings } = require("./smart_embed_settings");
+import { SmartSettings } from "smart-setting";
+import smart_embed_models from "smart-embed-model/models.json";
+import { SmartChatSettings } from "./chat/smart_chat_settings.js";
+import { SmartEmbedSettings } from "./smart_embed_settings.js";
 
 // Smart Connections Specific Settings
-class ScSettings extends SmartSettings {
+export class ScSettings extends SmartSettings {
   constructor(env, container, template_name = "smart_settings") {
     super(env, container, template_name);
   }
@@ -88,5 +88,3 @@ class ScSettings extends SmartSettings {
     await this.plugin.update_early_access();
   }
 }
-exports.ScSettings = ScSettings;
-

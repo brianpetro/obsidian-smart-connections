@@ -1,4 +1,4 @@
-class SmartSocket {
+export class SmartSocket {
   /**
    * Creates an instance of SmartSocket.
    * @param {number} port The port number to connect to.
@@ -201,4 +201,3 @@ class SmartSocket {
     this.cleanup_websocket();
   }
 }
-exports.SmartSocket = SmartSocket;

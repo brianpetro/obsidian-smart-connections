@@ -1,4 +1,4 @@
-class SmartSearch {
+export class SmartSearch {
   constructor(plugin) {
     this.main = plugin;
     this.plugin = plugin; // DEPRECATED in favor of this.main???
@@ -31,4 +31,3 @@ class SmartSearch {
     }
   }
 }
-exports.SmartSearch = SmartSearch;

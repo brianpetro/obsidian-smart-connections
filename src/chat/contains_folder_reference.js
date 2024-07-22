@@ -1,5 +1,5 @@
 // check if contains folder reference (ex. /folder/, or /folder/subfolder/)
-function contains_folder_reference(user_input) {
+export function contains_folder_reference(user_input) {
   const first_slash = user_input.indexOf("/");
   if (first_slash === -1) return false;
   const last_slash = user_input.lastIndexOf("/");
@@ -19,4 +19,3 @@ function contains_folder_reference(user_input) {
   }
   return true;
 }
-exports.contains_folder_reference = contains_folder_reference;

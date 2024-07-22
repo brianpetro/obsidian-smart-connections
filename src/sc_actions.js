@@ -1,10 +1,10 @@
-const openapi_spec = require('../build/actions_openapi.json');
-const handlers = require('./actions/_actions');
-const { lookup } = require('./actions/lookup');
-const { json_ref_resolve } = require('./json_ref_resolve');
-const { contains_self_referential_keywords } = require("./chat/contains_self_referential_keywords");
+import openapi_spec from '../build/actions_openapi.json';
+import * as handlers from './actions/_actions.js';
+import { lookup } from './actions/lookup.js';
+import { json_ref_resolve } from './json_ref_resolve.js';
+import { contains_self_referential_keywords } from "./chat/contains_self_referential_keywords.js";
 
-class ScActions {
+export class ScActions {
   constructor(env, opts = {}) {
     this.env = env;
     this.plugin = this.env.plugin;
@@ -133,7 +133,6 @@ class ScActions {
     return handlers[operationId];
   }
 }
-exports.ScActions = ScActions;
 
 
 /**

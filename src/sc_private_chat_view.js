@@ -1,5 +1,6 @@
-const { ItemView } = require("obsidian");
-class SmartPrivateChatView extends ItemView {
+import { ItemView } from "obsidian";
+
+export class SmartPrivateChatView extends ItemView {
   static get view_type() { return 'smart_private_chat'; }
   static get_leaf(workspace) { return workspace.getLeavesOfType(this.view_type)?.find((leaf) => leaf.view instanceof this); }
   static open(workspace, active = true) {
@@ -38,6 +39,3 @@ class SmartPrivateChatView extends ItemView {
     return this.frame;
   }
 }
-
-exports.SmartPrivateChatView = SmartPrivateChatView;
-

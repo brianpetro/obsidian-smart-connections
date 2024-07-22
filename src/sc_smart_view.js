@@ -1,8 +1,8 @@
-const { SmartObsidianView } = require("./smart_obsidian_view.js");
-const { SmartEmbedSettings } = require("./smart_embed_settings.js");
+import { SmartObsidianView } from "./smart_obsidian_view.js";
+import { SmartEmbedSettings } from "./smart_embed_settings.js";
 const SUPPORTED_FILE_TYPES = ["md", "canvas"];
 
-class ScSmartView extends SmartObsidianView {
+export class ScSmartView extends SmartObsidianView {
   static get view_type() { return "smart-connections-view"; }
   // Obsidian
   getViewType() { return this.constructor.view_type; }
@@ -125,7 +125,7 @@ class ScSmartView extends SmartObsidianView {
     }
     if(this.nearest_cache[context_key]?.length) return this.render_results(context_key, container, this.nearest_cache[context_key]); // if results already cached, render
     // Get results
-    if (context instanceof this.env.item_types.SmartBlock || context instanceof this.env.item_types.SmartNote){
+    if (context instanceof this.env.item_types.SmartBlock || context instanceof this.env.item_types.SmartSource){
       context_key = context.key;
       this.nearest_cache[context_key] = context.find_connections();
     }
@@ -326,4 +326,3 @@ class ScSmartView extends SmartObsidianView {
     });
   }
 }
-exports.ScSmartView = ScSmartView;

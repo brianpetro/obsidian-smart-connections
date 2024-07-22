@@ -1,4 +1,4 @@
-async function render_dataview_codeblocks(file_content, note_path, opts = {}) {
+export async function render_dataview_codeblocks(file_content, note_path, opts = {}) {
   opts = {
     char_limit: null,
     ...opts
@@ -25,4 +25,3 @@ async function render_dataview_codeblocks(file_content, note_path, opts = {}) {
   }
   return file_content;
 }
-exports.render_dataview_codeblocks = render_dataview_codeblocks;

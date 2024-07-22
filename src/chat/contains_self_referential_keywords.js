@@ -1,12 +1,12 @@
-const ScTranslations = require("./ScTranslations");
-const { contains_folder_reference } = require("./contains_folder_reference");
-const { contains_internal_link } = require("./contains_internal_link");
-const { extract_internal_links } = require("./extract_internal_links");
-const { extract_folder_references } = require("./extract_folder_references");
-const { contains_system_prompt_ref, extract_system_prompt_ref } = require("./contains_system_prompt_ref");
+import ScTranslations from "./ScTranslations.json" assert { type: "json" };
+import { contains_folder_reference } from "./contains_folder_reference.js";
+import { contains_internal_link } from "./contains_internal_link.js";
+import { extract_internal_links } from "./extract_internal_links.js";
+import { extract_folder_references } from "./extract_folder_references.js";
+import { contains_system_prompt_ref, extract_system_prompt_ref } from "./contains_system_prompt_ref.js";
 
 // check if includes keywords referring to one's own notes
-async function contains_self_referential_keywords(env, user_input, language) {
+export async function contains_self_referential_keywords(env, user_input, language) {
   const language_settings = ScTranslations[language];
   if (!language_settings) return false;
   let check_str = `${user_input}`;
@@ -31,4 +31,3 @@ async function contains_self_referential_keywords(env, user_input, language) {
   if (check_str.match(new RegExp(`\\b(${language_settings.pronouns.join("|")})\\b`, "gi"))) return true;
   return false;
 }
-exports.contains_self_referential_keywords = contains_self_referential_keywords;

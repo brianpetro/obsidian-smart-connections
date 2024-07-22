@@ -1,25 +1,29 @@
-const {
-  SmartBlock: BaseSmartBlock,
+import {
+  SmartBlock,
   SmartBlocks,
-  SmartNote: BaseSmartNote,
-  SmartNotes,
-} = require('smart-entities');
-const { render_dataview_codeblocks } = require('./render_dataview_codeblocks');
-class SmartNote extends BaseSmartNote {
-  async get_content() { return await this.brain.cached_read(this.data.path); }
-  async get_as_context(params = {}) {
-    const content = await render_dataview_codeblocks(await this.get_content(), this.data.path);
-    return `---BEGIN NOTE${params.i ? " " + params.i : ""} [[${this.path}]]---\n${content}\n---END NOTE${params.i ? " " + params.i : ""}---`;
-  }
-}
-class SmartBlock extends BaseSmartBlock {
-  async get_as_context(params = {}) {
-    const content = await render_dataview_codeblocks(await this.get_content(), this.data.path);
-    return `---BEGIN NOTE${params.i ? " " + params.i : ""} [[${this.path}]]---\n${content}\n---END NOTE${params.i ? " " + params.i : ""}---`;
-  }
-}
-exports.SmartNotes = SmartNotes;
-exports.SmartNote = SmartNote;
-exports.SmartBlocks = SmartBlocks;
-exports.SmartBlock = SmartBlock;
+  SmartSource,
+  SmartSources,
+} from 'smart-entities';
+import { render_dataview_codeblocks } from './render_dataview_codeblocks.js';
 
+// NOTE: Not extending to prevent redundant classes in bundled version
+// TODO: should find solution to this for easy extending (better code)
+
+SmartSource.prototype.get_content = async function() { return await this.brain.cached_read(this.data.path); }
+SmartSource.prototype.get_as_context = async function(params = {}) {
+  const content = await render_dataview_codeblocks(await this.get_content(), this.data.path);
+  return `---BEGIN NOTE${params.i ? " " + params.i : ""} [[${this.path}]]---\n${content}\n---END NOTE${params.i ? " " + params.i : ""}---`;
+}
+
+SmartBlock.prototype.get_as_context = async function(params = {}) {
+  const content = await render_dataview_codeblocks(await this.get_content(), this.data.path);
+  return `---BEGIN NOTE${params.i ? " " + params.i : ""} [[${this.path}]]---\n${content}\n---END NOTE${params.i ? " " + params.i : ""}---`;
+}
+
+Object.defineProperty(SmartSources.prototype, 'smart_embed_model', {
+  get: function() {
+    return this.config.smart_notes_embed_model;
+  }
+});
+
+export { SmartSources, SmartSource, SmartBlocks, SmartBlock };

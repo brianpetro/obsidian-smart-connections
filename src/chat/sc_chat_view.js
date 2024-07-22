@@ -1,5 +1,6 @@
-const { SmartObsidianView } = require("../smart_obsidian_view");
-class ScChatView extends SmartObsidianView {
+import { SmartObsidianView } from "../smart_obsidian_view.js";
+
+export class ScChatView extends SmartObsidianView {
   static get view_type() { return "smart-connections-chat-view"; }
   getDisplayText() { return "Smart Connections Chat"; }
   getIcon() { return "message-square"; }
@@ -21,6 +22,3 @@ class ScChatView extends SmartObsidianView {
     this.app.workspace.unregisterHoverLinkSource(ScChatView.view_type);
   }
 }
-
-// EXPORTS
-exports.ScChatView = ScChatView;

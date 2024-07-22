@@ -1,5 +1,5 @@
-const test = require('ava');
-const { extract_folder_references } = require("./extract_folder_references");
+import test from 'ava';
+import { extract_folder_references } from './extract_folder_references.js';
 
 // extract_folder_references
 test('returns an array of folder references found in the user input', t => {

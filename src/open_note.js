@@ -1,4 +1,4 @@
-async function open_note(plugin, target_path, event=null) {
+export async function open_note(plugin, target_path, event=null) {
   const env = plugin.env;
   let targetFile;
   let block;
@@ -24,4 +24,3 @@ async function open_note(plugin, target_path, event=null) {
     editor.scrollIntoView({ to: pos, from: pos }, true);
   }
 }
-exports.open_note = open_note;

@@ -1,6 +1,6 @@
-const { SmartSocket } = require("./smart_socket");
+import { SmartSocket } from "./smart_socket.js";
 
-class DataviewSocket extends SmartSocket {
+export class DataviewSocket extends SmartSocket {
   constructor(env, port) {
     super(port);
     this.env = env;
@@ -88,4 +88,3 @@ class DataviewSocket extends SmartSocket {
     return htmlToMarkdown(html_elm.innerHTML);
   }
 }
-exports.DataviewSocket = DataviewSocket;

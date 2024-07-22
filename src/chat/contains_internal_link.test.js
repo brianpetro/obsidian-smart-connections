@@ -1,5 +1,5 @@
-const test = require('ava');
-const { contains_internal_link } = require("./contains_internal_link");
+import test from 'ava';
+import { contains_internal_link } from './contains_internal_link.js';
 // contains_internal_link
 test('returns true if user input contains internal link', t => {
   const userInput = 'This is a [[link]]';

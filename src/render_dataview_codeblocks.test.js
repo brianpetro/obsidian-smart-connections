@@ -1,5 +1,5 @@
-const test = require('ava');
-const { render_dataview_codeblocks } = require('./render_dataview_codeblocks');
+import test from 'ava';
+import { render_dataview_codeblocks } from './render_dataview_codeblocks.js';
 test.beforeEach(() => {
   global.window = {};
 });

@@ -1,9 +1,9 @@
-const { ItemView } = require("obsidian");
-const views = require("../build/views.json");
-const ejs = require("../ejs.min");
+import { ItemView } from "obsidian";
+import views from "../build/views.json";
+import ejs from "../ejs.min.cjs";
 
 // handle rendering EJS views
-class SmartObsidianView extends ItemView {
+export class SmartObsidianView extends ItemView {
   constructor(leaf, plugin) {
     super(leaf);
     this.app = plugin.app;
@@ -49,4 +49,3 @@ class SmartObsidianView extends ItemView {
   static is_open(workspace) { return this.get_leaf(workspace)?.view instanceof this; }
   get container() { return this.containerEl.children[1]; }
 }
-exports.SmartObsidianView = SmartObsidianView;

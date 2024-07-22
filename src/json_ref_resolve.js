@@ -1,4 +1,4 @@
-function json_ref_resolve(schema, rootSchema = null) {
+export function json_ref_resolve(schema, rootSchema = null) {
   rootSchema = rootSchema || schema; // Set the root schema context
 
   if (typeof schema === 'object' && !Array.isArray(schema) && schema !== null) {
@@ -20,7 +20,6 @@ function json_ref_resolve(schema, rootSchema = null) {
 
   return schema;
 }
-exports.json_ref_resolve = json_ref_resolve;
 
 function get_schema_by_path(rootSchema, path) {
   const parts = path.split('/').slice(1); // remove the first empty string from `#/definitions/example`

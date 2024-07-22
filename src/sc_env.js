@@ -1,19 +1,20 @@
-const {
-  SmartNotes,
+import {
+  SmartSources,
+  SmartSource,
   SmartBlocks,
-  SmartNote,
   SmartBlock,
-} = require("./sc_entities.js");
-const { DataviewSocket } = require("./dataview_socket");
-const templates = require("../build/views.json");
-const ejs = require("../ejs.min");
-const { ScChatModel } = require("./chat/sc_chat_model");
-const { ScChatsUI } = require("./chat/sc_chats_ui.js");
-const { ScChats } = require("./chat/sc_chats.js");
-const { ScActions } = require("./sc_actions");
-const { SmartChunks } = require('smart-chunks/smart_chunks');
-const { SmartEmbedModel } = require("smart-embed-model");
-class ScEnv {
+} from "./sc_entities.js";
+import { DataviewSocket } from "./dataview_socket.js";
+import templates from "../build/views.json";
+import ejs from "../ejs.min.cjs";
+import { ScChatModel } from "./chat/sc_chat_model.js";
+import { ScChatsUI } from "./chat/sc_chats_ui.js";
+import { ScChats } from "./chat/sc_chats.js";
+import { ScActions } from "./sc_actions.js";
+import { SmartChunks } from 'smart-chunks/smart_chunks.js';
+import { SmartEmbedModel } from "smart-embed-model";
+
+export class ScEnv {
   constructor(plugin, opts={}) {
     this.sc_adapter_class = opts.sc_adapter_class;
     this.ltm_adapter = opts.sc_adapter_class; // DEPRECATED in v2.2
@@ -22,16 +23,18 @@ class ScEnv {
     this.config = this.plugin.settings;
     this.data_path = this.config.smart_connections_folder;
     this.collections = {
-      smart_notes: SmartNotes,
+      smart_sources: SmartSources,
       smart_blocks: SmartBlocks,
     };
     this.collection_types = {
-      SmartNotes,
+      SmartSources,
       SmartBlocks,
+      // SmartNotes: SmartSources, // DEPRECATED/TEMP: for Smart Entities v2 backwards compatibility
     };
     this.item_types = {
-      SmartNote,
+      SmartSource,
       SmartBlock,
+      // SmartNote: SmartSource, // DEPRECATED/TEMP: for Smart Entities v2 backwards compatibility
     };
     this.save_timeout = null;
     this.smart_embed_active_models = {};
@@ -43,6 +46,8 @@ class ScEnv {
     this.templates = templates;
     this.modules = { SmartEmbedModel };
   }
+  get smart_notes() { return this.smart_sources; } // TEMP: for Smart Entities v2 backwards compatibility
+  set smart_notes(smart_sources) { this.smart_sources = smart_sources; } // TEMP: for Smart Entities v2 backwards compatibility
   get chat_classes() { return { ScActions, ScChatsUI, ScChats, ScChatModel }; }
   async reload() {
     this.unload();
@@ -79,9 +84,9 @@ class ScEnv {
   async init_entities() {
     if(this.plugin.is_initializing_entities) return console.log('already init entities'); // Check if already initializing
     this.plugin.is_initializing_entities = true; // Set flag to true to indicate initialization has started
-    this.smart_notes = new this.collection_types.SmartNotes(this, { adapter_class: this.sc_adapter_class, custom_collection_name: 'smart_notes' });
+    this.smart_sources = new this.collection_types.SmartSources(this, { adapter_class: this.sc_adapter_class, custom_collection_name: 'smart_sources' });
     this.smart_blocks = new this.collection_types.SmartBlocks(this, { adapter_class: this.sc_adapter_class, custom_collection_name: 'smart_blocks' });
-    this.smart_notes.merge_defaults();
+    this.smart_sources.merge_defaults();
     this.smart_blocks.merge_defaults();
     await this.smart_blocks.load_smart_embed();
     await this.smart_notes.load(); // also loads smart blocks
@@ -155,4 +160,3 @@ class ScEnv {
   // from deprecated env (brain)
   get_ref(ref) { return this[ref.collection_name].get(ref.key); }
 }
-exports.ScEnv = ScEnv;

@@ -1,4 +1,4 @@
-const {
+import {
   addIcon,
   Keymap,
   MarkdownRenderer,
@@ -8,25 +8,25 @@ const {
   requestUrl,
   TAbstractFile,
   TFile,
-} = require("obsidian");
-const { ScEnv } = require("./sc_env");
-const { default_settings } = require("./default_settings");
+} from "obsidian";
+import { ScEnv } from "./sc_env.js";
+import { default_settings } from "./default_settings.js";
 // rename modules
-const { ScSmartView } = require("./sc_smart_view"); // rename to sc_view.js
-const { SmartSearch } = require("./smart_search.js"); // rename to sc_search.js
-const { SmartNotices } = require("./smart_notices.js"); // rename to sc_notices.js (extract smart_notices.js as standard structure first)
+import { ScSmartView } from "./sc_smart_view.js";
+import { SmartSearch } from "./smart_search.js";
+import { SmartNotices } from "./smart_notices.js";
 // v2.1
-const { ScChatView } = require("./chat/sc_chat_view.js");
-const { ScSettings } = require("./sc_settings.js");
-const { ScSettingsTab } = require("./sc_settings_tab.js");
-const embed_models = require('smart-embed-model/models.json');
-const { ScActionsUx } = require("./sc_actions_ux.js");
-const { open_note } = require("./open_note.js");
-const { ObsidianAdapter } = require("smart-collections/adapters/obsidian");
-const { SmartChatGPTView } = require("./sc_chatgpt_view.js");
-const { SmartPrivateChatView } = require("./sc_private_chat_view.js");
+import { ScChatView } from "./chat/sc_chat_view.js";
+import { ScSettings } from "./sc_settings.js";
+import { ScSettingsTab } from "./sc_settings_tab.js";
+import embed_models from 'smart-embed-model/models.json';
+import { ScActionsUx } from "./sc_actions_ux.js";
+import { open_note } from "./open_note.js";
+import { ObsidianAdapter } from "smart-collections/adapters/obsidian";
+import { SmartChatGPTView } from "./sc_chatgpt_view.js";
+import { SmartPrivateChatView } from "./sc_private_chat_view.js";
 
-class SmartConnectionsPlugin extends Plugin {
+export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
   get item_views() {
     return {
@@ -438,4 +438,3 @@ class SmartConnectionsPlugin extends Plugin {
     }
   }
 }
-module.exports = SmartConnectionsPlugin;

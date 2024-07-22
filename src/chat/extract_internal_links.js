@@ -1,4 +1,4 @@
-function extract_internal_links(env, user_input) {
+export function extract_internal_links(env, user_input) {
   const matches = user_input.match(/\[\[(.*?)\]\]/g);
   console.log(matches);
   // return array of TFile objects
@@ -9,4 +9,3 @@ function extract_internal_links(env, user_input) {
   if (matches) return matches;
   return [];
 }
-exports.extract_internal_links = extract_internal_links;

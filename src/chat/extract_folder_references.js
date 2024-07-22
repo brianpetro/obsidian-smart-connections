@@ -1,5 +1,5 @@
 // get folder references from user input
-function extract_folder_references(folders, user_input) {
+export function extract_folder_references(folders, user_input) {
   // use this.folders to extract folder references by longest first (ex. /folder/subfolder/ before /folder/) to avoid matching /folder/subfolder/ as /folder/
   folders = folders.slice(); // copy folders array
   const matches = folders.sort((a, b) => b.length - a.length).map(folder => {
@@ -16,4 +16,3 @@ function extract_folder_references(folders, user_input) {
   if (matches) return matches;
   return false;
 }
-exports.extract_folder_references = extract_folder_references;

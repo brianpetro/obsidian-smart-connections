@@ -1,7 +1,7 @@
-const { SmartSettings } = require("smart-setting");
-const smart_embed_models = require("smart-embed-model/models.json");
+import { SmartSettings } from "smart-setting";
+import smart_embed_models from "smart-embed-model/models.json";
 // Smart Connections Specific Settings
-class SmartEmbedSettings extends SmartSettings {
+export class SmartEmbedSettings extends SmartSettings {
   refresh_smart_view() { this.plugin.smart_connections_view.render_nearest(); }
   async connect_to_smart_connect(){
     // check if already is connected
@@ -53,4 +53,3 @@ class SmartEmbedSettings extends SmartSettings {
     return view_data;
   }
 }
-exports.SmartEmbedSettings = SmartEmbedSettings;

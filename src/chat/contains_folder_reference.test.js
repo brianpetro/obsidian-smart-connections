@@ -1,5 +1,5 @@
-const test = require('ava');
-const { contains_folder_reference } = require('./contains_folder_reference');
+import test from 'ava';
+import { contains_folder_reference } from './contains_folder_reference.js';
 
 // contains_folder_reference
 test('returns true if user input contains folder reference', t => {

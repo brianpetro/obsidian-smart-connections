@@ -1,11 +1,11 @@
-const { SmartChat } = require('smart-chats/smart_chat');
-const { extract_folder_references } = require("./extract_folder_references");
-const { contains_internal_link } = require("./contains_internal_link");
-const { contains_folder_reference } = require('./contains_folder_reference');
-const { extract_internal_links } = require('./extract_internal_links');
-const { contains_system_prompt_ref, extract_system_prompt_ref } = require('./contains_system_prompt_ref');
+import { SmartChat } from 'smart-chats/smart_chat.js';
+import { extract_folder_references } from "./extract_folder_references.js";
+import { contains_internal_link } from "./contains_internal_link.js";
+import { contains_folder_reference } from './contains_folder_reference.js';
+import { extract_internal_links } from './extract_internal_links.js';
+import { contains_system_prompt_ref, extract_system_prompt_ref } from './contains_system_prompt_ref.js';
 
-class ScChat extends SmartChat {
+export class ScChat extends SmartChat {
   async new_user_message(content){
     const og_content = content;
     try{
@@ -66,6 +66,4 @@ class ScChat extends SmartChat {
     await this.env.chat_ui.render_dotdotdot();
   }
 }
-exports.ScChat = ScChat;
-
 
