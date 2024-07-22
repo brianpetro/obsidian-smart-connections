@@ -5,7 +5,7 @@ import {
   SmartBlock,
 } from "./sc_entities.js";
 import { DataviewSocket } from "./dataview_socket.js";
-import templates from "../build/views.json";
+import templates from "../build/views.json" assert { type: "json" };
 import ejs from "../ejs.min.cjs";
 import { ScChatModel } from "./chat/sc_chat_model.js";
 import { ScChatsUI } from "./chat/sc_chats_ui.js";

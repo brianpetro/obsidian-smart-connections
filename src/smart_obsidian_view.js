@@ -1,5 +1,5 @@
 import { ItemView } from "obsidian";
-import views from "../build/views.json";
+import views from "../build/views.json" assert { type: "json" };
 import ejs from "../ejs.min.cjs";
 
 // handle rendering EJS views

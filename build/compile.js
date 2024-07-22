@@ -1,12 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import swaggerJsdoc from 'swagger-jsdoc';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const templates_dir = path.join(__dirname, '..', 'src', 'views'); // Directory containing EJS files
+const templates_dir = path.join(process.cwd(), 'src', 'views'); // Directory containing EJS files
 let views = {};
 (async () => {
   // Compile EJS templates into JSON
