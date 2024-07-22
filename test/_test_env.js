@@ -1,4 +1,4 @@
-const { ScBrain } = require('../src/sc_brain');
+const { ScEnv } = require('../src/sc_env');
 const { default_settings } = require('../src/default_settings');
 const path = require('path');
 const fs = require('fs');
@@ -56,7 +56,7 @@ function get_tfile(file_path) {
     },
   });
 }
-async function init_test_brain(t) {
+async function init_test_env(t) {
   t.context.test_file_paths = test_file_paths;
   t.context.test_md_path = test_file_paths[0];
   t.context.test_md = test_md;
@@ -84,18 +84,18 @@ async function init_test_brain(t) {
   main.settings.smart_blocks_embed_model = 'TaylorAI/bge-micro-v2';
   main.settings.embed_input_min_chars = 1;
   main.settings.multi_heading_blocks = false;
-  const brain = new ScBrain(main);
-  brain.local_model_type = 'Node';
-  brain.get_tfile = get_tfile; // override brain.get_tfile
-  brain.cached_read = (t_file) => test_md; // override brain.cached_read
-  brain.save = () => { }; // override brain.save
-  brain.init_import = async () => { await brain.smart_notes.import.call(brain.smart_notes, {reset: true}); };
-  await brain.init();
-  const smart_notes = Object.values(brain.smart_notes.items);
-  const smart_blocks = smart_notes.flatMap(note => note.last_history.blocks).map(block_key => brain.smart_blocks.get(block_key));
+  main.get_tfile = get_tfile; // override main.get_tfile
+  main.read_file = async (t_file) => test_md;
+  const env = new ScBrain(main);
+  env.local_model_type = 'Node';
+  env.save = () => { }; // override env.save
+  env.init_import = async () => { await env.smart_notes.import.call(env.smart_notes, {reset: true}); };
+  await env.init();
+  const smart_notes = Object.values(env.smart_notes.items);
+  const smart_blocks = smart_notes.flatMap(note => note.last_history.blocks).map(block_key => env.smart_blocks.get(block_key));
   return t.context = {
     ...t.context,
-    brain,
+    env,
     ...smart_notes.reduce((obj, smart_note, i) => {
       obj['smart_note' + (i ? '_' + i : '')] = smart_note;
       return obj;
@@ -106,7 +106,7 @@ async function init_test_brain(t) {
     }, {}),
   };
 }
-exports.init_test_brain = init_test_brain;
+exports.init_test_env = init_test_env;
 
 function log_parser(message, optionalParams, og_fx, write_to_file=false) {
   const stack = new Error().stack
@@ -130,14 +130,14 @@ function log_parser(message, optionalParams, og_fx, write_to_file=false) {
   // Prepend details (class and function)
   if(typeof message === 'object') {
     const preface = `[${fx_name}${typeof line_number !== 'undefined' ? " "+line_number : ""}]`;
-    if(typeof message?.brain !== 'undefined') message = { ...message, brain: '...', config: '...'}
+    if(typeof message?.env !== 'undefined') message = { ...message, env: '...', config: '...'}
     og_fx(preface);
   }else{
     message = `[${fx_name}${typeof line_number !== 'undefined' ? " "+line_number : ""}] ${message}`;
   }
   // message += '\n' + stack.join('\n'); // add stack trace
   if((typeof optionalParams === 'object') && optionalParams){
-    if(typeof optionalParams.brain !== 'undefined') optionalParams = { ...optionalParams, brain: '...', config: '...'}
+    if(typeof optionalParams.env !== 'undefined') optionalParams = { ...optionalParams, env: '...', config: '...'}
   }
   if(write_to_file){
     // add timestamp (YYYY-MM-DD HH:mm:ss)

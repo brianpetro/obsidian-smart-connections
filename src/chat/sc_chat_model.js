@@ -53,7 +53,7 @@ export class ScChatModel extends SmartChatModel {
         msg.content = "";
         for (const sys_prompt of sys_prompts) {
           const tfile = this.env.system_prompts.find(file => file.basename === sys_prompt);
-          const note_content = await this.env.plugin.brain.cached_read(tfile);
+          const note_content = await this.env.main.read_file(tfile);
           if (msg.content) msg.content += '\n';
           msg.content += note_content;
         }

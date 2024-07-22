@@ -36,6 +36,12 @@ export default class SmartConnectionsPlugin extends Plugin {
       SmartPrivateChatView,
     }
   }
+  get_tfile(file_path) { return this.plugin.app.vault.getAbstractFileByPath(file_path); }
+  async read_file(file) {
+    const t_file = (typeof file === 'string') ? this.get_tfile(file) : file; // handle string (file_path) or Tfile input
+    if (!(t_file instanceof this.plugin.obsidian.TFile)) return null;
+    return await this.plugin.app.vault.cachedRead(t_file);
+  }
   get ScEnv() { return ScEnv };
   get sc_adapter_class() { return ObsidianAdapter; }
   get ScSettings() { return ScSettings };

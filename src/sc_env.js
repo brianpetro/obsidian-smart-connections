@@ -18,9 +18,9 @@ export class ScEnv {
   constructor(plugin, opts={}) {
     this.sc_adapter_class = opts.sc_adapter_class;
     this.ltm_adapter = opts.sc_adapter_class; // DEPRECATED in v2.2
-    this.plugin = plugin;
-    this.main = this.plugin; // DEPRECATED
-    this.config = this.plugin.settings;
+    this.main = plugin;
+    this.plugin = this.main; // DEPRECATED: use this.main instead of this.plugin
+    this.config = this.main.settings;
     this.data_path = this.config.smart_connections_folder;
     this.collections = {
       smart_sources: SmartSources,
@@ -111,12 +111,6 @@ export class ScEnv {
     this.chat_ui = new this.chat_classes.ScChatsUI(this, this.plugin.chat_view.container);
     this.chats = new this.chat_classes.ScChats(this);
     await this.chats.load_all();
-  }
-  get_tfile(file_path) { return this.plugin.app.vault.getAbstractFileByPath(file_path); }
-  async cached_read(file) {
-    const t_file = (typeof file === 'string') ? this.get_tfile(file) : file; // handle string (file_path) or Tfile input
-    if (!(t_file instanceof this.plugin.obsidian.TFile)) return null;
-    return await this.plugin.app.vault.cachedRead(t_file);
   }
   async force_refresh() {
     this.smart_blocks.clear();
