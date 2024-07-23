@@ -303,6 +303,9 @@ export default class SmartConnectionsPlugin extends Plugin {
       return [];
     }
   }
+  get_link_target_path(link_path, file_path) {
+    return this.app.metadataCache.getFirstLinkpathDest(link_path, file_path)?.path;
+  }
   // SUPPORTERS
   async render_code_block(contents, container, ctx) {
     console.log(container);
