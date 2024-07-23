@@ -61,12 +61,13 @@ export class ScEnv {
   }
   unload_entities() {
     this.entities_loaded = false;
-    if (this.smart_notes) this.smart_notes.unload();
-    this.smart_notes = null;
+    if (this.smart_sources) this.smart_sources.unload();
+    this.smart_sources = null;
     if (this.smart_blocks) this.smart_blocks.unload();
     this.smart_blocks = null;
   }
   async reload_entities() {
+    console.log("reload_entities");
     this.unload_entities();
     if(this.plugin.is_initializing_entities) this.plugin.is_initializing_entities = false; // reset flag
     await this.init_entities();
@@ -77,7 +78,7 @@ export class ScEnv {
     DataviewSocket.create(this, 37042); // Smart Connect
     // this.smart_markdown = new SmartMarkdown({ ...this.config, skip_blocks_with_headings_only: true }); // initialize smart markdown (before collections, b/c collections use smart markdown)
     await this.init_entities();
-    await this.init_import(); // refresh smart notes and init "Start embedding" notification
+    await this.init_import();
     await this.init_chat();
   }
   // load one at a time to re-use embed models (smart-entities-2)
@@ -86,13 +87,53 @@ export class ScEnv {
     this.plugin.is_initializing_entities = true; // Set flag to true to indicate initialization has started
     this.smart_sources = new this.collection_types.SmartSources(this, { adapter_class: this.sc_adapter_class, custom_collection_name: 'smart_sources' });
     this.smart_blocks = new this.collection_types.SmartBlocks(this, { adapter_class: this.sc_adapter_class, custom_collection_name: 'smart_blocks' });
+    await this.check_for_smart_connect_import_api();
     this.smart_sources.merge_defaults();
     this.smart_blocks.merge_defaults();
     await this.smart_blocks.load_smart_embed();
-    await this.smart_notes.load(); // also loads smart blocks
+    await this.smart_sources.load(); // also loads smart blocks
     this.plugin.is_initializing_entities = false; // Reset flag after initialization is complete
     this.entities_loaded = true;
   }
+  async check_for_smart_connect_import_api() {
+    try {
+      const request_adapter = this.plugin.obsidian?.requestUrl || null;
+      const sc_local = !request_adapter ? await fetch('http://localhost:37421/') : await request_adapter({ url: 'http://localhost:37421/', method: 'GET' });
+      // console.log(sc_local);
+      if (sc_local.status === 200) {
+        console.log('Local Smart Connect server found');
+        this.smart_sources.import = async (files = null) => {
+          const requestUrl = this.plugin.obsidian.requestUrl;
+          const resp = await requestUrl({ url: 'http://localhost:37421/import_entities', method: 'POST' });
+          console.log("import resp: ", resp.json);
+          if (resp.json.notice === 'recently imported') {
+            this.plugin.notices.show('imported from Smart Connect', [`[Smart Connect] ${resp.json.message}`, resp.json.notice], { timeout: 10000 });
+            return;
+          }
+          this.plugin.notices.show('importing from Smart Connect', [`[Smart Connect] ${resp.json.message}`, resp.json.notice], { timeout: 10000 });
+          let follow_up_resp = { json: { message: '' } };
+          while (follow_up_resp.json.message !== 'recently imported') {
+            follow_up_resp = await requestUrl({ url: 'http://localhost:37421/import_entities', method: 'POST' });
+            this.plugin.notices.remove('importing from Smart Connect');
+            this.plugin.notices.show('importing from Smart Connect', [`[Smart Connect] ${follow_up_resp.json.message}`, follow_up_resp.json.notice], { timeout: 10000 });
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            console.log("follow_up_resp: ", follow_up_resp);
+          }
+          this.plugin.notices.remove('importing from Smart Connect');
+          this.plugin.notices.show('imported from Smart Connect', [`[Smart Connect] ${follow_up_resp.json.message}`, follow_up_resp.json.notice], { timeout: 10000 });
+          console.log("done importing from Smart Connect");
+          this.reload_entities();
+        };
+        this.smart_blocks.import = this.smart_sources.import;
+        console.log("smart_sources.import: ", this.smart_sources.import);
+        console.log("smart_blocks.import: ", this.smart_blocks.import);
+        // return;
+      }
+    } catch (err) {
+      console.log('Could not connect to local Smart Connect server');
+    }
+  }
+
   // initiate import of smart notes, shows notice before starting embedding
   async init_import() { if (this.smart_sources.smart_embed || this.smart_blocks.smart_embed) this.smart_sources.import(this.files); }
   init_chat_model(chat_model_platform_key=null) {
