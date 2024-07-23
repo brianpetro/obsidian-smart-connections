@@ -94,7 +94,7 @@ export class ScEnv {
     this.entities_loaded = true;
   }
   // initiate import of smart notes, shows notice before starting embedding
-  async init_import() { if (this.smart_notes.smart_embed || this.smart_blocks.smart_embed) this.smart_notes.import(this.files, { reset: true, show_notice: true }); }
+  async init_import() { if (this.smart_sources.smart_embed || this.smart_blocks.smart_embed) this.smart_sources.import(this.files); }
   init_chat_model(chat_model_platform_key=null) {
     let chat_model_config = {};
     chat_model_platform_key = chat_model_platform_key ?? this.config.chat_model_platform_key;
