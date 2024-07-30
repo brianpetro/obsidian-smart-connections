@@ -15,6 +15,7 @@ Smart Connections is a [mission-driven](https://youtu.be/RtlpPTrEQ7c) software t
 ![Easy to install and use](./assets/smart-connections-install.gif)
 
 *This README is a work-in-progress so the v1 README is still available below.*
+
 ## A brief history
 The journey of Smart Connections is one I directly share with you. Smart Connections isn't just about some new features in Obsidian; it's a reflection of our shared experiences, your invaluable feedback, and a testament to what we can achieve together in the Obsidian community. A journey that's been both exhilarating and profoundly educational.
 
@@ -22,9 +23,9 @@ Obsidian wasn't my first attempt at trying to manage and make sense of my notes.
 
 Smart Connections started as way for me to keep track of my thousands of notes, prevent rework, and make new connections by showing relevant notes/excerpts alongside whatever note I was currently working on via the Smart View.
 
-Soon after it's initial release, the community recognized the opportunity for Smart Chat, so you can now chat with your notes, using the same technology behind the Smart View.
+Soon after its initial release, the community recognized the opportunity for Smart Chat, so you can now chat with your notes, using the same technology behind the Smart View.
 
-From there, the Smart Connections community has continued playing a major part in it's progress, from testing early-release versions, coming up with ideas for new features, solving issues, and enabling me with the resources necessary to spend more time building software that enables individuals with AI!
+From there, the Smart Connections community has continued playing a major part in its progress, from testing early-release versions, coming up with ideas for new features, solving issues, and enabling me with the resources necessary to spend more time building software that enables individuals with AI!
 
 ## Mission
 Smart Connections is about more than technology; it's about community, collaboration, and the shared journey of enhancing our note-taking experiences. Here's a brief look at the motivation behind Smart Connections, followed by heartfelt testimonials from our users.
@@ -41,13 +42,10 @@ In contrast, Smart Connections is designed for individuals, emphasizing accessib
 ## Discover Smart Connections
 Smart Connections goes beyond just being a plugin; it's a bridge that connects your thoughts, notes, and insights in Obsidian, making your information management seamless and intuitive. Let's explore what makes Smart Connections stand out:
 
-
 ### Smart View: AI-Powered Note Discovery
 The Smart View feature dynamically offers real-time suggestions of related notes, based on your current activity. It uses AI embeddings to surface relevant notes based on your current context. This not only enhances your creativity but also significantly improves your productivity by illuminating connections you might not have seen.
 
-
 ![Smart View demo showing that the most relevant notes are shown at the top based on the current note.](./assets/SCv2-Smart-View-light.gif)
-
 
 ### Smart Chat: AI Conversations Based on Your Notes
 Transform your note-taking with Smart Chat. This feature allows you to have dynamic conversations with your notes, powered by the latest AI technology. Whether you're brainstorming, seeking information, or exploring your notes in new ways, Smart Chat makes it possible.
@@ -151,27 +149,38 @@ Here's what some of them have to say:
 
 ## How it Works
 
-- [ ] DO clarified
-	- [ ] Overview of plugin operation
-		- [ ] Creating embeddings
-		- [ ] Limitations (desktop-only, mobile support coming soon)
-	- [ ] more details in the features section below
+Smart Connections utilizes advanced AI technology to analyze and connect your notes in Obsidian. Here's an overview of how the plugin operates:
+
+### Creating embeddings
+- When you first install Smart Connections, it processes all your notes to create "embeddings" - numerical representations of your notes' content.
+- These embeddings are stored in a hidden `.smart-env` folder in your vault. This folder can be changed in the settings.
+- The plugin uses file modification times to determine if a note needs to be re-processed, ensuring efficiency.
+
+### Limitations
+- Currently, Smart Connections is desktop-only. Mobile support is currently in beta-testing in the early-release version (v2.2).
+
+For more detailed information on the plugin's operation, please refer to the features section below.
 
 ## Easy Installation
 Getting started with Smart Connections is easy. Simply install Smart Connections from the Obsidian Community plugins to begin enhancing your Obsidian experience with AI-powered functionalities.
 
 ### Installing from Obsidian community plugins
 ![](./assets/obsidian-community-smart-connections-install.png)
+
 ## Settings
 ### Default settings
 ##### Local embedding models
 Local embedding models enable leveraging the power of Smart Connections without sending data to any third-party for processing. `BGE-micro` is a small and reliable local embedding model used by default. This allows Smart Connections Smart View to work out-of-box; no API key, additional software or setup required!
+
 ### Additional setup
-- [ ] DO clarified
-	- [ ] file/folder exclusions
-	- [ ] changing AI models
+#### File/folder exclusions
+You can exclude specific files or folders from being processed by Smart Connections. This is useful for ignoring irrelevant or sensitive information.
+
+#### Changing AI models
+Smart Connections supports various AI models for both embeddings and chat. You can change these in the plugin settings to suit your needs and preferences.
+
 ##### OpenAI API Key
-- requires pre-paying for tokens
+- Requires pre-paying for API credits if you choose to use OpenAI's models
 
 ## Features
 
@@ -179,6 +188,7 @@ Local embedding models enable leveraging the power of Smart Connections without 
 The Smart View provides real-time note suggestions based on your current note.
 
 ![Demo showing Smart View results changing based on the current note](./assets/SCv2-Smart-View-dark.gif)
+
 ##### Accessing notes in the Smart View
 - Click to open a result in the Smart View 
 - Preview connections using the expand/collapse (fold/unfold) button to the left of each result
@@ -189,8 +199,10 @@ The Smart View provides real-time note suggestions based on your current note.
 ##### Smart View Search
 Click the search icon to input a search query.
 - note: it's important to remember that embedding search (semantic) does not function like a traditional keyword search (lexical).
+
 ### Smart Chat
-Notes are retrieved to and used as context in the conversation when you in put a self-referential pronoun like "my" in "Based on my notes..." 
+Notes are retrieved to and used as context in the conversation when you input a self-referential pronoun like "my" in "Based on my notes..." 
+
 ##### ChatMD (new in `v2.1`)
 Chat history is saved as a new note for each conversation.
 ###### `sc-context` codeblock
