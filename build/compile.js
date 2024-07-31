@@ -30,10 +30,22 @@ let views = {};
   for(const action_name of action_names) {
     if(action_name.startsWith('_')) continue;
     console.log(action_name);
-    const action_path = path.join(process.cwd(), 'src', 'actions', action_name);
-    const { [path.basename(action_name, '.js')]: action } = await import(action_path);
-    if(typeof action !== 'function') return console.log(`${action_path} is not a function: ${typeof action}`);
-    apis.push(action_path);
+    try {
+      const action_path = path.join(process.cwd(), 'src', 'actions', action_name);
+      const absolute_path = path.resolve(action_path);
+      const action_url = new URL(`file://${absolute_path.replace(/\\/g, '/')}`).href;
+      console.log('Importing action:', {action_name, absolute_path, action_url});
+      
+      const { [path.basename(action_name, '.js')]: action } = await import(action_url);
+      
+      if (typeof action !== 'function') {
+        throw new Error(`${action_name} is not a function: ${typeof action}`);
+      }
+      
+      apis.push(absolute_path);
+    } catch (error) {
+      console.error(`Error processing action ${action_name}:`, error);
+    }
   }
   const openapi_spec = swaggerJsdoc({ definition: {openapi: '3.0.0'}, apis });
   fs.writeFileSync(path.join(process.cwd(), 'build', 'actions_openapi.json'), JSON.stringify(openapi_spec, null, 2));
