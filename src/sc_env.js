@@ -158,17 +158,21 @@ export class ScEnv {
     this.smart_notes.clear();
     this.smart_notes.import(this.files); // trigger making new connections
   }
-  // prevent saving too often (large files can cause lag)
+  // // prevent saving too often (large files can cause lag)
+  // save() {
+  //   if (this.save_timeout) clearTimeout(this.save_timeout); // clear save timeout
+  //   this.save_timeout = setTimeout(async () => {
+  //     // require minimum 1 minute since last user activity
+  //     if (this.plugin.last_user_activity && ((Date.now() - this.plugin.last_user_activity) < 60000)) return this.save(); // reset save timeout
+  //     await this._save();
+  //     this.save_timeout = null;
+  //   }, 20000); // set save timeout
+  // }
+  // async _save() { await Promise.all(Object.keys(this.collections).map(async (collection_name) => await this[collection_name]._save())); }
   save() {
-    if (this.save_timeout) clearTimeout(this.save_timeout); // clear save timeout
-    this.save_timeout = setTimeout(async () => {
-      // require minimum 1 minute since last user activity
-      if (this.plugin.last_user_activity && ((Date.now() - this.plugin.last_user_activity) < 60000)) return this.save(); // reset save timeout
-      await this._save();
-      this.save_timeout = null;
-    }, 20000); // set save timeout
+    this.smart_sources.save();
+    this.smart_blocks.save();
   }
-  async _save() { await Promise.all(Object.keys(this.collections).map(async (collection_name) => await this[collection_name]._save())); }
   // getters
   get all_files() { return this.plugin.app.vault.getFiles().filter((file) => (file instanceof this.plugin.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas")); } // no exclusions
   get files() { return this.plugin.app.vault.getFiles().filter((file) => (file instanceof this.plugin.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas") && this.is_included(file.path)); }
@@ -194,4 +198,5 @@ export class ScEnv {
   get system_prompts() { return this.plugin.app.vault.getMarkdownFiles().filter(file => file.path.includes(this.config.system_prompts_folder) || file.path.includes('.prompt') || file.path.includes('.sp')); }
   // from deprecated env (brain)
   get_ref(ref) { return this[ref.collection_name].get(ref.key); }
+  get settings() { return this.main.settings; }
 }
