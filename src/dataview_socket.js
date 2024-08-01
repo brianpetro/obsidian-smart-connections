@@ -4,7 +4,6 @@ export class DataviewSocket extends SmartSocket {
   constructor(env, port) {
     super(port);
     this.env = env;
-    this.brain = this.env; // DEPRECATED
     this.dataview_api = null;
   }
   static async create(env, port) {

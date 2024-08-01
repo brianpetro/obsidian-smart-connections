@@ -87,7 +87,7 @@ export class ScEnv {
     this.plugin.is_initializing_entities = true; // Set flag to true to indicate initialization has started
     this.smart_sources = new this.collection_types.SmartSources(this, { adapter_class: this.sc_adapter_class, custom_collection_name: 'smart_sources' });
     this.smart_blocks = new this.collection_types.SmartBlocks(this, { adapter_class: this.sc_adapter_class, custom_collection_name: 'smart_blocks' });
-    await this.check_for_smart_connect_import_api();
+    // await this.check_for_smart_connect_import_api(); // TEMP DISABLED since updated embedding processing logic (v2.1.87)
     this.smart_sources.merge_defaults();
     this.smart_blocks.merge_defaults();
     await this.smart_blocks.load_smart_embed();

@@ -1,6 +1,6 @@
 <div class="setting-component"
   data-name="Notes Embedding Model"
-  data-setting="smart_notes_embed_model"
+  data-setting="smart_sources_embed_model"
   data-type="dropdown"
   data-description="Select a model to use for embedding your notes."
   <%- embedding_models.map((model, i) => `data-option-${i + 1}="${model.key}|${model.name} (${model.description})"`).join('\n') %>
@@ -21,9 +21,9 @@
   data-type="number"
   data-setting="embed_input_min_chars"
   data-placeholder="Enter a number"
-  data-callback="reload_env"
+  data-callback="refresh_embeddings"
 ></div>
-<% if(!settings.smart_notes_embed_model.includes('/') || !settings.smart_blocks_embed_model.includes('/')) { %>
+<% if(!settings.smart_sources_embed_model.includes('/') || !settings.smart_blocks_embed_model.includes('/')) { %>
 <div class="setting-component"
   data-name="OpenAI API Key for embeddings"
   data-type="password"
@@ -33,7 +33,7 @@
   data-callback="test_api_key_openai_embeddings"
 ></div>
 <% } %>
-<% if(settings.smart_notes_embed_model.includes('/') || settings.smart_blocks_embed_model.includes('/')) { %>
+<% if(settings.smart_sources_embed_model.includes('/') || settings.smart_blocks_embed_model.includes('/')) { %>
 <div class="setting-component"
   data-name="Local Embedding Max Tokens"
   data-description="Reduce max tokens depending on available resources (CPU, RAM)." 

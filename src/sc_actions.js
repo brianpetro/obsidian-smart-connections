@@ -61,7 +61,6 @@ export class ScActions {
     }
   }
   async should_trigger_retrieval(user_input) {
-    // if(!this.plugin?.brain?.smart_blocks?.keys.length) return false; // if no smart blocks, return false
     if (await contains_self_referential_keywords(this.env, user_input, this.config.language)) return true;
     if (this.env.chats.current.scope.key_starts_with_any) return true; // if scope.key_starts_with_any is set, return true (has folder reference)
     return false;

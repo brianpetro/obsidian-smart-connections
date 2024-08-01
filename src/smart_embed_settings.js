@@ -5,7 +5,7 @@ export class SmartEmbedSettings extends SmartSettings {
   refresh_smart_view() { this.plugin.smart_connections_view.render_nearest(); }
   async connect_to_smart_connect(){
     // check if already is connected
-    if(this.plugin.env.smart_notes?.smart_embed?.is_smart_connect){
+    if(this.plugin.env.smart_sources?.smart_embed?.is_smart_connect){
       this.plugin.notices.show('smart connect already connected', 'Already connected to local Smart Connect for embedding.');
       return;
     }
@@ -39,6 +39,7 @@ export class SmartEmbedSettings extends SmartSettings {
     }
   }
   reload_env() { this.env.reload(); } // DEPRECATED
+  refresh_embeddings() { this.env.smart_sources.refresh_embeddings(); }
   restart_plugin() {
     this.plugin.notices.show('restarting_for_settings_to_take_effect', "Restarting for settings to take effect...", {timeout: 3000});
     this.plugin.restart_plugin(); 

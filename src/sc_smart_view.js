@@ -11,7 +11,6 @@ export class ScSmartView extends SmartObsidianView {
   async onOpen() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); }
   get template_name() { return "smart_connections"; }
   async initialize() {
-    this.brain = this.env; // DEPRECATED
     await this.wait_for_env_to_load();
     this.last_parent_id = this.constructor.get_leaf(this.app.workspace)?.parent.id;
     this.container.empty();
@@ -81,7 +80,7 @@ export class ScSmartView extends SmartObsidianView {
     return {
       ...super.view_context,
       blocks_ct: this.env.smart_blocks?.keys.length,
-      notes_ct: this.env.smart_notes?.keys.length,
+      notes_ct: this.env.smart_sources?.keys.length,
     };
   }
   async prepare_to_render_nearest(container) {
@@ -114,14 +113,19 @@ export class ScSmartView extends SmartObsidianView {
         if(this.nearest_cache[context_key]) delete this.nearest_cache[context_key];
         // check if excluded
         if(this.env.is_included(context.path)){
-          await this.env.smart_notes.import([context]);
+          await this.env.smart_sources.import([context]);
         }else{
           return this.plugin.notices.show('excluded file', "File is excluded: " + context.path, {timeout: 3000});
         }
       }
-      context = this.env.smart_notes.get(context.path);
       // wait for context.vec (prevent infinite loop)
-      while (!context.vec) await new Promise(r => setTimeout(r, 1000));
+      while (!context?.vec){
+        if(!(context instanceof this.env.item_types.SmartSource)){
+          const source = this.env.smart_sources.get(context.path)
+          if(source) context = source;
+        }
+        await new Promise(r => setTimeout(r, 1000));
+      }
     }
     if(this.nearest_cache[context_key]?.length) return this.render_results(context_key, container, this.nearest_cache[context_key]); // if results already cached, render
     // Get results
@@ -133,7 +137,7 @@ export class ScSmartView extends SmartObsidianView {
     this.render_results(context_key, container, this.nearest_cache[context_key]);
   }
   should_import_context(context) {
-    return !this.env.smart_notes.get(context.path);
+    return !this.env.smart_sources.get(context.path);
   }
 
   render_results(context, container, results) {
@@ -190,7 +194,7 @@ export class ScSmartView extends SmartObsidianView {
       refresh_button.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.env.smart_notes.import(this.env.files, { reset: true });
+        this.env.smart_sources.import(this.env.files, { reset: true });
       });
     }
     this.plugin.obsidian.MarkdownRenderer.render(this.app, content, elm, entity_key, new this.plugin.obsidian.Component());

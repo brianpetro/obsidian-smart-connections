@@ -3,7 +3,7 @@ export function default_settings() {
     settings: {
       new_user: true,
       chat_folder: "smart chat",
-      smart_notes_embed_model: "TaylorAI/bge-micro-v2",
+      smart_sources_embed_model: "TaylorAI/bge-micro-v2",
       smart_blocks_embed_model: "None",
       smart_connections_folder: ".smart-env",
       smart_connections_folder_last: ".smart-env",

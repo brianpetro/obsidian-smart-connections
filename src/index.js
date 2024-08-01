@@ -62,7 +62,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     console.log("unloading plugin");
     this.env?.unload();
     this.env = null;
-    this.brain = null;
     this.notices?.unload();
   }
   async initialize() {
@@ -101,7 +100,6 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   async load_env() {
     this.env = new this.ScEnv(this, {sc_adapter_class: this.sc_adapter_class});
-    this.brain = this.env; // DEPRECATED (use this.env instead)
     await this.env.init();
   }
   new_user() {
@@ -182,7 +180,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         if(editor.somethingSelected()) this.view.render_nearest(editor.getSelection());
         else if(editor.getCursor()?.line){ // if cursor is on a line greater than 0
           const line = editor.getCursor().line;
-          const block = this.brain.smart_notes.current_note.get_block_by_line(line);
+          const block = this.env.smart_sources.current_note.get_block_by_line(line);
           console.log(block);
           console.log(line);
           this.view.render_nearest(block);
@@ -199,13 +197,12 @@ export default class SmartConnectionsPlugin extends Plugin {
       editorCallback: async (editor) => {
         // get current note
         const curr_file = this.app.workspace.getActiveFile();
-        // const curr_note = this.env?.smart_notes.get(curr_file.path);
         // delete note entity from cache
         delete this.view?.nearest_cache[curr_file.path];
         // delte note entity from collection
-        this.env.smart_notes.delete(curr_file.path);
+        this.env.smart_sources.delete(curr_file.path);
         // import note
-        await this.env.smart_notes.import([curr_file]);
+        await this.env.smart_sources.import([curr_file]);
         setTimeout(() => {
           // refresh view
           this.view.render_nearest();
@@ -230,7 +227,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       name: "Random Note",
       callback: () => {
         const curr_file = this.app.workspace.getActiveFile();
-        const curr_note = this.brain?.smart_notes.get(curr_file.path);
+        const curr_note = this.env?.smart_sources.get(curr_file.path);
         const nearest = curr_note.find_connections();
         const rand = Math.floor(Math.random() * nearest.length/2); // divide by 2 to limit to top half of results
         const rand_entity = nearest[rand]; // get random from nearest cache
@@ -257,7 +254,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   async save_settings(rerender=false) {
     await this.saveData(this.settings); // Obsidian API->saveData
-    await this.load_settings(); // re-load settings into memory
     // re-render view if set to true (for example, after adding API key)
     if(rerender) {
       if(this.view) this.view.nearest_cache = {};
@@ -321,7 +317,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   get_entities_from_context_codeblock(results) {
     return results.split("\n").map(key => {
       // const key = line.substring(line.indexOf('[[') + 2, line.indexOf(']]'));
-      const entity = key.includes("#") ? this.brain.smart_blocks.get(key) : this.brain.smart_notes.get(key);
+      const entity = key.includes("#") ? this.env.smart_blocks.get(key) : this.env.smart_sources.get(key);
       return entity ? entity : { name: "Not found: " + key };
     });
   }
@@ -397,6 +393,14 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   // BEGIN BACKWARD COMPATIBILITY (DEPRECATED: remove before 2.2 stable release)
   async handle_deprecated_settings() {
+    // v2.1.87
+    // smart_notes_embed_model -> smart_sources_embed_model
+    if(this.settings.smart_notes_embed_model && !this.settings.smart_sources_embed_model){
+      this.settings.smart_sources_embed_model = this.settings.smart_notes_embed_model;
+      // delete this.settings.smart_notes_embed_model; // FUTURE: enable
+      this.save_settings();
+    }
+    // pre-2.1.87
     // move api keys (api_key_PLATFORM) to PLATFORM.api_key
     Object.entries(this.settings).forEach(([key, value]) => {
       if(key.includes('-')) {
@@ -427,13 +431,13 @@ export default class SmartConnectionsPlugin extends Plugin {
       this.save_settings();
     }
     // if no smart notes model, set to default
-    if(this.settings.smart_notes_embed_model === "None"){
-      this.settings.smart_notes_embed_model = "TaylorAI/bge-micro-v2";
+    if(this.settings.smart_sources_embed_model === "None"){
+      this.settings.smart_sources_embed_model = "TaylorAI/bge-micro-v2";
       this.save_settings();
     }
     // handle deprecated smart-embed models
-    if(!embed_models[this.settings.smart_notes_embed_model]) {
-      this.settings.smart_notes_embed_model = this.constructor.defaults.smart_notes_embed_model;
+    if(!embed_models[this.settings.smart_sources_embed_model]) {
+      this.settings.smart_sources_embed_model = this.constructor.defaults.smart_sources_embed_model;
       this.save_settings();
     }
     if(!embed_models[this.settings.smart_blocks_embed_model] && this.settings.smart_blocks_embed_model !== "None") {

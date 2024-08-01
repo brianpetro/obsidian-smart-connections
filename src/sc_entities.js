@@ -20,11 +20,4 @@ SmartBlock.prototype.get_as_context = async function(params = {}) {
   return `---BEGIN NOTE${params.i ? " " + params.i : ""} [[${this.path}]]---\n${content}\n---END NOTE${params.i ? " " + params.i : ""}---`;
 }
 
-Object.defineProperty(SmartSources.prototype, 'smart_embed_model', {
-  get: function() {
-    if(this.config.smart_sources_embed_model) return this.config.smart_sources_embed_model;
-    return this.config.smart_notes_embed_model;
-  }
-});
-
 export { SmartSources, SmartSource, SmartBlocks, SmartBlock };
