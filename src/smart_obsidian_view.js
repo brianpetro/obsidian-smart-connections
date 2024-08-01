@@ -15,13 +15,11 @@ export class SmartObsidianView extends ItemView {
   get env() { return this.plugin.env; }
   get config() { return this.plugin.settings; }
   render_template(template_name, data) {
-    // console.log("rendering template", template_name);
     if (!this.templates[template_name]) throw new Error(`Template '${template_name}' not found.`);
     return ejs.render(this.templates[template_name], data, { context: this.view_context });
   }
   get view_context() {
     return {
-      // app: this.plugin.app,
       attribution: this.templates.attribution,
       get_icon: this.get_icon.bind(this),
       settings: this.plugin.settings,
@@ -29,10 +27,13 @@ export class SmartObsidianView extends ItemView {
   }
   async wait_for_env_to_load() {
     if (!this.env?.entities_loaded) {
-      // set loading message
-      this.containerEl.children[1].innerHTML = "Loading Smart Connections...";
       // wait for entities to be initialized
       while (!this.env?.entities_loaded){
+        const loading_msg = this.env.waiting_for_obsidian_sync ? "Waiting for Obsidian Sync to finish..." : "Loading Smart Connections...";
+        // set loading message
+        if(this.containerEl.children[1].innerHTML !== loading_msg){
+          this.containerEl.children[1].innerHTML = loading_msg;
+        }
         await new Promise(r => setTimeout(r, 2000));
       }
     }
