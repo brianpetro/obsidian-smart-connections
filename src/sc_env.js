@@ -83,6 +83,13 @@ export class ScEnv {
   }
   // load one at a time to re-use embed models (smart-entities-2)
   async init_entities() {
+    const obsidian_sync_instance = this.main.app?.internalPlugins?.plugins?.sync?.instance;
+    while(obsidian_sync_instance?.syncing){
+      this.waiting_for_obsidian_sync = true;
+      console.log("Smart Connections: Waiting for Obsidian Sync to finish");
+      await new Promise(r => setTimeout(r, 1000));
+    }
+    this.waiting_for_obsidian_sync = false;
     if(this.plugin.is_initializing_entities) return console.log('already init entities'); // Check if already initializing
     this.plugin.is_initializing_entities = true; // Set flag to true to indicate initialization has started
     this.smart_sources = new this.collection_types.SmartSources(this, { adapter_class: this.sc_adapter_class, custom_collection_name: 'smart_sources' });
