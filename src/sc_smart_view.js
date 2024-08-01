@@ -88,7 +88,7 @@ export class ScSmartView extends SmartObsidianView {
     if (!this.env?.entities_loaded) {
       // wait for entities to be initialized
       while (!this.env?.entities_loaded){
-        const loading_msg = this.env.waiting_for_obsidian_sync ? "Waiting for Obsidian Sync to finish..." : "Loading Smart Connections...";
+        const loading_msg = this.env?.obsidian_is_syncing ? "Waiting for Obsidian Sync to finish..." : "Loading Smart Connections...";
         // set loading message
         if(container.innerHTML !== loading_msg){
           container.innerHTML = loading_msg;

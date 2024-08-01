@@ -29,12 +29,10 @@ export class ScEnv {
     this.collection_types = {
       SmartSources,
       SmartBlocks,
-      // SmartNotes: SmartSources, // DEPRECATED/TEMP: for Smart Entities v2 backwards compatibility
     };
     this.item_types = {
       SmartSource,
       SmartBlock,
-      // SmartNote: SmartSource, // DEPRECATED/TEMP: for Smart Entities v2 backwards compatibility
     };
     this.save_timeout = null;
     this.smart_embed_active_models = {};
@@ -67,7 +65,7 @@ export class ScEnv {
     this.smart_blocks = null;
   }
   async reload_entities() {
-    console.log("reload_entities");
+    console.log("Smart Connections: reloading entities");
     this.unload_entities();
     if(this.plugin.is_initializing_entities) this.plugin.is_initializing_entities = false; // reset flag
     await this.init_entities();
@@ -81,15 +79,18 @@ export class ScEnv {
     await this.init_import();
     await this.init_chat();
   }
+  get obsidian_is_syncing() {
+    const obsidian_sync_instance = this.main.app?.internalPlugins?.plugins?.sync?.instance;
+    if(!obsidian_sync_instance) return false; // if no obsidian sync instance, not syncing
+    if(obsidian_sync_instance?.syncStatus.startsWith('Uploading')) return false; // if uploading, don't wait for obsidian sync
+    return obsidian_sync_instance?.syncing;
+  }
   // load one at a time to re-use embed models (smart-entities-2)
   async init_entities() {
-    const obsidian_sync_instance = this.main.app?.internalPlugins?.plugins?.sync?.instance;
-    while(obsidian_sync_instance?.syncing){
-      this.waiting_for_obsidian_sync = true;
+    while(this.obsidian_is_syncing){
       console.log("Smart Connections: Waiting for Obsidian Sync to finish");
       await new Promise(r => setTimeout(r, 1000));
     }
-    this.waiting_for_obsidian_sync = false;
     if(this.plugin.is_initializing_entities) return console.log('already init entities'); // Check if already initializing
     this.plugin.is_initializing_entities = true; // Set flag to true to indicate initialization has started
     this.smart_sources = new this.collection_types.SmartSources(this, { adapter_class: this.sc_adapter_class, custom_collection_name: 'smart_sources' });
@@ -165,17 +166,6 @@ export class ScEnv {
     this.smart_notes.clear();
     this.smart_notes.import(this.files); // trigger making new connections
   }
-  // // prevent saving too often (large files can cause lag)
-  // save() {
-  //   if (this.save_timeout) clearTimeout(this.save_timeout); // clear save timeout
-  //   this.save_timeout = setTimeout(async () => {
-  //     // require minimum 1 minute since last user activity
-  //     if (this.plugin.last_user_activity && ((Date.now() - this.plugin.last_user_activity) < 60000)) return this.save(); // reset save timeout
-  //     await this._save();
-  //     this.save_timeout = null;
-  //   }, 20000); // set save timeout
-  // }
-  // async _save() { await Promise.all(Object.keys(this.collections).map(async (collection_name) => await this[collection_name]._save())); }
   save() {
     this.smart_sources.save();
     this.smart_blocks.save();
