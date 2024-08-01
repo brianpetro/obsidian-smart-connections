@@ -85,11 +85,16 @@ export class ScSmartView extends SmartObsidianView {
   }
   async prepare_to_render_nearest(container) {
     if (this.overlay_container?.innerHTML) this.overlay_container.innerHTML = "";
-    if (!this.env.entities_loaded) {
-      // render loading message
-      container.innerHTML = "Loading Smart Connections...";
-      // wait for entities to load
-      while (!this.env.entities_loaded) await new Promise(r => setTimeout(r, 2000));
+    if (!this.env?.entities_loaded) {
+      // wait for entities to be initialized
+      while (!this.env?.entities_loaded){
+        const loading_msg = this.env.waiting_for_obsidian_sync ? "Waiting for Obsidian Sync to finish..." : "Loading Smart Connections...";
+        // set loading message
+        if(container.innerHTML !== loading_msg){
+          container.innerHTML = loading_msg;
+        }
+        await new Promise(r => setTimeout(r, 2000));
+      }
     }
   }
   async render_nearest(context, container = this.container) {
