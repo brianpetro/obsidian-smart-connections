@@ -140,6 +140,7 @@ export class ScSmartView extends SmartObsidianView {
     }
     if (!this.nearest_cache[context_key]?.length) return; // this.plugin.notices.show('no smart connections found', "No Smart Connections found.");
     this.render_results(context_key, container, this.nearest_cache[context_key]);
+    return context;
   }
   should_import_context(context) {
     return !this.env.smart_sources.get(context.path);
