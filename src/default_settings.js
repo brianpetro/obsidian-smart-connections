@@ -38,7 +38,6 @@ export function default_settings() {
     embeddings_loaded: false,
     folders: [],
     has_new_embeddings: false,
-    // nearest_cache: {}, // DEPRECATED
     render_log: {
       deleted_embeddings: 0,
       exclusions_logs: {},

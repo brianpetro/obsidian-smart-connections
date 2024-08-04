@@ -43,6 +43,8 @@ export class ScEnv {
     this.ejs = ejs;
     this.templates = templates;
     this.modules = { SmartEmbedModel };
+    // cache
+    this.connections_cache = {};
   }
   get smart_notes() { return this.smart_sources; } // TEMP: for Smart Entities v2 backwards compatibility
   set smart_notes(smart_sources) { this.smart_sources = smart_sources; } // TEMP: for Smart Entities v2 backwards compatibility
@@ -196,4 +198,5 @@ export class ScEnv {
   // from deprecated env (brain)
   get_ref(ref) { return this[ref.collection_name].get(ref.key); }
   get settings() { return this.main.settings; }
+  
 }

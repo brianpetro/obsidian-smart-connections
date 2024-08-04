@@ -198,7 +198,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         // get current note
         const curr_file = this.app.workspace.getActiveFile();
         // delete note entity from cache
-        delete this.view?.nearest_cache[curr_file.path];
+        delete this.env?.connections_cache[curr_file.path];
         // delte note entity from collection
         this.env.smart_sources.delete(curr_file.path);
         // import note
@@ -227,11 +227,16 @@ export default class SmartConnectionsPlugin extends Plugin {
       name: "Random Note",
       callback: () => {
         const curr_file = this.app.workspace.getActiveFile();
-        const curr_note = this.env?.smart_sources.get(curr_file.path);
-        const nearest = curr_note.find_connections();
-        const rand = Math.floor(Math.random() * nearest.length/2); // divide by 2 to limit to top half of results
-        const rand_entity = nearest[rand]; // get random from nearest cache
-        // rand_entity.note ? rand_entity.note.open() : rand_entity.open(); // open random file
+        const entity = this.env.smart_sources.get(curr_file.path);
+        const connections = this.env.connections_cache[curr_file.path]
+          ? this.env.connections_cache[curr_file.path].slice(0, 20)
+          : entity.find_connections({
+            key: curr_file.path,
+            limit: 20,
+          })
+        ;
+        const rand = Math.floor(Math.random() * connections.length/2); // divide by 2 to limit to top half of results
+        const rand_entity = connections[rand]; // get random from nearest cache
         this.open_note(rand_entity.path);
       }
     });
@@ -256,7 +261,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     await this.saveData(this.settings); // Obsidian API->saveData
     // re-render view if set to true (for example, after adding API key)
     if(rerender) {
-      if(this.view) this.view.nearest_cache = {};
+      if(this.env) this.env.connections_cache = {};
       console.log("rerendering view");
       await this.make_connections();
     }

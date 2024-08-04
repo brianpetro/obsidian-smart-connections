@@ -14,8 +14,6 @@ export class ScSmartView extends SmartObsidianView {
     await this.wait_for_env_to_load();
     this.last_parent_id = this.constructor.get_leaf(this.app.workspace)?.parent.id;
     this.container.empty();
-    this.nearest_cache = {}; // cache nearest results
-    // await this.load_brain(); // moved to main plugin initialization
     this.plugin.smart_connections_view = this;
     this.register_plugin_events();
     this.app.workspace.registerHoverLinkSource(this.constructor.view_type, { display: 'Smart Connections Files', defaultMod: true });
@@ -98,15 +96,17 @@ export class ScSmartView extends SmartObsidianView {
     }
   }
   async render_nearest(context, container = this.container) {
-    if(typeof this.nearest_cache === "undefined") this.nearest_cache = {};
+    console.log("render_nearest", context);
     await this.prepare_to_render_nearest(container);
-    let context_key;
     if (typeof context === "string"){
-      context_key = context;
-      // if(this.nearest_cache[context]) return this.render_results(context, container, this.nearest_cache[context]);
-      this.nearest_cache[context_key] = this.nearest_cache[context_key] || await this.plugin.api.search(context);
+      const entity = this.env.smart_sources.get(context) || this.env.smart_blocks.get(context);
+      if(entity) return this.render_nearest(entity, container); // if entity is found, re render nearest with entity as context
+      const results = await this.plugin.api.search(context);
+      this.env.connections_cache[context] = results;
+      this.render_results(container, results, { context_key: context });
     }
     if (typeof context === "undefined") context = this.app.workspace.getActiveFile();
+    let context_key;
     if (context instanceof this.plugin.obsidian.TFile) {
       context_key = context.path;
       // return if file type is not supported
@@ -115,7 +115,7 @@ export class ScSmartView extends SmartObsidianView {
         "Unsupported file type (Supported: " + SUPPORTED_FILE_TYPES.join(", ") + ")"
       ]);
       if (this.should_import_context(context)) {
-        if(this.nearest_cache[context_key]) delete this.nearest_cache[context_key];
+        if(this.env.connections_cache[context_key]) delete this.env.connections_cache[context_key];
         // check if excluded
         if(this.env.is_included(context.path)){
           await this.env.smart_sources.import([context]);
@@ -132,32 +132,50 @@ export class ScSmartView extends SmartObsidianView {
         await new Promise(r => setTimeout(r, 1000));
       }
     }
-    if(this.nearest_cache[context_key]?.length) return this.render_results(context_key, container, this.nearest_cache[context_key]); // if results already cached, render
+    if(!context?.key) return this.plugin.notices.show('no context', "No context found for rendering Smart Connections.");
+    context_key = context.key;
     // Get results
     if (context instanceof this.env.item_types.SmartBlock || context instanceof this.env.item_types.SmartSource){
-      context_key = context.key;
-      this.nearest_cache[context_key] = context.find_connections();
+      const results = context.find_connections({key: context_key});
+      if(results?.length) this.render_results(container, results, { context_key });
+      else this.render_results(container, [], { context_key });
+      // v2.2
+      const {
+        re_rank,
+        cohere_api_key,
+      } = this.plugin.settings.smart_view_filter;
+      if(re_rank && typeof this.env.re_rank_connections === "function"){
+        const re_ranked_results = await this.env.re_rank_connections({
+          context_entity: context,
+          entities: results,
+          model: {
+            api_key: cohere_api_key,
+            model_key: "cohere-rerank-english-v3.0", // $2 per 1k
+          }
+        });
+        if(re_ranked_results?.length){
+          this.render_results(container, re_ranked_results, { context_key, re_ranked: true });
+        }else console.warn("no re-rank results", context_key, re_ranked_results);
+      }
     }
-    if (!this.nearest_cache[context_key]?.length) return; // this.plugin.notices.show('no smart connections found', "No Smart Connections found.");
-    this.render_results(context_key, container, this.nearest_cache[context_key]);
-    return context;
   }
   should_import_context(context) {
-    return !this.env.smart_sources.get(context.path);
+    const entity = this.env.smart_sources.get(context.path);
+    return !entity || entity.meta_changed;
   }
 
-  render_results(context, container, results) {
-    results = results
-      .sort((a, b) => {
-        if(a.score === b.score) return 0;
-        return (a.score > b.score) ? -1 : 1;
-      })
-    ;
-    const topbar_context = (typeof context === "object") ? (context.key || context.path) : context;
+  render_results(container, results, opts={}) {
+    const {
+      context_key,
+      re_ranked,
+    } = opts;
     this.last_note = this.app.workspace.getActiveFile()?.path; // for checking if results are already rendered (ex: on active-leaf-change)
-
-    // console.log(results);
-    container.innerHTML = this.render_template(this.template_name, { current_path: topbar_context, results });
+    container.innerHTML = this.render_template(this.template_name, {
+      results,
+      context_key,
+      current_path: context_key,
+      re_ranked: re_ranked || false,
+    });
     this.add_top_bar_listeners(container);
     container.querySelectorAll(".search-result").forEach((elm, i) => this.add_link_listeners(elm, results[i]));
     container.querySelectorAll(".search-result:not(.sc-collapsed) ul li").forEach(this.render_result.bind(this));
@@ -267,42 +285,6 @@ export class ScSmartView extends SmartObsidianView {
   }
 
   add_top_bar_listeners(container = this.container) {
-    // const top_bar = container.querySelector(".sc-top-bar");
-    // const search_button = container.querySelector(".sc-search-button"); // get search button
-    // search_button.addEventListener("click", () => {
-    //   const og_top_bar = top_bar.innerHTML;
-    //   top_bar.empty(); // empty top bar
-
-    //   // create input element
-    //   const search_container = top_bar.createEl("div", { cls: "search-input-container" });
-    //   const input = search_container.createEl("input", {
-    //     cls: "sc-search-input",
-    //     type: "search",
-    //     placeholder: "Type to start search...",
-    //   });
-    //   input.focus();
-    //   // add keydown listener to input
-    //   input.addEventListener("keydown", (event) => {
-    //     // if escape key is pressed
-    //     if (event.key === "Escape") {
-    //       if (this.search_timeout) clearTimeout(this.search_timeout);
-    //       top_bar.innerHTML = og_top_bar;
-    //       this.add_top_bar_listeners(container);
-    //     }
-    //   });
-    //   // add keyup listener to input
-    //   input.addEventListener("keyup", (event) => {
-    //     if (this.search_timeout) clearTimeout(this.search_timeout);
-    //     const search_term = input.value; // get search term
-    //     if (event.key === "Enter" && search_term !== "") this.render_nearest(search_term); // if enter key is pressed
-
-    //     // if any other key is pressed and input is not empty then wait 500ms
-    //     else if (search_term !== "") {
-    //       if (this.search_timeout) clearTimeout(this.search_timeout);
-    //       this.search_timeout = setTimeout(() => this.render_nearest(search_term), 700);
-    //     }
-    //   });
-    // });
     const fold_all_button = container.querySelector(".sc-fold-all"); // get fold all button
     fold_all_button.addEventListener("click", (e) => {
       container.querySelectorAll(".search-result").forEach((elm) => elm.classList.add("sc-collapsed"));
