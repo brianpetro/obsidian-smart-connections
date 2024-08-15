@@ -49,7 +49,6 @@ export function default_settings() {
       tokens_saved_by_cache: 0,
     },
     retry_notice_timeout: null,
-    save_timeout: null,
     sc_branding: {},
     update_available: false,
   };

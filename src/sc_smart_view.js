@@ -60,16 +60,6 @@ export class ScSmartView extends SmartObsidianView {
       // console.log("editor-change");
       this.update_last_user_activity_timestamp();
     }));
-    // on quit
-    this.plugin.registerEvent(this.app.workspace.on('quit', async () => {
-      // console.log("quit");
-      // save if this.env.save_timeout is set (currently failing to save on quit)
-      if (this.env.save_timeout) {
-        clearTimeout(this.env.save_timeout);
-        await this.env._save();
-        console.log("Smart Connections saved");
-      }
-    }));
   }
   // used in brain.save timeout to reset if recent activity (prevent saving blocking UX during user activity)
   update_last_user_activity_timestamp() { this.last_user_activity = Date.now(); }
@@ -117,10 +107,10 @@ export class ScSmartView extends SmartObsidianView {
       if (this.should_import_context(context)) {
         if(this.env.connections_cache[context_key]) delete this.env.connections_cache[context_key];
         // check if excluded
-        if(this.env.is_included(context.path)){
-          await this.env.smart_sources.import([context]);
-        }else{
+        if(this.env.fs.is_excluded(context.path)){
           return this.plugin.notices.show('excluded file', "File is excluded: " + context.path, {timeout: 3000});
+        }else{
+          await this.env.smart_sources.import([context]);
         }
       }
       // wait for context.vec (prevent infinite loop)
@@ -215,10 +205,10 @@ export class ScSmartView extends SmartObsidianView {
       elm.createEl("p", { text: "Block not found: " + entity_key });
       // add refresh button
       const refresh_button = elm.createEl("button", { text: "Refresh embeddings" });
-      refresh_button.addEventListener("click", (e) => {
+      refresh_button.addEventListener("click", async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.env.smart_sources.import(this.env.files, { reset: true });
+        this.env.smart_sources.import(await this.env.fs.list_files_recursive());
       });
     }
     this.plugin.obsidian.MarkdownRenderer.render(this.app, content, elm, entity_key, new this.plugin.obsidian.Component());

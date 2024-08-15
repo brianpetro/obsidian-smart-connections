@@ -403,7 +403,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     // smart_notes_embed_model -> smart_sources_embed_model
     if(this.settings.smart_notes_embed_model && !this.settings.smart_sources_embed_model){
       this.settings.smart_sources_embed_model = this.settings.smart_notes_embed_model;
-      // delete this.settings.smart_notes_embed_model; // FUTURE: enable
+      delete this.settings.smart_notes_embed_model; // enabled 2024-08-15; delete after some time
       this.save_settings();
     }
     // pre-2.1.87

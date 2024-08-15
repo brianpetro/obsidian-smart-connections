@@ -35,7 +35,11 @@ export class ScSettings extends SmartSettings {
     this.plugin.notices.show('restarting_for_settings_to_take_effect', "Restarting for settings to take effect...", {timeout: 3000});
     this.plugin.restart_plugin(); 
   }
-  force_refresh() { this.env.force_refresh(); }
+  async force_refresh() {
+    this.env.smart_blocks.clear();
+    this.env.smart_sources.clear();
+    this.env.smart_sources.import(await this.env.fs.list_files_recursive()); // trigger making new connections
+  }
   update_smart_connections_folder() { this.plugin.update_smart_connections_folder(); }
   refresh_smart_view() { this.embed_settings.refresh_smart_view(); }
   async connect_to_smart_connect(){ await this.embed_settings.connect_to_smart_connect(); }
@@ -54,22 +58,18 @@ export class ScSettings extends SmartSettings {
     self_ref_pronouns_list.setText(this.self_ref_list);
   }
   async update_exclusions() {
-    this.plugin.env._file_exclusions = null; // clear file exclusions cache
-    this.plugin.env._folder_exclusions = null; // clear folder exclusions cache
+    this.env.smart_fs = null; // clear smart fs cache (re adds exclusions)
     console.log("render_file_counts");
     const elm = this.container.querySelector("#file-counts");
-    console.log("elm", elm);
-    const total_files = this.plugin.env.all_files.length;
-    const included_files = this.plugin.env.files.length;
-    elm.setText(`Included files: ${included_files} / Total files: ${total_files}`);
+    elm.setText(`Included files: ${this.included_files} / Total files: ${this.total_files}`);
   }
   get template() { return this.templates['smart_settings']; }
   async get_view_data() {
     const view_data = {
       settings: this.plugin.settings,
       embedding_models: Object.keys(smart_embed_models).map(model_key => ({ key: model_key, ...smart_embed_models[model_key] })),
-      included_files: this.plugin.env.files.length,
-      total_files: this.plugin.env.all_files.length,
+      included_files: this.included_files,
+      total_files: this.total_files,
       muted_notices: this.plugin.settings.muted_notices || false,
     };
     return view_data;
@@ -80,6 +80,24 @@ export class ScSettings extends SmartSettings {
     delete this.plugin.settings.muted_notices[id];
     this.update("muted_notices", this.plugin.settings.muted_notices);
     this.render(); // re-render settings
+  }
+  // get included files count
+  get included_files() {
+    return this.plugin.app.vault.getFiles()
+      .filter((file) => {
+        if(!(file instanceof this.plugin.obsidian.TFile) || !(file.extension === "md" || file.extension === "canvas")) return false;
+        if(this.env.fs.is_excluded(file.path)) return false;
+        return true;
+      })
+      .length
+    ;
+  }
+  // get all files count, no exclusions
+  get total_files() {
+    return this.plugin.app.vault.getFiles()
+      .filter((file) => (file instanceof this.plugin.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas"))
+      .length
+    ;
   }
   // upgrade to early access
   async upgrade_to_early_access() {
