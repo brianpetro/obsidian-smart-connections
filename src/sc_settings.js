@@ -38,7 +38,7 @@ export class ScSettings extends SmartSettings {
   async force_refresh() {
     this.env.smart_blocks.clear();
     this.env.smart_sources.clear();
-    this.env.smart_sources.import(await this.env.fs.list_files_recursive()); // trigger making new connections
+    this.env.smart_sources.import(); // trigger making new connections
   }
   update_smart_connections_folder() { this.plugin.update_smart_connections_folder(); }
   refresh_smart_view() { this.embed_settings.refresh_smart_view(); }

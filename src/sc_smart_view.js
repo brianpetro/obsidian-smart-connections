@@ -31,9 +31,6 @@ export class ScSmartView extends SmartObsidianView {
       this.initialize();
     }
   }
-  // getters
-  // DEPRECATED
-  // get path_only() { return (this.settings.path_only?.length) ? this.settings.path_only.split(",").map((path) => path.trim()) : []; }
   // Smart Connections
   register_plugin_events() {
     // on file-open
@@ -115,7 +112,7 @@ export class ScSmartView extends SmartObsidianView {
       }
       // wait for context.vec (prevent infinite loop)
       while (!context?.vec){
-        if(!(context instanceof this.env.item_types.SmartSource)){
+        if(!(context instanceof this.env?.item_types?.SmartSource)){
           const source = this.env.smart_sources.get(context.path)
           if(source) context = source;
         }
@@ -126,7 +123,7 @@ export class ScSmartView extends SmartObsidianView {
     context_key = context.key;
     // Get results
     if (context instanceof this.env.item_types.SmartBlock || context instanceof this.env.item_types.SmartSource){
-      const results = context.find_connections({key: context_key});
+      const results = context.find_connections();
       if(results?.length) this.render_results(container, results, { context_key });
       else this.render_results(container, [], { context_key });
       // v2.2
@@ -205,10 +202,10 @@ export class ScSmartView extends SmartObsidianView {
       elm.createEl("p", { text: "Block not found: " + entity_key });
       // add refresh button
       const refresh_button = elm.createEl("button", { text: "Refresh embeddings" });
-      refresh_button.addEventListener("click", async (e) => {
+      refresh_button.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.env.smart_sources.import(await this.env.fs.list_files_recursive());
+        this.env.smart_sources.import();
       });
     }
     this.plugin.obsidian.MarkdownRenderer.render(this.app, content, elm, entity_key, new this.plugin.obsidian.Component());
