@@ -13,6 +13,8 @@ import { ScChats } from "./chat/sc_chats.js";
 import { ScActions } from "./sc_actions.js";
 import { SmartChunks } from 'smart-chunks/smart_chunks.js';
 import { SmartEmbedModel } from "smart-embed-model";
+import { SmartFs } from 'smart-file-system/smart_fs.js';
+import { ObsidianSmartFsAdapter } from 'smart-file-system/adapters/obsidian.js';
 
 export class ScEnv {
   constructor(plugin, opts={}) {
@@ -198,5 +200,12 @@ export class ScEnv {
   // from deprecated env (brain)
   get_ref(ref) { return this[ref.collection_name].get(ref.key); }
   get settings() { return this.main.settings; }
+  // SMART FS
+  get fs() {
+    if(!this.smart_fs) this.smart_fs = new SmartFs(this, {
+      adapter: ObsidianSmartFsAdapter
+    });
+    return this.smart_fs;
+  }
   
 }

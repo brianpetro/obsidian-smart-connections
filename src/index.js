@@ -1,4 +1,5 @@
-import {
+import Obsidian from "obsidian";
+const {
   addIcon,
   Keymap,
   MarkdownRenderer,
@@ -8,7 +9,7 @@ import {
   requestUrl,
   TAbstractFile,
   TFile,
-} from "obsidian";
+} = Obsidian;
 import { ScEnv } from "./sc_env.js";
 import { default_settings } from "./default_settings.js";
 // rename modules
@@ -22,7 +23,7 @@ import { ScSettingsTab } from "./sc_settings_tab.js";
 import embed_models from 'smart-embed-model/models.json';
 import { ScActionsUx } from "./sc_actions_ux.js";
 import { open_note } from "./open_note.js";
-import { ObsidianAdapter } from "smart-collections/adapters/obsidian";
+import { MultiFileSmartCollectionsAdapter } from "smart-collections/adapters/multi_file";
 import { SmartChatGPTView } from "./sc_chatgpt_view.js";
 import { SmartPrivateChatView } from "./sc_private_chat_view.js";
 
@@ -43,7 +44,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     return await this.app.vault.cachedRead(t_file);
   }
   get ScEnv() { return ScEnv };
-  get sc_adapter_class() { return ObsidianAdapter; }
+  get sc_adapter_class() { return MultiFileSmartCollectionsAdapter; }
   get ScSettings() { return ScSettings };
   get api() { return this._api; }
   async load_settings() {
@@ -65,7 +66,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.notices?.unload();
   }
   async initialize() {
-    this.obsidian = require("obsidian");
+    this.obsidian = Obsidian;
     this.notices = new SmartNotices(this);
     console.log("Loading Smart Connections v2...");
     await this.load_settings();
