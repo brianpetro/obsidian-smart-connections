@@ -46,7 +46,7 @@
     "smart-collections": "file:../jsbrains/smart-collections",
     "smart-file-system": "file:../jsbrains/smart-fs",
     "smart-embed-model": "file:../jsbrains/smart-embed-model",
-    "smart-entities": "file:../jsbrains/smart-entities",
+    "smart-sources": "file:../jsbrains/smart-sources",
     "smart-instruct-model": "file:../jsbrains/smart-instruct-model",
     "smart-setting": "file:../jsbrains/smart-setting"
   },

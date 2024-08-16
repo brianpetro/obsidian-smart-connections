@@ -205,7 +205,7 @@ export class ScSmartView extends SmartObsidianView {
       refresh_button.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.env.smart_sources.import();
+        this.env.smart_sources.prune();
       });
     }
     this.plugin.obsidian.MarkdownRenderer.render(this.app, content, elm, entity_key, new this.plugin.obsidian.Component());

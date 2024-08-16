@@ -3,7 +3,7 @@ import {
   SmartBlocks,
   SmartSource,
   SmartSources,
-} from 'smart-entities';
+} from 'smart-sources';
 import { render_dataview_codeblocks } from './render_dataview_codeblocks.js';
 
 // NOTE: Not extending to prevent redundant classes in bundled version
