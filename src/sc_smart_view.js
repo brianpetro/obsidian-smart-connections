@@ -223,8 +223,8 @@ export class ScSmartView extends SmartObsidianView {
       if (!entity) return false;
       if (entity.is_canvas) return true;
       if (entity.is_excalidraw) return true;
-      if (entity.note?.is_canvas) return true;
-      if (entity.note?.is_excalidraw) return true;
+      if (entity.source?.is_canvas) return true;
+      if (entity.source?.is_excalidraw) return true;
       return false;
     }
   }
