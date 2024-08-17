@@ -38,8 +38,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
   }
   get_tfile(file_path) { return this.app.vault.getAbstractFileByPath(file_path); }
-  async read_file(file) {
-    const t_file = (typeof file === 'string') ? this.get_tfile(file) : file; // handle string (file_path) or Tfile input
+  async read_file(tfile_or_path) {
+    const t_file = (typeof tfile_or_path === 'string') ? this.get_tfile(tfile_or_path) : tfile_or_path; // handle string (file_path) or Tfile input
     if (!(t_file instanceof this.obsidian.TFile)) return null;
     return await this.app.vault.cachedRead(t_file);
   }
@@ -201,7 +201,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         // delete note entity from cache
         delete this.env?.connections_cache[curr_file.path];
         // delte note entity from collection
-        this.env.smart_sources.delete(curr_file.path);
+        this.env.smart_sources.delete_item(curr_file.path);
         // import note
         await this.env.smart_sources.import([curr_file]);
         setTimeout(() => {

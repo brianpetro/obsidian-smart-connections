@@ -28,13 +28,13 @@
 export async function lookup(env, params={}) {
   // TODO 
   console.log("lookup", params);
-  const { hypotheticals = [], hypothetical_1, hypothetical_2, hypothetical_3 } = params;
+  const { hypotheticals = [], hypothetical_1, hypothetical_2, hypothetical_3, ...other_params } = params;
   if(hypothetical_1) hypotheticals.push(hypothetical_1);
   if(hypothetical_2) hypotheticals.push(hypothetical_2);
   if(hypothetical_3) hypotheticals.push(hypothetical_3);
   if(!hypotheticals) return {error: "hypotheticals is required"};
   const collection = env.smart_blocks?.smart_embed ? env.smart_blocks : env.smart_sources;
-  return await collection.lookup(params);
+  return await collection.lookup({...(other_params || {}), hypotheticals});
   // BELOW LOGIC MOVED TO SmartEntities.lookup()
   console.log(collection);
   if(!collection || !collection.smart_embed) return {error: "Embedding search is not enabled."};

@@ -69,7 +69,7 @@ export class DataviewSocket extends SmartSocket {
   async current_note(){
     const curr_file = this.env.plugin.app.workspace.getActiveFile();
     if(!curr_file) return {path: null, content: null};
-    let content = await this.env.main.read_file(curr_file);
+    let content = await this.env.main.read_file(curr_file); // DEPRECATED: return key (path) and load content in SC App
     return {
       path: curr_file.path,
       content: content,
