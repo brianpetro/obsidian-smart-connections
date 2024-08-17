@@ -52,6 +52,11 @@ export class DataviewSocket extends SmartSocket {
       this.ws.send(JSON.stringify(current));
       return;
     }
+    if(data.fx === 'current_notes'){
+      const current = await this.current_notes();
+      this.ws.send(JSON.stringify(current));
+      return;
+    }
     try {
       const resp = await this.dataview_api.queryMarkdown(data.query, data.rel_path, null);
       console.log(resp);
@@ -69,6 +74,13 @@ export class DataviewSocket extends SmartSocket {
       path: curr_file.path,
       content: content,
     };
+  }
+  async current_notes(){
+    const cfiles = [];
+    await this.env.plugin.app.workspace.iterateRootLeaves((leave) => {
+      cfiles.push(leave.view.file.path);
+    });
+    return cfiles;
   }
   async full_render(markdown, rel_path){
     const html_elm = document.createElement("div");
