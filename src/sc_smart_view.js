@@ -122,7 +122,7 @@ export class ScSmartView extends SmartObsidianView {
     if(!context?.key) return this.plugin.notices.show('no context', "No context found for rendering Smart Connections.");
     context_key = context.key;
     // Get results
-    if (context instanceof this.env.item_types.SmartBlock || context instanceof this.env.item_types.SmartSource){
+    if (context && (context instanceof this.env.item_types.SmartBlock || context instanceof this.env.item_types.SmartSource)){
       const results = context.find_connections();
       if(results?.length) this.render_results(container, results, { context_key });
       else this.render_results(container, [], { context_key });
@@ -130,7 +130,7 @@ export class ScSmartView extends SmartObsidianView {
       const {
         re_rank,
         cohere_api_key,
-      } = this.plugin.settings.smart_view_filter;
+      } = this.smart_connections_view_settings;
       if(re_rank && typeof this.env.re_rank_connections === "function"){
         const re_ranked_results = await this.env.re_rank_connections({
           context_entity: context,
@@ -146,6 +146,7 @@ export class ScSmartView extends SmartObsidianView {
       }
     }
   }
+  get smart_connections_view_settings() { return this.plugin.settings?.smart_view_filter || {}; }
   should_import_context(context) {
     const entity = this.env.smart_sources.get(context.path);
     return !entity || entity.meta_changed;

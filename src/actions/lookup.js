@@ -34,6 +34,8 @@ export async function lookup(env, params={}) {
   if(hypothetical_3) hypotheticals.push(hypothetical_3);
   if(!hypotheticals) return {error: "hypotheticals is required"};
   const collection = env.smart_blocks?.smart_embed ? env.smart_blocks : env.smart_sources;
+  return await collection.lookup(params);
+  // BELOW LOGIC MOVED TO SmartEntities.lookup()
   console.log(collection);
   if(!collection || !collection.smart_embed) return {error: "Embedding search is not enabled."};
   const embeddings = await collection.smart_embed.embed_batch(hypotheticals.map(h => ({embed_input: h})));
