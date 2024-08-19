@@ -399,6 +399,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     const obsidian_sync_instance = this.app?.internalPlugins?.plugins?.sync?.instance;
     if(!obsidian_sync_instance) return false; // if no obsidian sync instance, not syncing
     if(obsidian_sync_instance?.syncStatus.startsWith('Uploading')) return false; // if uploading, don't wait for obsidian sync
+    if(obsidian_sync_instance?.syncStatus.startsWith('Fully synced')) return false; // if fully synced, don't wait for obsidian sync
     return obsidian_sync_instance?.syncing;
   }
 
@@ -413,6 +414,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
     Object.assign(this.settings, saved_settings); // overwrites defaults with saved settings
     this.handle_deprecated_settings(); // HANDLE DEPRECATED SETTINGS
+    return this.settings;
   }
   async save_settings(rerender=false) {
     await this.saveData(this.settings); // Obsidian API->saveData
@@ -426,15 +428,17 @@ export default class SmartConnectionsPlugin extends Plugin {
   
   // GETTERS for overrides in subclasses without overriding the constructor or init method
   get smart_env_class() { return ScEnv; }
+  get smart_settings_class() { return ScSettings };
   get smart_env_opts() {
     return {
+      smart_env_data_folder: this.settings.smart_connections_folder,
       // smart modules
       smart_chunks_class: SmartChunks,
       smart_collection_adapter_class: MultiFileSmartCollectionsAdapter,
       smart_embed_model_class: SmartEmbedModel,
       smart_fs_class: SmartFs,
       smart_fs_adapter_class: ObsidianSmartFsAdapter,
-      smart_settings_class: ScSettings,
+      smart_settings_class: this.smart_settings_class,
       // templates
       ejs: ejs,
       templates: templates,
@@ -449,14 +453,10 @@ export default class SmartConnectionsPlugin extends Plugin {
         SmartBlock,
       },
       // DEPRECATED
-      chat_classes: {
-        ScActions,
-        ScChatsUI,
-        ScChats,
-        ScChatModel,
-      },
+      chat_classes: this.chat_classes,
     };
   }
+  get chat_classes() { return { ScActions, ScChatsUI, ScChats, ScChatModel }; }
 
   // BEGIN BACKWARD COMPATIBILITY (DEPRECATED: remove before 2.2 stable release)
   async handle_deprecated_settings() {

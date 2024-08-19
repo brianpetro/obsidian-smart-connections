@@ -25,25 +25,39 @@ export class ScEnv extends SmartEnv {
   }
   get system_prompts() { return this.plugin.app.vault.getMarkdownFiles().filter(file => file.path.includes(this.config.system_prompts_folder) || file.path.includes('.prompt') || file.path.includes('.sp')); }
   // SETTINGS
-  get settings() { return this.main.settings; }
+  // get settings() { return this.main.settings; } // DEPRECATED
+  get settings() { return {
+    ...this.smart_env_settings._settings.smart_connections_plugin, // TEMP: for backwards compatibility until plugin vs smart_env settings are well-defined
+    ...this.smart_env_settings._settings,
+    // begin smart_env well-formed settings (TODO: update settings config to use these paths)
+    smart_env_data_folder: this.smart_connections_plugin.settings.smart_connections_folder,
+  }; }
+  set settings(settings) { this.smart_env_settings._settings = settings; }
   get data_path() { return this.settings.smart_connections_folder; } // DEPRECATED??
   /**
    * @deprecated Use this.settings instead
    */
   get config() { return this.settings; } // DEPRECATED
   // SMART FS
+  /**
+   * @deprecated Use this.COLLECTION_OR_MODULE_INSTANCE.fs instead
+   */
   get fs() {
     if(!this.smart_fs) this.smart_fs = new this.smart_fs_class(this, {
       adapter: this.smart_fs_adapter_class,
-      exclude_patterns: [
-        ...(this.file_exclusions || []),
-        ...(this.folder_exclusions || []).map(folder => `${folder}**`),
-        this.settings.smart_connections_folder + "/**",
-      ],
+      exclude_patterns: this.excluded_patterns,
       smart_env_data_folder: this.settings.smart_connections_folder,
     });
     return this.smart_fs;
   }
+  get excluded_patterns() {
+    return [
+      ...(this.file_exclusions || []),
+      ...(this.folder_exclusions || []).map(folder => `${folder}**`),
+      this.settings.smart_connections_folder + "/**",
+    ];
+  }
+
   async init() {
     this.init_chat_model();
     DataviewSocket.create(this, 37042); // Smart Connect

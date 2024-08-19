@@ -58,7 +58,7 @@ export class ScSettings extends SmartSettings {
     self_ref_pronouns_list.setText(this.self_ref_list);
   }
   async update_exclusions() {
-    this.env.smart_fs = null; // clear smart fs cache (re adds exclusions)
+    this.env.smart_sources.smart_fs = null; // clear smart fs cache (re adds exclusions) (should only require clearing smart_sources.smart_fs)
     console.log("render_file_counts");
     const elm = this.container.querySelector("#file-counts");
     elm.setText(`Included files: ${this.included_files} / Total files: ${this.total_files}`);
