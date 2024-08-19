@@ -229,9 +229,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       callback: () => {
         const curr_file = this.app.workspace.getActiveFile();
         const entity = this.env.smart_sources.get(curr_file.path);
-        const connections = this.env.connections_cache[curr_file.path]
-          ? this.env.connections_cache[curr_file.path].slice(0, 20)
-          : entity.find_connections({
+        const connections = entity.find_connections({
             key: curr_file.path,
             limit: 20,
           })
