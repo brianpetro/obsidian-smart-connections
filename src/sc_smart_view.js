@@ -89,7 +89,6 @@ export class ScSmartView extends SmartObsidianView {
       const entity = this.env.smart_sources.get(context) || this.env.smart_blocks.get(context);
       if(entity) return this.render_nearest(entity, container); // if entity is found, re render nearest with entity as context
       const results = await this.plugin.api.search(context);
-      this.env.connections_cache[context] = results;
       this.render_results(container, results, { context_key: context });
     }
     if (typeof context === "undefined") context = this.app.workspace.getActiveFile();
