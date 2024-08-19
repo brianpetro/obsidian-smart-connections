@@ -26,10 +26,10 @@ export class SmartObsidianView extends ItemView {
     };
   }
   async wait_for_env_to_load() {
-    if (!this.env?.entities_loaded) {
+    if (!this.env?.collections_loaded) {
       // wait for entities to be initialized
-      while (!this.env?.entities_loaded){
-        const loading_msg = this.env?.obsidian_is_syncing ? "Waiting for Obsidian Sync to finish..." : "Loading Smart Connections...";
+      while (!this.env?.collections_loaded){
+        const loading_msg = this.env?.main?.obsidian_is_syncing ? "Waiting for Obsidian Sync to finish..." : "Loading Smart Connections...";
         // set loading message
         if(this.containerEl.children[1].innerHTML !== loading_msg){
           this.containerEl.children[1].innerHTML = loading_msg;

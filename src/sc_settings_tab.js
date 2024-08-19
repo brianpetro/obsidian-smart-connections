@@ -7,7 +7,7 @@ export class ScSettingsTab extends PluginSettingTab {
     this.config = plugin.settings;
   }
   display() {
-    this.smart_settings = new this.plugin.ScSettings(this.plugin.env, this.containerEl);
+    this.smart_settings = new this.plugin.env.smart_settings_class(this.plugin.env, this.containerEl);
     return this.smart_settings.render();
   }
 }

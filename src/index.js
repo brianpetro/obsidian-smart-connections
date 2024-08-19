@@ -12,6 +12,8 @@ const {
 } = Obsidian;
 import { ScEnv } from "./sc_env.js";
 import { default_settings } from "./default_settings.js";
+import ejs from "../ejs.min.cjs";
+import templates from "../build/views.json" assert { type: "json" };
 // rename modules
 import { ScSmartView } from "./sc_smart_view.js";
 import { SmartSearch } from "./smart_search.js";
@@ -26,6 +28,20 @@ import { open_note } from "./open_note.js";
 import { MultiFileSmartCollectionsAdapter } from "smart-collections/adapters/multi_file";
 import { SmartChatGPTView } from "./sc_chatgpt_view.js";
 import { SmartPrivateChatView } from "./sc_private_chat_view.js";
+import { SmartFs } from 'smart-file-system/smart_fs.js';
+import { ObsidianSmartFsAdapter } from 'smart-file-system/adapters/obsidian.js';
+import {
+  SmartSources,
+  SmartSource,
+  SmartBlocks,
+  SmartBlock,
+} from "./sc_entities.js";
+import { SmartEmbedModel } from "smart-embed-model";
+import { SmartChunks } from 'smart-chunks/smart_chunks.js';
+import { ScChatModel } from "./chat/sc_chat_model.js";
+import { ScChatsUI } from "./chat/sc_chats_ui.js";
+import { ScChats } from "./chat/sc_chats.js";
+import { ScActions } from "./sc_actions.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -43,21 +59,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     if (!(t_file instanceof this.obsidian.TFile)) return null;
     return await this.app.vault.cachedRead(t_file);
   }
-  get ScEnv() { return ScEnv };
-  get sc_adapter_class() { return MultiFileSmartCollectionsAdapter; }
-  get ScSettings() { return ScSettings };
   get api() { return this._api; }
-  async load_settings() {
-    Object.assign(this, this.constructor.defaults); // set defaults
-    const saved_settings = await this.loadData();
-    if(!saved_settings){
-      this.notices.show("fail-load-settings", "Failed to load settings. Restarting plugin...");
-      this.restart_plugin();
-      throw new Error("Failed to load settings. Restarting plugin...");
-    }
-    Object.assign(this.settings, saved_settings); // overwrites defaults with saved settings
-    this.handle_deprecated_settings(); // HANDLE DEPRECATED SETTINGS
-  }
   async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
     console.log("unloading plugin");
@@ -100,7 +102,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async load_env() {
-    this.env = new this.ScEnv(this, {sc_adapter_class: this.sc_adapter_class});
+    this.env = new this.smart_env_class(this, this.smart_env_opts);
     await this.env.init();
   }
   new_user() {
@@ -256,15 +258,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     if(!this.view) await this.open_view(); // open view if not open
     await this.view.render_nearest(selected_text);
   }
-  async save_settings(rerender=false) {
-    await this.saveData(this.settings); // Obsidian API->saveData
-    // re-render view if set to true (for example, after adding API key)
-    if(rerender) {
-      if(this.env) this.env.connections_cache = {};
-      console.log("rerendering view");
-      await this.make_connections();
-    }
-  }
   // utils
   async add_to_gitignore(ignore, message=null) {
     if(!(await this.app.vault.adapter.exists(".gitignore"))) return; // if .gitignore skip
@@ -393,6 +386,76 @@ export default class SmartConnectionsPlugin extends Plugin {
     await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/styles.css", v2.json.styles); // add new
     await window.app.plugins.loadManifests();
     await this.restart_plugin();
+  }
+
+  // WAIT FOR OBSIDIAN SYNC
+  async wait_for_obsidian_sync() {
+    while (this.obsidian_is_syncing) {
+      console.log("Smart Connections: Waiting for Obsidian Sync to finish");
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
+  get obsidian_is_syncing() {
+    const obsidian_sync_instance = this.app?.internalPlugins?.plugins?.sync?.instance;
+    if(!obsidian_sync_instance) return false; // if no obsidian sync instance, not syncing
+    if(obsidian_sync_instance?.syncStatus.startsWith('Uploading')) return false; // if uploading, don't wait for obsidian sync
+    return obsidian_sync_instance?.syncing;
+  }
+
+  // main settings
+  async load_settings() {
+    Object.assign(this, this.constructor.defaults); // set defaults
+    const saved_settings = await this.loadData();
+    if(!saved_settings){
+      this.notices.show("fail-load-settings", "Failed to load settings. Restarting plugin...");
+      this.restart_plugin();
+      throw new Error("Failed to load settings. Restarting plugin...");
+    }
+    Object.assign(this.settings, saved_settings); // overwrites defaults with saved settings
+    this.handle_deprecated_settings(); // HANDLE DEPRECATED SETTINGS
+  }
+  async save_settings(rerender=false) {
+    await this.saveData(this.settings); // Obsidian API->saveData
+    // re-render view if set to true (for example, after adding API key)
+    if(rerender) {
+      if(this.env) this.env.connections_cache = {};
+      console.log("rerendering view");
+      await this.make_connections();
+    }
+  }
+  
+  // GETTERS for overrides in subclasses without overriding the constructor or init method
+  get smart_env_class() { return ScEnv; }
+  get smart_env_opts() {
+    return {
+      // smart modules
+      smart_chunks_class: SmartChunks,
+      smart_collection_adapter_class: MultiFileSmartCollectionsAdapter,
+      smart_embed_model_class: SmartEmbedModel,
+      smart_fs_class: SmartFs,
+      smart_fs_adapter_class: ObsidianSmartFsAdapter,
+      smart_settings_class: ScSettings,
+      // templates
+      ejs: ejs,
+      templates: templates,
+      // possibly DEPRECATED
+      collections: {
+        smart_sources: SmartSources,
+        smart_blocks: SmartBlocks,
+      },
+      // likely DEPRECATED
+      item_types: {
+        SmartSource,
+        SmartBlock,
+      },
+      // DEPRECATED
+      chat_classes: {
+        ScActions,
+        ScChatsUI,
+        ScChats,
+        ScChatModel,
+      },
+    };
   }
 
   // BEGIN BACKWARD COMPATIBILITY (DEPRECATED: remove before 2.2 stable release)
