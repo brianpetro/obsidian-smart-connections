@@ -431,7 +431,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   get smart_settings_class() { return ScSettings };
   get smart_env_opts() {
     return {
-      smart_env_data_folder: this.settings.smart_connections_folder,
+      env_data_dir: this.settings.smart_connections_folder,
       // smart modules
       smart_chunks_class: SmartChunks,
       smart_collection_adapter_class: MultiFileSmartCollectionsAdapter,

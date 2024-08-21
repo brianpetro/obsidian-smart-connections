@@ -30,7 +30,7 @@ export class ScEnv extends SmartEnv {
     ...this.smart_env_settings._settings.smart_connections_plugin, // TEMP: for backwards compatibility until plugin vs smart_env settings are well-defined
     ...this.smart_env_settings._settings,
     // begin smart_env well-formed settings (TODO: update settings config to use these paths)
-    smart_env_data_folder: this.smart_connections_plugin.settings.smart_connections_folder,
+    env_data_dir: this.smart_connections_plugin.settings.smart_connections_folder,
   }; }
   set settings(settings) { this.smart_env_settings._settings = settings; }
   get data_path() { return this.settings.smart_connections_folder; } // DEPRECATED??
@@ -46,7 +46,7 @@ export class ScEnv extends SmartEnv {
     if(!this.smart_fs) this.smart_fs = new this.smart_fs_class(this, {
       adapter: this.smart_fs_adapter_class,
       exclude_patterns: this.excluded_patterns,
-      smart_env_data_folder: this.settings.smart_connections_folder,
+      env_data_dir: this.settings.smart_connections_folder,
     });
     return this.smart_fs;
   }
