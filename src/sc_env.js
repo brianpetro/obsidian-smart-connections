@@ -128,4 +128,13 @@ export class ScEnv extends SmartEnv {
       console.log('Could not connect to local Smart Connect server');
     }
   }
+  // DEPRECATED: Smart Visualizer backwards compatibility
+  /**
+   * @deprecated Use this.collections_loaded instead
+   */
+  get entities_loaded() { return this.collections_loaded; }
+  /**
+   * @deprecated Use this.smart_sources instead
+   */
+  get smart_notes() { return this.smart_sources; }
 }
