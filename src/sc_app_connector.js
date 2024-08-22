@@ -2,11 +2,12 @@ import http from 'http';
 import url from 'url';
 
 export class ScAppConnector {
-  constructor(env, port = 37421) {
+  constructor(env, port = 37042) {
     this.env = env;
     this.port = port;
     this.server = null;
     this.dataview_api = null;
+    this.check_env_interval = null;
   }
 
   static async create(env, port) {
@@ -18,38 +19,65 @@ export class ScAppConnector {
 
   async init() {
     await this.get_dataview_api();
-    this.create_server();
+    await this.create_server();
     console.log(`ScAppConnector initialized on port ${this.port}`);
+    this.start_env_check();
   }
 
   create_server() {
-    this.server = http.createServer((req, res) => {
-      const parsed_url = url.parse(req.url, true);
-      
-      if (parsed_url.pathname === '/message' && req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => {
-          body += chunk.toString();
-        });
-        req.on('end', async () => {
-          try {
-            const data = JSON.parse(body);
-            const response = await this.handle_message(data);
+    return new Promise((resolve, reject) => {
+      this.server = http.createServer((req, res) => {
+        const parsed_url = url.parse(req.url, true);
+        
+        if (parsed_url.pathname === '/message') {
+          if (req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => {
+              body += chunk.toString();
+            });
+            req.on('end', async () => {
+              try {
+                const data = JSON.parse(body);
+                const response = await this.handle_message(data);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(response));
+              } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'error', message: error.message }));
+              }
+            });
+          } else if (req.method === 'GET') {
+            // Handle GET requests for connection check
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(response));
-          } catch (error) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'error', message: error.message }));
+            res.end(JSON.stringify({ status: 'ok', message: 'Obsidian HTTP server is running' }));
+          } else {
+            res.writeHead(405, { 'Content-Type': 'text/plain' });
+            res.end('Method Not Allowed');
           }
-        });
-      } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Not Found');
-      }
-    });
+        } else {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('Not Found');
+        }
+      });
 
-    this.server.listen(this.port, () => {
-      console.log(`Server running at http://localhost:${this.port}/`);
+      this.server.on('error', (error) => {
+        if (error.code === 'EADDRINUSE') {
+          // console.log(`Port ${this.port} is already in use. Trying the next available port.`);
+          // this.port++;
+          if (window.sc_app_connector_server) {
+            window.sc_app_connector_server.close();
+          }
+          this.create_server().then(resolve).catch(reject);
+        } else {
+          reject(error);
+        }
+      });
+
+      this.server.listen(this.port, () => {
+        console.log(`Server running at http://localhost:${this.port}/`);
+        window.sc_app_connector_server = this.server;
+        resolve();
+      });
     });
   }
 
@@ -131,5 +159,23 @@ export class ScAppConnector {
         console.log('Server closed');
       });
     }
+    if (window.sc_app_connector_server) {
+      window.sc_app_connector_server.close(() => {
+        console.log('Window server reference closed');
+      });
+      delete window.sc_app_connector_server;
+    }
+    if (this.check_env_interval) {
+      clearInterval(this.check_env_interval);
+    }
+  }
+
+  start_env_check() {
+    this.check_env_interval = setInterval(() => {
+      if (!this.env) {
+        console.log('Environment no longer available. Closing server.');
+        this.close_server();
+      }
+    }, 5000); // Check every 5 seconds
   }
 }
