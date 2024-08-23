@@ -62,12 +62,17 @@ export class ScAppConnector {
 
       this.server.on('error', (error) => {
         if (error.code === 'EADDRINUSE') {
-          // console.log(`Port ${this.port} is already in use. Trying the next available port.`);
-          // this.port++;
+          console.log(`Port ${this.port} is already in use. Attempting to retry once.`);
           if (window.sc_app_connector_server) {
             window.sc_app_connector_server.close();
           }
-          this.create_server().then(resolve).catch(reject);
+          this.retry_count = (this.retry_count || 0) + 1;
+          if (this.retry_count <= 1) {
+            this.create_server().then(resolve).catch(reject);
+          } else {
+            console.error(`Failed to create server after retry. Port ${this.port} is still in use.`);
+            reject(new Error(`Unable to start server on port ${this.port} after retry.`));
+          }
         } else {
           reject(error);
         }
