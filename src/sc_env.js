@@ -1,4 +1,3 @@
-import { ScAppConnector } from "./sc_app_connector.js";
 import { SmartEnv } from 'smart-environment';
 
 export class ScEnv extends SmartEnv {
@@ -60,8 +59,7 @@ export class ScEnv extends SmartEnv {
   async init() {
     this.init_chat_model();
     await super.init(); // loads collections when ready
-    await this.init_chat();
-    await ScAppConnector.create(this, 37042); // Smart Connect
+    await this.init_chat(); // seems to never resolve(may be mac specific)
   }
   async ready_to_load_collections() {
     await this.main.wait_for_obsidian_sync();

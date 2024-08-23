@@ -101,7 +101,7 @@ export class ScSmartView extends SmartObsidianView {
         "Unsupported file type (Supported: " + SUPPORTED_FILE_TYPES.join(", ") + ")"
       ]);
       if (this.should_import_context(context)) {
-        if(this.env.connections_cache[context_key]) delete this.env.connections_cache[context_key];
+        if(this.env.connections_cache?.[context_key]) delete this.env.connections_cache[context_key];
         // check if excluded
         if(this.env.fs.is_excluded(context.path)){
           return this.plugin.notices.show('excluded file', "File is excluded: " + context.path, {timeout: 3000});

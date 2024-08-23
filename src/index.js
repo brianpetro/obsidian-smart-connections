@@ -42,6 +42,7 @@ import { ScChatModel } from "./chat/sc_chat_model.js";
 import { ScChatsUI } from "./chat/sc_chats_ui.js";
 import { ScChats } from "./chat/sc_chats.js";
 import { ScActions } from "./sc_actions.js";
+import { ScAppConnector } from "./sc_app_connector.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -102,7 +103,8 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async load_env() {
-    this.env = new this.smart_env_class(this, this.smart_env_opts);
+    this.env = new this.smart_env_class(this, this.smart_env_opts); // TODO: change to static create for re-use of same env
+    ScAppConnector.create(this.env, 37042); // Smart Connect
     await this.env.init();
   }
   new_user() {
