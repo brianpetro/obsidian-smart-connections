@@ -35,14 +35,6 @@ export class ScEnv extends SmartEnv {
    */
   get config() { return this.settings; } // DEPRECATED
   // SMART FS
-  get fs() {
-    if(!this.smart_fs) this.smart_fs = new this.smart_fs_class(this, {
-      adapter: this.smart_fs_adapter_class,
-      exclude_patterns: this.excluded_patterns,
-      env_data_dir: this.smart_connections_plugin.env_data_dir,
-    });
-    return this.smart_fs;
-  }
   get excluded_patterns() {
     return [
       ...(this.file_exclusions?.map(file => `${file}**`) || []),
