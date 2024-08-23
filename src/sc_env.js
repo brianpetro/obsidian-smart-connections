@@ -8,10 +8,11 @@ export class ScEnv extends SmartEnv {
     this.chat = null; // likely to be deprecated
   }
   get file_exclusions() {
-    return (this.plugin.settings.file_exclusions?.length) ? this.plugin.settings.file_exclusions.split(",").map((file) => file.trim()) : [];
+    // return (this.plugin.settings.file_exclusions?.length) ? this.plugin.settings.file_exclusions.split(",").map((file) => file.trim()) : [];
+    return (this.settings.file_exclusions?.length) ? this.settings.file_exclusions.split(",").map((file) => file.trim()) : [];
   }
   get folder_exclusions() {
-    return (this.plugin.settings.folder_exclusions?.length) ? this.plugin.settings.folder_exclusions.split(",").map((folder) => {
+    return (this.settings.folder_exclusions?.length) ? this.settings.folder_exclusions.split(",").map((folder) => {
       folder = folder.trim();
       if (folder.slice(-1) !== "/") return folder + "/";
       return folder;
@@ -19,40 +20,34 @@ export class ScEnv extends SmartEnv {
   }
   get excluded_headings() {
     if (this._excluded_headings) return this._excluded_headings;
-    return this._excluded_headings = (this.plugin.settings.excluded_headings?.length) ? this.plugin.settings.excluded_headings.split(",").map((heading) => heading.trim()) : [];
+    return this._excluded_headings = (this.settings.excluded_headings?.length) ? this.settings.excluded_headings.split(",").map((heading) => heading.trim()) : [];
   }
-  get system_prompts() { return this.plugin.app.vault.getMarkdownFiles().filter(file => file.path.includes(this.config.system_prompts_folder) || file.path.includes('.prompt') || file.path.includes('.sp')); }
-  // SETTINGS
-  // get settings() { return this.main.settings; } // DEPRECATED
-  get settings() { return {
-    ...this.smart_env_settings._settings.smart_connections_plugin, // TEMP: for backwards compatibility until plugin vs smart_env settings are well-defined
-    ...this.smart_env_settings._settings,
-    // begin smart_env well-formed settings (TODO: update settings config to use these paths)
-    env_data_dir: this.smart_connections_plugin.settings.smart_connections_folder,
-  }; }
-  set settings(settings) { this.smart_env_settings._settings = settings; }
+  get system_prompts() {
+    return this.smart_connections_plugin.app.vault.getMarkdownFiles()
+      .filter(file => file.path.includes(this.settings.system_prompts_folder) || file.path.includes('.prompt') || file.path.includes('.sp'));
+  }
+  /**
+   * @deprecated Use this.smart_connections_plugin.env_data_dir instead
+   */
   get data_path() { return this.settings.smart_connections_folder; } // DEPRECATED??
   /**
    * @deprecated Use this.settings instead
    */
   get config() { return this.settings; } // DEPRECATED
   // SMART FS
-  /**
-   * @deprecated Use this.COLLECTION_OR_MODULE_INSTANCE.fs instead
-   */
   get fs() {
     if(!this.smart_fs) this.smart_fs = new this.smart_fs_class(this, {
       adapter: this.smart_fs_adapter_class,
       exclude_patterns: this.excluded_patterns,
-      env_data_dir: this.settings.smart_connections_folder,
+      env_data_dir: this.smart_connections_plugin.env_data_dir,
     });
     return this.smart_fs;
   }
   get excluded_patterns() {
     return [
-      ...(this.file_exclusions || []),
+      ...(this.file_exclusions?.map(file => `${file}**`) || []),
       ...(this.folder_exclusions || []).map(folder => `${folder}**`),
-      this.settings.smart_connections_folder + "/**",
+      this.smart_connections_plugin.env_data_dir + "/**",
     ];
   }
 

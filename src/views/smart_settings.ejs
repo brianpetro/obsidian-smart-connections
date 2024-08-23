@@ -98,7 +98,7 @@
   <div class="setting-component"
     data-name="Supporter License Key"
     data-type="text"
-    data-setting="license_key"
+    data-setting="smart_connections_plugin.license_key"
     data-description="Note: this is not required to use Smart Connections."
     data-placeholder="Enter your license_key"
   ></div>
@@ -213,16 +213,17 @@
   data-name="Smart Connections Folder"
   data-description="Folder to store Smart Connections data."
   data-type="text"
-  data-setting="smart_connections_folder"
+  data-setting="smart_connections_plugin.smart_connections_folder"
   data-placeholder="Enter a folder name"
   data-callback="update_smart_connections_folder"
   data-button="rename"
 ></div>
+<!-- chat folder should be in env_data -->
 <div class="setting-component"
   data-name="Smart Chat History Folder"
   data-description="Folder to store Smart Chat history. Use a preceeding <code>.</code> to hide it (ex. <code>.smart-chats</code>)."
   data-type="text"
-  data-setting="smart_chat_folder"
+  data-setting="smart_connections_plugin.smart_chat_folder"
   data-placeholder="Enter a folder name"
   data-callback="update_smart_chat_folder"
   data-button="rename"

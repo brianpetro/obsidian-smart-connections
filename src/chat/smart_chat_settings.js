@@ -6,7 +6,7 @@ export class SmartChatSettings extends SmartSettings {
   update_smart_chat_folder() { this.plugin.update_smart_chat_folder(); }
   async changed_smart_chat_model(render = true){
     console.log(this.plugin.settings.chat_model_platform_key);
-    await this.plugin.save_settings(true);
+    await this.plugin.save_settings();
     this.plugin.env.chat_model = null;
     this.plugin.env.init_chat_model(this.plugin.settings.chat_model_platform_key);
     const platform_config = this.plugin.env.chat_model.platforms[this.plugin.settings.chat_model_platform_key];
