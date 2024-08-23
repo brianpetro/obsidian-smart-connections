@@ -44,8 +44,8 @@ export class ScEnv extends SmartEnv {
   }
 
   async init() {
-    this.init_chat_model();
     await super.init(); // loads collections when ready
+    this.init_chat_model();
     await this.init_chat(); // seems to never resolve(may be mac specific)
   }
   async ready_to_load_collections() {
@@ -58,9 +58,9 @@ export class ScEnv extends SmartEnv {
   // DO: Reviewed init_chat methods for replacing with new SmartEnv architecture
   init_chat_model(chat_model_platform_key=null) {
     let chat_model_config = {};
-    chat_model_platform_key = chat_model_platform_key ?? this.config.chat_model_platform_key;
-    if(chat_model_platform_key === 'open_router' && !this.plugin.settings[chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
-    else chat_model_config = this.plugin.settings[chat_model_platform_key] ?? {};
+    chat_model_platform_key = chat_model_platform_key ?? this.settings.chat_model_platform_key;
+    if(chat_model_platform_key === 'open_router' && !this.settings[chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
+    else chat_model_config = this.settings[chat_model_platform_key] ?? {};
     this.chat_model = new this.chat_classes.ScChatModel(this, chat_model_platform_key, {...chat_model_config });
     this.chat_model._request_adapter = this.plugin.obsidian.requestUrl;
   }
