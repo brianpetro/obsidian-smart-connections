@@ -106,6 +106,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.env = new this.smart_env_class(this, this.smart_env_opts); // TODO: change to static create for re-use of same env
     ScAppConnector.create(this.env, 37042); // Smart Connect
     await this.env.init();
+    await this.env.smart_sources.import();
   }
   new_user() {
     if(!this.settings.new_user) return;
@@ -428,6 +429,9 @@ export default class SmartConnectionsPlugin extends Plugin {
     return {
       env_path: '', // scope handled by Obsidian FS methods
       env_data_dir: this.env_data_dir, // used to scope SmartEnvSettings.fs
+      smart_env_settings: { // careful: overrides saved settings
+        is_obsidian_vault: true,
+      },
       // smart modules
       smart_chunks_class: SmartChunks,
       smart_collection_adapter_class: MultiFileSmartCollectionsAdapter,
