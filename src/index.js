@@ -208,7 +208,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         // delte note entity from collection
         this.env.smart_sources.delete_item(curr_file.path);
         // import note
-        await this.env.smart_sources.import([curr_file]);
+        await this.env.smart_sources.import_file(curr_file);
         setTimeout(() => {
           // refresh view
           this.view.render_nearest();

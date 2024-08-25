@@ -106,7 +106,7 @@ export class ScSmartView extends SmartObsidianView {
         if(this.env.fs.is_excluded(context.path)){
           return this.plugin.notices.show('excluded file', "File is excluded: " + context.path, {timeout: 3000});
         }else{
-          await this.env.smart_sources.import([context]);
+          await this.env.smart_sources.import_file(context);
         }
       }
       // wait for context.vec (prevent infinite loop)
