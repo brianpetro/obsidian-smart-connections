@@ -25,7 +25,7 @@ import { ScSettingsTab } from "./sc_settings_tab.js";
 import embed_models from 'smart-embed-model/models.json';
 import { ScActionsUx } from "./sc_actions_ux.js";
 import { open_note } from "./open_note.js";
-import { MultiFileSmartCollectionsAdapter } from "smart-collections/adapters/multi_file";
+import { MultiFileSmartCollectionDataAdapter } from "smart-collections/adapters/multi_file";
 import { SmartChatGPTView } from "./sc_chatgpt_view.js";
 import { SmartPrivateChatView } from "./sc_private_chat_view.js";
 import { SmartFs } from 'smart-file-system/smart_fs.js';
@@ -106,7 +106,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.env = new this.smart_env_class(this, this.smart_env_opts); // TODO: change to static create for re-use of same env
     ScAppConnector.create(this.env, 37042); // Smart Connect
     await this.env.init();
-    await this.env.smart_sources.import();
+    // await this.env.smart_sources.import();
   }
   new_user() {
     if(!this.settings.new_user) return;
@@ -434,7 +434,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       },
       // smart modules
       smart_chunks_class: SmartChunks,
-      smart_collection_adapter_class: MultiFileSmartCollectionsAdapter,
+      smart_collection_adapter_class: MultiFileSmartCollectionDataAdapter,
       smart_embed_model_class: SmartEmbedModel,
       smart_fs_class: SmartFs,
       smart_fs_adapter_class: ObsidianSmartFsAdapter,
