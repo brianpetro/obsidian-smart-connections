@@ -16,7 +16,7 @@ export class ScActions {
     this.parse_actions_from_openapi(openapi_spec)
   }
   prepare_request_body(body) {
-    if(this.env.chats?.current.tool_choice) {
+    if(this.env.chats?.current?.tool_choice) {
       const tool_choice = this.env.chats.current.tool_choice;
       if(body.tool_choice !== 'auto'){
         const tool_json = this.actions[tool_choice]?.json;

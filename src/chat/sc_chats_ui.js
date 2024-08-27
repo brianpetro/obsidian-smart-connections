@@ -5,10 +5,14 @@ import { SmartChatSettings } from "./smart_chat_settings.js";
 import { on_open_overlay } from "../on_open_overlay.js";
 
 export class ScChatsUI extends SmartChatsUI {
+  constructor(env, container) {
+    super(env, container);
+    this.plugin = this.env.smart_connections_plugin;
+  }
   get view_context() {
     return {
       attribution: this.templates.attribution,
-      get_icon: this.env.plugin.chat_view.get_icon.bind(this.env.plugin.chat_view),
+      get_icon: this.plugin.chat_view.get_icon.bind(this.plugin.chat_view),
     };
   }
   get obsidian() { return this.env.plugin.obsidian; }

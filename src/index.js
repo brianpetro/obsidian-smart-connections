@@ -64,7 +64,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
     console.log("unloading plugin");
-    this.env?.unload();
+    this.env?.unload_main('smart_connections_plugin');
     this.env = null;
     this.notices?.unload();
   }
@@ -103,11 +103,34 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async load_env() {
-    this.env = new this.smart_env_class(this, this.smart_env_opts); // TODO: change to static create for re-use of same env
+    await this.smart_env_class.create(this, this.smart_env_opts);
     ScAppConnector.create(this.env, 37042); // Smart Connect
-    await this.env.init();
-    // await this.env.smart_sources.import();
+    this.init_chat_model();
+    await this.init_chat();
   }
+  async ready_to_load_collections() {
+    await this.wait_for_obsidian_sync();
+  }
+
+  init_chat_model(chat_model_platform_key=null) {
+    let chat_model_config = {};
+    chat_model_platform_key = chat_model_platform_key ?? this.env.settings.chat_model_platform_key;
+    if(chat_model_platform_key === 'open_router' && !this.env.settings[chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
+    else chat_model_config = this.env.settings[chat_model_platform_key] ?? {};
+    this.env.chat_model = new this.chat_classes.ScChatModel(this.env, chat_model_platform_key, {...chat_model_config });
+    this.env.chat_model._request_adapter = this.obsidian.requestUrl;
+  }
+
+  async init_chat(){
+    this.env.actions = new this.chat_classes.ScActions(this.env);
+    this.env.actions.init();
+    // wait for chat_view containerEl to be available
+    while (!this.chat_view?.containerEl) await new Promise(r => setTimeout(r, 300));
+    this.env.chat_ui = new this.chat_classes.ScChatsUI(this.env, this.chat_view.container);
+    this.env.chats = new this.chat_classes.ScChats(this.env);
+    await this.env.chats.load_all();
+  }
+
   new_user() {
     if(!this.settings.new_user) return;
     this.settings.new_user = false;
@@ -427,6 +450,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   get smart_settings_class() { return ScSettings };
   get smart_env_opts() {
     return {
+      global_ref: window,
       env_path: '', // scope handled by Obsidian FS methods
       env_data_dir: this.env_data_dir, // used to scope SmartEnvSettings.fs
       smart_env_settings: { // careful: overrides saved settings
