@@ -73,6 +73,11 @@ export class ScSettings extends SmartSettings {
       included_files: this.included_files,
       total_files: this.total_files,
       muted_notices: this.plugin.settings.muted_notices || false,
+      include: (template_name, data, options={}) => {
+        const template = this.templates[template_name];
+        console.log({data});
+        return this.ejs.render(template, data, options);
+      }
     };
     return view_data;
   }
@@ -105,4 +110,9 @@ export class ScSettings extends SmartSettings {
   async upgrade_to_early_access() {
     await this.plugin.update_early_access();
   }
+  // get_embedding_models dropdown options callback
+  get_embedding_model_options() {
+    return Object.entries(smart_embed_models).map(([key, model]) => ({ value: key, name: key }))
+  }
+  restart() { this.restart_plugin(); }
 }

@@ -147,7 +147,15 @@
   <li>Local model compatibility depends on available CPU and RAM. Try reducing the max tokens (context) if a local model if failing.</li>
   <li>API models are not dependent on local compute, but they require an API key and send your notes to third-party servers for processing.</li>
 </ul>
-<div class="smart-embed-settings"></div>
+<%- include('smart_entities', {env: this.env}) %>
+<div class="setting-component"
+  data-name="Show Full Path"
+  data-description="Show full path in view."
+  data-type="toggle"
+  data-setting="show_full_path"
+  data-callback="refresh_smart_view"
+></div>
+<!-- <div class="smart-embed-settings"></div> -->
 <h1>Smart Chat</h1>
 <div class="smart-chat-settings"></div>
 <h3>System Prompts</h3>

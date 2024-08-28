@@ -87,7 +87,6 @@ async function init_test_env(t) {
   main.get_tfile = get_tfile; // override main.get_tfile
   main.read_file = async (t_file) => test_md;
   const env = new ScBrain(main);
-  env.local_model_type = 'Node';
   env.save = () => { }; // override env.save
   env.init_import = async () => { await env.smart_notes.import.call(env.smart_notes, {reset: true}); };
   await env.init();

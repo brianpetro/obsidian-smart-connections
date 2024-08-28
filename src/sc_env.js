@@ -3,7 +3,6 @@ import { SmartEnv } from 'smart-environment';
 export class ScEnv extends SmartEnv {
   constructor(plugin, opts={}) {
     super(plugin, opts);
-    this.local_model_type = 'Web'; // DEPRECATED???
     this.dv_ws = null; // soon to be deprecated
     this.chat = null; // likely to be deprecated
   }

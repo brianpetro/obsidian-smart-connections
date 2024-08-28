@@ -43,6 +43,8 @@ import { ScChatsUI } from "./chat/sc_chats_ui.js";
 import { ScChats } from "./chat/sc_chats.js";
 import { ScActions } from "./sc_actions.js";
 import { ScAppConnector } from "./sc_app_connector.js";
+import { SmartEmbedTransformersIframeAdapter } from "smart-embed-model/adapters/transformers_iframe.js";
+import { SmartEmbedOpenAIAdapter } from "smart-embed-model/adapters/openai.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -54,6 +56,47 @@ export default class SmartConnectionsPlugin extends Plugin {
       SmartPrivateChatView,
     }
   }
+  // GETTERS for overrides in subclasses without overriding the constructor or init method
+  get smart_env_class() { return ScEnv; }
+  get smart_settings_class() { return ScSettings };
+  get smart_env_opts() {
+    return {
+      global_ref: window,
+      env_path: '', // scope handled by Obsidian FS methods
+      env_data_dir: this.env_data_dir, // used to scope SmartEnvSettings.fs
+      smart_env_settings: { // careful: overrides saved settings
+        is_obsidian_vault: true,
+      },
+      // smart modules
+      smart_chunks_class: SmartChunks,
+      smart_collection_adapter_class: MultiFileSmartCollectionDataAdapter,
+      smart_embed_model_class: SmartEmbedModel,
+      smart_embed_adapters: {
+        transformers: SmartEmbedTransformersIframeAdapter,
+        openai: SmartEmbedOpenAIAdapter,
+      },
+      smart_fs_class: SmartFs,
+      smart_fs_adapter_class: ObsidianSmartFsAdapter,
+      smart_settings_class: this.smart_settings_class,
+      request_adapter: this.obsidian.requestUrl,
+      // templates
+      ejs: ejs,
+      templates: templates,
+      // possibly DEPRECATED
+      collections: {
+        smart_sources: SmartSources,
+        smart_blocks: SmartBlocks,
+      },
+      // likely DEPRECATED
+      item_types: {
+        SmartSource,
+        SmartBlock,
+      },
+      // DEPRECATED
+      chat_classes: this.chat_classes,
+    };
+  }
+  get chat_classes() { return { ScActions, ScChatsUI, ScChats, ScChatModel }; }
   get_tfile(file_path) { return this.app.vault.getAbstractFileByPath(file_path); }
   async read_file(tfile_or_path) {
     const t_file = (typeof tfile_or_path === 'string') ? this.get_tfile(tfile_or_path) : tfile_or_path; // handle string (file_path) or Tfile input
@@ -445,42 +488,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     if(this.env.chats) this.env.chats.folder = this.settings.smart_chat_folder; 
   }
   
-  // GETTERS for overrides in subclasses without overriding the constructor or init method
-  get smart_env_class() { return ScEnv; }
-  get smart_settings_class() { return ScSettings };
-  get smart_env_opts() {
-    return {
-      global_ref: window,
-      env_path: '', // scope handled by Obsidian FS methods
-      env_data_dir: this.env_data_dir, // used to scope SmartEnvSettings.fs
-      smart_env_settings: { // careful: overrides saved settings
-        is_obsidian_vault: true,
-      },
-      // smart modules
-      smart_chunks_class: SmartChunks,
-      smart_collection_adapter_class: MultiFileSmartCollectionDataAdapter,
-      smart_embed_model_class: SmartEmbedModel,
-      smart_fs_class: SmartFs,
-      smart_fs_adapter_class: ObsidianSmartFsAdapter,
-      smart_settings_class: this.smart_settings_class,
-      // templates
-      ejs: ejs,
-      templates: templates,
-      // possibly DEPRECATED
-      collections: {
-        smart_sources: SmartSources,
-        smart_blocks: SmartBlocks,
-      },
-      // likely DEPRECATED
-      item_types: {
-        SmartSource,
-        SmartBlock,
-      },
-      // DEPRECATED
-      chat_classes: this.chat_classes,
-    };
-  }
-  get chat_classes() { return { ScActions, ScChatsUI, ScChats, ScChatModel }; }
 
   // BEGIN BACKWARD COMPATIBILITY (DEPRECATED: remove before 2.2 stable release)
   get env_data_dir() {

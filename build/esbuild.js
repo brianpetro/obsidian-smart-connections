@@ -18,8 +18,8 @@ fs.copyFileSync(manifest_path, path.join(process.cwd(), 'dist', 'manifest.json')
 fs.copyFileSync(styles_path, path.join(process.cwd(), 'dist', 'styles.css'));
 
 const destination_vaults = [
-  // 'sc-test-vault',
-  'obsidian-1',
+  'sc-test-vault',
+  // 'obsidian-1',
 ];
 
 // get first argument as entry point
