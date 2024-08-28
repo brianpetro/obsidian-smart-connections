@@ -1,284 +1,286 @@
-<h1>Smart Connections</h1>
-<% if(this.env.plugin.EARLY_ACCESS && !this.env.plugin.app.plugins.enabledPlugins.has("smart-templates")){ %>
-  <div data-callout-metadata="" data-callout-fold="" data-callout="success" class="callout" style="mix-blend-mode: unset;">
-    <div class="callout-title">
-      <div class="callout-icon" dir="auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          class="svg-icon lucide-check">
-          <path d="M20 6 9 17l-5-5"></path>
-        </svg></div>
-      <div class="callout-title-inner"><p><strong>Smart Templates:</strong> Try out the new <a href="https://github.com/brianpetro/obsidian-smart-templates">Smart Templates</a>.</p>
-        <div class="setting-component"
-          data-name="Easy Install"
-          data-description="Install the latest version of Smart Templates."
-          data-type="button"
-          data-callback="install_smart_templates_latest"
-        ></div>
-      </div>
-    </div>
-  </div>
-<% } %>
-<% if(this.env.plugin.EARLY_ACCESS && this.env.plugin.obsidian.Platform.isMobile && !this.env.plugin.settings.enable_mobile) { %>
-    <div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout">
+<div id="smart-connections-settings">
+  <h1>Smart Connections</h1>
+  <% if(this.env.plugin.EARLY_ACCESS && !this.env.plugin.app.plugins.enabledPlugins.has("smart-templates")){ %>
+    <div data-callout-metadata="" data-callout-fold="" data-callout="success" class="callout" style="mix-blend-mode: unset;">
       <div class="callout-title">
-        <div class="callout-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+        <div class="callout-icon" dir="auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="svg-icon lucide-alert-triangle">
-            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
-            <path d="M12 9v4"></path>
-            <path d="M12 17h.01"></path>
-          </svg>
+            class="svg-icon lucide-check">
+            <path d="M20 6 9 17l-5-5"></path>
+          </svg></div>
+        <div class="callout-title-inner"><p><strong>Smart Templates:</strong> Try out the new <a href="https://github.com/brianpetro/obsidian-smart-templates">Smart Templates</a>.</p>
+          <div class="setting-component"
+            data-name="Easy Install"
+            data-description="Install the latest version of Smart Templates."
+            data-type="button"
+            data-callback="install_smart_templates_latest"
+          ></div>
         </div>
-        <div class="callout-title-inner">Mobile is DISABLED.</div>
-      </div>
-      <div class="callout-content">
-        <p>Toggle "Enable mobile" setting to activate mobile.</p>
       </div>
     </div>
-<% } %>
-<!-- unset mix-blend-mode to prevent rendering issues -->
-<div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
-  <div class="callout-title">
-    <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon lucide-info">
-        <circle cx="12" cy="12" r="10"></circle>
-        <path d="M12 16v-4"></path>
-        <path d="M12 8h.01"></path>
-      </svg></div>
-    <div class="callout-title-inner"><p><strong>User Agreement:</strong> By using Smart Connections you agree to share how it helps you with at least one other person 😊🌴</p></div>
+  <% } %>
+  <% if(this.env.plugin.EARLY_ACCESS && this.env.plugin.obsidian.Platform.isMobile && !this.env.plugin.settings.enable_mobile) { %>
+      <div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout">
+        <div class="callout-title">
+          <div class="callout-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="svg-icon lucide-alert-triangle">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+              <path d="M12 9v4"></path>
+              <path d="M12 17h.01"></path>
+            </svg>
+          </div>
+          <div class="callout-title-inner">Mobile is DISABLED.</div>
+        </div>
+        <div class="callout-content">
+          <p>Toggle "Enable mobile" setting to activate mobile.</p>
+        </div>
+      </div>
+  <% } %>
+  <!-- unset mix-blend-mode to prevent rendering issues -->
+  <div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
+    <div class="callout-title">
+      <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon lucide-info">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 16v-4"></path>
+          <path d="M12 8h.01"></path>
+        </svg></div>
+      <div class="callout-title-inner"><p><strong>User Agreement:</strong> By using Smart Connections you agree to share how it helps you with at least one other person 😊🌴</p></div>
+    </div>
   </div>
-</div>
-<div class="sc-supporters">
-  <h1>Supporter Community</h1>
-  <% if(!this.env.plugin.EARLY_ACCESS){ %>
-  <p>The success of Smart Connections is a direct result of our community of supporters who generously fund and evaluate new features. Their unwavering commitment to our privacy-focused, open-source software benefits all. Together, we can continue to innovate and make a positive impact on the world.</p>
-  <p><b>Supporter benefits include:</b></p>
-  <ul>
-    <li>Early access to new &amp; experimental features:
-      <ul>
-        <li>Early access to new versions enables supporters to help ensure new features are ready for the broader community.</li>
-        <li><i>Available in v2.2 (Early Release):</i><ul>
-          <li>🖼️ Multimodal Smart Chat (images)</li>
-          <li>📲 Mobile compatibility</li>
-        </ul></li>
-        <li><i>Coming soon:</i><ul>
-          <li>Re-ranking in the Smart View</li>
-          <li>Actions in the Smart Chat</li>
-          <li>Advanced filters in the Smart View</li>
-        </ul></li>
-      </ul>
-    </li>
-    <li>Access to the supporter-only <a href="https://chat.smartconnections.app">private chat</a>:
-      <ul>
-        <li><i>Community:</i>
-          <ul>
-            <li>Ask questions and share insights with other supporters.</li>
-          </ul>
-        </li>
-        <li><i>Help &amp; Support (priority):</i>
-          <ul>
-            <li>Swift, top-priority support in the <a href="https://chat.smartconnections.app">Supporter Chat</a>.</li>
-          </ul>
-        </li>
-        <li><i>Feature Requests (priority):</i>
-          <ul>
-            <li>Influence the future of Smart Connections with priority feature requests in the <a href="https://chat.smartconnections.app">Supporter Chat</a>.</li>
-          </ul>
-        </li>
-        <li><i>Insider Updates:</i>
-          <ul>
-            <li>Learn about the latest features &amp; improvements before they are announced.</li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-    <li><b>For a very limited time:</b> Early access to Smart Connect: Use ChatGPT with your notes <i>without</i> uploading your notes to the cloud using <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connect-obsidian">Smart Connect - Obsidian</a> GPT.</li>
-  </ul>
-  <% } %>
-  <div class="setting-component"
-    data-name="Supporter License Key"
-    data-type="text"
-    data-setting="smart_connections_plugin.license_key"
-    data-description="Note: this is not required to use Smart Connections."
-    data-placeholder="Enter your license_key"
-  ></div>
-  <div class="setting-component"
-    data-name="Smart Connect - Obsidian GPT"
-    data-btn-text="Open GPT"
-    data-description='Chat with your notes in ChatGPT without uploading your notes to the cloud!'
-    data-type="button"
-    data-href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2"
-  ></div>
-  <div class="setting-component"
-    data-name="Enable Mobile (EXPERIMENTAL)"
-    data-description="Enable mobile support for Smart Connections."
-    data-type="toggle"
-    <%- this.env.plugin.EARLY_ACCESS ? '' : 'data-disabled=true' %>
-    data-setting="smart_connections_plugin.enable_mobile"
-    data-callback="toggle_mobile"
-  ></div>
-  <div class="setting-component"
-    data-name="Open Supporter Community Chat"
-    data-btn-text="Open Chat"
-    data-description='Join the supporter community chat.'
-    data-type="button"
-    data-href="https://chat.smartconnections.app"
-  ></div>
-  <% if(!this.env.plugin.EARLY_ACCESS){ %>
-  <div class="setting-component"
-    data-name="Upgrade to Early Access Version (v2.2)"
-    data-description="Upgrade to v2.2 (Early Access) to access new features and improvements."
-    data-type="button"
-    data-btn-text="Upgrade to v2.2"
-    data-callback="upgrade_to_early_access"
-  ></div>
-  <div class="setting-component"
-    data-name="Become a Supporter"
-    data-description="Become a Supporter"
-    data-type="button"
-    data-href="https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
-  ></div>
-  <% } %>
-</div>
-<h1>Smart View & Embeddings</h1>
-<p>Notes about embedding models:</p>
-<ul>
-  <li>IMPORTANT: make sure local <code>BGE-micro-v2</code> embedding model works before trying other local models.</li>
-  <li>Local model compatibility depends on available CPU and RAM. Try reducing the max tokens (context) if a local model if failing.</li>
-  <li>API models are not dependent on local compute, but they require an API key and send your notes to third-party servers for processing.</li>
-</ul>
-<%- include('smart_entities', {env: this.env}) %>
-<div class="setting-component"
-  data-name="Show Full Path"
-  data-description="Show full path in view."
-  data-type="toggle"
-  data-setting="show_full_path"
-  data-callback="refresh_smart_view"
-></div>
-<!-- <div class="smart-embed-settings"></div> -->
-<h1>Smart Chat</h1>
-<div class="smart-chat-settings"></div>
-<h3>System Prompts</h3>
-<div class="setting-component"
-  data-name="System Prompts Folder"
-  data-description="Folder to store system prompts. Available in chat by typing '@'"
-  data-type="text"
-  data-setting="system_prompts_folder"
-  data-placeholder="Enter a folder name"
-></div>
-<div class="setting-component"
-  data-name="Default Language"
-  data-setting="language"
-  data-type="dropdown"
-  data-description="Default language to use for Smart Chat. Changes which self-referential pronouns will trigger lookup of your notes."
-  data-option-1="en|English"
-  data-option-2="es|Spanish"
-  data-option-3="fr|French"
-  data-option-4="de|German"
-  data-option-5="it|Italian"
-  data-callback="update_language"
-></div>
-<span id="self-referential-pronouns">Current: my, I, me, mine, our, ours, us, we</span>
-<h1>Exclusions</h1>
-<p id="file-counts">Included files: <%= included_files %> / Total files: <%= total_files %></p>
-<div class="setting-component"
-  data-name="File Exclusions"
-  data-description="'Excluded file' matchers separated by a comma."
-  data-type="text"
-  data-setting="file_exclusions"
-  data-placeholder="drawings,prompts/logs"
-  data-callback="update_exclusions"
-></div>
-<div class="setting-component"
-  data-name="Folder Exclusions"
-  data-description="'Excluded folder' matchers separated by a comma."
-  data-type="text"
-  data-setting="folder_exclusions"
-  data-placeholder="drawings,prompts/logs"
-  data-callback="update_exclusions"
-></div>
-<div class="setting-component"
-  data-name="Exclude all top-level folders"
-  data-description="Set folder exclusions to exclude all top-level folders."
-  data-type="button"
-  data-callback="exclude_all_top_level_folders"
-></div>
-<div class="setting-component"
-  data-name="Heading Exclusions"
-  data-description="'Excluded header' matchers separated by a comma. Works for 'blocks' only."
-  data-type="text"
-  data-setting="excluded_headings"
-  data-placeholder="drawings,prompts/logs"
-></div>
-<h3>Data Management</h3>
-<div class="setting-component"
-  data-name="Refresh Embeddings"
-  data-description="Clear notes data and reprocess."
-  data-type="button"
-  data-callback="refresh_embeddings"
-></div>
-<div class="setting-component"
-  data-name="Smart Connections Folder"
-  data-description="Folder to store Smart Connections data."
-  data-type="text"
-  data-setting="smart_connections_plugin.smart_connections_folder"
-  data-placeholder="Enter a folder name"
-  data-callback="update_smart_connections_folder"
-  data-button="rename"
-></div>
-<!-- chat folder should be in env_data -->
-<div class="setting-component"
-  data-name="Smart Chat History Folder"
-  data-description="Folder to store Smart Chat history. Use a preceeding <code>.</code> to hide it (ex. <code>.smart-chats</code>)."
-  data-type="text"
-  data-setting="smart_connections_plugin.smart_chat_folder"
-  data-placeholder="Enter a folder name"
-  data-callback="update_smart_chat_folder"
-  data-button="rename"
-></div>
-<h1>Force Refresh</h1>
-<div class="setting-component"
-  data-name="force_refresh"
-  data-description="WARNING: DO NOT use unless you know what you are doing! This will delete all of your current embeddings from OpenAI and trigger reprocessing of your entire vault!"
-  data-confirm="Are you sure you want to Force Refresh? By clicking yes you confirm that you understand the consequences of this action."
-  data-type="button"
-  data-callback="force_refresh"
-></div>
-<h1>Muted Notices</h1>
-<% if(muted_notices && Object.keys(muted_notices).length) { %>
-  <% for(const notice in muted_notices) { %>
+  <div class="sc-supporters">
+    <h1>Supporter Community</h1>
+    <% if(!this.env.plugin.EARLY_ACCESS){ %>
+    <p>The success of Smart Connections is a direct result of our community of supporters who generously fund and evaluate new features. Their unwavering commitment to our privacy-focused, open-source software benefits all. Together, we can continue to innovate and make a positive impact on the world.</p>
+    <p><b>Supporter benefits include:</b></p>
+    <ul>
+      <li>Early access to new &amp; experimental features:
+        <ul>
+          <li>Early access to new versions enables supporters to help ensure new features are ready for the broader community.</li>
+          <li><i>Available in v2.2 (Early Release):</i><ul>
+            <li>🖼️ Multimodal Smart Chat (images)</li>
+            <li>📲 Mobile compatibility</li>
+          </ul></li>
+          <li><i>Coming soon:</i><ul>
+            <li>Re-ranking in the Smart View</li>
+            <li>Actions in the Smart Chat</li>
+            <li>Advanced filters in the Smart View</li>
+          </ul></li>
+        </ul>
+      </li>
+      <li>Access to the supporter-only <a href="https://chat.smartconnections.app">private chat</a>:
+        <ul>
+          <li><i>Community:</i>
+            <ul>
+              <li>Ask questions and share insights with other supporters.</li>
+            </ul>
+          </li>
+          <li><i>Help &amp; Support (priority):</i>
+            <ul>
+              <li>Swift, top-priority support in the <a href="https://chat.smartconnections.app">Supporter Chat</a>.</li>
+            </ul>
+          </li>
+          <li><i>Feature Requests (priority):</i>
+            <ul>
+              <li>Influence the future of Smart Connections with priority feature requests in the <a href="https://chat.smartconnections.app">Supporter Chat</a>.</li>
+            </ul>
+          </li>
+          <li><i>Insider Updates:</i>
+            <ul>
+              <li>Learn about the latest features &amp; improvements before they are announced.</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><b>For a very limited time:</b> Early access to Smart Connect: Use ChatGPT with your notes <i>without</i> uploading your notes to the cloud using <a href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connect-obsidian">Smart Connect - Obsidian</a> GPT.</li>
+    </ul>
+    <% } %>
     <div class="setting-component"
-      data-name="<%= notice %>"
-      data-setting="muted_notices.<%= notice %>"
-      data-type="button"
-      data-btn-text="Unmute"
-      data-callback="unmute_notice"
+      data-name="Supporter License Key"
+      data-type="text"
+      data-setting="smart_connections_plugin.license_key"
+      data-description="Note: this is not required to use Smart Connections."
+      data-placeholder="Enter your license_key"
     ></div>
-  <% } %>
-<% } else { %>
-  <p>No muted notices.</p>
-<% } %>
-<hr>
-<!-- <h5 name="og-gpt" id="og-gpt">The Original Smart Connections GPT</h5>
-<div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout">
-  <div class="callout-title">
-    <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-        class="svg-icon lucide-alert-triangle">
-        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
-        <path d="M12 9v4"></path>
-        <path d="M12 17h.01"></path>
-      </svg></div>
-    <div class="callout-title-inner"><p><i>The original v1 ChatGPT integration is no longer available. <a href="https://x.com/wfhbrian/status/1803801395008512092">See this</a> for more details.</i><br>You can still use the <a href="https://chatgpt.com/g/g-9Xb1mRJYl-smart-connect-obsidian">Smart Connect - Notes</a> GPT for more advanced features like creating notes and embedding search <i>without</i> uploading your notes to the cloud.</p></div>
+    <div class="setting-component"
+      data-name="Smart Connect - Obsidian GPT"
+      data-btn-text="Open GPT"
+      data-description='Chat with your notes in ChatGPT without uploading your notes to the cloud!'
+      data-type="button"
+      data-href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2"
+    ></div>
+    <div class="setting-component"
+      data-name="Enable Mobile (EXPERIMENTAL)"
+      data-description="Enable mobile support for Smart Connections."
+      data-type="toggle"
+      <%- this.env.plugin.EARLY_ACCESS ? '' : 'data-disabled=true' %>
+      data-setting="smart_connections_plugin.enable_mobile"
+      data-callback="toggle_mobile"
+    ></div>
+    <div class="setting-component"
+      data-name="Open Supporter Community Chat"
+      data-btn-text="Open Chat"
+      data-description='Join the supporter community chat.'
+      data-type="button"
+      data-href="https://chat.smartconnections.app"
+    ></div>
+    <% if(!this.env.plugin.EARLY_ACCESS){ %>
+    <div class="setting-component"
+      data-name="Upgrade to Early Access Version (v2.2)"
+      data-description="Upgrade to v2.2 (Early Access) to access new features and improvements."
+      data-type="button"
+      data-btn-text="Upgrade to v2.2"
+      data-callback="upgrade_to_early_access"
+    ></div>
+    <div class="setting-component"
+      data-name="Become a Supporter"
+      data-description="Become a Supporter"
+      data-type="button"
+      data-href="https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
+    ></div>
+    <% } %>
   </div>
+  <h1>Smart View & Embeddings</h1>
+  <p>Notes about embedding models:</p>
+  <ul>
+    <li>IMPORTANT: make sure local <code>BGE-micro-v2</code> embedding model works before trying other local models.</li>
+    <li>Local model compatibility depends on available CPU and RAM. Try reducing the max tokens (context) if a local model if failing.</li>
+    <li>API models are not dependent on local compute, but they require an API key and send your notes to third-party servers for processing.</li>
+  </ul>
+  <%- include('smart_entities', {env: this.env}) %>
+  <div class="setting-component"
+    data-name="Show Full Path"
+    data-description="Show full path in view."
+    data-type="toggle"
+    data-setting="show_full_path"
+    data-callback="refresh_smart_view"
+  ></div>
+  <!-- <div class="smart-embed-settings"></div> -->
+  <h1>Smart Chat</h1>
+  <div class="smart-chat-settings"></div>
+  <h3>System Prompts</h3>
+  <div class="setting-component"
+    data-name="System Prompts Folder"
+    data-description="Folder to store system prompts. Available in chat by typing '@'"
+    data-type="text"
+    data-setting="system_prompts_folder"
+    data-placeholder="Enter a folder name"
+  ></div>
+  <div class="setting-component"
+    data-name="Default Language"
+    data-setting="language"
+    data-type="dropdown"
+    data-description="Default language to use for Smart Chat. Changes which self-referential pronouns will trigger lookup of your notes."
+    data-option-1="en|English"
+    data-option-2="es|Spanish"
+    data-option-3="fr|French"
+    data-option-4="de|German"
+    data-option-5="it|Italian"
+    data-callback="update_language"
+  ></div>
+  <span id="self-referential-pronouns">Current: my, I, me, mine, our, ours, us, we</span>
+  <h1>Exclusions</h1>
+  <p id="file-counts">Included files: <%= included_files %> / Total files: <%= total_files %></p>
+  <div class="setting-component"
+    data-name="File Exclusions"
+    data-description="'Excluded file' matchers separated by a comma."
+    data-type="text"
+    data-setting="file_exclusions"
+    data-placeholder="drawings,prompts/logs"
+    data-callback="update_exclusions"
+  ></div>
+  <div class="setting-component"
+    data-name="Folder Exclusions"
+    data-description="'Excluded folder' matchers separated by a comma."
+    data-type="text"
+    data-setting="folder_exclusions"
+    data-placeholder="drawings,prompts/logs"
+    data-callback="update_exclusions"
+  ></div>
+  <div class="setting-component"
+    data-name="Exclude all top-level folders"
+    data-description="Set folder exclusions to exclude all top-level folders."
+    data-type="button"
+    data-callback="exclude_all_top_level_folders"
+  ></div>
+  <div class="setting-component"
+    data-name="Heading Exclusions"
+    data-description="'Excluded header' matchers separated by a comma. Works for 'blocks' only."
+    data-type="text"
+    data-setting="excluded_headings"
+    data-placeholder="drawings,prompts/logs"
+  ></div>
+  <h3>Data Management</h3>
+  <div class="setting-component"
+    data-name="Refresh Embeddings"
+    data-description="Clear notes data and reprocess."
+    data-type="button"
+    data-callback="refresh_embeddings"
+  ></div>
+  <div class="setting-component"
+    data-name="Smart Connections Folder"
+    data-description="Folder to store Smart Connections data."
+    data-type="text"
+    data-setting="smart_connections_plugin.smart_connections_folder"
+    data-placeholder="Enter a folder name"
+    data-callback="update_smart_connections_folder"
+    data-button="rename"
+  ></div>
+  <!-- chat folder should be in env_data -->
+  <div class="setting-component"
+    data-name="Smart Chat History Folder"
+    data-description="Folder to store Smart Chat history. Use a preceeding <code>.</code> to hide it (ex. <code>.smart-chats</code>)."
+    data-type="text"
+    data-setting="smart_connections_plugin.smart_chat_folder"
+    data-placeholder="Enter a folder name"
+    data-callback="update_smart_chat_folder"
+    data-button="rename"
+  ></div>
+  <h1>Force Refresh</h1>
+  <div class="setting-component"
+    data-name="force_refresh"
+    data-description="WARNING: DO NOT use unless you know what you are doing! This will delete all of your current embeddings from OpenAI and trigger reprocessing of your entire vault!"
+    data-confirm="Are you sure you want to Force Refresh? By clicking yes you confirm that you understand the consequences of this action."
+    data-type="button"
+    data-callback="force_refresh"
+  ></div>
+  <h1>Muted Notices</h1>
+  <% if(muted_notices && Object.keys(muted_notices).length) { %>
+    <% for(const notice in muted_notices) { %>
+      <div class="setting-component"
+        data-name="<%= notice %>"
+        data-setting="muted_notices.<%= notice %>"
+        data-type="button"
+        data-btn-text="Unmute"
+        data-callback="unmute_notice"
+      ></div>
+    <% } %>
+  <% } else { %>
+    <p>No muted notices.</p>
+  <% } %>
+  <hr>
+  <!-- <h5 name="og-gpt" id="og-gpt">The Original Smart Connections GPT</h5>
+  <div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout">
+    <div class="callout-title">
+      <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="svg-icon lucide-alert-triangle">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+          <path d="M12 9v4"></path>
+          <path d="M12 17h.01"></path>
+        </svg></div>
+      <div class="callout-title-inner"><p><i>The original v1 ChatGPT integration is no longer available. <a href="https://x.com/wfhbrian/status/1803801395008512092">See this</a> for more details.</i><br>You can still use the <a href="https://chatgpt.com/g/g-9Xb1mRJYl-smart-connect-obsidian">Smart Connect - Notes</a> GPT for more advanced features like creating notes and embedding search <i>without</i> uploading your notes to the cloud.</p></div>
+    </div>
+  </div>
+  <hr> -->
+  <% if(this.env.plugin.EARLY_ACCESS){ %>
+  <div class="setting-component"
+    data-name="Revert to Stable Release"
+    data-btn-text="Revert"
+    data-description='Revert to the stable release of Smart Connections. Requires "Check for Updates" and then "Update Plugin" to complete the process.'
+    data-type="button"
+    data-callback="revert_to_stable_release"
+  ></div>
+  <% } %>
 </div>
-<hr> -->
-<% if(this.env.plugin.EARLY_ACCESS){ %>
-<div class="setting-component"
-  data-name="Revert to Stable Release"
-  data-btn-text="Revert"
-  data-description='Revert to the stable release of Smart Connections. Requires "Check for Updates" and then "Update Plugin" to complete the process.'
-  data-type="button"
-  data-callback="revert_to_stable_release"
-></div>
-<% } %>

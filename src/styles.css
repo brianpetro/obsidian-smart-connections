@@ -455,3 +455,11 @@ div[data-type^="smart-connections-"] {
     white-space: nowrap;
   }
 }
+
+.setting-component[data-setting*="/"][data-setting*="api_key"] {
+  display: none;
+}
+.setting-component[data-setting*="gpu"]:not([data-setting*="/"]) {
+  display: none;
+}
+
