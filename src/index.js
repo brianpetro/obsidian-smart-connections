@@ -157,6 +157,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     Object.defineProperty(this.env, 'smart_notes', { get: () => this.env.smart_sources });
   }
   async ready_to_load_collections() {
+    await new Promise(r => setTimeout(r, 5000)); // wait 5 seconds for other processes to finish
     await this.wait_for_obsidian_sync();
   }
 

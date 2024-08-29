@@ -34,7 +34,7 @@
     "ava": "^6.0.1",
     "axios": "^1.6.7",
     "dotenv": "^16.3.1",
-    "esbuild": "^0.17.19",
+    "esbuild": "^0.23.1",
     "swagger-jsdoc": "^6.2.8"
   },
   "dependencies": {
@@ -47,9 +47,9 @@
     "smart-embed-model": "file:../jsbrains/smart-embed-model",
     "smart-environment": "file:../jsbrains/smart-environment",
     "smart-file-system": "file:../jsbrains/smart-fs",
-    "smart-sources": "file:../jsbrains/smart-sources",
     "smart-instruct-model": "file:../jsbrains/smart-instruct-model",
-    "smart-setting": "file:../jsbrains/smart-setting"
+    "smart-setting": "file:../jsbrains/smart-setting",
+    "smart-sources": "file:../jsbrains/smart-sources"
   },
   "ava": {
     "files": [

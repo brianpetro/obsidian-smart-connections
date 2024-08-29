@@ -29,7 +29,7 @@ export class ScSettings extends SmartSettings {
   async test_chat_api_key(){ await this.chat_settings.test_chat_api_key(); }
   get self_ref_list() { return this.chat_settings.self_ref_list; }
 
-  refresh_embeddings() { this.env.smart_sources.refresh_embeddings(); }
+  refresh_sources() { this.env.smart_sources.refresh(); }
   reload_env() { this.env.reload(); } // DEPRECATED
   restart_plugin() {
     this.plugin.notices.show('restarting_for_settings_to_take_effect', "Restarting for settings to take effect...", {timeout: 3000});

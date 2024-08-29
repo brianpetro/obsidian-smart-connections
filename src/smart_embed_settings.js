@@ -39,7 +39,7 @@ export class SmartEmbedSettings extends SmartSettings {
     }
   }
   reload_env() { this.env.reload(); } // DEPRECATED
-  refresh_embeddings() { this.env.smart_sources.refresh_embeddings(); }
+  refresh_sources() { this.env.smart_sources.refresh(); }
   restart_plugin() {
     this.plugin.notices.show('restarting_for_settings_to_take_effect', "Restarting for settings to take effect...", {timeout: 3000});
     this.plugin.restart_plugin(); 
