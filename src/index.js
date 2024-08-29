@@ -10,7 +10,7 @@ const {
   TAbstractFile,
   TFile,
 } = Obsidian;
-import { ScEnv } from "./sc_env.js";
+import { SmartEnv } from 'smart-environment';
 import { default_settings } from "./default_settings.js";
 import ejs from "../ejs.min.cjs";
 import templates from "../build/views.json" assert { type: "json" };
@@ -57,7 +57,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
   }
   // GETTERS for overrides in subclasses without overriding the constructor or init method
-  get smart_env_class() { return ScEnv; }
+  get smart_env_class() { return SmartEnv; }
   get smart_settings_class() { return ScSettings };
   get smart_env_opts() {
     return {
@@ -97,6 +97,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     };
   }
   get chat_classes() { return { ScActions, ScChatsUI, ScChats, ScChatModel }; }
+  get env_data_dir() { return this.settings.env_data_dir || this.settings.smart_connections_folder; }
   get_tfile(file_path) { return this.app.vault.getAbstractFileByPath(file_path); }
   async read_file(tfile_or_path) {
     const t_file = (typeof tfile_or_path === 'string') ? this.get_tfile(tfile_or_path) : tfile_or_path; // handle string (file_path) or Tfile input
@@ -129,6 +130,9 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.new_user();
     await this.load_env();
     console.log("Smart Connections v2 loaded");
+    // run init chat last because buggy (seems to not finish resolving)
+    this.init_chat_model();
+    await this.init_chat();
   }
   register_code_blocks() {
     this.register_code_block("smart-connections", "render_code_block"); // code-block renderer
@@ -148,8 +152,9 @@ export default class SmartConnectionsPlugin extends Plugin {
   async load_env() {
     await this.smart_env_class.create(this, this.smart_env_opts);
     ScAppConnector.create(this.env, 37042); // Smart Connect
-    this.init_chat_model();
-    await this.init_chat();
+    // DEPRECATED getters: for Smart Visualizer backwards compatibility
+    Object.defineProperty(this.env, 'entities_loaded', { get: () => this.env.collections_loaded });
+    Object.defineProperty(this.env, 'smart_notes', { get: () => this.env.smart_sources });
   }
   async ready_to_load_collections() {
     await this.wait_for_obsidian_sync();
@@ -488,11 +493,13 @@ export default class SmartConnectionsPlugin extends Plugin {
     if(this.env.chats) this.env.chats.folder = this.settings.smart_chat_folder; 
   }
   
+  get system_prompts() {
+    return this.app.vault.getMarkdownFiles()
+      .filter(file => file.path.includes(this.env.settings.system_prompts_folder) || file.path.includes('.prompt') || file.path.includes('.sp'))
+    ;
+  }
 
   // BEGIN BACKWARD COMPATIBILITY (DEPRECATED: remove before 2.2 stable release)
-  get env_data_dir() {
-    return this.settings.env_data_dir || this.settings.smart_connections_folder;
-  }
   async handle_deprecated_settings() {
     // v2.1.87
     // smart_notes_embed_model -> smart_sources_embed_model

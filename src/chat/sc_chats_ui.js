@@ -242,8 +242,7 @@ class ScSystemPromptSelectModal extends FuzzySuggestModal {
     this.env = env;
     this.setPlaceholder("Type the name of a system prompt...");
   }
-  // getItems() { return this.env.system_prompts; }
-  getItems() { return this.env.system_prompts; }
+  getItems() { return this.env.smart_connections_plugin.system_prompts; }
   getItemText(item) { return item.basename; }
   onChooseItem(prompt) { this.env.chat_ui.insert_selection('"' + prompt.basename + '"'); }
 }

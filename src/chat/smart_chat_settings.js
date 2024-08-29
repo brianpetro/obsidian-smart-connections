@@ -8,7 +8,7 @@ export class SmartChatSettings extends SmartSettings {
     console.log(this.env.settings.chat_model_platform_key);
     // await this.plugin.save_settings();
     this.env.chat_model = null;
-    this.env.init_chat_model(this.env.settings.chat_model_platform_key);
+    this.env.smart_connections_plugin.init_chat_model(this.env.settings.chat_model_platform_key);
     const platform_config = this.env.chat_model.platforms[this.env.settings.chat_model_platform_key];
     let smart_chat_model_config = this.env.settings[this.env.settings.chat_model_platform_key] || {};
     if(smart_chat_model_config.model_name){
@@ -32,7 +32,7 @@ export class SmartChatSettings extends SmartSettings {
     if(resp) return this.plugin.notices.show('api key test pass', "Success! API key is valid");
     this.plugin.notices.show('api key test fail', "Error: API key is invalid!");
   }
-  get self_ref_list() { return "Current: " + ScTranslations[this.config.language].pronouns.join(", "); }
+  get self_ref_list() { return "Current: " + ScTranslations[this.env.settings.language].pronouns.join(", "); }
   get template() { return this.templates['smart_chat_settings']; }
   async get_view_data() {
     const view_data = {

@@ -6,12 +6,12 @@ export class ScChats extends SmartChats {
   constructor(env, opts = {}) {
     super(env, opts);
     this.plugin = this.env.plugin;
-    this.folder = this.env.config.smart_chat_folder || this.folder;
+    this.folder = this.env.settings.smart_chat_folder || this.folder;
     this.chat_class = ScChat;
   }
   async new_user_message(message) {
     // notify users of limited 
-    if(this.env.config.chat_model_platform_key === 'open_router' && !this.env.config.open_router?.api_key) {
+    if(this.env.settings.chat_model_platform_key === 'open_router' && !this.env.settings.open_router?.api_key) {
       const free_chat_uses = this.plugin.settings.free_chat_uses ? (this.plugin.settings.free_chat_uses + 1) : 1;
       this.plugin.settings.free_chat_uses = free_chat_uses;
       await this.plugin.save_settings();

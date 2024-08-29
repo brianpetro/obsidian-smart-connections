@@ -122,7 +122,7 @@ export class ScActions {
             },
             server: server_url,
             handler: this.get_handler(operationId, path, method, server_url),
-            enabled: (operationId === 'lookup' || !!this.env.config.actions?.[operationId])
+            enabled: (operationId === 'lookup' || !!this.actions?.[operationId])
           };
         })
       )
