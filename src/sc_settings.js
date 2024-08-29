@@ -112,7 +112,12 @@ export class ScSettings extends SmartSettings {
   }
   // get_embedding_models dropdown options callback
   get_embedding_model_options() {
-    return Object.entries(smart_embed_models).map(([key, model]) => ({ value: key, name: key }))
+    return Object.entries(smart_embed_models).map(([key, model]) => ({ value: key, name: key }));
+  }
+  get_block_embedding_model_options() {
+    const options = this.get_embedding_model_options();
+    options.unshift({ value: 'None', name: 'None' });
+    return options;
   }
   restart() { this.restart_plugin(); }
 }
