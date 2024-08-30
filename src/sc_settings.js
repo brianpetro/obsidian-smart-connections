@@ -8,7 +8,7 @@ export class ScSettings extends SmartSettings {
   constructor(env, container, template_name = "smart_settings") {
     super(env, container, template_name);
   }
-  update_smart_chat_folder() { this.chat_settings.update_smart_chat_folder(); }
+  update_smart_chat_folder() { this.env.smart_connections_plugin.update_smart_chat_folder(); }
   async changed_smart_chat_model(){
     await this.chat_settings.changed_smart_chat_model(false);
     this.render();

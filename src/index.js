@@ -480,18 +480,18 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   // update smart chat folder
   async update_smart_chat_folder() {
-    if(this.settings.smart_chat_folder === this.settings.smart_chat_folder_last) return; // if folder is the same as last, return
+    if(this.env.settings.smart_chat_folder === this.env.settings.smart_chat_folder_last) return; // if folder is the same as last, return
     if(!confirm("Are you sure you want to update the Smart Chats folder? This will move all Smart Chat files to the new folder.")){
-      this.settings.smart_chat_folder = this.settings.smart_chat_folder_last; // reset folder to last folder if user cancels
+      this.env.settings.smart_chat_folder = this.env.settings.smart_chat_folder_last; // reset folder to last folder if user cancels
       return;
     }
-    await this.app.vault.adapter.rename(this.settings.smart_chat_folder_last, this.settings.smart_chat_folder);
+    await this.app.vault.adapter.rename(this.env.settings.smart_chat_folder_last, this.env.settings.smart_chat_folder);
     // update last folder
-    this.settings.smart_chat_folder_last = this.settings.smart_chat_folder;
+    this.env.settings.smart_chat_folder_last = this.env.settings.smart_chat_folder;
     // save settings
     await this.save_settings();
     // update chat history conversation folder (if env.chats exists)
-    if(this.env.chats) this.env.chats.folder = this.settings.smart_chat_folder; 
+    if(this.env.chats) this.env.chats.folder = this.env.settings.smart_chat_folder; 
   }
   
   get system_prompts() {
