@@ -423,9 +423,11 @@ export default class SmartConnectionsPlugin extends Plugin {
     await this.restart_plugin();
   }
 
+  get plugin_is_enabled() { return this.app?.plugins?.enabledPlugins?.has("smart-connections"); }
   // WAIT FOR OBSIDIAN SYNC
   async wait_for_obsidian_sync() {
     while (this.obsidian_is_syncing) {
+      if(!this.plugin_is_enabled) throw new Error("Smart Connections: plugin disabled while waiting for obsidian sync"); // if plugin is disabled, stop waiting for sync
       console.log("Smart Connections: Waiting for Obsidian Sync to finish");
       await new Promise(r => setTimeout(r, 1000));
     }
