@@ -78,7 +78,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       smart_fs_class: SmartFs,
       smart_fs_adapter_class: ObsidianSmartFsAdapter,
       smart_settings_class: this.smart_settings_class,
-      request_adapter: this.obsidian.requestUrl,
       // templates
       ejs: ejs,
       templates: templates,
@@ -93,6 +92,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         SmartBlock,
       },
       // DEPRECATED
+      request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
       chat_classes: this.chat_classes,
     };
   }

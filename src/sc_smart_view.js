@@ -111,7 +111,7 @@ export class ScSmartView extends SmartObsidianView {
       }
       // wait for context.vec (prevent infinite loop)
       while (!context?.vec){
-        if(!(context instanceof this.env?.item_types?.SmartSource)){
+        if(!(context instanceof this.env?.opts.item_types?.SmartSource)){
           const source = this.env.smart_sources.get(context.path)
           if(source) context = source;
         }
@@ -121,7 +121,7 @@ export class ScSmartView extends SmartObsidianView {
     if(!context?.key) return this.plugin.notices.show('no context', "No context found for rendering Smart Connections.");
     context_key = context.key;
     // Get results
-    if (context && (context instanceof this.env.item_types.SmartBlock || context instanceof this.env.item_types.SmartSource)){
+    if (context && (context instanceof this.env.opts.item_types.SmartBlock || context instanceof this.env.opts.item_types.SmartSource)){
       const results = context.find_connections();
       if(results?.length) this.render_results(container, results, { context_key });
       else this.render_results(container, [], { context_key });
@@ -130,8 +130,10 @@ export class ScSmartView extends SmartObsidianView {
         re_rank,
         cohere_api_key,
       } = this.smart_connections_view_settings;
-      if(re_rank && typeof this.env.re_rank_connections === "function"){
-        const re_ranked_results = await this.env.re_rank_connections({
+      console.log("re-rank", re_rank);
+      if(re_rank && typeof this.plugin.re_rank_connections === "function"){
+        console.log("re-ranking");
+        const re_ranked_results = await this.plugin.re_rank_connections({
           context_entity: context,
           entities: results,
           model: {
@@ -145,7 +147,7 @@ export class ScSmartView extends SmartObsidianView {
       }
     }
   }
-  get smart_connections_view_settings() { return this.plugin.settings?.smart_view_filter || {}; }
+  get smart_connections_view_settings() { return this.env.settings?.smart_view_filter || {}; }
   should_import_context(context) {
     const entity = this.env.smart_sources.get(context.path);
     return !entity || entity.meta_changed;
