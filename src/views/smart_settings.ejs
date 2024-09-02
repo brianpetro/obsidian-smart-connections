@@ -149,6 +149,14 @@
     <li>API models are not dependent on local compute, but they require an API key and send your notes to third-party servers for processing.</li>
   </ul>
   <%- include('smart_entities', {env: this.env}) %>
+  <hr>
+  <div class="setting-component"
+    data-name="Legacy Transformers (no GPU)"
+    data-description="Use legacy transformers (v2) instead of v3."
+    data-type="toggle"
+    data-setting="legacy_transformers"
+    data-callback="restart_plugin"
+  ></div>
   <div class="setting-component"
     data-name="Show Full Path"
     data-description="Show full path in view."
