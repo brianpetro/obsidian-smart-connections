@@ -94,7 +94,12 @@ export class ScActions {
         }
       }]
     });
-    const results = await lookup(this.env, { hypotheticals: [hyd] });
+    const results = (await lookup(this.env, { hypotheticals: [hyd] }))
+      .map(res => {
+        res.entity.score = res.score; // DEPRECATED: handling when last score added to entity is not top score (needs to be fixed in Entities.nearest)
+        return res.entity;
+      })
+    ;
     await this.env.chats.current.add_tool_output("lookup", results);
     return;
   }
