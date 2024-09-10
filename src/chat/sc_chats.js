@@ -5,7 +5,7 @@ import { FuzzySuggestModal } from "obsidian";
 export class ScChats extends SmartChats {
   constructor(env, opts = {}) {
     super(env, opts);
-    this.plugin = this.env.plugin;
+    this.plugin = this.env.smart_connections_plugin;
     this.folder = this.env.settings.smart_chat_folder || this.folder;
     this.chat_class = ScChat;
   }
@@ -17,7 +17,7 @@ export class ScChats extends SmartChats {
       await this.plugin.save_settings();
       if(free_chat_uses > 20) throw new Error("You have used up your free chat limit! Please add your own API key in the Smart Chat settings to enable unlimited personal usage and prevent exhausting the shared community account limit.");
       else if(free_chat_uses > 2) {
-        this.env.plugin.notices.show("shared usage", "Your chats are currently using a community account with very limited usage. Please add your own API key in the Smart Chat settings to enable unlimited personal usage and prevent exhausting the shared account limit.", {immutable: true, timeout: 20000});
+        this.plugin.notices.show("shared usage", "Your chats are currently using a community account with very limited usage. Please add your own API key in the Smart Chat settings to enable unlimited personal usage and prevent exhausting the shared account limit.", {immutable: true, timeout: 20000});
       }
     }
     return message;

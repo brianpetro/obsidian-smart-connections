@@ -7,7 +7,7 @@ import { contains_self_referential_keywords } from "./chat/contains_self_referen
 export class ScActions {
   constructor(env, opts = {}) {
     this.env = env;
-    this.plugin = this.env.plugin;
+    this.plugin = this.env.smart_connections_plugin;
     this.app = this.plugin.app;
     this.config = this.plugin.settings;
     this.actions = {};

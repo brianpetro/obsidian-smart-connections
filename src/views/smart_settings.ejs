@@ -1,6 +1,6 @@
 <div id="smart-connections-settings">
   <h1>Smart Connections</h1>
-  <% if(this.env.plugin.EARLY_ACCESS && !this.env.plugin.app.plugins.enabledPlugins.has("smart-templates")){ %>
+  <% if(this.env.smart_connections_plugin.EARLY_ACCESS && !this.env.smart_connections_plugin.app.plugins.enabledPlugins.has("smart-templates")){ %>
     <div data-callout-metadata="" data-callout-fold="" data-callout="success" class="callout" style="mix-blend-mode: unset;">
       <div class="callout-title">
         <div class="callout-icon" dir="auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -19,7 +19,7 @@
       </div>
     </div>
   <% } %>
-  <% if(this.env.plugin.EARLY_ACCESS && this.env.plugin.obsidian.Platform.isMobile && !this.env.plugin.settings.enable_mobile) { %>
+  <% if(this.env.smart_connections_plugin.EARLY_ACCESS && this.env.smart_connections_plugin.obsidian.Platform.isMobile && !this.env.smart_connections_plugin.settings.enable_mobile) { %>
       <div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout">
         <div class="callout-title">
           <div class="callout-icon">
@@ -51,7 +51,7 @@
   </div>
   <div class="sc-supporters">
     <h1>Supporter Community</h1>
-    <% if(!this.env.plugin.EARLY_ACCESS){ %>
+    <% if(!this.env.smart_connections_plugin.EARLY_ACCESS){ %>
     <p>The success of Smart Connections is a direct result of our community of supporters who generously fund and evaluate new features. Their unwavering commitment to our privacy-focused, open-source software benefits all. Together, we can continue to innovate and make a positive impact on the world.</p>
     <p><b>Supporter benefits include:</b></p>
     <ul>
@@ -114,7 +114,7 @@
       data-name="Enable Mobile (EXPERIMENTAL)"
       data-description="Enable mobile support for Smart Connections."
       data-type="toggle"
-      <%- this.env.plugin.EARLY_ACCESS ? '' : 'data-disabled=true' %>
+      <%- this.env.smart_connections_plugin.EARLY_ACCESS ? '' : 'data-disabled=true' %>
       data-setting="smart_connections_plugin.enable_mobile"
       data-callback="toggle_mobile"
     ></div>
@@ -125,7 +125,7 @@
       data-type="button"
       data-href="https://chat.smartconnections.app"
     ></div>
-    <% if(!this.env.plugin.EARLY_ACCESS){ %>
+    <% if(!this.env.smart_connections_plugin.EARLY_ACCESS){ %>
     <div class="setting-component"
       data-name="Upgrade to Early Access Version (v2.2)"
       data-description="Upgrade to v2.2 (Early Access) to access new features and improvements."
@@ -282,7 +282,7 @@
     </div>
   </div>
   <hr> -->
-  <% if(this.env.plugin.EARLY_ACCESS){ %>
+  <% if(this.env.smart_connections_plugin.EARLY_ACCESS){ %>
   <div class="setting-component"
     data-name="Revert to Stable Release"
     data-btn-text="Revert"

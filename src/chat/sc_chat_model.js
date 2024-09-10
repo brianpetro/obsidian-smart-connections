@@ -23,7 +23,7 @@ export class ScChatModel extends SmartChatModel {
         const context_start_i = msg.content.indexOf(context_start) + context_start.length;
         const context_end_i = msg.content.substring(context_start_i).indexOf("```");
         const raw_contents = msg.content.substring(context_start_i, context_start_i + context_end_i);
-        const entities = this.env.plugin.get_entities_from_context_codeblock(raw_contents);
+        const entities = this.env.smart_connections_plugin.get_entities_from_context_codeblock(raw_contents);
         let context = [];
         let tokens = [];
         await Promise.all(entities.map(async (entity, i) => {
@@ -68,6 +68,6 @@ export class ScChatModel extends SmartChatModel {
   get_prompt_context_prefix(params = {}) {
     return `Anticipate the type of answer desired by the user.`
       + ` Imagine the following${params.ct ? " " + params.ct : ""} notes were written by the user and contain all the necessary information to answer the user's question.`
-      + ` Begin responses with "${ScTranslations[this.env.plugin.settings.language].prompt}..."`;
+      + ` Begin responses with "${ScTranslations[this.env.smart_connections_plugin.settings.language].prompt}..."`;
   }
 }

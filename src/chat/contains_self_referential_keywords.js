@@ -17,7 +17,7 @@ export async function contains_self_referential_keywords(env, user_input, langua
     }
   }
   if(contains_folder_reference(check_str)){
-    const folders = await env.plugin.get_folders(); // get folder references
+    const folders = await env.smart_connections_plugin.get_folders(); // get folder references
     const extracted_folder_references = extract_folder_references(folders, check_str);
     for(const folder_reference of extracted_folder_references){
       check_str = check_str.replace(folder_reference, '');

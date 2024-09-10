@@ -15,8 +15,8 @@ export class ScChatsUI extends SmartChatsUI {
       get_icon: this.plugin.chat_view.get_icon.bind(this.plugin.chat_view),
     };
   }
-  get obsidian() { return this.env.plugin.obsidian; }
-  show_notice(message) { this.env.plugin.show_notice(message); }
+  get obsidian() { return this.plugin.obsidian; }
+  show_notice(message) { this.plugin.show_notice(message); }
   get overlay_container() { return this.container.querySelector(".sc-overlay"); }
   add_listeners() {
     // chat name input
@@ -26,8 +26,8 @@ export class ScChatsUI extends SmartChatsUI {
     const open_in_note_btn = this.container.querySelector("button[title='Open Conversation Note']");
     open_in_note_btn.addEventListener("click", () => {
       const link_path = this.env.chats.current.file_path;
-      const link_tfile = this.env.plugin.app.metadataCache.getFirstLinkpathDest(link_path, "/");
-      let leaf = this.env.plugin.app.workspace.getLeaf(true);
+      const link_tfile = this.plugin.app.metadataCache.getFirstLinkpathDest(link_path, "/");
+      let leaf = this.plugin.app.workspace.getLeaf(true);
       leaf.openFile(link_tfile);
     });
     // chat settings button
@@ -66,7 +66,7 @@ export class ScChatsUI extends SmartChatsUI {
     const text = msg_elm.getAttribute("data-content") || text_elm.textContent;
     text_elm.innerHTML = '';
     // await this.obsidian.MarkdownRenderer.renderMarkdown(text, text_elm, '?no-dataview', new this.obsidian.Component());
-    await this.obsidian.MarkdownRenderer.render(this.env.plugin.app, text, text_elm, '?no-dataview', new this.obsidian.Component());
+    await this.obsidian.MarkdownRenderer.render(this.plugin.app, text, text_elm, '?no-dataview', new this.obsidian.Component());
   }
   handle_links_in_message(msg_elm) {
     const links = msg_elm.querySelectorAll("a");
@@ -77,7 +77,7 @@ export class ScChatsUI extends SmartChatsUI {
         const link_text = link.getAttribute("data-href");
         // trigger hover event on link
         link.addEventListener("mouseover", (event) => {
-          this.env.plugin.app.workspace.trigger("hover-link", {
+          this.plugin.app.workspace.trigger("hover-link", {
             event,
             source: ScChatView.view_type,
             hoverParent: link.parentElement,
@@ -88,11 +88,11 @@ export class ScChatsUI extends SmartChatsUI {
         });
         // trigger open link event on link
         link.addEventListener("click", (event) => {
-          const link_tfile = this.env.plugin.app.metadataCache.getFirstLinkpathDest(link_text, "/");
+          const link_tfile = this.plugin.app.metadataCache.getFirstLinkpathDest(link_text, "/");
           // properly handle if the meta/ctrl key is pressed
           const mod = this.obsidian.Keymap.isModEvent(event);
           // get most recent leaf
-          let leaf = this.env.plugin.app.workspace.getLeaf(mod);
+          let leaf = this.plugin.app.workspace.getLeaf(mod);
           leaf.openFile(link_tfile);
         });
       }
@@ -107,25 +107,25 @@ export class ScChatsUI extends SmartChatsUI {
       const msg_content = msg_content_elm.getAttribute("data-content") || msg_content_elm.querySelector("span:not(.sc-msg-button)").textContent;
       console.log(msg_content);
       navigator.clipboard.writeText(msg_content);
-      this.env.plugin.show_notice("Message copied to clipboard");
+      this.plugin.show_notice("Message copied to clipboard");
     });
   }
   // open file suggestion modal
   open_file_suggestion_modal() {
     // open file suggestion modal
-    if (!this.file_selector) this.file_selector = new ScFileSelectModal(this.env.plugin.app, this.env);
+    if (!this.file_selector) this.file_selector = new ScFileSelectModal(this.plugin.app, this.env);
     this.file_selector.open();
   }
   // open folder suggestion modal
   async open_folder_suggestion_modal() {
     if (!this.folder_selector) {
-      const folders = await this.env.plugin.get_folders();
-      this.folder_selector = new ScFolderSelectModal(this.env.plugin.app, this.env, folders); // create folder suggestion modal
+      const folders = await this.plugin.get_folders();
+      this.folder_selector = new ScFolderSelectModal(this.plugin.app, this.env, folders); // create folder suggestion modal
     }
     this.folder_selector.open(); // open folder suggestion modal
   }
   async open_system_prompt_modal() {
-    if (!this.system_prompt_selector) this.system_prompt_selector = new ScSystemPromptSelectModal(this.env.plugin.app, this.env);
+    if (!this.system_prompt_selector) this.system_prompt_selector = new ScSystemPromptSelectModal(this.plugin.app, this.env);
     this.system_prompt_selector.open();
   }
   add_chat_input_listeners(){
@@ -138,7 +138,7 @@ export class ScChatsUI extends SmartChatsUI {
     chat_input.addEventListener("keyup", this.key_up_handler.bind(this));
   }
   key_down_handler(e) {
-    const mod = this.env.plugin.obsidian.Keymap.isModEvent(e); // properly handle if the meta/ctrl key is pressed
+    const mod = this.obsidian.Keymap.isModEvent(e); // properly handle if the meta/ctrl key is pressed
     if (e.key === "Enter" && mod) {
       e.preventDefault();
       return this.handle_send();
@@ -187,7 +187,7 @@ export class ScChatsUI extends SmartChatsUI {
     }
     // get text from textarea
     let user_input = textarea.value;
-    if(!user_input.trim()) return this.env.plugin.notices.show("empty chat input", "Chat input is empty.");
+    if(!user_input.trim()) return this.plugin.notices.show("empty chat input", "Chat input is empty.");
     // clear textarea
     textarea.value = "";
     // initiate response from assistant

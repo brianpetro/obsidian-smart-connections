@@ -11,7 +11,7 @@ export class ScChat extends SmartChat {
     try{
       await super.new_user_message(content);
     }catch(e){
-      this.env.plugin.notices.show(e.message, e.message);
+      this.env.smart_connections_plugin.notices.show(e.message, e.message);
       console.warn(e);
       this.env.chat_ui.undo_last_message();
       this.env.chat_ui.set_chat_input_text(og_content);
@@ -50,7 +50,7 @@ export class ScChat extends SmartChat {
     }
     // if contains folder reference represented by /folder/
     if (contains_folder_reference(content)) { // tested
-      const folders = await this.env.plugin.get_folders(); // get folder references
+      const folders = await this.env.smart_connections_plugin.get_folders(); // get folder references
       const folder_refs = extract_folder_references(folders, content);
       console.log(folder_refs);
       // if folder references are valid (string or array of strings)

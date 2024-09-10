@@ -4,6 +4,7 @@ import url from 'url';
 export class ScAppConnector {
   constructor(env, port = 37042) {
     this.env = env;
+    this.sc_plugin = this.env.smart_connections_plugin;
     this.port = port;
     this.server = null;
     this.dataview_api = null;
@@ -125,9 +126,9 @@ export class ScAppConnector {
   }
 
   async current_note() {
-    const curr_file = this.env.plugin.app.workspace.getActiveFile();
+    const curr_file = this.sc_plugin.app.workspace.getActiveFile();
     if (!curr_file) return { path: null, content: null };
-    let content = await this.env.smart_connections_plugin.read_file(curr_file);
+    let content = await this.sc_plugin.read_file(curr_file);
     return {
       path: curr_file.path,
       content: content,
@@ -136,7 +137,7 @@ export class ScAppConnector {
 
   async current_notes() {
     const cfiles = [];
-    await this.env.plugin.app.workspace.iterateRootLeaves((leave) => {
+    await this.sc_plugin.app.workspace.iterateRootLeaves((leave) => {
       cfiles.push(leave.view.file.path);
     });
     return cfiles;
@@ -144,8 +145,8 @@ export class ScAppConnector {
 
   async full_render(markdown, rel_path) {
     const html_elm = document.createElement("div");
-    const { MarkdownRenderer, htmlToMarkdown, Component } = this.env.plugin.obsidian;
-    await MarkdownRenderer.render(this.env.plugin.app, markdown, html_elm, rel_path, new Component());
+    const { MarkdownRenderer, htmlToMarkdown, Component } = this.sc_plugin.obsidian;
+    await MarkdownRenderer.render(this.sc_plugin.app, markdown, html_elm, rel_path, new Component());
     
     let html = html_elm.innerHTML;
     await new Promise(resolve => setTimeout(resolve, 200));
