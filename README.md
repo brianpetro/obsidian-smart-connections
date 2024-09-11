@@ -14,7 +14,8 @@ Smart Connections is a [mission-driven](https://youtu.be/RtlpPTrEQ7c) software t
 
 ![Easy to install and use](./assets/smart-connections-install.gif)
 
-*This README is a work-in-progress so the v1 README is still available below.*
+> [!NOTE]
+> Documentation site coming soon at [docs.smartconnections.app](https://docs.smartconnections.app). Contribute to the docs [here](https://github.com/brianpetro/Smart-Connections-Docs).
 
 ## A brief history
 The journey of Smart Connections is one I directly share with you. Smart Connections isn't just about some new features in Obsidian; it's a reflection of our shared experiences, your invaluable feedback, and a testament to what we can achieve together in the Obsidian community. A journey that's been both exhilarating and profoundly educational.
