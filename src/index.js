@@ -275,8 +275,10 @@ export default class SmartConnectionsPlugin extends Plugin {
       editorCallback: async (editor) => {
         // get current note
         const curr_file = this.app.workspace.getActiveFile();
+        console.log(curr_file);
+        if(!curr_file?.path) return console.warn("No active file", curr_file);
         // delete note entity from cache
-        delete this.env?.connections_cache[curr_file.path];
+        if(this.env?.connections_cache?.[curr_file.path]) delete this.env.connections_cache[curr_file.path];
         // delte note entity from collection
         this.env.smart_sources.delete_item(curr_file.path);
         // import note
