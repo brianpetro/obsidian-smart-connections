@@ -11,6 +11,7 @@ const {
   TFile,
 } = Obsidian;
 import { SmartEnv } from 'smart-environment';
+import { smart_env_config } from "./smart_env.config.js";
 import { default_settings } from "./default_settings.js";
 import ejs from "../ejs.min.cjs";
 import templates from "../build/views.json" assert { type: "json" };
@@ -28,23 +29,11 @@ import { open_note } from "./open_note.js";
 import { MultiFileSmartCollectionDataAdapter } from "smart-collections/adapters/multi_file";
 import { SmartChatGPTView } from "./sc_chatgpt_view.js";
 import { SmartPrivateChatView } from "./sc_private_chat_view.js";
-import { SmartFs } from 'smart-file-system/smart_fs.js';
-import { ObsidianSmartFsAdapter } from 'smart-file-system/adapters/obsidian.js';
-import {
-  SmartSources,
-  SmartSource,
-  SmartBlocks,
-  SmartBlock,
-} from "./sc_entities.js";
-import { SmartEmbedModel } from "smart-embed-model";
-import { SmartChunks } from 'smart-chunks/smart_chunks.js';
 import { ScChatModel } from "./chat/sc_chat_model.js";
 import { ScChatsUI } from "./chat/sc_chats_ui.js";
 import { ScChats } from "./chat/sc_chats.js";
 import { ScActions } from "./sc_actions.js";
 import { ScAppConnector } from "./sc_app_connector.js";
-import { SmartEmbedTransformersIframeAdapter } from "smart-embed-model/adapters/transformers_iframe.js";
-import { SmartEmbedOpenAIAdapter } from "smart-embed-model/adapters/openai.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -57,47 +46,34 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
   }
   // GETTERS for overrides in subclasses without overriding the constructor or init method
+  get env_data_dir() { return this.settings.env_data_dir || this.settings.smart_connections_folder; }
   get smart_env_class() { return SmartEnv; }
   get smart_settings_class() { return ScSettings };
-  get smart_env_opts() {
+  get smart_env_config() {
     return {
-      global_ref: window,
+      ...smart_env_config,
       env_path: '', // scope handled by Obsidian FS methods
       env_data_dir: this.env_data_dir, // used to scope SmartEnvSettings.fs
+      // BACKWARDS COMPATIBILITY
+      smart_embed_model_class: smart_env_config.modules.smart_embed_model,
+      smart_embed_adapters: smart_env_config.modules.smart_embed_model.adapters,
+      smart_chunks_class: smart_env_config.modules.smart_chunks,
+      smart_fs_class: smart_env_config.modules.smart_fs.class,
+      smart_fs_adapter_class: smart_env_config.modules.smart_fs.adapter,
+      // DEPRECATED schema
       smart_env_settings: { // careful: overrides saved settings
         is_obsidian_vault: true,
       },
-      // smart modules
-      smart_chunks_class: SmartChunks,
       smart_collection_adapter_class: MultiFileSmartCollectionDataAdapter,
-      smart_embed_model_class: SmartEmbedModel,
-      smart_embed_adapters: {
-        transformers: SmartEmbedTransformersIframeAdapter,
-        openai: SmartEmbedOpenAIAdapter,
-      },
-      smart_fs_class: SmartFs,
-      smart_fs_adapter_class: ObsidianSmartFsAdapter,
       smart_settings_class: this.smart_settings_class,
-      // templates
+      // DEPRECATED usage
       ejs: ejs,
       templates: templates,
-      // possibly DEPRECATED
-      collections: {
-        smart_sources: SmartSources,
-        smart_blocks: SmartBlocks,
-      },
-      // likely DEPRECATED
-      item_types: {
-        SmartSource,
-        SmartBlock,
-      },
-      // DEPRECATED
       request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
       chat_classes: this.chat_classes,
     };
   }
   get chat_classes() { return { ScActions, ScChatsUI, ScChats, ScChatModel }; }
-  get env_data_dir() { return this.settings.env_data_dir || this.settings.smart_connections_folder; }
   get_tfile(file_path) { return this.app.vault.getAbstractFileByPath(file_path); }
   async read_file(tfile_or_path) {
     const t_file = (typeof tfile_or_path === 'string') ? this.get_tfile(tfile_or_path) : tfile_or_path; // handle string (file_path) or Tfile input
@@ -150,7 +126,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async load_env() {
-    await this.smart_env_class.create(this, this.smart_env_opts);
+    await this.smart_env_class.create(this, this.smart_env_config);
     ScAppConnector.create(this.env, 37042); // Smart Connect
     // DEPRECATED getters: for Smart Visualizer backwards compatibility
     Object.defineProperty(this.env, 'entities_loaded', { get: () => this.env.collections_loaded });
