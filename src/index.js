@@ -26,7 +26,7 @@ import { ScSettingsTab } from "./sc_settings_tab.js";
 import embed_models from 'smart-embed-model/models.json';
 import { ScActionsUx } from "./sc_actions_ux.js";
 import { open_note } from "./open_note.js";
-import { MultiFileSmartCollectionDataAdapter } from "smart-collections/adapters/multi_file";
+import { SmartCollectionMultiFileDataAdapter } from "smart-collections/adapters/multi_file";
 import { SmartChatGPTView } from "./sc_chatgpt_view.js";
 import { SmartPrivateChatView } from "./sc_private_chat_view.js";
 import { ScChatModel } from "./chat/sc_chat_model.js";
@@ -64,7 +64,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       smart_env_settings: { // careful: overrides saved settings
         is_obsidian_vault: true,
       },
-      smart_collection_adapter_class: MultiFileSmartCollectionDataAdapter,
+      smart_collection_adapter_class: SmartCollectionMultiFileDataAdapter,
       smart_settings_class: this.smart_settings_class,
       // DEPRECATED usage
       ejs: ejs,
