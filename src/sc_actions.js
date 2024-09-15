@@ -148,7 +148,7 @@ export class ScActions {
 function parse_lookup_tool_output(tool_output) {
   let content = "```sc-context\n";
   tool_output.forEach((note, i) => {
-    content += `${note.path}\n`;
+    content += `${note.entity.path}\n`;
   });
   content += "```";
   return { role: "system", content };
