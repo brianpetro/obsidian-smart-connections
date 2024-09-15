@@ -55,7 +55,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       env_path: '', // scope handled by Obsidian FS methods
       env_data_dir: this.env_data_dir, // used to scope SmartEnvSettings.fs
       // BACKWARDS COMPATIBILITY
-      smart_embed_model_class: smart_env_config.modules.smart_embed_model,
+      smart_embed_model_class: smart_env_config.modules.smart_embed_model.class,
       smart_embed_adapters: smart_env_config.modules.smart_embed_model.adapters,
       smart_chunks_class: smart_env_config.modules.smart_chunks,
       smart_fs_class: smart_env_config.modules.smart_fs.class,

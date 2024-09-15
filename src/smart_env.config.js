@@ -6,7 +6,8 @@ import {
 } from "./sc_entities.js";
 import { SmartChunks } from 'smart-chunks/smart_chunks.js';
 import { SmartEmbedModel } from "smart-embed-model";
-import { SmartEmbedTransformersIframeAdapter, SmartEmbedOpenAIAdapter } from "smart-embed-model/adapters.js";
+import { SmartEmbedOpenAIAdapter } from "smart-embed-model/adapters/openai.js";
+import { SmartEmbedTransformersIframeAdapter } from "smart-embed-model/adapters/transformers_iframe.js";
 import { SmartFs } from 'smart-file-system/smart_fs.js';
 import { SmartFsObsidianAdapter } from 'smart-file-system/adapters/obsidian.js';
 

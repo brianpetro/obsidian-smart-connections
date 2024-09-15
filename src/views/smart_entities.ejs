@@ -2,7 +2,7 @@
 <% for(let [setting_name, setting_config] of Object.entries(env.smart_sources.settings_config)) { %>
   <% if(setting_name.startsWith('embed_model')) setting_name = setting_name.replace('embed_model.', 'embed_model.'+env.smart_sources.embed_model_key+'.'); %>
   <div class="setting-component"
-    data-setting="smart_sources.<%- setting_name %>"
+    data-setting="<%- setting_name %>"
     <% for(let [setting_attr, setting_value] of Object.entries(setting_config)) { %>
       <%- `data-${setting_attr.replace(/[_]/g,'-')}="${setting_value}"\n` %>
     <% } %>
@@ -12,7 +12,7 @@
 <% for(let [setting_name, setting_config] of Object.entries(env.smart_blocks.settings_config)) { %>
   <% if(setting_name.startsWith('embed_model')) setting_name = setting_name.replace('embed_model.', 'embed_model.'+env.smart_blocks.embed_model_key+'.'); %>
   <div class="setting-component"
-    data-setting="smart_blocks.<%- setting_name %>"
+    data-setting="<%- setting_name %>"
     <% for(let [setting_attr, setting_value] of Object.entries(setting_config)) { %>
       <%- `data-${setting_attr.replace(/[_]/g,'-')}="${setting_value}"\n` %>
     <% } %>
