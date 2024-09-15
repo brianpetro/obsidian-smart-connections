@@ -195,8 +195,8 @@ export class ScSmartView extends SmartObsidianView {
     }
     console.log("rendering result");
     const entity_key = elm.title;
-    const collection_name = elm.dataset.collection;
-    const entity = this.env[collection_name].get(entity_key);
+    const collection_key = elm.dataset.collection;
+    const entity = this.env[collection_key].get(entity_key);
     if (should_render_embed()) return this.plugin.obsidian.MarkdownRenderer.render(this.app, entity.embed_link, elm, entity_key, new this.plugin.obsidian.Component());
     const content = (await entity?.get_content())?.replace(/```dataview/g, '```\\dataview'); // prevent rendering dataview code blocks (DO: make toggle-able)
     if (!entity || !content) {
