@@ -10,14 +10,18 @@ import { SmartEmbedOpenAIAdapter } from "smart-embed-model/adapters/openai.js";
 import { SmartEmbedTransformersIframeAdapter } from "smart-embed-model/adapters/transformers_iframe.js";
 import { SmartFs } from 'smart-file-system/smart_fs.js';
 import { SmartFsObsidianAdapter } from 'smart-file-system/adapters/obsidian.js';
+import { SmartCollectionMultiFileDataAdapter } from "smart-collections/adapters/multi_file";
 
 export const smart_env_config = {
   global_ref: window,
   env_path: '',
   env_data_dir: '.smart-env',
   collections: {
-    smart_sources: SmartSources,
-    smart_blocks: SmartBlocks,
+    smart_collections: {
+      data_adapter: SmartCollectionMultiFileDataAdapter
+    },
+    SmartSources,
+    SmartBlocks,
   },
   item_types: {
     SmartSource,
