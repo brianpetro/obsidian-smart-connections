@@ -58,6 +58,8 @@ export default class SmartConnectionsPlugin extends Plugin {
       templates: templates,
       request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
       chat_classes: this.chat_classes,
+      // mobile enable/disable
+      prevent_load_on_init: !this.settings.enable_mobile,
     };
   }
   get chat_classes() { return { ScActions, ScChatsUI, ScChats, ScChatModel }; }
@@ -91,6 +93,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat(); });
     this.register_code_blocks();
     this.new_user();
+    console.log("loading env");
     await this.load_env();
     console.log("Smart Connections v2 loaded");
     // run init chat last because buggy (seems to not finish resolving)
@@ -113,7 +116,9 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async load_env() {
+    // if(this.obsidian.Platform.isMobile && !this.settings.enable_mobile) return console.warn("SKIPPING: Mobile and not enabled"); // SKIP if mobile and not enabled
     await this.smart_env_class.create(this, this.smart_env_config);
+    console.log("env loaded");
     ScAppConnector.create(this.env, 37042); // Smart Connect
     // DEPRECATED getters: for Smart Visualizer backwards compatibility
     Object.defineProperty(this.env, 'entities_loaded', { get: () => this.env.collections_loaded });
@@ -147,8 +152,10 @@ export default class SmartConnectionsPlugin extends Plugin {
     if(!this.settings.new_user) return;
     this.settings.new_user = false;
     this.settings.version = this.manifest.version;
-    this.open_view();
-    this.open_chat();
+    setTimeout(() => {
+      this.open_view();
+      this.open_chat();
+    }, 1000); // wait a sec to allow existing views to open
     if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
     this.add_to_gitignore("\n\n# Ignore Smart Connections folder\n.smart-connections"); 
     this.save_settings();
@@ -222,8 +229,6 @@ export default class SmartConnectionsPlugin extends Plugin {
         else if(editor.getCursor()?.line){ // if cursor is on a line greater than 0
           const line = editor.getCursor().line;
           const block = this.env.smart_sources.current_note.get_block_by_line(line);
-          console.log(block);
-          console.log(line);
           this.view.render_nearest(block);
         }
         else this.view.render_nearest();
@@ -238,7 +243,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       editorCallback: async (editor) => {
         // get current note
         const curr_file = this.app.workspace.getActiveFile();
-        console.log(curr_file);
         if(!curr_file?.path) return console.warn("No active file", curr_file);
         // delete note entity from cache
         if(this.env?.connections_cache?.[curr_file.path]) delete this.env.connections_cache[curr_file.path];
@@ -341,12 +345,10 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   // SUPPORTERS
   async render_code_block(contents, container, ctx) {
-    console.log(container);
     return this.view.render_nearest((contents.trim().length? contents : ctx.sourcePath), container);
   }
   async render_code_block_context(results, container, ctx) {
     results = this.get_entities_from_context_codeblock(results);
-    console.log(results);
     container.innerHTML = this.view.render_template("smart_connections", { current_path: "context", results });
     container.querySelectorAll(".search-result").forEach((elm, i) => this.view.add_link_listeners(elm, results[i]));
     container.querySelectorAll(".search-result:not(.sc-collapsed) ul li").forEach(this.view.render_result.bind(this.view));
@@ -380,7 +382,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       })
     });
     if(v2.status !== 200) return console.error("Error downloading early access update", v2);
-    console.log(v2.json);
     await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/main.js", v2.json.main); // add new
     await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", v2.json.manifest); // add new
     await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/styles.css", v2.json.styles); // add new
@@ -409,12 +410,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   async load_settings() {
     Object.assign(this, this.constructor.defaults); // set defaults
     const saved_settings = await this.loadData();
-    if(!saved_settings){
-      this.notices.show("fail-load-settings", "Failed to load settings. Restarting plugin...");
-      this.restart_plugin();
-      throw new Error("Failed to load settings. Restarting plugin...");
-    }
-    Object.assign(this.settings, saved_settings); // overwrites defaults with saved settings
+    Object.assign(this.settings, saved_settings || {}); // overwrites defaults with saved settings
     this.handle_deprecated_settings(); // HANDLE DEPRECATED SETTINGS
     return this.settings;
   }
@@ -502,22 +498,41 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   async exclude_all_top_level_folders() {
     const folders = (await this.app.vault.adapter.list("/")).folders;
-    const input = this.container.querySelector("div[data-setting='folder_exclusions'] input");
+    const input = document.querySelector("#smart-connections-settings div[data-setting='folder_exclusions'] input");
     input.value = folders.join(", ");
     input.dispatchEvent(new Event("input")); // send update event
     this.update_exclusions();
   }
-  async update_language(setting, value, elm) {
-    await this.update('language', value);
-    const self_ref_pronouns_list = this.container.querySelector("#self-referential-pronouns");
-    self_ref_pronouns_list.setText(this.self_ref_list);
-  }
   async update_exclusions() {
     this.env.smart_sources.smart_fs = null; // clear smart fs cache (re adds exclusions) (should only require clearing smart_sources.smart_fs)
     console.log("render_file_counts");
-    const elm = this.container.querySelector("#file-counts");
+    const elm = document.querySelector("#smart-connections-settings #file-counts");
     elm.setText(`Included files: ${this.included_files} / Total files: ${this.total_files}`);
   }
-
+  // get included files count
+  get included_files() {
+    return this.app.vault.getFiles()
+      .filter((file) => {
+        if(!(file instanceof this.obsidian.TFile) || !(file.extension === "md" || file.extension === "canvas")) return false;
+        if(this.env.fs.is_excluded(file.path)) return false;
+        return true;
+      })
+      .length
+    ;
+  }
+  // get all files count, no exclusions
+  get total_files() {
+    return this.app.vault.getFiles()
+      .filter((file) => (file instanceof this.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas"))
+      .length
+    ;
+  }
+  async toggle_mobile(setting, value, elm) {
+    const manifest = JSON.parse(await this.app.vault.adapter.read(".obsidian/plugins/smart-connections/manifest.json"));
+    manifest.isDesktopOnly = !value;
+    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", JSON.stringify(manifest, null, 2));
+    console.log("Manifest written");
+    this.restart_plugin();
+  }
 
 }

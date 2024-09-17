@@ -34,7 +34,7 @@ export class SmartChatSettings extends SmartSettings {
     if(resp) return this.plugin.notices.show('api key test pass', "Success! API key is valid");
     this.plugin.notices.show('api key test fail', "Error: API key is invalid!");
   }
-  get self_ref_list() { return "Current: " + ScTranslations[this.env.settings.language].pronouns.join(", "); }
+  get self_ref_list() { return "Current: " + ScTranslations[this.settings.language].pronouns.join(", "); }
   get template() { return this.templates['smart_chat_settings']; }
   async get_view_data() {
     const view_data = {
@@ -44,7 +44,6 @@ export class SmartChatSettings extends SmartSettings {
     };
     view_data.platform_chat_models = await this.env.chat_model?.get_models();
     view_data.smart_chat_settings = this.ejs.render(this.template, view_data);
-    console.log("view_data", view_data);
     return view_data;
   }
   async update(setting, value) {
@@ -62,5 +61,9 @@ export class SmartChatSettings extends SmartSettings {
     }
     this.settings = settings;
     await this.main.save_settings();
+  }
+  update_language(setting, value, elm) {
+    const self_ref_pronouns_list = this.container.querySelector("#self-referential-pronouns");
+    self_ref_pronouns_list.setText(this.self_ref_list);
   }
 }

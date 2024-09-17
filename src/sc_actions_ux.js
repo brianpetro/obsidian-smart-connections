@@ -17,7 +17,6 @@ export class ScActionsUx {
     const time_saved = (Math.round(new_content.split(" ").length / 50) || 1) + " min";
     this.container.innerHTML = this.render_template("sc_change", { new_content, old_content, time_saved });
 
-    console.log(this.container);
     const new_content_container = this.container.querySelector('.new-content');
     const old_content_container = this.container.querySelector('.old-content');
     this.plugin.obsidian.MarkdownRenderer.renderMarkdown(new_content, new_content_container, note_path, new this.plugin.obsidian.Component());

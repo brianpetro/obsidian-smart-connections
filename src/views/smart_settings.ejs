@@ -1,7 +1,7 @@
 <div id="smart-connections-settings">
   <h1>Smart Connections</h1>
   <% if(env.smart_connections_plugin.EARLY_ACCESS && !env.smart_connections_plugin.app.plugins.enabledPlugins.has("smart-templates")){ %>
-    <div data-callout-metadata="" data-callout-fold="" data-callout="success" class="callout" style="mix-blend-mode: unset;">
+    <!-- <div data-callout-metadata="" data-callout-fold="" data-callout="success" class="callout" style="mix-blend-mode: unset;">
       <div class="callout-title">
         <div class="callout-icon" dir="auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -17,9 +17,9 @@
           ></div>
         </div>
       </div>
-    </div>
+    </div> -->
   <% } %>
-  <% if(env.smart_connections_plugin.EARLY_ACCESS && env.smart_connections_plugin.obsidian.Platform.isMobile && !env.smart_connections_plugin.settings.enable_mobile) { %>
+  <% if(env.smart_connections_plugin.obsidian.Platform.isMobile && !env.smart_connections_plugin.settings.enable_mobile) { %>
       <div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout">
         <div class="callout-title">
           <div class="callout-icon">
@@ -58,14 +58,16 @@
       <li>Early access to new &amp; experimental features:
         <ul>
           <li>Early access to new versions enables supporters to help ensure new features are ready for the broader community.</li>
-          <li><i>Available in v2.2 (Early Release):</i><ul>
-            <li>🖼️ Multimodal Smart Chat (images)</li>
-            <li>📲 Mobile compatibility</li>
+          <li><i>Available in v2.2 (Early Access):</i><ul>
+            <li>🖼️ Add images to Smart Chat (multimodal)</li>
+            <li>Re-ranking model in the Smart Connections View</li>
           </ul></li>
-          <li><i>Coming soon:</i><ul>
-            <li>Re-ranking in the Smart View</li>
-            <li>Actions in the Smart Chat</li>
-            <li>Advanced filters in the Smart View</li>
+          <li><i>Coming soon to v2.3 (Early Access):</i><ul>
+            <li>PDF Support in Smart Connections view</li>
+            <li>Edit notes in Smart Chat</li>
+            <li>New retrieval methods in Smart Chat</li>
+            <li>Review retrieved context before sending in Smart Chat</li>
+            <li>Audio files in Smart Connections view</li>
           </ul></li>
         </ul>
       </li>
@@ -111,16 +113,8 @@
       data-href="https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2"
     ></div>
     <div class="setting-component"
-      data-name="Enable Mobile (EXPERIMENTAL)"
-      data-description="Enable mobile support for Smart Connections."
-      data-type="toggle"
-      <%- env.smart_connections_plugin.EARLY_ACCESS ? '' : 'data-disabled=true' %>
-      data-setting="smart_connections_plugin.enable_mobile"
-      data-callback="toggle_mobile"
-    ></div>
-    <div class="setting-component"
-      data-name="Open Supporter Community Chat"
-      data-btn-text="Open Chat"
+      data-name="Supporter Community Chat"
+      data-btn-text="Join us"
       data-description='Join the supporter community chat.'
       data-type="button"
       data-href="https://chat.smartconnections.app"
@@ -168,7 +162,7 @@
     data-callback="refresh_smart_view"
   ></div>
   <!-- <div class="smart-embed-settings"></div> -->
-  <h1>Smart Chat</h1>
+  <h3>Smart Chat</h3>
   <p>
     <i>Additional settings available in the Smart Chat settings tab (ex. chat model and api key).</i>
   </p>
@@ -190,19 +184,6 @@
     data-setting="smart_connections_plugin.system_prompts_folder"
     data-placeholder="Enter a folder name"
   ></div>
-  <div class="setting-component"
-    data-name="Default Language"
-    data-setting="smart_connections_plugin.language"
-    data-type="dropdown"
-    data-description="Default language to use for Smart Chat. Changes which self-referential pronouns will trigger lookup of your notes."
-    data-option-1="en|English"
-    data-option-2="es|Spanish"
-    data-option-3="fr|French"
-    data-option-4="de|German"
-    data-option-5="it|Italian"
-    data-callback="update_language"
-  ></div>
-  <span id="self-referential-pronouns">Current: my, I, me, mine, our, ours, us, we</span>
   <h3>Data management</h3>
   <p id="file-counts">Included files: <%= included_files %> / Total files: <%= total_files %></p>
   <div class="setting-component"
@@ -211,7 +192,7 @@
     data-type="text"
     data-setting="smart_connections_plugin.file_exclusions"
     data-placeholder="drawings,prompts/logs"
-    data-callback="update_exclusions"
+    data-callback="smart_connections_plugin.update_exclusions"
   ></div>
   <div class="setting-component"
     data-name="Folder Exclusions"
@@ -219,13 +200,13 @@
     data-type="text"
     data-setting="smart_connections_plugin.folder_exclusions"
     data-placeholder="drawings,prompts/logs"
-    data-callback="update_exclusions"
+    data-callback="smart_connections_plugin.update_exclusions"
   ></div>
   <div class="setting-component"
     data-name="Exclude all top-level folders"
     data-description="Set folder exclusions to exclude all top-level folders."
     data-type="button"
-    data-callback="exclude_all_top_level_folders"
+    data-callback="smart_connections_plugin.exclude_all_top_level_folders"
   ></div>
   <div class="setting-component"
     data-name="Heading Exclusions"
@@ -260,7 +241,15 @@
     <p>No muted notices.</p>
   <% } %>
   <hr>
+  <div class="setting-component"
+    data-name="Enable Mobile (EXPERIMENTAL)"
+    data-description="Enable mobile support for Smart Connections."
+    data-type="toggle"
+    data-setting="smart_connections_plugin.enable_mobile"
+    data-callback="smart_connections_plugin.toggle_mobile"
+  ></div>
   <% if(env.smart_connections_plugin.EARLY_ACCESS){ %>
+  <hr>
   <div class="setting-component"
     data-name="Revert to Stable Release"
     data-btn-text="Revert"

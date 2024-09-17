@@ -39,7 +39,6 @@ export class ScChat extends SmartChat {
     // if contains internal link represented by [[link]]
     if (contains_internal_link(content)) {
       const notes = extract_internal_links(this.env, content);
-      console.log(notes);
       if (notes.length) {
         const context = '```sc-context\n' + notes.map(n => `${n.path}`).join('\n') + '\n```';
         const context_msg = { role: "system", content: context };
@@ -52,10 +51,8 @@ export class ScChat extends SmartChat {
     if (contains_folder_reference(content)) { // tested
       const folders = await this.env.smart_connections_plugin.get_folders(); // get folder references
       const folder_refs = extract_folder_references(folders, content);
-      console.log(folder_refs);
       // if folder references are valid (string or array of strings)
       if (folder_refs) this.env.chats.current.scope.key_starts_with_any = folder_refs;
-      console.log(this.env.chats.current.scope);
     }
     return content;
   }

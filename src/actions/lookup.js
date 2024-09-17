@@ -26,7 +26,6 @@
  * 
  */
 export async function lookup(env, params={}) {
-  console.log("lookup", params);
   const { hypotheticals = [], hypothetical_1, hypothetical_2, hypothetical_3, ...other_params } = params;
   if(hypothetical_1) hypotheticals.push(hypothetical_1);
   if(hypothetical_2) hypotheticals.push(hypothetical_2);

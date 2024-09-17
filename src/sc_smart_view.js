@@ -1,6 +1,8 @@
 import { SmartObsidianView } from "./smart_obsidian_view.js";
-import { SmartEmbedSettings } from "./smart_embed_settings.js";
+// import { SmartEmbedSettings } from "./smart_embed_settings.js";
 const SUPPORTED_FILE_TYPES = ["md", "canvas"];
+import { Modal } from "obsidian";
+import { SmartSettings } from "smart-setting";
 
 export class ScSmartView extends SmartObsidianView {
   static get view_type() { return "smart-connections-view"; }
@@ -83,7 +85,6 @@ export class ScSmartView extends SmartObsidianView {
     }
   }
   async render_nearest(context, container = this.container) {
-    console.log("render_nearest", context);
     await this.prepare_to_render_nearest(container);
     if (typeof context === "string"){
       const entity = this.env.smart_sources.get(context) || this.env.smart_blocks.get(context);
@@ -274,12 +275,14 @@ export class ScSmartView extends SmartObsidianView {
   }
 
   add_top_bar_listeners(container = this.container) {
+    // Fold all
     const fold_all_button = container.querySelector(".sc-fold-all"); // get fold all button
     fold_all_button.addEventListener("click", (e) => {
       container.querySelectorAll(".search-result").forEach((elm) => elm.classList.add("sc-collapsed"));
       this.plugin.settings.expanded_view = false;
       this.plugin.save_settings();
     });
+    // Unfold all
     const unfold_all_button = container.querySelector(".sc-unfold-all"); // get unfold all button
     unfold_all_button.addEventListener("click", () => {
       container.querySelectorAll(".search-result").forEach((elm) => {
@@ -305,5 +308,110 @@ export class ScSmartView extends SmartObsidianView {
     //   settings_container.style.backgroundColor = "var(--bold-color)";
     //   setTimeout(() => { settings_container.style.backgroundColor = ""; }, 500);
     // });
+
+    // Filter
+    container.querySelector(".sc-filter").addEventListener("click", () => {
+      // if has contents, clear
+      if(this.overlay_container.innerHTML) return this.overlay_container.innerHTML = "";
+      // if no settings, create
+      if(!this.filter_view) this.filter_view = new SmartViewFilter(this.env, this.overlay_container);
+      else this.filter_view.container = this.overlay_container;
+      this.filter_view.render();
+      this.on_open_overlay();
+    });
+    container.querySelector(".sc-refresh").addEventListener("click", () => {
+      this.render_nearest();
+    });
+    // Search
+    container.querySelector(".sc-search").addEventListener("click", () => {
+      if(this.overlay_container.innerHTML) return this.overlay_container.innerHTML = "";
+      if(!this.search_view) this.search_view = new SmartViewSearch(this.env, this.overlay_container);
+      else this.search_view.container = this.overlay_container;
+      this.search_view.render();
+      this.on_open_overlay();
+    });
+    // Inspect
+    container.querySelectorAll(".sc-context").forEach(el => {
+      const entity = this.env.smart_sources.get(el.dataset.key);
+      if(entity){
+        el.addEventListener("click", () => {
+          new SmartNoteInspectModal(this.env, entity).open();
+        });
+      }
+    });
+  }
+  // Enhanced transition: smooth background color change with ease-in-out effect
+  on_open_overlay() {
+    this.overlay_container.style.transition = "background-color 0.5s ease-in-out";
+    this.overlay_container.style.backgroundColor = "var(--bold-color)";
+    setTimeout(() => { this.overlay_container.style.backgroundColor = ""; }, 500);
+  }
+  get overlay_container() { return this.container.querySelector(".sc-overlay"); }
+}
+
+export class SmartNoteInspectModal extends Modal {
+  constructor(env, entity) {
+    super(env.smart_connections_plugin.app);
+    this.entity = entity;
+    this.env = env;
+    this.template = this.env.opts.templates["smart_note_inspect"];
+    this.ejs = this.env.ejs;
+  }
+  onOpen() {
+    this.titleEl.innerText = this.entity.key;
+    this.render();
+  }
+  async render() {
+    const html = await this.ejs.render(this.template, { note: this.entity }, { async: true });
+    // console.log(html);
+    this.contentEl.innerHTML = html;
+  }
+}
+
+export class SmartViewSearch {
+  constructor(env, container) {
+    this.env = env;
+    this.plugin = this.env.smart_connections_plugin;
+    this.container = container;
+    this.ejs = this.env.ejs;
+    this.templates = this.env.opts.templates;
+    this.smart_view = this.plugin.view;
+  }
+  get template() { return this.templates['smart_view_search']; }
+  render() {
+    this.container.innerHTML = this.ejs.render(this.template, {context: this.view_context});
+    this.add_listeners();
+  }
+  add_listeners() {
+    this.container.querySelector("button#search").addEventListener("click", () => {
+      const search_text = this.container.querySelector("textarea").value;
+      this.smart_view.render_nearest(search_text);
+    });
+  }
+  get_icon(name) { return this.plugin.obsidian.getIcon(name).outerHTML; }
+  get view_context() {
+    return {
+      get_icon: this.get_icon.bind(this),
+    };
+  }
+}
+
+// Smart Connections Specific Settings
+export class SmartViewFilter extends SmartSettings {
+  get template() { return this.templates['smart_view_filter']; }
+  async refresh_smart_view() { await this.plugin.smart_connections_view.render_nearest(); }
+  async refresh_smart_view_filter() { this.render(); }
+  async get_view_data() {
+    const view_data = {
+      settings: this.plugin.settings,
+      is_early_access: this.plugin.EARLY_ACCESS,
+    };
+    return view_data;
+  }
+  async update(setting, value) {
+    await super.update(setting, value);
+    if(this.plugin.view){
+      this.plugin.env.connections_cache = {}; // clear cache
+    }
   }
 }

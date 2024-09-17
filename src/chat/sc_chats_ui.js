@@ -41,9 +41,9 @@ export class ScChatsUI extends SmartChatsUI {
       this.chat_settings.render();
       // Enhanced transition: smooth background color change with ease-in-out effect
       this.on_open_overlay();
-      // this.overlay_container.style.transition = "background-color 0.5s ease-in-out";
-      // this.overlay_container.style.backgroundColor = "var(--bold-color)";
-      // setTimeout(() => { this.overlay_container.style.backgroundColor = ""; }, 500);
+      setTimeout(() => {
+        this.chat_settings.update_language();
+      }, 700);
     });
     // chat history button
     const history_btn = this.container.querySelector("button[title='Chat History']");
@@ -103,9 +103,7 @@ export class ScChatsUI extends SmartChatsUI {
     copy_button?.addEventListener("click", (e) => {
       console.log("copy message to clipboard");
       const msg_content_elm = e.target.closest(".sc-message-content");
-      console.log(msg_content_elm);
       const msg_content = msg_content_elm.getAttribute("data-content") || msg_content_elm.querySelector("span:not(.sc-msg-button)").textContent;
-      console.log(msg_content);
       navigator.clipboard.writeText(msg_content);
       this.plugin.show_notice("Message copied to clipboard");
     });

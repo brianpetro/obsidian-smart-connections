@@ -11,7 +11,6 @@ export function extract_folder_references(folders, user_input) {
     }
     return false;
   }).filter(folder => folder);
-  console.log(matches);
   // return array of matches
   if (matches) return matches;
   return false;

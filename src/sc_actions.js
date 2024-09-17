@@ -32,7 +32,6 @@ export class ScActions {
         body.tools = this.env.actions.actions.map(t => t.json);
       }
     }
-    console.log(body);
     return body;
   }
   // v2.1

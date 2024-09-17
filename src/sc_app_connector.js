@@ -117,7 +117,6 @@ export class ScAppConnector {
 
     try {
       const resp = await this.dataview_api.queryMarkdown(data.query, data.rel_path, null);
-      console.log(resp);
       return resp;
     } catch (err) {
       console.error(err);

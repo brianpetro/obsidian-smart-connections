@@ -5,6 +5,6 @@
   "description": "Find links to similar notes using artificial intelligence from OpenAI.",
   "minAppVersion": "1.1.0",
   "authorUrl": "https://wfhbrian.com",
-  "isDesktopOnly": true,
+  "isDesktopOnly": false,
   "version": "2.1.101"
 }

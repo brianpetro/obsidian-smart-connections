@@ -1,14 +1,15 @@
 <div class="sc-top-bar">
-  <p class="sc-context">
-    <%- current_path %>
+  <p class="sc-context" data-key="<%- current_path %>">
     <%- this.notes_ct %> (<%- this.blocks_ct %>)
   </p>
+  <button class="sc-refresh"><%- this.get_icon('refresh-cw') %></button>
   <button class="sc-fold-all"><%- this.get_icon('fold-vertical') %></button>
   <button class="sc-unfold-all"><%- this.get_icon('unfold-vertical') %></button>
-  <button class="sc-search-button" style="display: none;"><%- this.get_icon('search') %></button>
+  <button class="sc-filter"><%- this.get_icon('sliders-horizontal') %></button>
+  <button class="sc-search"><%- this.get_icon('search') %></button>
   <!-- <button title="Settings"><%- this.get_icon('gear') %></button> -->
 </div>
-<div id="settings"></div>
+<div id="settings" class="sc-overlay"></div>
 <div class="sc-list">
   <% for (let result of results) { %>
   <div class="search-result<%- !this.settings.expanded_view ? ' sc-collapsed' : '' %>" data-path="<%- result.path %>">
@@ -24,4 +25,9 @@
   </div>
   <% } %>
 </div>
-<%- this.attribution %>
+<div class="sc-bottom-bar">
+  <span class="sc-context" data-key="<%- current_path %>" title="<%- current_path %>">
+    <%- current_path.split('/').pop().split('.').shift() %><%- typeof re_ranked !== 'undefined' && re_ranked ? ' (re-ranked)' : '' %>
+  </span>
+  <%- this.attribution %>
+</div>

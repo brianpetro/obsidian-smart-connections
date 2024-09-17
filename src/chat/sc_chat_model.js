@@ -27,7 +27,7 @@ export class ScChatModel extends SmartChatModel {
         let context = [];
         let tokens = [];
         await Promise.all(entities.map(async (entity, i) => {
-          if (!entity?.get_as_context) return console.log(entity);
+          if (!entity?.get_as_context) return;
           context[i] = await entity.get_as_context({ i });
           tokens[i] = await this.count_tokens(context[i]);
         }));
@@ -49,7 +49,6 @@ export class ScChatModel extends SmartChatModel {
         const sys_start_i = msg.content.indexOf(sys_start) + sys_start.length;
         const sys_end_i = msg.content.substring(sys_start_i).indexOf("```");
         const sys_prompts = msg.content.substring(sys_start_i, sys_start_i + sys_end_i).split('\n').filter(ln => ln.trim());
-        console.log(sys_prompts);
         msg.content = "";
         for (const sys_prompt of sys_prompts) {
           const tfile = this.env.smart_connections_plugin.system_prompts.find(file => file.basename === sys_prompt);
@@ -62,7 +61,6 @@ export class ScChatModel extends SmartChatModel {
     }));
     // remove assistant messages without content (including tool calls)
     opts.messages = opts.messages.filter(msg => msg.role !== "assistant" || msg.content || !msg.tool_calls?.find(call => call.id === "lookup"));
-    console.log(opts.messages);
     return opts;
   }
   get_prompt_context_prefix(params = {}) {

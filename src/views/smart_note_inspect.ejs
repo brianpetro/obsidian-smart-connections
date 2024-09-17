@@ -1,0 +1,11 @@
+<h2>Blocks</h2>
+<% if(note.blocks.length === 0) { %>
+  <p>No blocks</p>
+<% } %>
+<% for(let block of note.blocks) { %>
+<blockquote>
+  <%- (await block.get_embed_input()).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>") %>
+</blockquote>
+<hr>
+<% } %>
+
