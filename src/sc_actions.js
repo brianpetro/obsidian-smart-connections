@@ -93,12 +93,7 @@ export class ScActions {
         }
       }]
     });
-    const results = (await lookup(this.env, { hypotheticals: [hyd] }))
-      .map(res => {
-        res.entity.score = res.score; // DEPRECATED: handling when last score added to entity is not top score (needs to be fixed in Entities.nearest)
-        return res.entity;
-      })
-    ;
+    const results = (await lookup(this.env, { hypotheticals: [hyd] }));
     await this.env.chats.current.add_tool_output("lookup", results);
     return;
   }
@@ -146,8 +141,8 @@ export class ScActions {
  */
 function parse_lookup_tool_output(tool_output) {
   let content = "```sc-context\n";
-  tool_output.forEach((note, i) => {
-    content += `${note.entity.path}\n`;
+  tool_output.forEach((result, i) => {
+    content += `${result.entity.path}\n`;
   });
   content += "```";
   return { role: "system", content };
