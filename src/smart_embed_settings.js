@@ -1,5 +1,5 @@
 import { SmartSettings } from "smart-setting";
-import smart_embed_models from "smart-embed-model/models.json";
+import smart_embed_models from "smart-embed-model/models.json" assert { type: "json" };
 // Smart Connections Specific Settings
 export class SmartEmbedSettings extends SmartSettings {
   refresh_smart_view() { this.plugin.smart_connections_view.render_nearest(); }
@@ -47,7 +47,7 @@ export class SmartEmbedSettings extends SmartSettings {
   get template() { return this.templates['smart_embed_settings']; }
   async get_view_data() {
     const view_data = {
-      settings: this.plugin.env.settings,
+      settings: this.settings,
       embedding_models: Object.keys(smart_embed_models).map(model_key => ({ key: model_key, ...smart_embed_models[model_key] })),
     };
     console.log('get_view_data', view_data);

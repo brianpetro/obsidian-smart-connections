@@ -1,6 +1,6 @@
 <div id="smart-connections-settings">
   <h1>Smart Connections</h1>
-  <% if(this.env.smart_connections_plugin.EARLY_ACCESS && !this.env.smart_connections_plugin.app.plugins.enabledPlugins.has("smart-templates")){ %>
+  <% if(env.smart_connections_plugin.EARLY_ACCESS && !env.smart_connections_plugin.app.plugins.enabledPlugins.has("smart-templates")){ %>
     <div data-callout-metadata="" data-callout-fold="" data-callout="success" class="callout" style="mix-blend-mode: unset;">
       <div class="callout-title">
         <div class="callout-icon" dir="auto"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -19,7 +19,7 @@
       </div>
     </div>
   <% } %>
-  <% if(this.env.smart_connections_plugin.EARLY_ACCESS && this.env.smart_connections_plugin.obsidian.Platform.isMobile && !this.env.smart_connections_plugin.settings.enable_mobile) { %>
+  <% if(env.smart_connections_plugin.EARLY_ACCESS && env.smart_connections_plugin.obsidian.Platform.isMobile && !env.smart_connections_plugin.settings.enable_mobile) { %>
       <div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout">
         <div class="callout-title">
           <div class="callout-icon">
@@ -51,7 +51,7 @@
   </div>
   <div class="sc-supporters">
     <h1>Supporter Community</h1>
-    <% if(!this.env.smart_connections_plugin.EARLY_ACCESS){ %>
+    <% if(!env.smart_connections_plugin.EARLY_ACCESS){ %>
     <p>The success of Smart Connections is a direct result of our community of supporters who generously fund and evaluate new features. Their unwavering commitment to our privacy-focused, open-source software benefits all. Together, we can continue to innovate and make a positive impact on the world.</p>
     <p><b>Supporter benefits include:</b></p>
     <ul>
@@ -114,7 +114,7 @@
       data-name="Enable Mobile (EXPERIMENTAL)"
       data-description="Enable mobile support for Smart Connections."
       data-type="toggle"
-      <%- this.env.smart_connections_plugin.EARLY_ACCESS ? '' : 'data-disabled=true' %>
+      <%- env.smart_connections_plugin.EARLY_ACCESS ? '' : 'data-disabled=true' %>
       data-setting="smart_connections_plugin.enable_mobile"
       data-callback="toggle_mobile"
     ></div>
@@ -125,7 +125,7 @@
       data-type="button"
       data-href="https://chat.smartconnections.app"
     ></div>
-    <% if(!this.env.smart_connections_plugin.EARLY_ACCESS){ %>
+    <% if(!env.smart_connections_plugin.EARLY_ACCESS){ %>
     <div class="setting-component"
       data-name="Upgrade to Early Access Version (v2.2)"
       data-description="Upgrade to v2.2 (Early Access) to access new features and improvements."
@@ -148,36 +148,51 @@
     <li>Local model compatibility depends on available CPU and RAM. Try reducing the max tokens (context) if a local model if failing.</li>
     <li>API models are not dependent on local compute, but they require an API key and send your notes to third-party servers for processing.</li>
   </ul>
-  <%- include('smart_entities', {env: this.env}) %>
+  <h3>Notes embeddings</h3>
+  <div id="smart_sources_settings"></div>
+  <h3>Blocks (excerpts) embeddings</h3>
+  <div id="smart_blocks_settings"></div>
   <hr>
   <div class="setting-component"
     data-name="Legacy Transformers (no GPU)"
     data-description="Use legacy transformers (v2) instead of v3."
     data-type="toggle"
-    data-setting="legacy_transformers"
+    data-setting="smart_connections_plugin.legacy_transformers"
     data-callback="restart_plugin"
   ></div>
   <div class="setting-component"
     data-name="Show Full Path"
     data-description="Show full path in view."
     data-type="toggle"
-    data-setting="show_full_path"
+    data-setting="smart_connections_plugin.show_full_path"
     data-callback="refresh_smart_view"
   ></div>
   <!-- <div class="smart-embed-settings"></div> -->
   <h1>Smart Chat</h1>
-  <div class="smart-chat-settings"></div>
+  <p>
+    <i>Additional settings available in the Smart Chat settings tab (ex. chat model and api key).</i>
+  </p>
+  <!-- chat folder should be in env_data -->
+  <div class="setting-component"
+    data-name="Smart Chat History Folder"
+    data-description="Folder to store Smart Chat history. Use a preceeding <code>.</code> to hide it (ex. <code>.smart-chats</code>)."
+    data-type="text"
+    data-setting="smart_connections_plugin.smart_chat_folder"
+    data-placeholder="Enter a folder name"
+    data-callback="update_smart_chat_folder"
+    data-button="rename"
+  ></div>
   <h3>System Prompts</h3>
   <div class="setting-component"
     data-name="System Prompts Folder"
     data-description="Folder to store system prompts. Available in chat by typing '@'"
     data-type="text"
-    data-setting="system_prompts_folder"
+    data-setting="smart_connections_plugin.system_prompts_folder"
     data-placeholder="Enter a folder name"
   ></div>
   <div class="setting-component"
     data-name="Default Language"
-    data-setting="language"
+    data-setting="smart_connections_plugin.language"
     data-type="dropdown"
     data-description="Default language to use for Smart Chat. Changes which self-referential pronouns will trigger lookup of your notes."
     data-option-1="en|English"
@@ -188,13 +203,13 @@
     data-callback="update_language"
   ></div>
   <span id="self-referential-pronouns">Current: my, I, me, mine, our, ours, us, we</span>
-  <h1>Exclusions</h1>
+  <h3>Data management</h3>
   <p id="file-counts">Included files: <%= included_files %> / Total files: <%= total_files %></p>
   <div class="setting-component"
     data-name="File Exclusions"
     data-description="'Excluded file' matchers separated by a comma."
     data-type="text"
-    data-setting="file_exclusions"
+    data-setting="smart_connections_plugin.file_exclusions"
     data-placeholder="drawings,prompts/logs"
     data-callback="update_exclusions"
   ></div>
@@ -202,7 +217,7 @@
     data-name="Folder Exclusions"
     data-description="'Excluded folder' matchers separated by a comma."
     data-type="text"
-    data-setting="folder_exclusions"
+    data-setting="smart_connections_plugin.folder_exclusions"
     data-placeholder="drawings,prompts/logs"
     data-callback="update_exclusions"
   ></div>
@@ -216,58 +231,59 @@
     data-name="Heading Exclusions"
     data-description="'Excluded header' matchers separated by a comma. Works for 'blocks' only."
     data-type="text"
-    data-setting="excluded_headings"
+    data-setting="smart_connections_plugin.excluded_headings"
     data-placeholder="drawings,prompts/logs"
   ></div>
-  <h3>Data Management</h3>
-  <div class="setting-component"
-    data-name="Refresh Embeddings"
-    data-description="Clear notes data and reprocess."
-    data-type="button"
-    data-callback="refresh_sources"
-  ></div>
+  <%
+    env.smart_connections_plugin.settings.env_data_dir_last = env.smart_connections_plugin.settings.env_data_dir; // ensure env_data_dir_last is up-to-date
+  %>
   <div class="setting-component"
     data-name="Smart Connections Folder"
     data-description="Folder to store Smart Connections data."
-    data-type="text"
-    data-setting="smart_connections_plugin.smart_connections_folder"
+    data-type="folder"
+    data-setting="smart_connections_plugin.env_data_dir"
     data-placeholder="Enter a folder name"
-    data-callback="update_smart_connections_folder"
-    data-button="rename"
-  ></div>
-  <!-- chat folder should be in env_data -->
-  <div class="setting-component"
-    data-name="Smart Chat History Folder"
-    data-description="Folder to store Smart Chat history. Use a preceeding <code>.</code> to hide it (ex. <code>.smart-chats</code>)."
-    data-type="text"
-    data-setting="smart_chat_folder"
-    data-placeholder="Enter a folder name"
-    data-callback="update_smart_chat_folder"
-    data-button="rename"
-  ></div>
-  <h1>Force Refresh</h1>
-  <div class="setting-component"
-    data-name="force_refresh"
-    data-description="WARNING: DO NOT use unless you know what you are doing! This will delete all of your current embeddings from OpenAI and trigger reprocessing of your entire vault!"
-    data-confirm="Are you sure you want to Force Refresh? By clicking yes you confirm that you understand the consequences of this action."
-    data-type="button"
-    data-callback="force_refresh"
+    data-callback="smart_connections_plugin.update_smart_connections_folder"
+    data-button="move folder"
   ></div>
   <h1>Muted Notices</h1>
-  <% if(muted_notices && Object.keys(muted_notices).length) { %>
-    <% for(const notice in muted_notices) { %>
+  <% if(Object.keys(env.settings.smart_notices.muted).length) { %>
+    <% for(const notice in env.settings.smart_notices.muted) { %>
       <div class="setting-component"
         data-name="<%= notice %>"
-        data-setting="muted_notices.<%= notice %>"
-        data-type="button"
+        data-setting="smart_notices.muted.<%= notice %>"
+        data-type="remove"
         data-btn-text="Unmute"
-        data-callback="unmute_notice"
       ></div>
     <% } %>
   <% } else { %>
     <p>No muted notices.</p>
   <% } %>
   <hr>
+  <% if(env.smart_connections_plugin.EARLY_ACCESS){ %>
+  <div class="setting-component"
+    data-name="Revert to Stable Release"
+    data-btn-text="Revert"
+    data-description='Revert to the stable release of Smart Connections. Requires "Check for Updates" and then "Update Plugin" to complete the process.'
+    data-type="button"
+    data-callback="smart_connections_plugin.revert_to_stable_release"
+  ></div>
+  <% } %>
+</div>
+  <!-- <div class="setting-component"
+    data-name="Refresh Embeddings"
+    data-description="Clear notes data and reprocess."
+    data-type="button"
+    data-callback="refresh_sources"
+  ></div> -->
+  <!-- <h1>Force Refresh</h1>
+  <div class="setting-component"
+    data-name="force_refresh"
+    data-description="WARNING: DO NOT use unless you know what you are doing! This will delete all of your current embeddings from OpenAI and trigger reprocessing of your entire vault!"
+    data-confirm="Are you sure you want to Force Refresh? By clicking yes you confirm that you understand the consequences of this action."
+    data-type="button"
+    data-callback="force_refresh"
+  ></div> -->
   <!-- <h5 name="og-gpt" id="og-gpt">The Original Smart Connections GPT</h5>
   <div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout">
     <div class="callout-title">
@@ -282,13 +298,3 @@
     </div>
   </div>
   <hr> -->
-  <% if(this.env.smart_connections_plugin.EARLY_ACCESS){ %>
-  <div class="setting-component"
-    data-name="Revert to Stable Release"
-    data-btn-text="Revert"
-    data-description='Revert to the stable release of Smart Connections. Requires "Check for Updates" and then "Update Plugin" to complete the process.'
-    data-type="button"
-    data-callback="revert_to_stable_release"
-  ></div>
-  <% } %>
-</div>

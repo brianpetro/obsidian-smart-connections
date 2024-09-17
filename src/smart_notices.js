@@ -5,10 +5,15 @@ export class SmartNotices {
     this.main = main; // main plugin instance
     this.active = {};
   }
+  get settings() {
+    if(!this.main.env.settings.smart_notices) this.main.env.settings.smart_notices = {muted: {}};
+    return this.main.env.settings.smart_notices;
+  }
+  get adapter() { return this.main.env.opts.modules.smart_notices.adapter; }
   show(id, message, opts = {}) {
     if(typeof opts.timeout === 'undefined') opts.timeout = 5000; // default timeout
     // if notice is muted, return
-    if (this.main.settings.muted_notices?.[id]) {
+    if (this.settings.muted?.[id]) {
       // console.log("Notice is muted");
       if(opts.confirm && typeof opts.confirm.callback === 'function') opts.confirm.callback.call(); // if confirm callback, run it
       return;
@@ -23,7 +28,7 @@ export class SmartNotices {
     return this.render(id, content, opts);
   }
   render(id, content, opts) {
-    this.active[id] = new this.main.obsidian.Notice(content, opts.timeout);
+    this.active[id] = new this.adapter(content, opts.timeout);
     return this.active[id];
   }
   build(id, message, opts = {}) {
@@ -55,9 +60,8 @@ export class SmartNotices {
     setIcon(btn, "bell-off");
     // btn.innerHTML = "Mute";
     btn.addEventListener("click", () => {
-      if (!this.main.settings.muted_notices) this.main.settings.muted_notices = {};
-      this.main.settings.muted_notices[id] = true;
-      this.main.save_settings();
+      if(!this.settings.muted) this.settings.muted = {};
+      this.settings.muted[id] = true;
       this.show("Notice muted", "Notice muted", { timeout: 2000 });
     });
     container.appendChild(btn);

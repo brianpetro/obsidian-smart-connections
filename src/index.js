@@ -18,12 +18,9 @@ import templates from "../build/views.json" assert { type: "json" };
 // rename modules
 import { ScSmartView } from "./sc_smart_view.js";
 import { SmartSearch } from "./smart_search.js";
-import { SmartNotices } from "./smart_notices.js";
 // v2.1
 import { ScChatView } from "./chat/sc_chat_view.js";
-import { ScSettings } from "./sc_settings.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";
-import embed_models from 'smart-embed-model/models.json';
 import { ScActionsUx } from "./sc_actions_ux.js";
 import { open_note } from "./open_note.js";
 import { SmartChatGPTView } from "./sc_chatgpt_view.js";
@@ -47,7 +44,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   // GETTERS for overrides in subclasses without overriding the constructor or init method
   get env_data_dir() { return this.settings.env_data_dir || this.settings.smart_connections_folder; }
   get smart_env_class() { return SmartEnv; }
-  get smart_settings_class() { return ScSettings };
   get smart_env_config() {
     return {
       ...smart_env_config,
@@ -57,7 +53,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       smart_env_settings: { // careful: overrides saved settings
         is_obsidian_vault: true,
       },
-      smart_settings_class: this.smart_settings_class,
       // DEPRECATED usage
       ejs: ejs,
       templates: templates,
@@ -82,9 +77,9 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   async initialize() {
     this.obsidian = Obsidian;
-    this.notices = new SmartNotices(this);
-    console.log("Loading Smart Connections v2...");
     await this.load_settings();
+    this.notices = new this.smart_env_config.modules.smart_notices.class(this);
+    console.log("Loading Smart Connections v2...");
     this.smart_connections_view = null;
     this.add_commands(); // add commands
     this.register_views(); // register chat view type
@@ -131,9 +126,9 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   init_chat_model(chat_model_platform_key=null) {
     let chat_model_config = {};
-    chat_model_platform_key = chat_model_platform_key ?? this.env.settings.chat_model_platform_key;
-    if(chat_model_platform_key === 'open_router' && !this.env.settings[chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
-    else chat_model_config = this.env.settings[chat_model_platform_key] ?? {};
+    chat_model_platform_key = chat_model_platform_key ?? this.settings.chat_model_platform_key;
+    if(chat_model_platform_key === 'open_router' && !this.settings[chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
+    else chat_model_config = this.settings[chat_model_platform_key] ?? {};
     this.env.chat_model = new this.chat_classes.ScChatModel(this.env, chat_model_platform_key, {...chat_model_config });
     this.env.chat_model._request_adapter = this.obsidian.requestUrl;
   }
@@ -428,15 +423,18 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   // update smart connections folder
   async update_smart_connections_folder() {
-    if(this.settings.smart_connections_folder === this.settings.smart_connections_folder_last) return; // if folder is the same as last, return
-    const last_folder = this.settings.smart_connections_folder_last + '/';
+    if(this.settings.env_data_dir === this.settings.env_data_dir_last) return; // if folder is the same as last, return
+    const last_folder = this.settings.env_data_dir_last + '/';
     if(!confirm("Are you sure you want to update the Smart Connections folder? This will move all Smart Connections files to the new folder and restart the plugin.")){
-      this.settings.smart_connections_folder = this.settings.smart_connections_folder_last; // reset folder to last folder if user cancels
+      this.settings.env_data_dir = this.settings.env_data_dir_last; // reset folder to last folder if user cancels
       return;
     }
-    await this.app.vault.adapter.rename(this.settings.smart_connections_folder_last, this.settings.smart_connections_folder);
+    await this.app.vault.adapter.rename(this.settings.env_data_dir_last, this.settings.env_data_dir);
+    this.env.smart_env_settings._fs = null;
+    // remove old folder
+    await this.app.vault.adapter.delete(this.settings.env_data_dir_last, { recursive: true });
     // update last folder
-    this.settings.smart_connections_folder_last = this.settings.smart_connections_folder;
+    this.settings.env_data_dir_last = this.settings.env_data_dir;
     // save settings
     await this.save_settings();
     // add folder to .obsidian/app.json userIgnoreFilters[]
@@ -444,8 +442,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     const app_json_obj = JSON.parse(app_json);
     app_json_obj.userIgnoreFilters = app_json_obj.userIgnoreFilters || [];
     app_json_obj.userIgnoreFilters = app_json_obj.userIgnoreFilters.filter(folder => folder !== last_folder);
-    let smart_connections_folder = this.settings.smart_connections_folder + '/';
-    app_json_obj.userIgnoreFilters.push(smart_connections_folder);
+    let env_data_dir = this.settings.env_data_dir + '/';
+    app_json_obj.userIgnoreFilters.push(env_data_dir);
     await this.app.vault.adapter.write(".obsidian/app.json", JSON.stringify(app_json_obj, null, 2));
     // reload plugin
     this.restart_plugin();
@@ -474,36 +472,6 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   // BEGIN BACKWARD COMPATIBILITY (DEPRECATED: remove before 2.2 stable release)
   async handle_deprecated_settings() {
-    // v2.1.87
-    // smart_notes_embed_model -> smart_sources_embed_model
-    if(this.settings.smart_notes_embed_model && !this.settings.smart_sources_embed_model){
-      this.settings.smart_sources_embed_model = this.settings.smart_notes_embed_model;
-      delete this.settings.smart_notes_embed_model; // enabled 2024-08-15; delete after some time
-      this.save_settings();
-    }
-    // pre-2.1.87
-    // move api keys (api_key_PLATFORM) to PLATFORM.api_key
-    Object.entries(this.settings).forEach(([key, value]) => {
-      if(key.includes('-')) {
-        // replace with underscore
-        const new_key = key.replace(/-/g, "_");
-        this.settings[new_key] = value;
-        delete this.settings[key];
-        this.save_settings();
-      }
-      if(key.startsWith("api_key_")){
-        const platform = key.replace(/^api_key_/, "");
-        if(!this.settings[platform]) this.settings[platform] = {};
-        if(!this.settings[platform].api_key) this.settings[platform].api_key = value;
-        if(this.settings.smart_chat_model?.startsWith(platform)){
-          const model_name = this.settings.smart_chat_model.replace(platform+"-", "");
-          if(!this.settings[platform].model_name) this.settings[platform].model_name = model_name;
-          delete this.settings.smart_chat_model;
-        }
-        delete this.settings[key];
-        this.save_settings();
-      }
-    });
     // if excluded files does not include Untitled, add it
     if(!this.settings.file_exclusions.includes("Untitled")) {
       // if not empty, add comma
@@ -516,19 +484,40 @@ export default class SmartConnectionsPlugin extends Plugin {
       this.settings.smart_sources_embed_model = "TaylorAI/bge-micro-v2";
       this.save_settings();
     }
-    // handle deprecated smart-embed models
-    if(!embed_models[this.settings.smart_sources_embed_model]) {
-      this.settings.smart_sources_embed_model = this.constructor.defaults.smart_sources_embed_model;
-      this.save_settings();
-    }
-    if(!embed_models[this.settings.smart_blocks_embed_model] && this.settings.smart_blocks_embed_model !== "None") {
-      this.settings.smart_blocks_embed_model = this.constructor.defaults.smart_blocks_embed_model;
-      this.save_settings();
-    }
     // V1 relics
     if (this.settings.header_exclusions) {
       this.settings.excluded_headings = this.settings.header_exclusions;
       delete this.settings.header_exclusions;
     }
   }
+
+
+  // FROM ScSettings
+  async force_refresh() {
+    this.env.smart_blocks.clear();
+    this.env.smart_sources.clear();
+    await this.env.smart_sources.init(); // trigger making new connections
+    Object.values(this.env.smart_sources.items).forEach(item => item.queue_import());
+    await this.env.smart_sources.process_import_queue(); // trigger making new connections
+  }
+  async exclude_all_top_level_folders() {
+    const folders = (await this.app.vault.adapter.list("/")).folders;
+    const input = this.container.querySelector("div[data-setting='folder_exclusions'] input");
+    input.value = folders.join(", ");
+    input.dispatchEvent(new Event("input")); // send update event
+    this.update_exclusions();
+  }
+  async update_language(setting, value, elm) {
+    await this.update('language', value);
+    const self_ref_pronouns_list = this.container.querySelector("#self-referential-pronouns");
+    self_ref_pronouns_list.setText(this.self_ref_list);
+  }
+  async update_exclusions() {
+    this.env.smart_sources.smart_fs = null; // clear smart fs cache (re adds exclusions) (should only require clearing smart_sources.smart_fs)
+    console.log("render_file_counts");
+    const elm = this.container.querySelector("#file-counts");
+    elm.setText(`Included files: ${this.included_files} / Total files: ${this.total_files}`);
+  }
+
+
 }
