@@ -29,7 +29,6 @@ export class ScSmartView extends SmartObsidianView {
   onResize() {
     if (this.constructor.get_leaf(this.app.workspace).parent.id !== this.last_parent_id) {
       console.log("Parent changed, reloading");
-      // this.load_brain();
       this.initialize();
     }
   }
@@ -41,9 +40,10 @@ export class ScSmartView extends SmartObsidianView {
       this.update_last_user_activity_timestamp();
       if (!file) return; // if no file is open, return
 
+      this.last_open_path = file?.path;
       // check if this view is visible
       if (this.container.checkVisibility() === false) return console.log("View inactive, skipping render nearest");
-      this.render_nearest(file);
+      this.render_nearest(file?.path);
     }));
     // on active-leaf-change
     this.plugin.registerEvent(this.app.workspace.on('active-leaf-change', (leaf) => {
@@ -86,13 +86,13 @@ export class ScSmartView extends SmartObsidianView {
   }
   async render_nearest(context, container = this.container) {
     await this.prepare_to_render_nearest(container);
+    if (typeof context === "undefined") context = this.last_open_path || this.app.workspace.getActiveFile()?.path;
     if (typeof context === "string"){
       const entity = this.env.smart_sources.get(context) || this.env.smart_blocks.get(context);
       if(entity) return this.render_nearest(entity, container); // if entity is found, re render nearest with entity as context
       const results = await this.plugin.api.search(context);
       this.render_results(container, results, { context_key: context });
     }
-    if (typeof context === "undefined") context = this.app.workspace.getActiveFile();
     let context_key;
     if (context instanceof this.plugin.obsidian.TFile) {
       context_key = context.path;
@@ -146,7 +146,7 @@ export class ScSmartView extends SmartObsidianView {
           this.render_results(container, re_ranked_results, { context_key, re_ranked: true });
         }else console.warn("no re-rank results", context_key, re_ranked_results);
       }
-    }
+    }else console.log("no entity context");
   }
   get smart_connections_view_settings() { return this.env.settings?.smart_view_filter || {}; }
   should_import_context(context) {
