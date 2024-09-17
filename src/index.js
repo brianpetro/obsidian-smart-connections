@@ -45,7 +45,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   get env_data_dir() { return this.settings.env_data_dir || this.settings.smart_connections_folder; }
   get smart_env_class() { return SmartEnv; }
   get smart_env_config() {
-    return {
+    const config = {
       ...smart_env_config,
       env_path: '', // scope handled by Obsidian FS methods
       env_data_dir: this.env_data_dir, // used to scope SmartEnvSettings.fs
@@ -58,9 +58,10 @@ export default class SmartConnectionsPlugin extends Plugin {
       templates: templates,
       request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
       chat_classes: this.chat_classes,
-      // mobile enable/disable
-      prevent_load_on_init: !this.settings.enable_mobile,
     };
+    // mobile enable/disable
+    if(this.obsidian.Platform.isMobile && !this.settings.enable_mobile) config.prevent_load_on_init = true;
+    return config;
   }
   get chat_classes() { return { ScActions, ScChatsUI, ScChats, ScChatModel }; }
   get_tfile(file_path) { return this.app.vault.getAbstractFileByPath(file_path); }
