@@ -2,7 +2,7 @@
 <% if(is_early_access) { %>
 <div class="setting-component"
   data-name="Toggle Re-Ranker"
-  data-setting="smart_view_filter.re_rank"
+  data-setting="smart_connections_plugin.smart_view_filter.re_rank"
   data-description="Toggle the re-ranker"
   data-type="toggle"
   data-default="false"
@@ -14,7 +14,7 @@
   <div class="setting-component"
     data-name="Cohere API Key"
     data-type="text"
-    data-setting="smart_view_filter.cohere_api_key"
+    data-setting="smart_connections_plugin.smart_view_filter.cohere_api_key"
     data-description="API Key required to use Cohere re-ranker."
     data-placeholder="Enter an API Key"
     data-button="Save"
@@ -23,7 +23,7 @@
 <!-- toggle exclude_inlinks -->
 <div class="setting-component"
   data-name="Exclude Inlinks"
-  data-setting="smart_view_filter.exclude_inlinks"
+  data-setting="smart_connections_plugin.smart_view_filter.exclude_inlinks"
   data-description="Exclude inlinks"
   data-type="toggle"
   data-default="false"
@@ -32,7 +32,7 @@
 <!-- toggle exclude_outlinks -->
 <div class="setting-component"
   data-name="Exclude Outlinks"
-  data-setting="smart_view_filter.exclude_outlinks"
+  data-setting="smart_connections_plugin.smart_view_filter.exclude_outlinks"
   data-description="Exclude outlinks"
   data-type="toggle"
   data-default="false"
@@ -41,7 +41,7 @@
 <!-- include filter -->
 <div class="setting-component"
   data-name="Include Filter"
-  data-setting="smart_view_filter.include_filter"
+  data-setting="smart_connections_plugin.smart_view_filter.include_filter"
   data-description="Require that results match this value."
   data-type="text"
   data-callback="refresh_smart_view"
@@ -49,7 +49,7 @@
 <!-- exclude filter -->
 <div class="setting-component"
   data-name="Exclude Filter"
-  data-setting="smart_view_filter.exclude_filter"
+  data-setting="smart_connections_plugin.smart_view_filter.exclude_filter"
   data-description="Exclude results that match this value."
   data-type="text"
   data-callback="refresh_smart_view"

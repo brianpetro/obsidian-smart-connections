@@ -148,7 +148,7 @@ export class ScSmartView extends SmartObsidianView {
       }
     }else console.log("no entity context");
   }
-  get smart_connections_view_settings() { return this.env.settings?.smart_view_filter || {}; }
+  get smart_connections_view_settings() { return this.plugin.settings?.smart_view_filter || {}; }
   should_import_context(context) {
     const entity = this.env.smart_sources.get(context.path);
     return !entity || entity.meta_changed;
