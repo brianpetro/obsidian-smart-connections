@@ -49,7 +49,7 @@
     "smart-file-system": "file:../jsbrains/smart-fs",
     "smart-instruct-model": "file:../jsbrains/smart-instruct-model",
     "smart-setting": "file:../jsbrains/smart-setting",
-    "smart-sources": "file:../jsbrains/smart-sources",
+    "smart-sources": "file:../jsbrains/smart-sources-v1",
     "smart-view": "file:../jsbrains/smart-view"
   },
   "ava": {
