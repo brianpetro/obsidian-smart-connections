@@ -412,7 +412,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     Object.assign(this, this.constructor.defaults); // set defaults
     const saved_settings = await this.loadData();
     Object.assign(this.settings, saved_settings || {}); // overwrites defaults with saved settings
-    this.handle_deprecated_settings(); // HANDLE DEPRECATED SETTINGS
     return this.settings;
   }
   async save_settings(settings=this.settings) {
@@ -466,28 +465,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       .filter(file => file.path.includes(this.settings.system_prompts_folder) || file.path.includes('.prompt') || file.path.includes('.sp'))
     ;
   }
-
-  // BEGIN BACKWARD COMPATIBILITY (DEPRECATED: remove before 2.2 stable release)
-  async handle_deprecated_settings() {
-    // if excluded files does not include Untitled, add it
-    if(!this.settings.file_exclusions.includes("Untitled")) {
-      // if not empty, add comma
-      if(this.settings.file_exclusions.length) this.settings.file_exclusions += ",";
-      this.settings.file_exclusions += "Untitled";
-      this.save_settings();
-    }
-    // if no smart notes model, set to default
-    if(this.settings.smart_sources_embed_model === "None"){
-      this.settings.smart_sources_embed_model = "TaylorAI/bge-micro-v2";
-      this.save_settings();
-    }
-    // V1 relics
-    if (this.settings.header_exclusions) {
-      this.settings.excluded_headings = this.settings.header_exclusions;
-      delete this.settings.header_exclusions;
-    }
-  }
-
 
   // FROM ScSettings
   async force_refresh() {

@@ -78,5 +78,7 @@ export const smart_env_config = {
         model_key: 'TaylorAI/bge-micro-v2',
       },
     },
+    file_exclusions: 'Untitled',
+    folder_exclusions: 'smart-chats',
   },
 };
