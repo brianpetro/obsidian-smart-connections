@@ -167,14 +167,15 @@
     <i>Additional settings available in the Smart Chat settings tab (ex. chat model and api key).</i>
   </p>
   <!-- chat folder should be in env_data -->
+  <% 
+    env.smart_connections_plugin.settings.smart_chat_folder_last = env.smart_connections_plugin.settings.smart_chat_folder;
+   %>
   <div class="setting-component"
     data-name="Smart Chat History Folder"
     data-description="Folder to store Smart Chat history. Use a preceeding <code>.</code> to hide it (ex. <code>.smart-chats</code>)."
     data-type="text"
     data-setting="smart_connections_plugin.smart_chat_folder"
     data-placeholder="Enter a folder name"
-    data-callback="update_smart_chat_folder"
-    data-button="rename"
   ></div>
   <h3>System Prompts</h3>
   <div class="setting-component"
