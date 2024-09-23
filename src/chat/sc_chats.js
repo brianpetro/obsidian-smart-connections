@@ -39,62 +39,6 @@ export class ScChats extends SmartChats {
     if (!this.modal) this.modal = new ScChatHistoryModal(this.plugin.app, this.env);
     this.modal.open();
   }
-  // // backwords compatibility
-  // async import_v1_chats() {
-  //   const files = await this.list('.smart-connections/chats');
-  //   console.log(files);
-  //   for (let i = 0; i < files.files.length; i++) {
-  //     const file = files.files[i];
-  //     const chat_id = file.replace('.smart-connections/chats/', '').replace('.json', '');
-  //     const messages = [];
-  //     JSON.parse(await this.read(file))
-  //       .map(msg => msg[0])
-  //       .forEach(msg => {
-  //         if (msg.role === "user") return messages.push({
-  //           role: "user",
-  //           content: msg.content,
-  //         });
-  //         if (msg.hyd) messages.push({
-  //           role: "assistant",
-  //           content: null,
-  //           tool_calls: [{
-  //             function: {
-  //               name: "find_notes",
-  //               args: JSON.stringify({ hypotheticals: [msg.hyd] })
-  //             }
-  //           }]
-  //         });
-  //         if (msg.context) {
-  //           // const context_links = [];
-  //           // msg.context.split('\n').forEach((line, i, arr) => {
-  //           //   if(line.startsWith('---BEGIN') && arr[i+1]){
-  //           //     const breadcrumbs = arr[i+1].replace(': ', '#').split(' > '); // remove last char (:) and split by ' > '
-  //           //     const link_path = breadcrumbs.map(breadcrumb => breadcrumb.trim()).join('/');
-  //           //     context_links.push(link_path);
-  //           //   }
-  //           // });
-  //           // messages.push({
-  //           //   role: "system",
-  //           //   content: 'BEGIN NOTES AS CONTEXT:\n[['+context_links.join(']]\n[[')+']]'
-  //           // });
-  //           messages.push({
-  //             role: "system",
-  //             content: "```smart-connections\n" + msg.hyd + "\n```"
-  //           });
-  //           // // get last user message from messages and add again
-  //           // const last_user_msg = messages[messages.findLastIndex(m => m.role === "user")];
-  //           // messages.push(last_user_msg);
-  //         }
-  //         if (msg.role === "assistant") return messages.push({
-  //           role: "assistant",
-  //           content: msg.content,
-  //         });
-  //       });
-  //     console.log(messages);
-  //     const convo = this.conversation_format.create(this, chat_id, chat_ml_to_markdown({ messages }));
-  //     await convo.save();
-  //   }
-  // }
 }
 
 export class ScChatHistoryModal extends FuzzySuggestModal {

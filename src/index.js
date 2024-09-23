@@ -42,13 +42,11 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
   }
   // GETTERS for overrides in subclasses without overriding the constructor or init method
-  get env_data_dir() { return this.settings.env_data_dir || this.settings.smart_connections_folder; }
   get smart_env_class() { return SmartEnv; }
   get smart_env_config() {
     const config = {
       ...smart_env_config,
       env_path: '', // scope handled by Obsidian FS methods
-      env_data_dir: this.env_data_dir, // used to scope SmartEnvSettings.fs
       // DEPRECATED schema
       smart_env_settings: { // careful: overrides saved settings
         is_obsidian_vault: true,
@@ -158,7 +156,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       this.open_chat();
     }, 1000); // wait a sec to allow existing views to open
     if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
-    this.add_to_gitignore("\n\n# Ignore Smart Connections folder\n.smart-connections"); 
+    this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env"); 
     this.save_settings();
   }
   register_views() {
@@ -417,48 +415,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   async save_settings(settings=this.settings) {
     await this.saveData(settings); // Obsidian API->saveData
   }
-  // update smart connections folder
-  async update_smart_connections_folder() {
-    if(this.settings.env_data_dir === this.settings.env_data_dir_last) return; // if folder is the same as last, return
-    const last_folder = this.settings.env_data_dir_last + '/';
-    if(!confirm("Are you sure you want to update the Smart Connections folder? This will move all Smart Connections files to the new folder and restart the plugin.")){
-      this.settings.env_data_dir = this.settings.env_data_dir_last; // reset folder to last folder if user cancels
-      return;
-    }
-    await this.app.vault.adapter.rename(this.settings.env_data_dir_last, this.settings.env_data_dir);
-    this.env.smart_env_settings._fs = null;
-    // remove old folder
-    await this.app.vault.adapter.delete(this.settings.env_data_dir_last, { recursive: true });
-    // update last folder
-    this.settings.env_data_dir_last = this.settings.env_data_dir;
-    // save settings
-    await this.save_settings();
-    // add folder to .obsidian/app.json userIgnoreFilters[]
-    const app_json = await this.app.vault.adapter.read(".obsidian/app.json");
-    const app_json_obj = JSON.parse(app_json);
-    app_json_obj.userIgnoreFilters = app_json_obj.userIgnoreFilters || [];
-    app_json_obj.userIgnoreFilters = app_json_obj.userIgnoreFilters.filter(folder => folder !== last_folder);
-    let env_data_dir = this.settings.env_data_dir + '/';
-    app_json_obj.userIgnoreFilters.push(env_data_dir);
-    await this.app.vault.adapter.write(".obsidian/app.json", JSON.stringify(app_json_obj, null, 2));
-    // reload plugin
-    this.restart_plugin();
-  }
-  // // update smart chat folder
-  // async update_smart_chat_folder() {
-  //   if(this.settings.smart_chat_folder === this.settings.smart_chat_folder_last) return; // if folder is the same as last, return
-  //   if(!confirm("Are you sure you want to update the Smart Chats folder? This will move all Smart Chat files to the new folder.")){
-  //     this.settings.smart_chat_folder = this.settings.smart_chat_folder_last; // reset folder to last folder if user cancels
-  //     return;
-  //   }
-  //   await this.app.vault.adapter.rename(this.settings.smart_chat_folder_last, this.settings.smart_chat_folder);
-  //   // update last folder
-  //   this.settings.smart_chat_folder_last = this.settings.smart_chat_folder;
-  //   // save settings
-  //   await this.save_settings();
-  //   // update chat history conversation folder (if env.chats exists)
-  //   if(this.env.chats) this.env.chats.folder = this.settings.smart_chat_folder; 
-  // }
   
   get system_prompts() {
     return this.app.vault.getMarkdownFiles()

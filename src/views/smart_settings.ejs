@@ -167,14 +167,11 @@
     <i>Additional settings available in the Smart Chat settings tab (ex. chat model and api key).</i>
   </p>
   <!-- chat folder should be in env_data -->
-  <% 
-    env.smart_connections_plugin.settings.smart_chat_folder_last = env.smart_connections_plugin.settings.smart_chat_folder;
-   %>
   <div class="setting-component"
     data-name="Smart Chat History Folder"
     data-description="Folder to store Smart Chat history. Use a preceeding <code>.</code> to hide it (ex. <code>.smart-chats</code>)."
     data-type="text"
-    data-setting="smart_connections_plugin.smart_chat_folder"
+    data-setting="smart_chats.fs_path"
     data-placeholder="Enter a folder name"
   ></div>
   <h3>System Prompts</h3>
@@ -182,7 +179,7 @@
     data-name="System Prompts Folder"
     data-description="Folder to store system prompts. Available in chat by typing '@'"
     data-type="text"
-    data-setting="smart_connections_plugin.system_prompts_folder"
+    data-setting="smart_chats.prompts_path"
     data-placeholder="Enter a folder name"
   ></div>
   <h3>Data management</h3>
@@ -216,17 +213,12 @@
     data-setting="excluded_headings"
     data-placeholder="drawings,prompts/logs"
   ></div>
-  <%
-    env.smart_connections_plugin.settings.env_data_dir_last = env.smart_connections_plugin.settings.env_data_dir; // ensure env_data_dir_last is up-to-date
-  %>
   <div class="setting-component"
-    data-name="Smart Connections Folder"
-    data-description="Folder to store Smart Connections data."
+    data-name="Smart Environment Data (advanced)"
+    data-description='The directory to use for storing Smart Environment data (read-only). ⚠️ Changing this may break things.'
     data-type="folder"
-    data-setting="smart_connections_plugin.env_data_dir"
-    data-placeholder="Enter a folder name"
-    data-callback="smart_connections_plugin.update_smart_connections_folder"
-    data-button="move folder"
+    data-value="<%- env.env_data_dir %>"
+    data-disabled="true"
   ></div>
   <h1>Muted Notices</h1>
   <% if(Object.keys(env.settings.smart_notices.muted).length) { %>

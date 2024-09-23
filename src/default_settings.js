@@ -1,7 +1,6 @@
 export function default_settings() {
   return {
     settings: {
-      env_data_dir: ".smart-env",
       new_user: true,
       // v2.2
       legacy_transformers: false,
