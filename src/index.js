@@ -32,7 +32,7 @@ import { ScActions } from "./sc_actions.js";
 import { ScAppConnector } from "./sc_app_connector.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
-  // static get defaults() { return default_settings() }
+  static get defaults() { return default_settings() }
   get item_views() {
     return {
       ScSmartView,
@@ -49,7 +49,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       env_path: '', // scope handled by Obsidian FS methods
       // DEPRECATED schema
       smart_env_settings: { // careful: overrides saved settings
-        is_obsidian_vault: true,
+        is_obsidian_vault: true, // redundant with default_settings.is_obsidian_vault
       },
       // DEPRECATED usage
       ejs: ejs,

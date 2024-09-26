@@ -4,7 +4,7 @@ import {
   SmartSource,
   SmartBlock,
 } from "./sc_entities.js";
-import { SourceAdapter } from "smart-sources/adapters/_adapter.js";
+import { SourceAdapter, BlockAdapter } from "smart-sources/adapters/_adapter.js";
 import { MarkdownSourceAdapter, MarkdownBlockAdapter } from "smart-sources/adapters/markdown.js";
 import { SmartCollectionMultiFileDataAdapter } from "smart-collections/adapters/multi_file";
 import { SmartChunks } from 'smart-chunks/smart_chunks.js';
@@ -80,6 +80,7 @@ export const smart_env_config = {
     },
   },
   default_settings: {
+    is_obsidian_vault: true,
     smart_blocks: {
       embed_model: {
         model_key: 'TaylorAI/bge-micro-v2',
