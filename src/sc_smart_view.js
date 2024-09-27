@@ -104,7 +104,7 @@ export class ScSmartView extends SmartObsidianView {
       if (this.should_import_context(context)) {
         if(this.env.connections_cache?.[context_key]) delete this.env.connections_cache[context_key];
         // check if excluded
-        if(this.env.fs.is_excluded(context.path)){
+        if(this.env.smart_sources.fs.is_excluded(context.path)){
           return this.plugin.notices.show('excluded file', "File is excluded: " + context.path, {timeout: 3000});
         }else{
           await this.env.smart_sources.import_file(context);

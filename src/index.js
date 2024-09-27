@@ -450,7 +450,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     return this.app.vault.getFiles()
       .filter((file) => {
         if(!(file instanceof this.obsidian.TFile) || !(file.extension === "md" || file.extension === "canvas")) return false;
-        if(this.env.fs.is_excluded(file.path)) return false;
+        if(this.env.smart_sources.fs.is_excluded(file.path)) return false;
         return true;
       })
       .length
