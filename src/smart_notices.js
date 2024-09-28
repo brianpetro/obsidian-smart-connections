@@ -6,7 +6,6 @@ export class SmartNotices {
     this.active = {};
   }
   get settings() {
-    if(!this.main.settings.smart_notices) this.main.settings.smart_notices = {muted: {}};
     return this.main.settings.smart_notices;
   }
   get adapter() { return this.main.smart_env_config.modules.smart_notices.adapter; }
@@ -14,7 +13,7 @@ export class SmartNotices {
     id = this.normalize(id); // remove special characters
     if(typeof opts.timeout === 'undefined') opts.timeout = 5000; // default timeout
     // if notice is muted, return
-    if (this.settings.muted?.[id]) {
+    if (this.settings?.muted?.[id]) {
       // console.log("Notice is muted");
       if(opts.confirm && typeof opts.confirm.callback === 'function') opts.confirm.callback.call(); // if confirm callback, run it
       return;

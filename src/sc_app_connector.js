@@ -100,8 +100,6 @@ export class ScAppConnector {
   }
 
   async handle_message(data) {
-    console.log("Message received:", data);
-
     if (data.fx === 'full_render') {
       const rendered = await this.full_render(data.markdown, data.rel_path);
       return { status: "ok", rendered: rendered };

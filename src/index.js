@@ -78,10 +78,9 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   async initialize() {
     this.obsidian = Obsidian;
-    // await this.load_settings();
-    await this.smart_env_config.modules.smart_settings.class.create(this);
+    // await this.smart_env_config.modules.smart_settings.class.create(this); // fails on mobile
+    await smart_env_config.modules.smart_settings.class.create(this); // works on mobile (no this.smart_env_config)
     this.notices = new this.smart_env_config.modules.smart_notices.class(this);
-    console.log("Loading Smart Connections v2...");
     this.smart_connections_view = null;
     this.add_commands(); // add commands
     this.register_views(); // register chat view type
@@ -119,7 +118,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     // if(this.obsidian.Platform.isMobile && !this.settings.enable_mobile) return console.warn("SKIPPING: Mobile and not enabled"); // SKIP if mobile and not enabled
     await this.smart_env_class.create(this, this.smart_env_config);
     console.log("env loaded");
-    ScAppConnector.create(this.env, 37042); // Smart Connect
+    // skip if is mobile
+    if(!this.obsidian.Platform.isMobile) ScAppConnector.create(this.env, 37042); // Smart Connect
     // DEPRECATED getters: for Smart Visualizer backwards compatibility
     Object.defineProperty(this.env, 'entities_loaded', { get: () => this.env.collections_loaded });
     Object.defineProperty(this.env, 'smart_notes', { get: () => this.env.smart_sources });
@@ -408,13 +408,13 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   // main settings
   async load_settings() {
-    const settings = default_settings().settings;
+    const settings = (default_settings()).settings;
     // Object.assign(this, this.constructor.defaults); // set defaults
     const saved_settings = await this.loadData();
     Object.assign(settings, saved_settings || {}); // overwrites defaults with saved settings
     return settings;
   }
-  async save_settings(settings=this.settings) {
+  async save_settings(settings=this.smart_settings._settings) {
     await this.saveData(settings); // Obsidian API->saveData
   }
   
@@ -454,99 +454,99 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
 
-  // TODO: re-implement in plugin initialization
-  /**
-   * Loads settings specific to Obsidian for backwards compatibility.
-   * @returns {Promise<void>} A promise that resolves when Obsidian settings have been loaded.
-   */
-  async load_obsidian_settings() {
-    if (this._settings.is_obsidian_vault && this.env.smart_connections_plugin) {
-      const obsidian_settings = this._settings.smart_connections_plugin;
-      console.log("obsidian_settings", obsidian_settings, this._settings);
-      if(obsidian_settings){
-        this.transform_backwards_compatible_settings(obsidian_settings);
-        await this.save_settings();
-        this.env.smart_connections_plugin.save_settings(obsidian_settings);
-      }
-    }
-  }
-  /**
-   * Transforms settings to maintain backwards compatibility with older configurations.
-   * @param {Object} os - The old settings object to transform.
-   */
-  transform_backwards_compatible_settings(os) {
-    // move muted notices to main 2024-09-27
-    if(this.env._settings.smart_notices){
-      if(!os.smart_notices) os.smart_notices = {};
-      os.smart_notices.muted = {...this.env._settings.smart_notices.muted};
-      delete this.env._settings.smart_notices;
-    }
-    // rename to model_key
-    if(this.env._settings.smart_sources?.embed_model_key){
-      if(!this.env._settings.smart_sources.embed_model) this.env._settings.smart_sources.embed_model = {};
-      this.env._settings.smart_sources.embed_model.model_key = this.env._settings.smart_sources.embed_model_key;
-      delete this.env._settings.smart_sources.embed_model_key;
-    }
-    // rename to embed_model
-    if (os.smart_sources_embed_model) {
-      if (!this.env._settings.smart_sources) this.env._settings.smart_sources = {};
-      if (!this.env._settings.smart_sources.embed_model) this.env._settings.smart_sources.embed_model = {};
-      if (!this.env._settings.smart_sources.embed_model.model_key) this.env._settings.smart_sources.embed_model.model_key = os.smart_sources_embed_model;
-      if (!this.env._settings.smart_sources.embed_model[os.smart_sources_embed_model]) this.env._settings.smart_sources.embed_model[os.smart_sources_embed_model] = {};
-      delete os.smart_sources_embed_model;
-    }
-    // move from main to embed_model in env
-    if (os.smart_blocks_embed_model) {
-      if (!this.env._settings.smart_blocks) this.env._settings.smart_blocks = {};
-      if (!this.env._settings.smart_blocks.embed_model) this.env._settings.smart_blocks.embed_model = {};
-      if (!this.env._settings.smart_blocks.embed_model.model_key) this.env._settings.smart_blocks.embed_model.model_key = os.smart_blocks_embed_model;
-      if (!this.env._settings.smart_blocks.embed_model[os.smart_blocks_embed_model]) this.env._settings.smart_blocks.embed_model[os.smart_blocks_embed_model] = {};
-      delete os.smart_blocks_embed_model;
-    }
-    if (os.api_key) {
-      Object.entries(this.env._settings.smart_sources?.embed_model || {}).forEach(([key, value]) => {
-        if (key.startsWith('text')) value.api_key = os.api_key;
-        if (os.embed_input_min_chars && typeof value === 'object' && !value.min_chars) value.min_chars = os.embed_input_min_chars;
-      });
-      Object.entries(this.env._settings.smart_blocks?.embed_model || {}).forEach(([key, value]) => {
-        if (key.startsWith('text')) value.api_key = os.api_key;
-        if (os.embed_input_min_chars && typeof value === 'object' && !value.min_chars) value.min_chars = os.embed_input_min_chars;
-      });
-      delete os.api_key;
-      delete os.embed_input_min_chars;
-    }
-    if(os.muted_notices) {
-      if(!this.env._settings.smart_notices) this.env._settings.smart_notices = {};
-      this.env._settings.smart_notices.muted = {...os.muted_notices};
-      delete os.muted_notices;
-    }
-    if(os.smart_connections_folder){
-      if(!os.env_data_dir) os.env_data_dir = os.smart_connections_folder;
-      delete os.smart_connections_folder;
-    }
-    if(os.smart_connections_folder_last){
-      os.env_data_dir_last = os.smart_connections_folder_last;
-      delete os.smart_connections_folder_last;
-    }
-    if(os.file_exclusions){
-      if(!this.env._settings.file_exclusions || this.env._settings.file_exclusions === 'Untitled') this.env._settings.file_exclusions = os.file_exclusions;
-      delete os.file_exclusions;
-    }
-    if(os.folder_exclusions){
-      if(!this.env._settings.folder_exclusions || this.env._settings.folder_exclusions === 'smart-chats') this.env._settings.folder_exclusions = os.folder_exclusions;
-      delete os.folder_exclusions;
-    }
-    if(os.system_prompts_folder){
-      if(!this.env._settings.smart_chats) this.env._settings.smart_chats = {};
-      if(!this.env._settings.smart_chats?.prompts_path) this.env._settings.smart_chats.prompts_path = os.system_prompts_folder;
-      delete os.system_prompts_folder;
-    }
-    if(os.smart_chat_folder){
-      if(!this.env._settings.smart_chats) this.env._settings.smart_chats = {};
-      if(!this.env._settings.smart_chats?.fs_path) this.env._settings.smart_chats.fs_path = os.smart_chat_folder;
-      delete os.smart_chat_folder;
-    }
-  }
+  // // TODO: re-implement in plugin initialization
+  // /**
+  //  * Loads settings specific to Obsidian for backwards compatibility.
+  //  * @returns {Promise<void>} A promise that resolves when Obsidian settings have been loaded.
+  //  */
+  // async load_obsidian_settings() {
+  //   if (this._settings.is_obsidian_vault && this.env.smart_connections_plugin) {
+  //     const obsidian_settings = this._settings.smart_connections_plugin;
+  //     console.log("obsidian_settings", obsidian_settings, this._settings);
+  //     if(obsidian_settings){
+  //       this.transform_backwards_compatible_settings(obsidian_settings);
+  //       await this.save_settings();
+  //       this.env.smart_connections_plugin.save_settings(obsidian_settings);
+  //     }
+  //   }
+  // }
+  // /**
+  //  * Transforms settings to maintain backwards compatibility with older configurations.
+  //  * @param {Object} os - The old settings object to transform.
+  //  */
+  // transform_backwards_compatible_settings(os) {
+  //   // move muted notices to main 2024-09-27
+  //   if(this.env._settings.smart_notices){
+  //     if(!os.smart_notices) os.smart_notices = {};
+  //     os.smart_notices.muted = {...this.env._settings.smart_notices.muted};
+  //     delete this.env._settings.smart_notices;
+  //   }
+  //   // rename to model_key
+  //   if(this.env._settings.smart_sources?.embed_model_key){
+  //     if(!this.env._settings.smart_sources.embed_model) this.env._settings.smart_sources.embed_model = {};
+  //     this.env._settings.smart_sources.embed_model.model_key = this.env._settings.smart_sources.embed_model_key;
+  //     delete this.env._settings.smart_sources.embed_model_key;
+  //   }
+  //   // rename to embed_model
+  //   if (os.smart_sources_embed_model) {
+  //     if (!this.env._settings.smart_sources) this.env._settings.smart_sources = {};
+  //     if (!this.env._settings.smart_sources.embed_model) this.env._settings.smart_sources.embed_model = {};
+  //     if (!this.env._settings.smart_sources.embed_model.model_key) this.env._settings.smart_sources.embed_model.model_key = os.smart_sources_embed_model;
+  //     if (!this.env._settings.smart_sources.embed_model[os.smart_sources_embed_model]) this.env._settings.smart_sources.embed_model[os.smart_sources_embed_model] = {};
+  //     delete os.smart_sources_embed_model;
+  //   }
+  //   // move from main to embed_model in env
+  //   if (os.smart_blocks_embed_model) {
+  //     if (!this.env._settings.smart_blocks) this.env._settings.smart_blocks = {};
+  //     if (!this.env._settings.smart_blocks.embed_model) this.env._settings.smart_blocks.embed_model = {};
+  //     if (!this.env._settings.smart_blocks.embed_model.model_key) this.env._settings.smart_blocks.embed_model.model_key = os.smart_blocks_embed_model;
+  //     if (!this.env._settings.smart_blocks.embed_model[os.smart_blocks_embed_model]) this.env._settings.smart_blocks.embed_model[os.smart_blocks_embed_model] = {};
+  //     delete os.smart_blocks_embed_model;
+  //   }
+  //   if (os.api_key) {
+  //     Object.entries(this.env._settings.smart_sources?.embed_model || {}).forEach(([key, value]) => {
+  //       if (key.startsWith('text')) value.api_key = os.api_key;
+  //       if (os.embed_input_min_chars && typeof value === 'object' && !value.min_chars) value.min_chars = os.embed_input_min_chars;
+  //     });
+  //     Object.entries(this.env._settings.smart_blocks?.embed_model || {}).forEach(([key, value]) => {
+  //       if (key.startsWith('text')) value.api_key = os.api_key;
+  //       if (os.embed_input_min_chars && typeof value === 'object' && !value.min_chars) value.min_chars = os.embed_input_min_chars;
+  //     });
+  //     delete os.api_key;
+  //     delete os.embed_input_min_chars;
+  //   }
+  //   if(os.muted_notices) {
+  //     if(!this.env._settings.smart_notices) this.env._settings.smart_notices = {};
+  //     this.env._settings.smart_notices.muted = {...os.muted_notices};
+  //     delete os.muted_notices;
+  //   }
+  //   if(os.smart_connections_folder){
+  //     if(!os.env_data_dir) os.env_data_dir = os.smart_connections_folder;
+  //     delete os.smart_connections_folder;
+  //   }
+  //   if(os.smart_connections_folder_last){
+  //     os.env_data_dir_last = os.smart_connections_folder_last;
+  //     delete os.smart_connections_folder_last;
+  //   }
+  //   if(os.file_exclusions){
+  //     if(!this.env._settings.file_exclusions || this.env._settings.file_exclusions === 'Untitled') this.env._settings.file_exclusions = os.file_exclusions;
+  //     delete os.file_exclusions;
+  //   }
+  //   if(os.folder_exclusions){
+  //     if(!this.env._settings.folder_exclusions || this.env._settings.folder_exclusions === 'smart-chats') this.env._settings.folder_exclusions = os.folder_exclusions;
+  //     delete os.folder_exclusions;
+  //   }
+  //   if(os.system_prompts_folder){
+  //     if(!this.env._settings.smart_chats) this.env._settings.smart_chats = {};
+  //     if(!this.env._settings.smart_chats?.prompts_path) this.env._settings.smart_chats.prompts_path = os.system_prompts_folder;
+  //     delete os.system_prompts_folder;
+  //   }
+  //   if(os.smart_chat_folder){
+  //     if(!this.env._settings.smart_chats) this.env._settings.smart_chats = {};
+  //     if(!this.env._settings.smart_chats?.fs_path) this.env._settings.smart_chats.fs_path = os.smart_chat_folder;
+  //     delete os.smart_chat_folder;
+  //   }
+  // }
 
 
   remove_setting_elm(path, value, elm) {

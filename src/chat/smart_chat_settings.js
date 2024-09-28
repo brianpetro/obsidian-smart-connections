@@ -7,8 +7,6 @@ export class SmartChatSettings extends SmartSettings {
   set settings(settings) { this.main.env.settings = settings; }
   update_smart_chat_folder() { this.plugin.update_smart_chat_folder(); }
   async changed_smart_chat_model(render = true){
-    console.log(this.settings.chat_model_platform_key);
-    // await this.plugin.save_settings();
     this.env.chat_model = null;
     this.env.smart_connections_plugin.init_chat_model(this.settings.chat_model_platform_key);
     const platform_config = this.env.chat_model.platforms[this.settings.chat_model_platform_key];
@@ -22,10 +20,8 @@ export class SmartChatSettings extends SmartSettings {
         ...(platform_config || {}),
         ...(model_config || {}),
       };
-      // console.log("smart_chat_model_config", smart_chat_model_config);
       this.settings[this.settings.chat_model_platform_key] = smart_chat_model_config;
     }
-    // await this.plugin.save_settings();
     if(render) this.render();
   }
   async test_chat_api_key(){

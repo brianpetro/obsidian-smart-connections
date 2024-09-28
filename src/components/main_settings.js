@@ -82,7 +82,7 @@ function render_supporters_section(scope) {
       data-description="Upgrade to v2.2 (Early Access) to access new features and improvements."
       data-type="button"
       data-btn-text="Upgrade to v2.2"
-      data-callback="smart_connections_plugin.update_early_access"
+      data-callback="update_early_access"
     ></div>
     <div class="setting-component"
       data-name="Become a Supporter"
@@ -97,7 +97,7 @@ function render_supporters_section(scope) {
     <div class="setting-component"
       data-name="Supporter License Key"
       data-type="text"
-      data-setting="smart_connections_plugin.license_key"
+      data-setting="license_key"
       data-description="Note: this is not required to use Smart Connections."
       data-placeholder="Enter your license_key"
     ></div>
@@ -177,8 +177,8 @@ function render_muted_notices_section(scope) {
     <h1>Muted Notices</h1>
   `;
   
-  if (Object.keys(scope.settings.smart_notices.muted).length) {
-    for (const notice in scope.settings.smart_notices.muted) {
+  if (Object.keys(scope.notices.settings?.muted || {}).length) {
+    for (const notice in scope.notices.settings?.muted) {
       html += `
         <div class="setting-component"
           data-name="${notice}"
