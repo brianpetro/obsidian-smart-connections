@@ -3,8 +3,8 @@ import { SmartSettings } from "smart-setting";
 
 // Smart Connections Specific Settings
 export class SmartChatSettings extends SmartSettings {
-  get settings() { return this.main.settings; }
-  set settings(settings) { this.main.settings = settings; }
+  get settings() { return this.main.env.settings; }
+  set settings(settings) { this.main.env.settings = settings; }
   update_smart_chat_folder() { this.plugin.update_smart_chat_folder(); }
   async changed_smart_chat_model(render = true){
     console.log(this.settings.chat_model_platform_key);
@@ -64,6 +64,6 @@ export class SmartChatSettings extends SmartSettings {
   }
   update_language(setting, value, elm) {
     const self_ref_pronouns_list = this.container.querySelector("#self-referential-pronouns");
-    self_ref_pronouns_list.setText(this.self_ref_list);
+    self_ref_pronouns_list?.setText(this.self_ref_list);
   }
 }
