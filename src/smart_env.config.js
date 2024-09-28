@@ -18,6 +18,8 @@ import { SmartViewObsidianAdapter } from 'smart-view/adapters/obsidian.js';
 import { SmartNotices } from "./smart_notices.js";
 import { Notice } from "obsidian";
 import { SmartSettings } from "smart-settings";
+import { render as source_settings_component } from 'smart-sources/components/settings.js';
+import { render as env_settings_component } from './components/env_settings.js';
 // import { SmartViewNodeAdapter } from 'smart-view/adapters/node.js';
 
 export const smart_env_config = {
@@ -36,7 +38,10 @@ export const smart_env_config = {
         "txt": MarkdownSourceAdapter, // temp
         "canvas": MarkdownSourceAdapter, // temp
         "default": SourceAdapter,
-      }
+      },
+      components: {
+        settings: source_settings_component,
+      },
     },
     smart_blocks: {
       class: SmartBlocks,
@@ -45,7 +50,10 @@ export const smart_env_config = {
         "txt": MarkdownBlockAdapter,
         "canvas": MarkdownBlockAdapter,
         "default": BlockAdapter,
-      }
+      },
+      components: {
+        settings: source_settings_component,
+      },
     },
   },
   item_types: {
@@ -69,7 +77,6 @@ export const smart_env_config = {
     smart_view: {
       class: SmartView,
       adapter: SmartViewObsidianAdapter,
-      // adapter: SmartViewNodeAdapter,
     },
     smart_notices: {
       class: SmartNotices,
@@ -78,6 +85,9 @@ export const smart_env_config = {
     smart_settings: {
       class: SmartSettings,
     },
+  },
+  components: {
+    settings: env_settings_component,
   },
   default_settings: {
     is_obsidian_vault: true,

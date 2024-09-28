@@ -1,8 +1,7 @@
 import { SmartObsidianView } from "./smart_obsidian_view.js";
-// import { SmartEmbedSettings } from "./smart_embed_settings.js";
 const SUPPORTED_FILE_TYPES = ["md", "canvas"];
 import { Modal } from "obsidian";
-import { SmartSettings } from "smart-setting";
+import { render as filter_settings_component } from "./components/smart_view_filter.js";
 
 export class ScSmartView extends SmartObsidianView {
   static get view_type() { return "smart-connections-view"; }
@@ -131,7 +130,6 @@ export class ScSmartView extends SmartObsidianView {
         re_rank,
         cohere_api_key,
       } = this.smart_connections_view_settings;
-      console.log("re-rank", re_rank);
       if(re_rank && typeof this.plugin.re_rank_connections === "function"){
         console.log("re-ranking");
         const re_ranked_results = await this.plugin.re_rank_connections({
@@ -293,33 +291,15 @@ export class ScSmartView extends SmartObsidianView {
       this.plugin.save_settings();
     });
 
-    // // settings button
-    // const settings_btn = this.container.querySelector("button[title='Settings']");
-    // settings_btn.addEventListener("click", async () => {
-    //   const settings_container = this.container.querySelector("#settings");
-    //   // if has contents, clear
-    //   if(settings_container.innerHTML) return settings_container.innerHTML = "";
-    //   // if no settings, create
-    //   if(!this.embed_settings) this.embed_settings = new SmartEmbedSettings(this.env, settings_container);
-    //   else this.embed_settings.container = settings_container;
-    //   this.embed_settings.render();
-    //   // Enhanced transition: smooth background color change with ease-in-out effect
-    //   settings_container.style.transition = "background-color 0.5s ease-in-out";
-    //   settings_container.style.backgroundColor = "var(--bold-color)";
-    //   setTimeout(() => { settings_container.style.backgroundColor = ""; }, 500);
-    // });
-
     // Filter
     container.querySelector(".sc-filter").addEventListener("click", () => {
-      // if has contents, clear
-      if(this.overlay_container.innerHTML) return this.overlay_container.innerHTML = "";
-      // if no settings, create
-      if(!this.filter_view) this.filter_view = new SmartViewFilter(this.env, this.overlay_container);
-      else this.filter_view.container = this.overlay_container;
-      this.filter_view.render();
+      this.render_filter_settings();
       this.on_open_overlay();
     });
     container.querySelector(".sc-refresh").addEventListener("click", () => {
+      if(this.plugin.view){
+        this.plugin.env.connections_cache = {}; // clear cache
+      }
       this.render_nearest();
     });
     // Search
@@ -347,6 +327,33 @@ export class ScSmartView extends SmartObsidianView {
     setTimeout(() => { this.overlay_container.style.backgroundColor = ""; }, 500);
   }
   get overlay_container() { return this.container.querySelector(".sc-overlay"); }
+
+  // since components pattern
+  get settings() { return this.plugin.env.settings; }
+  get smart_view() {
+    if(!this._smart_view){
+      this._smart_view = new this.plugin.smart_env_config.modules.smart_view.class({adapter: this.plugin.smart_env_config.modules.smart_view.adapter});
+    }
+    return this._smart_view;
+  }
+  async render_filter_settings() {
+    if(!this.overlay_container) throw new Error("Container is required");
+    this.overlay_container.innerHTML = '';
+    this.overlay_container.innerHTML = '<div class="sc-loading">Loading filter settings...</div>';
+    const frag = await filter_settings_component.call(this.smart_view, this);
+    this.overlay_container.innerHTML = '';
+    this.overlay_container.appendChild(frag);
+    return this.overlay_container;
+  }
+  async refresh_smart_view() {
+    if(this.plugin.view){
+      this.plugin.env.connections_cache = {}; // clear cache
+    }
+    await this.plugin.smart_connections_view.render_nearest();
+  }
+  async refresh_smart_view_filter() {
+    await this.render_filter_settings();
+  }
 }
 
 export class SmartNoteInspectModal extends Modal {
@@ -393,25 +400,5 @@ export class SmartViewSearch {
     return {
       get_icon: this.get_icon.bind(this),
     };
-  }
-}
-
-// Smart Connections Specific Settings
-export class SmartViewFilter extends SmartSettings {
-  get template() { return this.templates['smart_view_filter']; }
-  async refresh_smart_view() { await this.plugin.smart_connections_view.render_nearest(); }
-  async refresh_smart_view_filter() { this.render(); }
-  async get_view_data() {
-    const view_data = {
-      settings: this.plugin.settings,
-      is_early_access: this.plugin.EARLY_ACCESS,
-    };
-    return view_data;
-  }
-  async update(setting, value) {
-    await super.update(setting, value);
-    if(this.plugin.view){
-      this.plugin.env.connections_cache = {}; // clear cache
-    }
   }
 }

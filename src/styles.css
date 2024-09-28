@@ -31,9 +31,10 @@ div[data-type^="smart-connections-"] {
       max-height: 42%;
       &:has(.setting-component){
         overflow-y: auto;
-        height: 100%;
-        min-height: 42%;
+        /* height: 100%; */
+        /* min-height: 42%; */
         padding: var(--size-4-4);
+        flex: none;
       }
       .setting-item {
         flex-direction: column;
@@ -463,3 +464,21 @@ div[data-type^="smart-connections-"] {
   display: none;
 }
 
+/* SINCE COMPONENT PATTERN SETTINGS */
+.setting-component[data-setting="is_obsidian_vault"]{
+  display: none;
+}
+.group-header{
+  display: flex;
+  text-wrap: nowrap;
+  flex-wrap: wrap;
+  align-items: baseline;
+  > h3 {
+    width: 100%;
+    margin-bottom: 0;
+  }
+  > * {
+    flex-grow: 1;
+    margin-bottom: 10px;
+  }
+}

@@ -445,24 +445,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     const elm = document.querySelector("#smart-connections-settings #file-counts");
     elm.setText(`Included files: ${this.included_files} / Total files: ${this.total_files}`);
   }
-  // get included files count
-  get included_files() {
-    return this.app.vault.getFiles()
-      .filter((file) => {
-        if(!(file instanceof this.obsidian.TFile) || !(file.extension === "md" || file.extension === "canvas")) return false;
-        if(this.env.smart_sources.fs.is_excluded(file.path)) return false;
-        return true;
-      })
-      .length
-    ;
-  }
-  // get all files count, no exclusions
-  get total_files() {
-    return this.app.vault.getFiles()
-      .filter((file) => (file instanceof this.obsidian.TFile) && (file.extension === "md" || file.extension === "canvas"))
-      .length
-    ;
-  }
   async toggle_mobile(setting, value, elm) {
     const manifest = JSON.parse(await this.app.vault.adapter.read(".obsidian/plugins/smart-connections/manifest.json"));
     manifest.isDesktopOnly = !value;
@@ -493,11 +475,19 @@ export default class SmartConnectionsPlugin extends Plugin {
    * @param {Object} os - The old settings object to transform.
    */
   transform_backwards_compatible_settings(os) {
+    // move muted notices to main 2024-09-27
+    if(this.env._settings.smart_notices){
+      if(!os.smart_notices) os.smart_notices = {};
+      os.smart_notices.muted = {...this.env._settings.smart_notices.muted};
+      delete this.env._settings.smart_notices;
+    }
+    // rename to model_key
     if(this.env._settings.smart_sources?.embed_model_key){
       if(!this.env._settings.smart_sources.embed_model) this.env._settings.smart_sources.embed_model = {};
       this.env._settings.smart_sources.embed_model.model_key = this.env._settings.smart_sources.embed_model_key;
       delete this.env._settings.smart_sources.embed_model_key;
     }
+    // rename to embed_model
     if (os.smart_sources_embed_model) {
       if (!this.env._settings.smart_sources) this.env._settings.smart_sources = {};
       if (!this.env._settings.smart_sources.embed_model) this.env._settings.smart_sources.embed_model = {};
@@ -505,6 +495,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       if (!this.env._settings.smart_sources.embed_model[os.smart_sources_embed_model]) this.env._settings.smart_sources.embed_model[os.smart_sources_embed_model] = {};
       delete os.smart_sources_embed_model;
     }
+    // move from main to embed_model in env
     if (os.smart_blocks_embed_model) {
       if (!this.env._settings.smart_blocks) this.env._settings.smart_blocks = {};
       if (!this.env._settings.smart_blocks.embed_model) this.env._settings.smart_blocks.embed_model = {};
@@ -555,6 +546,11 @@ export default class SmartConnectionsPlugin extends Plugin {
       if(!this.env._settings.smart_chats?.fs_path) this.env._settings.smart_chats.fs_path = os.smart_chat_folder;
       delete os.smart_chat_folder;
     }
+  }
+
+
+  remove_setting_elm(path, value, elm) {
+    elm.remove();
   }
 
 }

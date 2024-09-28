@@ -8,12 +8,12 @@ export class SmartObsidianView extends ItemView {
     super(leaf);
     this.app = plugin.app;
     this.plugin = plugin;
-    this.settings = plugin.settings;
     this.templates = views;
     this.ejs = ejs;
   }
   get env() { return this.plugin.env; }
   get config() { return this.plugin.settings; }
+  get settings() { return this.plugin.settings; }
   render_template(template_name, data) {
     if (!this.templates[template_name]) throw new Error(`Template '${template_name}' not found.`);
     return ejs.render(this.templates[template_name], data, { context: this.view_context });

@@ -6,11 +6,12 @@ export class SmartNotices {
     this.active = {};
   }
   get settings() {
-    if(!this.main.env.settings.smart_notices) this.main.env.settings.smart_notices = {muted: {}};
-    return this.main.env.settings.smart_notices;
+    if(!this.main.settings.smart_notices) this.main.settings.smart_notices = {muted: {}};
+    return this.main.settings.smart_notices;
   }
-  get adapter() { return this.main.env.opts.modules.smart_notices.adapter; }
+  get adapter() { return this.main.smart_env_config.modules.smart_notices.adapter; }
   show(id, message, opts = {}) {
+    id = this.normalize(id); // remove special characters
     if(typeof opts.timeout === 'undefined') opts.timeout = 5000; // default timeout
     // if notice is muted, return
     if (this.settings.muted?.[id]) {
@@ -27,11 +28,18 @@ export class SmartNotices {
     // console.log("showing notice");
     return this.render(id, content, opts);
   }
+  normalize(id) {
+    id = id.replace(/[^a-zA-Z0-9_-]/g, '_'); // remove special characters
+    return id;
+  }
+
   render(id, content, opts) {
+    id = this.normalize(id);
     this.active[id] = new this.adapter(content, opts.timeout);
     return this.active[id];
   }
   build(id, message, opts = {}) {
+    id = this.normalize(id);
     const frag = document.createDocumentFragment();
     const head = frag.createEl("p", { cls: "sc-notice-head", text: `[Smart Connections v${this.main.manifest.version}]` });
     const content = frag.createEl("p", { cls: "sc-notice-content" });
@@ -56,6 +64,7 @@ export class SmartNotices {
     container.appendChild(btn);
   }
   add_mute_btn(id, container) {
+    id = this.normalize(id);
     const btn = document.createElement("button");
     setIcon(btn, "bell-off");
     // btn.innerHTML = "Mute";
@@ -72,6 +81,7 @@ export class SmartNotices {
     }
   }
   remove(id) {
+    id = this.normalize(id);
     this.active[id]?.hide();
     delete this.active[id];
   }
