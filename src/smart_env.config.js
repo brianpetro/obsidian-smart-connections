@@ -4,8 +4,8 @@ import {
   SmartSource,
   SmartBlock,
 } from "./sc_entities.js";
-import { SourceAdapter, BlockAdapter } from "smart-sources/adapters/_adapter.js";
-import { MarkdownSourceAdapter, MarkdownBlockAdapter } from "smart-sources/adapters/markdown.js";
+import { SourceAdapter } from "smart-sources/adapters/_adapter.js";
+import { MarkdownSourceAdapter } from "smart-sources/adapters/markdown.js";
 import { SmartCollectionMultiFileDataAdapter } from "smart-collections/adapters/multi_file";
 import { SmartChunks } from 'smart-chunks/smart_chunks.js';
 import { SmartEmbedModel } from "smart-embed-model";
@@ -45,12 +45,6 @@ export const smart_env_config = {
     },
     smart_blocks: {
       class: SmartBlocks,
-      block_adapters: {
-        "md": MarkdownBlockAdapter,
-        "txt": MarkdownBlockAdapter,
-        "canvas": MarkdownBlockAdapter,
-        "default": BlockAdapter,
-      },
       components: {
         settings: source_settings_component,
       },

@@ -93,6 +93,8 @@ function render_supporters_section(scope) {
   ;
   return `<div class="sc-supporters">
     <h1>Smart Connections Supporter Community</h1>
+    <i>Join the next <a href="https://lu.ma/calendar/cal-ZJtdnzAdURyouM7">Lean Coffee session</a> to discuss future features & improvements.</i>
+    <hr>
     ${stable_release_html}
     <div class="setting-component"
       data-name="Supporter License Key"
