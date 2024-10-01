@@ -8,6 +8,9 @@
 - *Saves **chats as notes** (markdown) and **canvas** (in early release).*
 - *See what **[people are saying](#user-testimonials)**.*
 
+> [!TIP]
+> Join the next [Lean Coffee session](https://lu.ma/calendar/cal-ZJtdnzAdURyouM7) to discuss future features & improvements.
+
 Hey there, I'm Brian, the mind behind Smart Connections (still human, at this point 🤪). I laugh at my own jokes, like to use emojis, and think about thinking.
 
 Smart Connections is a [mission-driven](https://youtu.be/RtlpPTrEQ7c) software that's funded by users. Smart Connections is designed by an individual to enhance individual abilities so you can reach your goals and realize your visions for the future with software that's aligned with you. Follow [@wfhbrian](https://x.com/wfhbrian) for feature sneak peeks and other updates about the process of developing Smart Connections.
