@@ -131,9 +131,9 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   init_chat_model(chat_model_platform_key=null) {
     let chat_model_config = {};
-    chat_model_platform_key = chat_model_platform_key ?? this.env.settings.chat_model_platform_key;
-    if(chat_model_platform_key === 'open_router' && !this.env.settings[chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
-    else chat_model_config = this.env.settings[chat_model_platform_key] ?? {};
+    chat_model_platform_key = chat_model_platform_key ?? this.settings.chat_model_platform_key;
+    if(chat_model_platform_key === 'open_router' && !this.settings[chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
+    else chat_model_config = this.settings[chat_model_platform_key] ?? {};
     this.env.chat_model = new this.chat_classes.ScChatModel(this.env, chat_model_platform_key, {...chat_model_config });
     this.env.chat_model._request_adapter = this.obsidian.requestUrl;
   }

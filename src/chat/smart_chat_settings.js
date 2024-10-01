@@ -3,8 +3,8 @@ import { SmartSettings } from "smart-setting";
 
 // Smart Connections Specific Settings
 export class SmartChatSettings extends SmartSettings {
-  get settings() { return this.main.env.settings; }
-  set settings(settings) { this.main.env.settings = settings; }
+  get settings() { return this.main.settings; }
+  set settings(settings) { this.main.settings = settings; }
   update_smart_chat_folder() { this.plugin.update_smart_chat_folder(); }
   async changed_smart_chat_model(render = true){
     this.env.chat_model = null;

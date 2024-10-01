@@ -44,7 +44,7 @@ export class ScActionsUx {
 
   }
   async append_accepted_changes(change) {
-    const file_path = this.plugin.settings.smart_connections_folder + "/accepted_changes.ndjson";
+    const file_path = this.plugin.env.env_data_dir + "/accepted_changes.ndjson";
     if(!(await this.plugin.app.vault.exists(file_path))){
       console.log("File does not exist, creating it");
       await this.plugin.app.vault.create(file_path, "");
