@@ -50,7 +50,6 @@ export class SmartEmbedSettings extends SmartSettings {
       settings: this.settings,
       embedding_models: Object.keys(smart_embed_models).map(model_key => ({ key: model_key, ...smart_embed_models[model_key] })),
     };
-    console.log('get_view_data', view_data);
     view_data.smart_embed_settings = this.ejs.render(this.template, view_data);
     return view_data;
   }

@@ -209,10 +209,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     await this.saveData(this.settings); // save settings
     await new Promise(r => setTimeout(r, 3000));
     window.restart_plugin = async (id) => {
-      console.log("restarting plugin", id);
       await window.app.plugins.disablePlugin(id);
       await window.app.plugins.enablePlugin(id);
-      console.log("plugin restarted", id);
     };
     await window.restart_plugin(this.manifest.id);
   }

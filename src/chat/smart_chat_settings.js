@@ -14,7 +14,6 @@ export class SmartChatSettings extends SmartSettings {
     if(smart_chat_model_config.model_name){
       const platform_models = await this.env.chat_model.get_models();
       const model_config = platform_models.find(m => m.model_name === smart_chat_model_config.model_name);
-      // console.log("model_config", model_config);
       smart_chat_model_config = {
         ...(smart_chat_model_config || {}),
         ...(platform_config || {}),
