@@ -2,9 +2,19 @@
 <% if(note.blocks.length === 0) { %>
   <p>No blocks</p>
 <% } %>
-<% for(let block of note.blocks) { %>
+<% for(let block of note.blocks.sort((a, b) => a.sub_key.localeCompare(b.sub_key))) { %>
+<p>
+  <%- block.sub_key.split("#").join(" > ") + " (" + block.size + " chars)" %>
+  <br>
+  <%- block.should_embed ? "<span style='color: green;'>should embed</span>" : "<span style='color: orange;'>embedding skipped</span>" %>
+</p>
 <blockquote>
-  <%- (await block.get_embed_input()).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>") %>
+  <%- (await block.read())
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br>")
+    .replace(/\t/g, "&nbsp;&nbsp;")
+  %>
 </blockquote>
 <hr>
 <% } %>
