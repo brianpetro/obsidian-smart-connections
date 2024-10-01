@@ -468,6 +468,9 @@ div[data-type^="smart-connections-"] {
 .setting-component[data-setting="is_obsidian_vault"]{
   display: none;
 }
+.setting-component[data-setting="smart_change.active"]{
+  display: none;
+}
 .group-header{
   display: flex;
   text-wrap: nowrap;
