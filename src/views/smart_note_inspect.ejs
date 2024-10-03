@@ -2,7 +2,7 @@
 <% if(note.blocks.length === 0) { %>
   <p>No blocks</p>
 <% } %>
-<% for(let block of note.blocks.sort((a, b) => a.sub_key.localeCompare(b.sub_key))) { %>
+<% for(let block of note.blocks.sort((a, b) => a.line_start - b.line_start)) { %>
 <p>
   <%- block.sub_key.split("#").join(" > ") + " (" + block.size + " chars)" %>
   <br>
