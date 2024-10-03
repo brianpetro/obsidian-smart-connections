@@ -12,15 +12,15 @@
 <div id="settings" class="sc-overlay"></div>
 <div class="sc-list">
   <% for (let result of results) { %>
-  <div class="search-result<%- !this.settings.expanded_view ? ' sc-collapsed' : '' %>" data-path="<%- result.path %>">
+  <div class="search-result<%- !this.settings.expanded_view ? ' sc-collapsed' : '' %>" data-path="<%- result.path.replace(/"/g, '&quot;') %>">
     <span class="header">
       <%- this.get_icon('right-triangle') %>
-      <a class="search-result-file-title" title="<%- result.path %>" draggable="true">
+      <a class="search-result-file-title" title="<%- result.path.replace(/"/g, '&quot;') %>" draggable="true">
         <small><%- [result.score?.toFixed(2), result.name].join(' | ') %></small>
       </a>
     </span>
     <ul draggable="true">
-      <li class="search-result-file-title" title="<%- result.path %>" data-collection="<%= result.collection_key %>"></li>
+      <li class="search-result-file-title" title="<%- result.path.replace(/"/g, '&quot;') %>" data-collection="<%= result.collection_key %>"></li>
     </ul>
   </div>
   <% } %>
