@@ -418,8 +418,9 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   
   get system_prompts() {
+    const folder = this.env.settings?.smart_chats?.prompts_path || this.settings.system_prompts_folder;
     return this.app.vault.getMarkdownFiles()
-      .filter(file => file.path.includes(this.settings.system_prompts_folder) || file.path.includes('.prompt') || file.path.includes('.sp'))
+      .filter(file => file.path.includes(folder) || file.path.includes('.prompt') || file.path.includes('.sp'))
     ;
   }
 

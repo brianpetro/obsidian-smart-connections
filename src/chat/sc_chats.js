@@ -6,7 +6,7 @@ export class ScChats extends SmartChats {
   constructor(env, opts = {}) {
     super(env, opts);
     this.plugin = this.env.smart_connections_plugin;
-    this.folder = this.plugin.settings.smart_chat_folder || this.folder;
+    this.folder = this.env.settings?.smart_chats?.fs_path || this.plugin.settings.smart_chat_folder || this.folder;
     this.chat_class = ScChat;
   }
   async new_user_message(message) {
