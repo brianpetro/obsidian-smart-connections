@@ -244,8 +244,11 @@ export default class SmartConnectionsPlugin extends Plugin {
         if(!curr_file?.path) return console.warn("No active file", curr_file);
         const source = this.env.smart_sources.get(curr_file.path);
         if(!source) this.notices?.show("note not found", [`Note not found: ${curr_file.path}`]);
-        source.data.last_read_hash = null; // force meta_changed
+        source.data = {path: curr_file.path}; // force meta_changed
+        // clear file at source.data_path
+        await this.env.data_fs.remove(source.data_path);
         await source.import();
+        await this.env.smart_sources.process_embed_queue();
         setTimeout(() => {
           // refresh view
           this.view.render_nearest();
