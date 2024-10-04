@@ -8,6 +8,7 @@ export function default_settings() {
       actions: {
         "lookup": true
       },
+      smart_notices: {},
       // v2.1
       system_prompts_folder: "smart prompts",
       smart_chat_folder: "smart-chats",
