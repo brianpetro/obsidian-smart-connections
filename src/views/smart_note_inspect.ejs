@@ -4,7 +4,7 @@
 <% } %>
 <% for(let block of note.blocks.sort((a, b) => a.line_start - b.line_start)) { %>
 <p>
-  <%- block.sub_key.split("#").join(" > ") + " (" + block.size + " chars)" %>
+  <%- block.sub_key.split("#").join(" > ") + " (" + block.size + " chars; lines: " + block.line_start + "-" + block.line_end + ")" %>
   <br>
   <%- block.should_embed ? "<span style='color: green;'>should embed</span>" : "<span style='color: orange;'>embedding skipped</span>" %>
 </p>
