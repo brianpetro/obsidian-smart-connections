@@ -2,9 +2,8 @@ import { SmartObsidianView } from "../smart_obsidian_view.js";
 
 export class ScChatView extends SmartObsidianView {
   static get view_type() { return "smart-connections-chat-view"; }
-  getDisplayText() { return "Smart Connections Chat"; }
-  getIcon() { return "message-square"; }
-  getViewType() { return ScChatView.view_type; }
+  static get display_text() { return "Smart Chat Conversation View"; }
+  static get icon_name() { return "message-square"; }
   async onOpen() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); }
   async initialize() {
     await this.wait_for_env_to_load();

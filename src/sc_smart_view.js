@@ -5,10 +5,8 @@ import { render as filter_settings_component } from "./components/smart_view_fil
 
 export class ScSmartView extends SmartObsidianView {
   static get view_type() { return "smart-connections-view"; }
+  static get display_text() { return "Smart Connections Files"; }
   // Obsidian
-  getViewType() { return this.constructor.view_type; }
-  getDisplayText() { return "Smart Connections Files"; }
-  getIcon() { return "smart-connections"; }
   async onOpen() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); }
   get template_name() { return "smart_connections"; }
   async initialize() {

@@ -2,15 +2,14 @@ import { ItemView } from "obsidian";
 
 export class SmartChatGPTView extends ItemView {
   static get view_type() { return 'smart_chatgpt'; }
+  static get display_text() { return "Smart ChatGPT"; }
+  static get icon_name() { return "bot"; }
   static get_leaf(workspace) { return workspace.getLeavesOfType(this.view_type)?.find((leaf) => leaf.view instanceof this); }
   static open(workspace, active = true) {
     if (this.get_leaf(workspace)) this.get_leaf(workspace).setViewState({ type: this.view_type, active });
     else workspace.getRightLeaf(false).setViewState({ type: this.view_type, active });
     if(workspace.rightSplit.collapsed) workspace.rightSplit.toggle();
   }
-  getViewType() { return this.constructor.view_type; }
-  getDisplayText() { return "Smart ChatGPT"; }
-  getIcon() { return "bot"; }
   onload() {
     console.log("loading view");
     this.initialize();

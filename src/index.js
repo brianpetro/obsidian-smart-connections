@@ -170,6 +170,11 @@ export default class SmartConnectionsPlugin extends Plugin {
     <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
     Object.values(this.item_views).forEach(View => {
       this.registerView(View.view_type, (leaf) => (new View(leaf, this)));
+      this.addCommand({
+        id: View.view_type,
+        name: "Open: " + View.display_text + " view",
+        callback: () => { View.open(this.app.workspace); }
+      });
     });
   }
   async check_for_updates() {

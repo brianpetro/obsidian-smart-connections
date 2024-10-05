@@ -11,19 +11,25 @@ export class SmartObsidianView extends ItemView {
     this.templates = views;
     this.ejs = ejs;
   }
-  get env() { return this.plugin.env; }
-  get config() { return this.plugin.settings; }
-  get settings() { return this.plugin.settings; }
+  // static
+  static get view_type() { throw new Error("view_type must be implemented in subclass"); }
+  static get display_text() { throw new Error("display_text must be implemented in subclass"); }
+  static get icon_name() { return "smart-connections"; }
+  static get_leaf(workspace) { return workspace.getLeavesOfType(this.view_type)?.find((leaf) => leaf.view instanceof this); }
+  static get_view(workspace) { return this.get_leaf(workspace)?.view; }
+  static open(workspace, active = true) {
+    if (this.get_leaf(workspace)) this.get_leaf(workspace).setViewState({ type: this.view_type, active });
+    else workspace.getRightLeaf(false).setViewState({ type: this.view_type, active });
+    if(workspace.rightSplit.collapsed) workspace.rightSplit.toggle();
+  }
+  static is_open(workspace) { return this.get_leaf(workspace)?.view instanceof this; }
+  // instance
+  getViewType() { return this.constructor.view_type; }
+  getDisplayText() { return this.constructor.display_text; }
+  getIcon() { return this.constructor.icon_name; }
   render_template(template_name, data) {
     if (!this.templates[template_name]) throw new Error(`Template '${template_name}' not found.`);
     return ejs.render(this.templates[template_name], data, { context: this.view_context });
-  }
-  get view_context() {
-    return {
-      attribution: this.templates.attribution,
-      get_icon: this.get_icon.bind(this),
-      settings: this.plugin.settings,
-    };
   }
   async wait_for_env_to_load() {
     if (!this.env?.collections_loaded) {
@@ -39,14 +45,15 @@ export class SmartObsidianView extends ItemView {
     }
   }
   get_icon(name) { return this.plugin.obsidian.getIcon(name).outerHTML; }
-  static get view_type() { }
-  static get_leaf(workspace) { return workspace.getLeavesOfType(this.view_type)?.find((leaf) => leaf.view instanceof this); }
-  static get_view(workspace) { return this.get_leaf(workspace)?.view; }
-  static open(workspace, active = true) {
-    if (this.get_leaf(workspace)) this.get_leaf(workspace).setViewState({ type: this.view_type, active });
-    else workspace.getRightLeaf(false).setViewState({ type: this.view_type, active });
-    if(workspace.rightSplit.collapsed) workspace.rightSplit.toggle();
-  }
-  static is_open(workspace) { return this.get_leaf(workspace)?.view instanceof this; }
   get container() { return this.containerEl.children[1]; }
+  get env() { return this.plugin.env; }
+  get config() { return this.plugin.settings; }
+  get settings() { return this.plugin.settings; }
+  get view_context() {
+    return {
+      attribution: this.templates.attribution,
+      get_icon: this.get_icon.bind(this),
+      settings: this.plugin.settings,
+    };
+  }
 }
