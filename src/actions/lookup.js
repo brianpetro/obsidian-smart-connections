@@ -49,29 +49,12 @@ export async function lookup(env, params={}) {
   //   ];
   // }
 
-// COSINE SIMILARITY
-function cos_sim(vector1, vector2) {
-  const dotProduct = vector1.reduce((acc, val, i) => acc + val * vector2[i], 0);
-  const normA = Math.sqrt(vector1.reduce((acc, val) => acc + val * val, 0));
-  const normB = Math.sqrt(vector2.reduce((acc, val) => acc + val * val, 0));
-  return normA === 0 || normB === 0 ? 0 : dotProduct / (normA * normB);
-}
-export function top_acc(_acc, item, ct = 10) {
-  if (_acc.items.size < ct) {
-    _acc.items.add(item);
-  } else if (item.sim > _acc.min) {
-    _acc.items.add(item);
-    _acc.items.delete(_acc.minItem);
-    _acc.minItem = Array.from(_acc.items).reduce((min, curr) => (curr.sim < min.sim ? curr : min));
-    _acc.min = _acc.minItem.sim;
-  }
-}
 
 // get nearest until next deviation exceeds std dev
 export function get_nearest_until_next_dev_exceeds_std_dev(nearest) {
   if(nearest.length === 0) return []; // return empty array if no items
   // get std dev of similarity
-  const sims = nearest.map((n) => n.sim);
+  const sims = nearest.map((n) => n.score);
   const mean = sims.reduce((a, b) => a + b) / sims.length;
   let std_dev = Math.sqrt(sims.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / sims.length);
   // slice where next item deviation is greater than std_dev
@@ -79,7 +62,7 @@ export function get_nearest_until_next_dev_exceeds_std_dev(nearest) {
   while (slice_i < nearest.length) {
     const next = nearest[slice_i + 1];
     if (next) {
-      const next_dev = Math.abs(next.sim - nearest[slice_i].sim);
+      const next_dev = Math.abs(next.score - nearest[slice_i].score);
       if (next_dev > std_dev) {
         if (slice_i < 3) std_dev = std_dev * 1.5;
         else break;
@@ -96,8 +79,8 @@ export function get_nearest_until_next_dev_exceeds_std_dev(nearest) {
 export function sort_by_len_adjusted_similarity(nearest) {
   // re-sort by quotient of similarity divided by len DESC
   nearest = nearest.sort((a, b) => {
-    const a_score = a.sim / a.tokens;
-    const b_score = b.sim / b.tokens;
+    const a_score = a.score / a.tokens;
+    const b_score = b.score / b.tokens;
     // if a is greater than b, return -1
     if (a_score > b_score)
       return -1;
@@ -110,11 +93,3 @@ export function sort_by_len_adjusted_similarity(nearest) {
   return nearest;
 }
 
-export function get_top_k_by_sim(results, opts) {
-  return Array.from((results.reduce((acc, item) => {
-    if(!item.data.embedding?.vec) return acc; // skip if no vec
-    item.sim = cos_sim(opts.vec, item.data.embedding.vec);
-    top_acc(acc, item, opts.k); // update acc
-    return acc;
-  }, { min: 0, items: new Set() })).items);
-}

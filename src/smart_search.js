@@ -19,8 +19,8 @@ export class SmartSearch {
       return collection.nearest(embedding.vec, filter)
         // sort by sim desc
         .sort((a, b) => {
-          if (a.sim > b.sim) return -1;
-          if (a.sim < b.sim) return 1;
+          if (a.score > b.score) return -1;
+          if (a.score < b.score) return 1;
           return 0;
         })
       ;
