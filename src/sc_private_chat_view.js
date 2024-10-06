@@ -4,6 +4,9 @@ export class SmartPrivateChatView extends ItemView {
   static get view_type() { return 'smart_private_chat'; }
   static get display_text() { return "Smart Connections Supporter Private Chat"; }
   static get icon_name() { return "users"; }
+  getViewType() { return this.constructor.view_type; }
+  getDisplayText() { return this.constructor.display_text; }
+  getIcon() { return this.constructor.icon_name; }
   static get_leaf(workspace) { return workspace.getLeavesOfType(this.view_type)?.find((leaf) => leaf.view instanceof this); }
   static open(workspace, active = true) {
     if (this.get_leaf(workspace)) this.get_leaf(workspace).setViewState({ type: this.view_type, active });
