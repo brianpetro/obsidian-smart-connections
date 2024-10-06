@@ -16,7 +16,8 @@ import { default_settings } from "./default_settings.js";
 import ejs from "../ejs.min.cjs";
 import templates from "../build/views.json" assert { type: "json" };
 // rename modules
-import { ScSmartView } from "./sc_smart_view.js";
+import { ScConnectionsView } from "./sc_connections_view.js";
+import { ScSearchView } from "./sc_search_view.js";
 import { SmartSearch } from "./smart_search.js";
 // v2.1
 import { ScChatView } from "./chat/sc_chat_view.js";
@@ -35,7 +36,8 @@ export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
   get item_views() {
     return {
-      ScSmartView,
+      ScConnectionsView,
+      ScSearchView,
       ScChatView,
       SmartChatGPTView,
       SmartPrivateChatView,
@@ -322,9 +324,9 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   get chat_view() { return ScChatView.get_view(this.app.workspace); }
   open_chat() { ScChatView.open(this.app.workspace); }
-  get view() { return ScSmartView.get_view(this.app.workspace); } 
-  open_view(active=true) { ScSmartView.open(this.app.workspace, active); }
-
+  get view() { return ScConnectionsView.get_view(this.app.workspace); } 
+  open_view(active=true) { ScConnectionsView.open(this.app.workspace, active); }
+  open_search_view(){ ScSearchView.open(this.app.workspace); }
   open_chatgpt() { SmartChatGPTView.open(this.app.workspace); }
   open_private_chat() { SmartPrivateChatView.open(this.app.workspace); }
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
