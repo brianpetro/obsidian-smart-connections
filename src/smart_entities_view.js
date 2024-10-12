@@ -34,16 +34,17 @@ export class SmartEntitiesView extends SmartObsidianView2 {
       return;
     }
     
+    const link = result.dataset.link || result.dataset.path;
     if(result.classList.contains("sc-collapsed")){
       if (this.plugin.obsidian.Keymap.isModEvent(event)) {
-        console.log("open_note", result.dataset.path);
-        this.plugin.open_note(result.dataset.path, event);
+        console.log("open_note", link);
+        this.plugin.open_note(link, event);
       } else {
         this.toggle_result(result);
       }
     } else {
-      console.log("open_note", result.dataset.path);
-      this.plugin.open_note(result.dataset.path, event);
+      console.log("open_note", link);
+      this.plugin.open_note(link, event);
     }
   }
   async toggle_result(result) {

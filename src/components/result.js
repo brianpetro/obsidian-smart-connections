@@ -14,6 +14,7 @@ export async function build_html(scope, opts = {}) {
     <div
       class="search-result${expanded_view ? '' : ' sc-collapsed'}"
       data-path="${item.path.replace(/"/g, '&quot;')}"
+      data-link="${item.link?.replace(/"/g, '&quot;') || ''}"
       data-collection="${item.collection_key}"
       data-score="${score}"
       draggable="true"
