@@ -41,7 +41,7 @@ export async function build_html(scope, opts = {}) {
 export async function render(scope, opts = {}) {
   let html = await build_html.call(this, scope, opts);
   const frag = this.create_doc_fragment(html);
-  return post_process.call(this, scope, frag, opts);
+  return await post_process.call(this, scope, frag, opts);
 }
 
 /**
@@ -79,7 +79,7 @@ export async function post_process(scope, frag, opts = {}) {
         elm.classList.remove("sc-collapsed");
         const collection_key = elm.dataset.collection;
         const entity = scope[collection_key].get(elm.dataset.path);
-        entity.render_entity(elm.querySelector("li"));
+        entity.render_item(elm.querySelector("li"));
       }
     });
     scope.settings.expanded_view = !expanded;

@@ -52,7 +52,7 @@ export class SmartEntitiesView extends SmartObsidianView2 {
     if(!result.querySelector("li").innerHTML){
       const collection_key = result.dataset.collection;
       const entity = this.env[collection_key].get(result.dataset.path);
-      await entity.render_entity(result.querySelector("li"));
+      await entity.render_item(result.querySelector("li"));
     }
   }
 }

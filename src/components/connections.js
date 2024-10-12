@@ -51,7 +51,7 @@ export async function post_process(scope, frag, opts = {}) {
         elm.classList.remove("sc-collapsed");
         const collection_key = elm.dataset.collection;
         const entity = scope.env[collection_key].get(elm.dataset.path);
-        entity.render_entity(elm.querySelector("li"));
+        entity.render_item(elm.querySelector("li"));
       }
     });
     scope.env.settings.expanded_view = !expanded;

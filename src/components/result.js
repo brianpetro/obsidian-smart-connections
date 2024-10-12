@@ -63,7 +63,7 @@ export async function post_process(scope, frag, opts = {}) {
   const entity = scope.item.env[collection_key].get(entity_key);
   
   if (entity) {
-    await entity.render_entity(li, opts);
+    await entity.render_item(li, opts);
   } else {
     li.innerHTML = "<p>Entity not found.</p>";
   }

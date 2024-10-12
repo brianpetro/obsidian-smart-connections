@@ -19,7 +19,7 @@ export async function render(scope) {
     </div>
   `;
   const frag = this.create_doc_fragment(html);
-  return post_process.call(this, scope, frag);
+  return await post_process.call(this, scope, frag);
 }
 
 export async function post_process(scope, frag) {

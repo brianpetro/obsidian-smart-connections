@@ -27,5 +27,5 @@ export async function render(scope, opts = {}) {
   `;
   const frag = this.create_doc_fragment(html);
   // imported post_process from smart-environment/components/settings.js
-  return post_process.call(this, scope, frag, opts);
+  return await post_process.call(this, scope, frag, opts);
 }
