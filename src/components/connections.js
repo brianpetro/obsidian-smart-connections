@@ -1,7 +1,7 @@
 import { render as render_results } from "./results.js";
 
 export async function build_html(scope, opts = {}) {
-
+  const context_name = (scope.link || scope.path).split('/').pop();
   const html = `<div class="sc-connections-view">
     <div class="sc-top-bar">
       <p class="sc-context" data-key="${scope.path}">
@@ -17,7 +17,7 @@ export async function build_html(scope, opts = {}) {
     </div>
     <div class="sc-bottom-bar">
       <span class="sc-context" data-key="${scope.path}" title="${scope.path}">
-        ${scope.path.split('/').pop().split('.').shift()}${opts.re_ranked ? ' (re-ranked)' : ''}
+        ${context_name}${opts.re_ranked ? ' (re-ranked)' : ''}
       </span>
       ${opts.attribution || ''}
     </div>

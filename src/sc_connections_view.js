@@ -9,13 +9,11 @@ export class ScConnectionsView extends SmartEntitiesView {
 
   register_plugin_events() {
     this.plugin.registerEvent(this.app.workspace.on('file-open', (file) => {
-      console.log("file-open", file?.path);
       if (!file) return;
       this.render_view(file?.path);
     }));
 
     this.plugin.registerEvent(this.app.workspace.on('active-leaf-change', (leaf) => {
-      console.log("active-leaf-change", leaf);
       if (leaf.view instanceof this.constructor) {
         this.render_view();
       }
@@ -35,6 +33,16 @@ export class ScConnectionsView extends SmartEntitiesView {
       entity = collection.get(key);
     }
     if (!entity) return this.plugin.notices.show("no entity", "No entity found for key: " + key);
+    // if path ends with .pdf
+    if(entity.collection_key === "smart_sources" && entity?.path?.endsWith(".pdf")){
+      const page_number = this.app.workspace.getActiveFileView().contentEl.firstChild.firstChild.children[8].value;
+      if(!["1", 1].includes(page_number)){ // skip page 1
+        const page_block = entity.blocks?.find(b => b.sub_key.includes(`age ${page_number}`));
+        if(page_block){
+          return await this.render_view(page_block);
+        }
+      }
+    }
     if(this.current_context === entity?.key) return; // already rendered
     this.current_context = entity?.key;
 
