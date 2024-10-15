@@ -288,7 +288,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         ;
         const rand = Math.floor(Math.random() * connections.length/2); // divide by 2 to limit to top half of results
         const rand_entity = connections[rand]; // get random from nearest cache
-        this.open_note(rand_entity.path);
+        this.open_note(rand_entity.item.path);
       }
     });
     // open chat command
