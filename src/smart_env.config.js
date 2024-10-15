@@ -86,13 +86,12 @@ export const smart_env_config = {
   default_settings: {
     is_obsidian_vault: true,
     smart_blocks: {
-      embed_model: {
-        model_key: 'TaylorAI/bge-micro-v2',
-      },
+      embed_blocks: true,
     },
     smart_sources: {
       embed_model: {
         model_key: 'TaylorAI/bge-micro-v2',
+        legacy_transformers: true,
       },
     },
     file_exclusions: 'Untitled',
