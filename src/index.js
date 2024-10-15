@@ -230,13 +230,13 @@ export default class SmartConnectionsPlugin extends Plugin {
       icon: "pencil_icon",
       hotkeys: [],
       editorCallback: (editor) => {
-        if(editor.somethingSelected()) this.view.render_nearest(editor.getSelection());
-        else if(editor.getCursor()?.line){ // if cursor is on a line greater than 0
+        if(editor.getCursor()?.line){ // if cursor is on a line greater than 0
           const line = editor.getCursor().line;
-          const block = this.env.smart_sources.current_note.get_block_by_line(line);
-          this.view.render_nearest(block);
-        }
-        else this.view.render_nearest();
+          const source = this.env.smart_sources.current_note;
+          let item = source.get_block_by_line(line);
+          if(item?.vec) return this.view.render_view(item);
+          else this.view.render_view(source);
+        }else this.view.render_view();
       }
     });
     // make connections command
@@ -258,7 +258,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         await this.env.smart_sources.process_embed_queue();
         setTimeout(() => {
           // refresh view
-          this.view.render_nearest();
+          this.view.render_view();
         }, 1000);
       }
     });
@@ -282,8 +282,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         const curr_file = this.app.workspace.getActiveFile();
         const entity = this.env.smart_sources.get(curr_file.path);
         const connections = entity.find_connections({
-            key: curr_file.path,
-            limit: 20,
+            filter: {limit: 20},
           })
         ;
         const rand = Math.floor(Math.random() * connections.length/2); // divide by 2 to limit to top half of results
@@ -327,6 +326,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   get view() { return ScConnectionsView.get_view(this.app.workspace); } 
   open_view(active=true) { ScConnectionsView.open(this.app.workspace, active); }
   open_search_view(){ ScSearchView.open(this.app.workspace); }
+  get search_view() { return ScSearchView.get_view(this.app.workspace); }
   open_chatgpt() { SmartChatGPTView.open(this.app.workspace); }
   open_private_chat() { SmartPrivateChatView.open(this.app.workspace); }
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }

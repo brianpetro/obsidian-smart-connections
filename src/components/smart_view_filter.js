@@ -31,6 +31,14 @@ export async function render(scope) {
       data-setting="show_full_path"
       data-callback="refresh_smart_view"
     ></div>
+    <div class="setting-component"
+      data-name="Results Limit"
+      data-setting="smart_view_filter.results_limit"
+      data-description="Limit the number of results."
+      data-type="number"
+      data-default="20"
+      data-callback="refresh_smart_view"
+    ></div>
     <!-- toggle exclude_inlinks -->
     <div class="setting-component"
       data-name="Exclude Inlinks"

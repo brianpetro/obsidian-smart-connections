@@ -1,7 +1,7 @@
 import { render as render_results } from "./results.js";
 
 export async function build_html(scope, opts = {}) {
-  const context_name = (scope.link || scope.path).split('/').pop();
+  const context_name = (scope.path).split('/').pop();
   const html = `<div class="sc-connections-view">
     <div class="sc-top-bar">
       <p class="sc-context" data-key="${scope.path}">
