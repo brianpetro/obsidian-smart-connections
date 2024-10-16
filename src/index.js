@@ -250,7 +250,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         const curr_file = this.app.workspace.getActiveFile();
         if(!curr_file?.path) return console.warn("No active file", curr_file);
         const source = this.env.smart_sources.get(curr_file.path);
-        if(!source) this.notices?.show("note not found", [`Note not found: ${curr_file.path}`]);
+        if(!source) return this.notices?.show("note not found", [`Note not found: ${curr_file.path}`]);
         source.data = {path: curr_file.path}; // force meta_changed
         // clear file at source.data_path
         await this.env.data_fs.remove(source.data_path);
