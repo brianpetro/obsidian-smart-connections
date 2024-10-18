@@ -249,11 +249,15 @@ export default class SmartConnectionsPlugin extends Plugin {
         // get current note
         const curr_file = this.app.workspace.getActiveFile();
         if(!curr_file?.path) return console.warn("No active file", curr_file);
-        const source = this.env.smart_sources.get(curr_file.path);
-        if(!source) return this.notices?.show("note not found", [`Note not found: ${curr_file.path}`]);
-        source.data = {path: curr_file.path}; // force meta_changed
-        // clear file at source.data_path
-        await this.env.data_fs.remove(source.data_path);
+        let source = this.env.smart_sources.get(curr_file.path);
+        if(source) {
+          source.data = {path: curr_file.path}; // force meta_changed
+          // clear file at source.data_path
+          await this.env.data_fs.remove(source.data_path);
+        }else{
+          this.env.smart_sources.fs.include_file(curr_file.path); // add to fs
+          source = this.env.smart_sources.init_file_path(curr_file.path); // init source
+        }
         await source.import();
         await this.env.smart_sources.process_embed_queue();
         setTimeout(() => {
