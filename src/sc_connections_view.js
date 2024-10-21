@@ -68,7 +68,7 @@ export class ScConnectionsView extends SmartEntitiesView {
     });
     overlay_container.innerHTML = '';
     overlay_container.appendChild(frag);
-    on_open_overlay(overlay_container);
+    this.smart_view.on_open_overlay(overlay_container);
   }
   refresh_smart_view() {
     console.log("refresh_smart_view");
@@ -105,11 +105,6 @@ export class ScConnectionsView extends SmartEntitiesView {
       }
     });
   }
-}
-function on_open_overlay(overlay_container) {
-  overlay_container.style.transition = "background-color 0.5s ease-in-out";
-  overlay_container.style.backgroundColor = "var(--bold-color)";
-  setTimeout(() => { overlay_container.style.backgroundColor = ""; }, 500);
 }
 
 import { Modal } from "obsidian";
