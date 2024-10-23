@@ -53,17 +53,24 @@ export async function render(scope, opts = {}) {
  */
 export async function post_process(scope, frag, opts = {}) {
   const query_input = frag.querySelector('#query');
-  const search_button = frag.querySelector('#search');
+  const results_container = frag.querySelector('.sc-list');
+  const render_search = async (search_text, results_container) => {
+    const results = await scope[opts.collection_key].lookup({ hypotheticals: [search_text] });
+    results_container.innerHTML = ''; // Clear previous results
+    const results_frag = await render_results.call(this, scope, { ...opts, results });
+    Array.from(results_frag.children).forEach((elm) => results_container.appendChild(elm));
+  }
+  if(opts.search_text){
+    query_input.value = opts.search_text;
+    await render_search(opts.search_text, results_container);
+  }
   
+  const search_button = frag.querySelector('#search');
   search_button.addEventListener('click', async (event) => {
     const container = event.target.closest('#sc-search-view');
     const search_text = query_input.value.trim();
     if (search_text) {
-      const results = await scope[opts.collection_key].lookup({ hypotheticals: [search_text] });
-      const sc_list = container.querySelector('.sc-list');
-      sc_list.innerHTML = ''; // Clear previous results
-      const results_frag = await render_results.call(this, scope, { ...opts, results });
-      Array.from(results_frag.children).forEach((elm) => sc_list.appendChild(elm));
+      await render_search(search_text, results_container);
     }
   });
 
@@ -86,4 +93,5 @@ export async function post_process(scope, frag, opts = {}) {
     fold_toggle.innerHTML = this.get_icon_html(scope.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical');
   });
   return frag;
+
 }

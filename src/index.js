@@ -355,7 +355,36 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   // SUPPORTERS
   async render_code_block(contents, container, ctx) {
-    return this.view.render_nearest((contents.trim().length? contents : ctx.sourcePath), container);
+    let frag;
+    if(contents.trim().length) {
+      frag = await this.env.opts.components.search.call(
+        this.env.smart_view,
+        this.env,
+        {
+          collection_key: "smart_sources", // TODO: make it configurable which collection to search
+          add_result_listeners: this.add_result_listeners.bind(this),
+          attribution: this.attribution,
+          search_text: contents,
+        }
+      );
+    }else{
+      const entity = this.env.smart_sources.get(ctx.sourcePath);
+      if(!entity) return container.innerHTML = 'Entity not found: ' + ctx.sourcePath;
+      frag = await this.env.opts.components.connections.call(
+        this.env.smart_view,
+        entity,
+        {
+          add_result_listeners: this.add_result_listeners.bind(this),
+          attribution: this.attribution,
+          refresh_smart_view: () => {
+            this.render_code_block(contents, container, ctx);
+          },
+          open_search_view: this.open_search_view.bind(this),
+        }
+      );
+    }
+    container.innerHTML = '';
+    container.appendChild(frag);
   }
   async render_code_block_context(results, container, ctx) {
     results = this.get_entities_from_context_codeblock(results);
@@ -562,6 +591,65 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   remove_setting_elm(path, value, elm) {
     elm.remove();
+  }
+
+
+  // ENTITIES VIEW
+  add_result_listeners(elm, source) {
+    const toggle_result = async (result) => {
+      result.classList.toggle("sc-collapsed");
+      // if li contents is empty, render it
+      if(!result.querySelector("li").innerHTML){
+        const collection_key = result.dataset.collection;
+        const entity = this.env[collection_key].get(result.dataset.path);
+        await entity.render_item(result.querySelector("li"));
+      }
+    }
+    const handle_result_click = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const target = event.target;
+      const result = target.closest(".search-result");
+      if (target.classList.contains("svg-icon")) {
+        toggle_result(result);
+        return;
+      }
+      
+      const link = result.dataset.link || result.dataset.path;
+      if(result.classList.contains("sc-collapsed")){
+        if (this.obsidian.Keymap.isModEvent(event)) {
+          console.log("open_note", link);
+          this.open_note(link, event);
+        } else {
+          toggle_result(result);
+        }
+      } else {
+        console.log("open_note", link);
+        this.open_note(link, event);
+      }
+    }
+    elm.addEventListener("click", handle_result_click.bind(this));
+    const path = elm.querySelector("li").dataset.key;
+    elm.addEventListener('dragstart', (event) => {
+      const drag_manager = this.app.dragManager;
+      const file_path = path.split("#")[0];
+      const file = this.app.metadataCache.getFirstLinkpathDest(file_path, '');
+      const drag_data = drag_manager.dragFile(event, file);
+      drag_manager.onDragStart(event, drag_data);
+    });
+
+    if (path.indexOf("{") === -1) {
+      elm.addEventListener("mouseover", (event) => {
+        this.app.workspace.trigger("hover-link", {
+          event,
+          // source: this.constructor.view_type,
+          source,
+          hoverParent: elm.parentElement,
+          targetEl: elm,
+          linktext: path,
+        });
+      });
+    }
   }
 
 }

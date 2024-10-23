@@ -1,4 +1,5 @@
 import { render as render_results } from "./results.js";
+import { render as filter_settings_component } from "./smart_view_filter.js";
 
 export async function build_html(scope, opts = {}) {
   const context_name = (scope.path).split('/').pop();
@@ -39,6 +40,19 @@ export async function render(scope, opts = {}) {
 
 export async function post_process(scope, frag, opts = {}) {
   const container = frag.querySelector('.sc-list');
+  const overlay_container = frag.querySelector(".sc-overlay");
+  const render_filter_settings = async () => {
+    if(!overlay_container) throw new Error("Container is required");
+    overlay_container.innerHTML = '';
+    const filter_frag = await filter_settings_component.call(this, {
+      settings: scope.env.settings,
+      refresh_smart_view: opts.refresh_smart_view,
+      refresh_smart_view_filter: render_filter_settings.bind(this),
+    });
+    overlay_container.innerHTML = '';
+    overlay_container.appendChild(filter_frag);
+    this.on_open_overlay(overlay_container);
+  }
 
   // Add fold/unfold all functionality
   const toggle_button = frag.querySelector(".sc-fold-toggle");
@@ -57,6 +71,23 @@ export async function post_process(scope, frag, opts = {}) {
     scope.env.settings.expanded_view = !expanded;
     toggle_button.innerHTML = this.get_icon_html(scope.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical');
     toggle_button.setAttribute('aria-label', scope.env.settings.expanded_view ? 'Fold all' : 'Unfold all');
+  });
+
+  const filter_button = frag.querySelector(".sc-filter");
+  filter_button.addEventListener("click", () => {
+    render_filter_settings();
+  });
+
+  // refresh smart view
+  const refresh_button = frag.querySelector(".sc-refresh");
+  refresh_button.addEventListener("click", () => {
+    opts.refresh_smart_view();
+  });
+
+  // search
+  const search_button = frag.querySelector(".sc-search");
+  search_button.addEventListener("click", () => {
+    opts.open_search_view();
   });
 
   return frag;
