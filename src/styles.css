@@ -183,6 +183,7 @@ div[data-type^="smart-connections-"] {
   width: 100%;
   overflow: hidden;
   user-select: text;
+  overflow-y: auto;
 }
 .sc-message-container {
   border: 1px solid var(--divider-color);

@@ -7,7 +7,6 @@ import {
 import { SourceAdapter } from "smart-sources/adapters/_adapter.js";
 import { MarkdownSourceAdapter } from "smart-sources/adapters/markdown.js";
 import { SmartCollectionMultiFileDataAdapter } from "smart-collections/adapters/multi_file";
-import { SmartChunks } from 'smart-chunks/smart_chunks.js';
 import { SmartEmbedModel } from "smart-embed-model";
 import { SmartEmbedOpenAIAdapter } from "smart-embed-model/adapters/openai.js";
 import { SmartEmbedTransformersIframeAdapter } from "smart-embed-model/adapters/transformers_iframe.js";
@@ -65,7 +64,6 @@ export const smart_env_config = {
         openai: SmartEmbedOpenAIAdapter,
       },
     },
-    smart_chunks: SmartChunks,
     smart_fs: {
       class: SmartFs,
       adapter: SmartFsObsidianAdapter,
