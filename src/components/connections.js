@@ -12,6 +12,11 @@ export async function build_html(scope, opts = {}) {
       <button class="sc-fold-toggle">${this.get_icon_html(scope.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical')}</button>
       <button class="sc-filter">${this.get_icon_html('sliders-horizontal')}</button>
       <button class="sc-search">${this.get_icon_html('search')}</button>
+      <button class="sc-help" 
+              aria-label="Open help documentation"
+              title="Open help documentation">
+        ${this.get_icon_html('help-circle')}
+      </button>
     </div>
     <div id="settings" class="sc-overlay"></div>
     <div class="sc-list">
@@ -30,7 +35,7 @@ export async function build_html(scope, opts = {}) {
 export async function render(scope, opts = {}) {
   let html = await build_html.call(this, scope, opts);
   const frag = this.create_doc_fragment(html);
-  const results = scope.find_connections(opts);
+  const results = scope.find_connections({ ...opts, exclude_source_connections: scope.env.smart_blocks.settings.embed_blocks });
   
   const sc_list = frag.querySelector('.sc-list');
   const results_frag = await render_results.call(this, scope, { ...opts, results });
@@ -88,6 +93,12 @@ export async function post_process(scope, frag, opts = {}) {
   const search_button = frag.querySelector(".sc-search");
   search_button.addEventListener("click", () => {
     opts.open_search_view();
+  });
+
+  // help documentation
+  const help_button = frag.querySelector(".sc-help");
+  help_button.addEventListener("click", () => {
+    window.open("https://docs.smartconnections.app/connections-pane", "_blank");
   });
 
   return frag;
