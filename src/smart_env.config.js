@@ -20,7 +20,7 @@ import { SmartSettings } from "smart-settings";
 import { render as source_settings_component } from 'smart-sources/components/settings.js';
 import { render as env_settings_component } from './components/env_settings.js';
 import { render as connections_component } from './components/connections.js';
-import { render as search_component } from './components/search.js';
+import { render as search_component } from './components/lookup.js';
 // import { SmartViewNodeAdapter } from 'smart-view/adapters/node.js';
 
 export const smart_env_config = {

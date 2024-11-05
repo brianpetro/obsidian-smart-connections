@@ -12,7 +12,7 @@ export async function build_html(scope, opts = {}) {
       <button class="sc-search">${this.get_icon_html('search')}</button>
     </div>
     <div class="sc-search-container">
-      <h2>Search Smart Connections</h2>
+      <h2>Smart Lookup</h2>
       <div class="sc-search-input">
         <textarea
           id="query"
