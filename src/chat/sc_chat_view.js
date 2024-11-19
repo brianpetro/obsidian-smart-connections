@@ -9,7 +9,7 @@ export class ScChatView extends SmartObsidianView {
     await this.wait_for_env_to_load();
     if(this.env.chat_ui) this.env.chat_ui.container = this.container; // set new container if chat_ui exists
     // wait for chats to be initialized
-    while (!this.env.chats) await new Promise(r => setTimeout(r, 300));
+    while (!this.env?.chats) await new Promise(r => setTimeout(r, 300));
     await this.env.chats.new();
     this.app.workspace.registerHoverLinkSource(ScChatView.view_type, {
       display: 'Smart Chat Links',

@@ -131,13 +131,30 @@ export default class SmartConnectionsPlugin extends Plugin {
     await this.wait_for_obsidian_sync();
   }
 
+  get chat_model_settings() {
+    if(!this.env.settings.chat_model) this.env.settings.chat_model = {};
+    return this.env.settings.chat_model;
+  }
   init_chat_model(chat_model_platform_key=null) {
-    let chat_model_config = {};
+    let chat_platform_config = {};
     chat_model_platform_key = chat_model_platform_key ?? this.settings.chat_model_platform_key;
-    if(chat_model_platform_key === 'open_router' && !this.settings[chat_model_platform_key]?.api_key) chat_model_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
-    else chat_model_config = this.settings[chat_model_platform_key] ?? {};
-    this.env.chat_model = new this.chat_classes.ScChatModel(this.env, chat_model_platform_key, {...chat_model_config });
-    this.env.chat_model._request_adapter = this.obsidian.requestUrl;
+    // if(chat_model_platform_key === 'open_router' && !this.env.settings.chat_model?.open_router?.api_key) chat_platform_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
+    // else chat_platform_config = this.env.settings.chat_model[chat_model_platform_key] ?? {};
+    // this.env.chat_model = new this.chat_classes.ScChatModel(this.env, chat_model_platform_key, {...chat_model_config });
+    // this.env.chat_model._request_adapter = this.obsidian.requestUrl;
+    this.env.chat_model = this.env.init_module('smart_chat_model', {
+      ...chat_platform_config,
+      platform_key: chat_model_platform_key,
+      model_config: {},
+      settings: this.env.settings.chat_model,
+      env: this.env,
+      reload_model: this.reload_chat_model.bind(this),
+    });
+  }
+  reload_chat_model() {
+    this.env.chat_model.unload();
+    this.env.chat_model = null;
+    this.init_chat_model();
   }
 
   async init_chat(){

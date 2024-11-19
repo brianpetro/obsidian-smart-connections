@@ -22,6 +22,17 @@ import { render as env_settings_component } from './components/env_settings.js';
 import { render as connections_component } from './components/connections.js';
 import { render as search_component } from './components/lookup.js';
 // import { SmartViewNodeAdapter } from 'smart-view/adapters/node.js';
+import { SmartChatModel } from "smart-chat-model";
+import {
+  SmartChatModelAnthropicAdapter,
+  SmartChatModelOpenaiAdapter,
+  SmartChatModelGeminiAdapter,
+  SmartChatModelCohereAdapter,
+  SmartChatModelOpenRouterAdapter,
+  SmartChatModelCustomAdapter,
+} from "smart-chat-model/adapters.js";
+import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-request";
+import { requestUrl } from "obsidian";
 
 export const smart_env_config = {
   global_ref: window,
@@ -56,7 +67,21 @@ export const smart_env_config = {
     SmartBlock,
   },
   modules: {
-    // smart_chat_model: SmartChatModel, // TODO: migrate to v2 chat model
+    smart_chat_model: {
+      class: SmartChatModel,
+      adapters: {
+        openai: SmartChatModelOpenaiAdapter,
+        anthropic: SmartChatModelAnthropicAdapter,
+        cohere: SmartChatModelCohereAdapter,
+        gemini: SmartChatModelGeminiAdapter,
+        open_router: SmartChatModelOpenRouterAdapter,
+        custom: SmartChatModelCustomAdapter,
+      },
+      http_adapter: new SmartHttpRequest({
+        adapter: SmartHttpObsidianRequestAdapter,
+        obsidian_request_url: requestUrl,
+      }),
+    },
     smart_embed_model: {
       class: SmartEmbedModel,
       adapters: {
