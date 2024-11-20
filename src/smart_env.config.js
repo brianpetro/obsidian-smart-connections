@@ -30,6 +30,7 @@ import {
   SmartChatModelCohereAdapter,
   SmartChatModelOpenRouterAdapter,
   SmartChatModelCustomAdapter,
+  SmartChatModelOllamaAdapter,
 } from "smart-chat-model/adapters.js";
 import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-request";
 import { requestUrl } from "obsidian";
@@ -72,10 +73,11 @@ export const smart_env_config = {
       adapters: {
         openai: SmartChatModelOpenaiAdapter,
         anthropic: SmartChatModelAnthropicAdapter,
-        cohere: SmartChatModelCohereAdapter,
+        // cohere: SmartChatModelCohereAdapter,
         gemini: SmartChatModelGeminiAdapter,
         open_router: SmartChatModelOpenRouterAdapter,
         custom: SmartChatModelCustomAdapter,
+        ollama: SmartChatModelOllamaAdapter,
       },
       http_adapter: new SmartHttpRequest({
         adapter: SmartHttpObsidianRequestAdapter,

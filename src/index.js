@@ -136,15 +136,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     return this.env.settings.chat_model;
   }
   init_chat_model(chat_model_platform_key=null) {
-    let chat_platform_config = {};
-    chat_model_platform_key = chat_model_platform_key ?? this.settings.chat_model_platform_key;
-    // if(chat_model_platform_key === 'open_router' && !this.env.settings.chat_model?.open_router?.api_key) chat_platform_config.api_key = process.env.DEFAULT_OPEN_ROUTER_API_KEY;
-    // else chat_platform_config = this.env.settings.chat_model[chat_model_platform_key] ?? {};
-    // this.env.chat_model = new this.chat_classes.ScChatModel(this.env, chat_model_platform_key, {...chat_model_config });
-    // this.env.chat_model._request_adapter = this.obsidian.requestUrl;
     this.env.chat_model = this.env.init_module('smart_chat_model', {
-      ...chat_platform_config,
-      platform_key: chat_model_platform_key,
       model_config: {},
       settings: this.env.settings.chat_model,
       env: this.env,
@@ -152,9 +144,12 @@ export default class SmartConnectionsPlugin extends Plugin {
     });
   }
   reload_chat_model() {
+    console.log('reloading chat model');
     this.env.chat_model.unload();
     this.env.chat_model = null;
     this.init_chat_model();
+    // this.env.chat_model.render_settings();
+    this.env.chat_ui.chat_settings.render();
   }
 
   async init_chat(){
