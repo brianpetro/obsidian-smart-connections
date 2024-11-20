@@ -50,13 +50,13 @@ export class ScActions {
     // if contains self referential keywords or folder reference
     if (should_trigger_lookup) {
       console.log("should trigger retrieval");
-      if(this.actions.lookup && this.env.chat_model.config.actions){
-        // sets current.tool_choice to lookup
-        this.env.chats.current.tool_choice = "lookup";
-        // adds lookup to body.tools in prepare_request_body
-      }else{
+      // if(this.actions.lookup && this.env.chat_model.can_use_tools){
+      //   // sets current.tool_choice to lookup
+      //   this.env.chats.current.tool_choice = "lookup";
+      //   // adds lookup to body.tools in prepare_request_body
+      // }else{
         await this.get_context_hyde(user_input); // get hyde
-      }
+      // }
     }
   }
   async should_trigger_retrieval(user_input) {
@@ -74,7 +74,7 @@ export class ScActions {
       { role: "system", content: hyd_input },
       { role: "user", content: user_input }
     ];
-    const hyd = await this.env.chat_model.complete(
+    const hyd_resp = await this.env.chat_model.complete(
       {
         messages: chatml,
         stream: false,
@@ -84,6 +84,8 @@ export class ScActions {
       }, 
       false, // skip render
     );
+    console.log({hyd_resp});
+    const hyd = hyd_resp.choices[0].message.content;
     this.env.chats.current.add_message({
       role: "assistant",
       tool_calls: [{
@@ -93,7 +95,9 @@ export class ScActions {
         }
       }]
     });
-    const results = (await lookup(this.env, { hypotheticals: [hyd] }));
+    console.log("lookup", hyd);
+    const results = await this.env.smart_sources.lookup({ hypotheticals: [hyd] });
+    console.log({results});
     await this.env.chats.current.add_tool_output("lookup", results);
     return;
   }
