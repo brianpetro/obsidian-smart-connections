@@ -138,7 +138,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   init_chat_model(chat_model_platform_key=null) {
     this.env.chat_model = this.env.init_module('smart_chat_model', {
       model_config: {},
-      settings: this.env.settings.chat_model,
+      settings: this.chat_model_settings,
       env: this.env,
       reload_model: this.reload_chat_model.bind(this),
     });
