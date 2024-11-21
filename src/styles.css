@@ -486,3 +486,90 @@ div[data-type^="smart-connections-"] {
     margin-bottom: 10px;
   }
 }
+
+
+
+/* SMART CHAT v2 */
+.sc-context-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 1rem 1rem;
+  display: none; /* Ensure it's hidden by default */
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sc-context-header[aria-expanded="true"] + .sc-context-list {
+  display: flex; /* Show when expanded */
+}
+.sc-context-header[aria-expanded="false"] + .sc-context-list {
+  display: none; /* Hide when collapsed */
+}
+
+.sc-context-toggle-icon {
+  margin-left: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.sc-context-header[aria-expanded="true"] .sc-context-toggle-icon {
+  transform: rotate(180deg); /* Flips icon when expanded */
+}
+
+.sc-context-container {
+  border: 1px solid var(--divider-color);
+  border-radius: 10px;
+  margin: 0.5rem 0;
+  background-color: var(--background-primary-alt);
+  overflow: hidden;
+  max-width: 100%;
+  margin: 10px;
+}
+
+.sc-context-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.88rem 1rem;
+  background-color: var(--background-primary);
+  color: var(--text-muted);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  user-select: none;
+}
+
+.sc-context-header:hover {
+  background-color: var(--background-primary-hover);
+}
+
+.sc-context-header:focus {
+  outline: 2px solid var(--text-muted);
+  outline-offset: 2px;
+}
+
+.sc-context-item {
+  padding: 0.5rem;
+  border-radius: var(--radius-s);
+  background-color: var(--background-secondary);
+  color: var(--text-normal);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--font-smallest);
+}
+
+.sc-context-item:hover {
+  background-color: var(--background-secondary-hover);
+}
+
+.sc-context-item-path {
+  font-weight: var(--font-medium);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 70%;
+}
+
+.sc-context-item-score {
+  font-size: var(--font-small);
+  color: var(--color-gray-40);
+}
