@@ -173,7 +173,7 @@ div[data-type^="smart-connections-"] {
   align-items: center;
   justify-content: flex-end;
   height: 100%;
-  background-color: var(--background-primary-alt);
+  /* background-color: var(--background-primary-alt); */
 }
 .sc-chat-box {
   display: flex;
@@ -195,6 +195,7 @@ div[data-type^="smart-connections-"] {
   width: 100%;
   height: 100%;
   overflow-y: auto;
+  background-color: var(--background-primary-alt);
 }
 .sc-message {
   max-width: 90ch;
