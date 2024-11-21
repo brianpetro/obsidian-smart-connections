@@ -20,16 +20,12 @@ import { ScConnectionsView } from "./sc_connections_view.js";
 import { ScSearchView } from "./sc_search_view.js";
 import { SmartSearch } from "./smart_search.js";
 // v2.1
-import { ScChatView } from "./chat/sc_chat_view.js";
+import { SmartChatsView } from "./smart_chat_view.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";
 import { ScActionsUx } from "./sc_actions_ux.js";
 import { open_note } from "./open_note.js";
 import { SmartChatGPTView } from "./sc_chatgpt_view.js";
 import { SmartPrivateChatView } from "./sc_private_chat_view.js";
-import { ScChatModel } from "./chat/sc_chat_model.js";
-import { ScChatsUI } from "./chat/sc_chats_ui.js";
-import { ScChats } from "./chat/sc_chats.js";
-import { ScActions } from "./sc_actions.js";
 import { ScAppConnector } from "./sc_app_connector.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
@@ -38,7 +34,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     return {
       ScConnectionsView,
       ScSearchView,
-      ScChatView,
+      SmartChatsView,
       SmartChatGPTView,
       SmartPrivateChatView,
     }
@@ -57,13 +53,11 @@ export default class SmartConnectionsPlugin extends Plugin {
       ejs: ejs,
       templates: templates,
       request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
-      chat_classes: this.chat_classes,
     };
     // mobile enable/disable
     if(this.obsidian.Platform.isMobile && !this.settings.enable_mobile) config.prevent_load_on_init = true;
     return config;
   }
-  get chat_classes() { return { ScActions, ScChatsUI, ScChats, ScChatModel }; }
   get_tfile(file_path) { return this.app.vault.getAbstractFileByPath(file_path); }
   async read_file(tfile_or_path) {
     const t_file = (typeof tfile_or_path === 'string') ? this.get_tfile(tfile_or_path) : tfile_or_path; // handle string (file_path) or Tfile input
@@ -97,9 +91,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     console.log("loading env");
     await this.load_env();
     console.log("Smart Connections v2 loaded");
-    // run init chat last because buggy (seems to not finish resolving)
-    this.init_chat_model();
-    await this.init_chat();
   }
   register_code_blocks() {
     this.register_code_block("smart-connections", "render_code_block"); // code-block renderer
@@ -129,37 +120,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   async ready_to_load_collections() {
     await new Promise(r => setTimeout(r, 5000)); // wait 5 seconds for other processes to finish
     await this.wait_for_obsidian_sync();
-  }
-
-  get chat_model_settings() {
-    if(!this.env.settings.chat_model) this.env.settings.chat_model = {};
-    return this.env.settings.chat_model;
-  }
-  init_chat_model(chat_model_platform_key=null) {
-    this.env.chat_model = this.env.init_module('smart_chat_model', {
-      model_config: {},
-      settings: this.chat_model_settings,
-      env: this.env,
-      reload_model: this.reload_chat_model.bind(this),
-    });
-  }
-  reload_chat_model() {
-    console.log('reloading chat model');
-    this.env.chat_model.unload();
-    this.env.chat_model = null;
-    this.init_chat_model();
-    // this.env.chat_model.render_settings();
-    this.env.chat_ui.chat_settings.render();
-  }
-
-  async init_chat(){
-    this.env.actions = new this.chat_classes.ScActions(this.env);
-    this.env.actions.init();
-    // wait for chat_view containerEl to be available
-    while (!this.chat_view?.containerEl) await new Promise(r => setTimeout(r, 300));
-    this.env.chat_ui = new this.chat_classes.ScChatsUI(this.env, this.chat_view.container);
-    this.env.chats = new this.chat_classes.ScChats(this.env);
-    await this.env.chats.load_all();
   }
 
   new_user() {
@@ -337,8 +297,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     const notice_id = typeof message === 'string' ? message : message[0];
     return this.notices.show(notice_id, message, opts);
   }
-  get chat_view() { return ScChatView.get_view(this.app.workspace); }
-  open_chat() { ScChatView.open(this.app.workspace); }
+  get chat_view() { return SmartChatsView.get_view(this.app.workspace); }
+  open_chat() { SmartChatsView.open(this.app.workspace); }
   get view() { return ScConnectionsView.get_view(this.app.workspace); } 
   open_view(active=true) { ScConnectionsView.open(this.app.workspace, active); }
   open_search_view(){ ScSearchView.open(this.app.workspace); }
