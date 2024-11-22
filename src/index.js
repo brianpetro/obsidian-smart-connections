@@ -79,7 +79,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.notices = new this.smart_env_config.modules.smart_notices.class(this);
     this.smart_connections_view = null;
     this.add_commands(); // add commands
-    this.register_views(); // register chat view type
+    this.register_views();
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
     await this.check_for_updates();
     this._api = new SmartSearch(this);

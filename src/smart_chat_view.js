@@ -1,4 +1,5 @@
 import { SmartObsidianView2 } from "./smart_obsidian_view2.js";
+import { FuzzySuggestModal } from "obsidian";
 
 export class SmartChatsView extends SmartObsidianView2 {
   static get view_type() { return "smart-chat-view"; }
@@ -25,6 +26,7 @@ export class SmartChatsView extends SmartObsidianView2 {
       open_file_suggestion_modal: this.open_file_suggestion_modal.bind(this),
       open_folder_suggestion_modal: this.open_folder_suggestion_modal.bind(this),
       open_system_prompt_modal: this.open_system_prompt_modal.bind(this),
+      open_image_suggestion_modal: this.open_image_suggestion_modal.bind(this),
     });
 
 
@@ -140,6 +142,12 @@ export class SmartChatsView extends SmartObsidianView2 {
     if (!this.system_prompt_selector) this.system_prompt_selector = new ScSystemPromptSelectModal(this.plugin.app, this);
     this.system_prompt_selector.open();
   }
+  async open_image_suggestion_modal() {
+    if (!this.image_selector) {
+      this.image_selector = new ScImageSelectModal(this.plugin.app, this);
+    }
+    this.image_selector.open();
+  }
   /**
    * Inserts selected text from a suggestion modal into the chat input.
    * @param {string} insert_text - The text to insert.
@@ -158,7 +166,6 @@ export class SmartChatsView extends SmartObsidianView2 {
 }
 
 
-import { FuzzySuggestModal, } from "obsidian";
 // File Select Fuzzy Suggest Modal
 class ScFileSelectModal extends FuzzySuggestModal {
   constructor(app, view) {
@@ -195,4 +202,36 @@ class ScSystemPromptSelectModal extends FuzzySuggestModal {
   getItems() { return this.view.plugin.system_prompts; }
   getItemText(item) { return item.basename; }
   onChooseItem(prompt) { this.view.insert_selection('"' + prompt.path + '"'); }
+}
+class ScImageSelectModal extends FuzzySuggestModal {
+  constructor(app, view) {
+    super(app);
+    this.app = app;
+    this.view = view;
+    this.setPlaceholder("Type the name of an image...");
+  }
+
+  get image_extensions() {
+    return [
+      "gif",
+      "heic", 
+      "heif",
+      "jpeg",
+      "jpg", 
+      "png",
+      "webp"
+    ];
+  }
+
+  getItems() {
+    return this.app.vault.getFiles()
+      .filter((file) => this.image_extensions.includes(file.extension))
+      .sort((a, b) => a.basename.localeCompare(b.basename));
+  }
+
+  getItemText(item) { return item.path; }
+  
+  onChooseItem(image) {
+    this.view.insert_selection(`[${image.basename}](${image.path}) `);
+  }
 }
