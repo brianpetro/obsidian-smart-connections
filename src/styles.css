@@ -520,8 +520,8 @@ div[data-type^="smart-connections-"] {
   border-radius: 10px;
   margin: 0.5rem 0;
   background-color: var(--background-primary-alt);
-  overflow: hidden;
-  max-width: 100%;
+  overflow: auto;
+  max-width: 95%;
   margin: 10px;
 }
 
