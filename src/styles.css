@@ -573,3 +573,78 @@ div[data-type^="smart-connections-"] {
   font-size: var(--font-small);
   color: var(--color-gray-40);
 }
+
+/* Tool Calls Component Styles */
+.sc-tool-calls-container {
+  border: 1px solid var(--divider-color);
+  border-radius: 10px;
+  margin: 0.5rem 0;
+  background-color: var(--background-primary-alt);
+  overflow: auto;
+  max-width: 95%;
+  margin: 10px;
+}
+
+.sc-tool-call {
+  margin-bottom: 0.5rem;
+}
+
+.sc-tool-call:last-child {
+  margin-bottom: 0;
+}
+
+.sc-tool-call-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.88rem 1rem;
+  background-color: var(--background-primary);
+  color: var(--text-muted);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  user-select: none;
+}
+
+.sc-tool-call-header:hover {
+  background-color: var(--background-primary-hover);
+}
+
+.sc-tool-call-header:focus {
+  outline: 2px solid var(--text-muted);
+  outline-offset: 2px;
+}
+
+.sc-tool-call-content {
+  padding: 0.5rem 1rem;
+  background-color: var(--background-secondary);
+  font-size: var(--font-smallest);
+}
+
+.sc-tool-call-content pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.sc-tool-call-content code {
+  font-family: var(--font-monospace);
+}
+
+.sc-tool-call-toggle-icon {
+  margin-left: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.sc-tool-call-header[aria-expanded="true"] .sc-tool-call-toggle-icon {
+  transform: rotate(180deg);
+}
+
+/* Hide content when collapsed */
+.sc-tool-call-header[aria-expanded="false"] + .sc-tool-call-content {
+  display: none;
+}
+
+/* Show content when expanded */
+.sc-tool-call-header[aria-expanded="true"] + .sc-tool-call-content {
+  display: block;
+}
