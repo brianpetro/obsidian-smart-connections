@@ -47,6 +47,7 @@
     "smart-embed-model": "file:../jsbrains/smart-embed-model",
     "smart-environment": "file:../jsbrains/smart-environment",
     "smart-file-system": "file:../jsbrains/smart-fs",
+    "smart-groups": "file:../jsbrains/smart-groups",
     "smart-http-request": "file:../jsbrains/smart-http-request",
     "smart-instruct-model": "file:../jsbrains/smart-instruct-model",
     "smart-setting": "file:../jsbrains/smart-setting",

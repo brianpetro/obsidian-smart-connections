@@ -34,6 +34,11 @@ import {
 } from "smart-chat-model/adapters.js";
 import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-request";
 import { requestUrl } from "obsidian";
+import { SmartDirectories, SmartDirectory } from "smart-groups";
+import { SmartThreads } from "../../jsbrains/smart-chats/smart_threads.js";
+import { SmartThread } from "../../jsbrains/smart-chats/smart_thread.js";
+import { SmartMessages } from "../../jsbrains/smart-chats/smart_messages.js";
+import { SmartMessage } from "../../jsbrains/smart-chats/smart_message.js";
 
 export const smart_env_config = {
   global_ref: window,
@@ -62,10 +67,23 @@ export const smart_env_config = {
         settings: source_settings_component,
       },
     },
+    smart_directories: {
+      class: SmartDirectories,
+    },
+    smart_threads: {
+      class: SmartThreads,
+      data_adapter: SmartCollectionMultiFileDataAdapter,
+    },
+    smart_messages: {
+      class: SmartMessages,
+    },
   },
   item_types: {
     SmartSource,
     SmartBlock,
+    SmartDirectory,
+    SmartThread,
+    SmartMessage,
   },
   modules: {
     smart_chat_model: {
