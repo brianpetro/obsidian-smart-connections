@@ -35,10 +35,11 @@ import {
 import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-request";
 import { requestUrl } from "obsidian";
 import { SmartDirectories, SmartDirectory } from "smart-groups";
-import { SmartThreads } from "../../jsbrains/smart-chats/smart_threads.js";
-import { SmartThread } from "../../jsbrains/smart-chats/smart_thread.js";
-import { SmartMessages } from "../../jsbrains/smart-chats/smart_messages.js";
-import { SmartMessage } from "../../jsbrains/smart-chats/smart_message.js";
+import { SmartThreads } from "smart-chats/smart_threads.js";
+import { SmartThread } from "smart-chats/smart_thread.js";
+import { SmartMessages } from "smart-chats/smart_messages.js";
+import { SmartMessage } from "smart-chats/smart_message.js";
+import { SmartThreadJsonDataAdapter } from "smart-chats/adapters/json.js";
 
 export const smart_env_config = {
   global_ref: window,
@@ -73,6 +74,10 @@ export const smart_env_config = {
     smart_threads: {
       class: SmartThreads,
       data_adapter: SmartCollectionMultiFileDataAdapter,
+      source_adapters: {
+        "json": SmartThreadJsonDataAdapter,
+        "default": SmartThreadJsonDataAdapter,
+      },
     },
     smart_messages: {
       class: SmartMessages,

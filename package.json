@@ -41,7 +41,7 @@
     "ejs": "file:./ejs.min",
     "obsidian": "latest",
     "smart-chat-model": "file:../jsbrains/smart-chat-model",
-    "smart-chats": "file:../jsbrains/smart-chats-v1",
+    "smart-chats": "file:../jsbrains/smart-chats",
     "smart-chunks": "file:../jsbrains/smart-chunks",
     "smart-collections": "file:../jsbrains/smart-collections",
     "smart-embed-model": "file:../jsbrains/smart-embed-model",

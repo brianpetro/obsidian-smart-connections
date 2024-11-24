@@ -16,10 +16,11 @@ export class SmartChatsView extends SmartObsidianView2 {
    * Renders the chat view for a specific entity (chat thread).
    * @param {string|null} entity - The path or key of the chat thread to render.
    */
-  async render_view() {
+  async render_view(thread_key=null) {
+    this.container.innerHTML = 'Loading...';
     await this.env.smart_threads.render(this.container, {
-      add_message_listeners: this.add_message_listeners.bind(this),
       attribution: this.attribution,
+      thread_key,
       // callbacks
       open_chat_history: this.open_chat_history.bind(this),
       open_conversation_note: this.open_conversation_note.bind(this),
@@ -29,16 +30,6 @@ export class SmartChatsView extends SmartObsidianView2 {
       open_image_suggestion_modal: this.open_image_suggestion_modal.bind(this),
     });
 
-
-  }
-
-  /**
-   * Creates a new chat thread and renders its view.
-   */
-  async create_new_chat() {
-    // Logic to create a new chat thread
-    const new_thread = await this.env.smart_threads.create_new_thread();
-    this.render_view(new_thread.key);
   }
 
   /**
@@ -46,8 +37,18 @@ export class SmartChatsView extends SmartObsidianView2 {
    */
   async open_chat_history() {
     // Logic to open chat history
-    this.plugin.open_chat_history_view();
+    if (!this._chat_history_selector) this._chat_history_selector = new ScChatHistoryModal(this.plugin.app, this);
+    this._chat_history_selector.open();
   }
+  open_thread(thread_name) {
+    // get full key
+    const thread_key = Object.keys(this.env.smart_threads.items).find(key => this.thread_key_to_name(key) === thread_name);
+    this.render_view(thread_key);
+  }
+  thread_key_to_name(thread_key) {
+    return thread_key.split('/').pop().split('.').shift();
+  }
+
 
   /**
    * Opens the conversation note associated with the current chat thread.
@@ -59,39 +60,6 @@ export class SmartChatsView extends SmartObsidianView2 {
       this.plugin.open_note(current_thread.conversation_note_path, { active: true });
     } else {
       this.plugin.notices.show("No Conversation Note Found", "Unable to locate the conversation note for the current chat.");
-    }
-  }
-
-  /**
-   * Adds event listeners to individual messages within the chat.
-   * @param {HTMLElement} elm - The message element.
-   * @param {Object} message - The message data object.
-   */
-  add_message_listeners(elm, message) {
-    elm.addEventListener("click", this.handle_message_click.bind(this));
-
-    if(message.path){
-      elm.setAttribute('draggable', 'true');
-      elm.addEventListener('dragstart', (event) => {
-        const dragManager = this.app.dragManager;
-        const file_path = message.path.split("#")[0];
-        const file = this.app.metadataCache.getFirstLinkpathDest(file_path, '');
-        const dragData = dragManager.dragFile(event, file);
-        dragManager.onDragStart(event, dragData);
-      });
-
-      // Prevent hover-link for paths with curly braces
-      if (message.path.indexOf("{") > -1) return;
-
-      elm.addEventListener("mouseover", (event) => {
-        this.app.workspace.trigger("hover-link", {
-          event,
-          source: this.constructor.view_type,
-          hoverParent: elm.parentElement,
-          targetEl: elm,
-          linktext: message.path,
-        });
-      });
     }
   }
 
@@ -234,4 +202,24 @@ class ScImageSelectModal extends FuzzySuggestModal {
   onChooseItem(image) {
     this.view.insert_selection(`[${image.basename}](${image.path}) `);
   }
+}
+class ScChatHistoryModal extends FuzzySuggestModal {
+  constructor(app, view) {
+    super(app);
+    this.app = app;
+    this.view = view;
+    this.setPlaceholder("Type the name of a chat session...");
+  }
+  // getItems() { return (this.view.files) ? this.view.files : []; }
+  // sort alphabetically & then by startsWith UNITITLED
+  getItems() {
+    return Object.keys(this.view.env.smart_threads.items)
+      .map(key => this.view.thread_key_to_name(key))
+      .sort((a, b) => a.localeCompare(b))
+      .sort((a, b) => b.startsWith("UNTITLED") ? -1 : 1);
+  }
+  // if not UNTITLED, remove date after last em dash
+  getItemText(item) { return (item.indexOf("UNTITLED") === -1) ? item.replace(/—[^—]*$/, "") : item; }
+  // onChooseItem(session) { this.view.open_chat(session); }
+  onChooseItem(thread_name) { this.view.open_thread(thread_name); }
 }
