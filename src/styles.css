@@ -648,3 +648,76 @@ div[data-type^="smart-connections-"] {
 .sc-tool-call-header[aria-expanded="true"] + .sc-tool-call-content {
   display: block;
 }
+
+/* System Message Styles */
+.sc-system-message-container {
+  margin: 1rem 0;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-secondary);
+}
+
+.sc-system-message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.2s ease;
+}
+
+.sc-system-message-header:hover {
+  background: var(--background-modifier-hover);
+}
+
+.sc-system-message-header span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sc-system-message-toggle-icon {
+  transition: transform 0.2s ease;
+}
+
+.sc-system-message-content {
+  padding: 1rem;
+  position: relative;
+  background: var(--background-primary);
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.sc-system-message-text {
+  font-family: var(--font-monospace);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-right: 2rem;
+}
+
+.sc-system-message-copy {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.4rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.sc-system-message-copy:hover {
+  opacity: 1;
+}
+
+.sc-system-message-copy.sc-copied {
+  color: var(--text-accent);
+}
+
+/* When header is expanded */
+.sc-system-message-header[aria-expanded="true"] {
+  border-bottom-color: var(--background-modifier-border);
+}
