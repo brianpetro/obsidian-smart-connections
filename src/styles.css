@@ -290,6 +290,10 @@ div[data-type^="smart-connections-"] {
   float: right;
   margin-left: 5px;
   opacity: 0.8;
+  &.cycle-branch{
+    float: left;
+    display: flex;
+  }
 }
 .sc-msg-button:hover {
   opacity: 1;
@@ -583,6 +587,7 @@ div[data-type^="smart-connections-"] {
   overflow: auto;
   max-width: 95%;
   margin: 10px;
+  flex-shrink: 0;
 }
 
 .sc-tool-call {
@@ -655,6 +660,7 @@ div[data-type^="smart-connections-"] {
   border: 1px solid var(--background-modifier-border);
   border-radius: 6px;
   background: var(--background-secondary);
+  flex-shrink: 0;
 }
 
 .sc-system-message-header {
