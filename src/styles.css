@@ -727,3 +727,21 @@ div[data-type^="smart-connections-"] {
 .sc-system-message-header[aria-expanded="true"] {
   border-bottom-color: var(--background-modifier-border);
 }
+
+.smart-chat-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--background-primary-alt);
+  z-index: 100;
+  overflow: auto;
+
+  .smart-chat-overlay-header {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+
+}
