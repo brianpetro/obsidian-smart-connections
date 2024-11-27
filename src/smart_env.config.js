@@ -19,8 +19,8 @@ import { Notice } from "obsidian";
 import { SmartSettings } from "smart-settings";
 import { render as source_settings_component } from 'smart-sources/components/settings.js';
 import { render as env_settings_component } from './components/env_settings.js';
-import { render as connections_component } from './components/connections.js';
-import { render as search_component } from './components/lookup.js';
+import { render as connections_component } from 'smart-entities/components/connections.js';
+import { render as lookup_component } from 'smart-entities/components/lookup.js';
 // import { SmartViewNodeAdapter } from 'smart-view/adapters/node.js';
 import { SmartChatModel } from "smart-chat-model";
 import {
@@ -133,7 +133,7 @@ export const smart_env_config = {
   components: {
     settings: env_settings_component,
     connections: connections_component,
-    search: search_component,
+    search: lookup_component,
   },
   default_settings: {
     is_obsidian_vault: true,

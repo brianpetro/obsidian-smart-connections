@@ -7,7 +7,7 @@ export class ScSearchView extends SmartEntitiesView {
 
   async render_view(search_text='', container=this.container) {
     container.innerHTML = 'Loading search...';
-    const frag = await this.env.opts.components.search.call(this.smart_view, this.env, {
+    const frag = await this.env.opts.components.lookup.call(this.smart_view, this.env, {
       collection_key: "smart_sources", // TODO: make it configurable which collection to search
       add_result_listeners: this.add_result_listeners.bind(this),
       attribution: this.attribution,

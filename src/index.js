@@ -329,7 +329,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   async render_code_block(contents, container, ctx) {
     let frag;
     if(contents.trim().length) {
-      frag = await this.env.opts.components.search.call(
+      frag = await this.env.opts.components.lookup.call(
         this.env.smart_view,
         this.env,
         {
