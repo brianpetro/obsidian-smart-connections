@@ -728,20 +728,42 @@ div[data-type^="smart-connections-"] {
   border-bottom-color: var(--background-modifier-border);
 }
 
-.smart-chat-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--background-primary-alt);
-  z-index: 100;
-  overflow: auto;
-
-  .smart-chat-overlay-header {
-    display: flex;
-    justify-content: flex-end;
+.sc-chat-container{
+  .smart-chat-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--background-primary-alt);
+    z-index: 100;
+    overflow: auto;
+  
+    .smart-chat-overlay-header {
+      display: flex;
+      justify-content: flex-end;
+    }  
   }
 
+  .sc-config-error-notice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #ffcccc;
+    border: 1px solid #ff0000;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ff0000;
+    width: 100%;
+    span {
+      flex-grow: 1;
+    }
+    button {
+      margin-left: 10px;
+    }
+  }
 
 }
