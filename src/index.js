@@ -27,12 +27,14 @@ import { open_note } from "./open_note.js";
 import { SmartChatGPTView } from "./sc_chatgpt_view.js";
 import { SmartPrivateChatView } from "./sc_private_chat_view.js";
 import { ScAppConnector } from "./sc_app_connector.js";
+import { ScDirsView } from "./sc_dirs_view.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
   get item_views() {
     return {
       ScConnectionsView,
+      ScDirsView,
       ScLookupView,
       SmartChatsView,
       SmartChatGPTView,

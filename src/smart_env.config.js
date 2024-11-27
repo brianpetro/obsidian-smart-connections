@@ -151,7 +151,7 @@ export const smart_env_config = {
     file_exclusions: 'Untitled',
     folder_exclusions: 'smart-chats',
     smart_view_filter: {
-      render_markdown: false,
+      render_markdown: true,
       show_full_path: false,
     },
   },

@@ -786,3 +786,30 @@ div[data-type^="smart-connections-"] {
   }
 
 }
+
+
+/* Smart Directories */
+.sg-list {
+  > .sg-collapsed .sg-directory-header svg {
+    transform: rotate(-90deg);
+    transition: transform 0.15s ease;
+  }
+  > :not(.sg-collapsed) .sg-directory-header svg {
+    transform: rotate(0deg);
+    transition: transform 0.15s ease;
+  }
+  
+  .sg-directory-header {
+    cursor: pointer;
+    user-select: none;
+    
+    &:hover {
+      background-color: var(--nav-item-background-hover);
+    }
+  }
+}
+
+/* Add this to handle content visibility */
+.sg-directory-item.sg-collapsed .sg-directory-content {
+  display: none;
+}
