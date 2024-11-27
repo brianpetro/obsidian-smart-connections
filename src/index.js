@@ -17,7 +17,7 @@ import ejs from "../ejs.min.cjs";
 import templates from "../build/views.json" assert { type: "json" };
 // rename modules
 import { ScConnectionsView } from "./sc_connections_view.js";
-import { ScSearchView } from "./sc_search_view.js";
+import { ScLookupView } from "./sc_lookup_view.js";
 import { SmartSearch } from "./smart_search.js";
 // v2.1
 import { SmartChatsView } from "./smart_chat_view.js";
@@ -33,7 +33,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   get item_views() {
     return {
       ScConnectionsView,
-      ScSearchView,
+      ScLookupView,
       SmartChatsView,
       SmartChatGPTView,
       SmartPrivateChatView,
@@ -301,8 +301,8 @@ export default class SmartConnectionsPlugin extends Plugin {
   open_chat() { SmartChatsView.open(this.app.workspace); }
   get view() { return ScConnectionsView.get_view(this.app.workspace); } 
   open_view(active=true) { ScConnectionsView.open(this.app.workspace, active); }
-  open_search_view(){ ScSearchView.open(this.app.workspace); }
-  get search_view() { return ScSearchView.get_view(this.app.workspace); }
+  open_search_view(){ ScLookupView.open(this.app.workspace); }
+  get search_view() { return ScLookupView.get_view(this.app.workspace); }
   open_chatgpt() { SmartChatGPTView.open(this.app.workspace); }
   open_private_chat() { SmartPrivateChatView.open(this.app.workspace); }
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
@@ -329,11 +329,9 @@ export default class SmartConnectionsPlugin extends Plugin {
   async render_code_block(contents, container, ctx) {
     let frag;
     if(contents.trim().length) {
-      frag = await this.env.opts.components.lookup.call(
-        this.env.smart_view,
-        this.env,
+      frag = await this.env.smart_sources.render_lookup(
+        container,
         {
-          collection_key: "smart_sources", // TODO: make it configurable which collection to search
           add_result_listeners: this.add_result_listeners.bind(this),
           attribution: this.attribution,
           search_text: contents,
@@ -342,9 +340,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     }else{
       const entity = this.env.smart_sources.get(ctx.sourcePath);
       if(!entity) return container.innerHTML = 'Entity not found: ' + ctx.sourcePath;
-      frag = await this.env.opts.components.connections.call(
-        this.env.smart_view,
-        entity,
+      frag = await entity.render_connections(
+        container,
         {
           add_result_listeners: this.add_result_listeners.bind(this),
           attribution: this.attribution,
@@ -355,14 +352,12 @@ export default class SmartConnectionsPlugin extends Plugin {
         }
       );
     }
-    container.innerHTML = '';
-    container.appendChild(frag);
   }
   async render_code_block_context(results, container, ctx) {
     results = this.get_entities_from_context_codeblock(results);
     container.innerHTML = this.view.render_template("smart_connections", { current_path: "context", results });
-    container.querySelectorAll(".search-result").forEach((elm, i) => this.view.add_link_listeners(elm, results[i]));
-    container.querySelectorAll(".search-result:not(.sc-collapsed) ul li").forEach(this.view.render_result.bind(this.view));
+    container.querySelectorAll(".sc-result").forEach((elm, i) => this.view.add_link_listeners(elm, results[i]));
+    container.querySelectorAll(".sc-result:not(.sc-collapsed) ul li").forEach(this.view.render_result.bind(this.view));
   }
   get_entities_from_context_codeblock(results) {
     return results.split("\n").map(key => {
@@ -581,7 +576,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       event.preventDefault();
       event.stopPropagation();
       const target = event.target;
-      const result = target.closest(".search-result");
+      const result = target.closest(".sc-result");
       if (target.classList.contains("svg-icon")) {
         toggle_result(result);
         return;

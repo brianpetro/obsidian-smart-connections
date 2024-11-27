@@ -132,8 +132,10 @@ export const smart_env_config = {
   },
   components: {
     settings: env_settings_component,
-    connections: connections_component,
-    search: lookup_component,
+    smart_sources: {
+      connections: connections_component,
+      lookup: lookup_component,
+    },
   },
   default_settings: {
     is_obsidian_vault: true,
@@ -148,5 +150,9 @@ export const smart_env_config = {
     },
     file_exclusions: 'Untitled',
     folder_exclusions: 'smart-chats',
+    smart_view_filter: {
+      render_markdown: false,
+      show_full_path: false,
+    },
   },
 };

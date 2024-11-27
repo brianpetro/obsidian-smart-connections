@@ -44,14 +44,12 @@ export class ScConnectionsView extends SmartEntitiesView {
     if(this.current_context === entity?.key) return; // already rendered
     this.current_context = entity?.key;
 
-    const frag = await this.env.opts.components.connections.call(this.smart_view, entity, {
+    await entity.render_connections(container, {
       add_result_listeners: this.add_result_listeners.bind(this),
       attribution: this.attribution,
       refresh_smart_view: this.refresh_smart_view.bind(this),
       open_search_view: this.plugin.open_search_view.bind(this.plugin),
     });
-    container.innerHTML = '';
-    container.appendChild(frag);
 
     this.add_top_bar_listeners();
   }
