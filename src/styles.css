@@ -546,6 +546,7 @@ div[data-type^="smart-connections-"] {
   overflow: auto;
   max-width: 95%;
   margin: 10px;
+  flex-shrink: 0;
 }
 
 .sc-context-header {
