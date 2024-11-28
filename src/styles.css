@@ -788,6 +788,40 @@ div[data-type^="smart-connections-"] {
 
 }
 
+.sc-typing-indicator {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  opacity: 0;
+  display: none;
+}
+
+.sc-typing-indicator.visible {
+  display: flex;
+}
+
+.sc-typing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.sc-typing-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  animation: typing-bounce 1.4s infinite ease-in-out;
+}
+
+.sc-typing-dot:nth-child(1) { animation-delay: 0s; }
+.sc-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.sc-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-bounce {
+  0%, 80%, 100% { transform: scale(0.6); }
+  40% { transform: scale(1); }
+} 
+
 
 /* Smart Directories */
 .sg-list {
