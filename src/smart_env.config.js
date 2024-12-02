@@ -18,9 +18,12 @@ import { SmartNotices } from "./smart_notices.js";
 import { Notice } from "obsidian";
 import { SmartSettings } from "smart-settings";
 import { render as source_settings_component } from 'smart-sources/components/settings.js';
+import { render as collection_settings_component } from 'smart-collections/components/settings.js';
 import { render as env_settings_component } from './components/env_settings.js';
 import { render as connections_component } from 'smart-entities/components/connections.js';
 import { render as lookup_component } from 'smart-entities/components/lookup.js';
+import { render as model_settings_component } from "smart-model/components/settings.js";
+import { render as render_directories_component } from "smart-groups/components/directories.js";
 // import { SmartViewNodeAdapter } from 'smart-view/adapters/node.js';
 import { SmartChatModel } from "smart-chat-model";
 import {
@@ -58,15 +61,9 @@ export const smart_env_config = {
         "canvas": MarkdownSourceAdapter, // temp
         "default": SourceAdapter,
       },
-      components: {
-        settings: source_settings_component,
-      },
     },
     smart_blocks: {
       class: SmartBlocks,
-      components: {
-        settings: source_settings_component,
-      },
     },
     smart_directories: {
       class: SmartDirectories,
@@ -131,10 +128,28 @@ export const smart_env_config = {
     },
   },
   components: {
-    settings: env_settings_component,
+    smart_env: {
+      settings: env_settings_component,
+    },
     smart_sources: {
       connections: connections_component,
       lookup: lookup_component,
+      settings: source_settings_component,
+    },
+    smart_blocks: {
+      settings: source_settings_component,
+    },
+    smart_threads: {
+      settings: collection_settings_component,
+    },
+    smart_directories: {
+      directories: render_directories_component,
+    },
+    smart_chat_model: {
+      settings: model_settings_component,
+    },
+    smart_embed_model: {
+      settings: model_settings_component,
     },
   },
   default_settings: {

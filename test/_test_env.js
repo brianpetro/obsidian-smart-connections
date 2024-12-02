@@ -82,7 +82,7 @@ async function init_test_env(t) {
     ...default_settings(),
   };
   main.settings.smart_blocks_embed_model = 'TaylorAI/bge-micro-v2';
-  main.settings.embed_input_min_chars = 1;
+  main.settings.smart_blocks.min_chars = 1;
   main.settings.multi_heading_blocks = false;
   main.get_tfile = get_tfile; // override main.get_tfile
   main.read_file = async (t_file) => test_md;

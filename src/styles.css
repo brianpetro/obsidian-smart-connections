@@ -500,7 +500,7 @@ div[data-type^="smart-connections-"] {
   text-wrap: nowrap;
   flex-wrap: wrap;
   align-items: baseline;
-  > h3 {
+  > h2 {
     width: 100%;
     margin-bottom: 0;
   }

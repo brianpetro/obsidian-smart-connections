@@ -29,6 +29,10 @@ export async function post_process(scope, frag) {
     const sub_scope = container.dataset.smartSettings.split('.').reduce((acc, key) => acc[key], scope);
     await sub_scope.render_settings(container);
   }
+  // make .sc-supporters 100% max-height when clicking anywhere in it
+  frag.querySelector('.sc-supporters')?.addEventListener('click', (e) => {
+    e.currentTarget.style.maxHeight = '100%';
+  });
   return frag;
 }
 
