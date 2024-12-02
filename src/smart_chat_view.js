@@ -1,5 +1,5 @@
 import { SmartObsidianView2 } from "./smart_obsidian_view2.js";
-import { FuzzySuggestModal, Keymap } from "obsidian";
+import { FuzzySuggestModal, Keymap, Platform } from "obsidian";
 
 export class SmartChatsView extends SmartObsidianView2 {
   static get view_type() { return "smart-chat-view"; }
@@ -252,7 +252,7 @@ class ContextSelectModal extends FuzzySuggestModal {
 class ScFileSelectModal extends ContextSelectModal {
   constructor(app, view) {
     super(app, view);
-    const mod_key = this.app.isMacOs ? `⌘` : `ctrl`;
+    const mod_key = Platform.isMacOS ? `⌘` : `ctrl`;
     this.setInstructions([
       {
         command: `←`,
