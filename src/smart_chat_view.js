@@ -1,5 +1,5 @@
 import { SmartObsidianView2 } from "./smart_obsidian_view2.js";
-import { FuzzySuggestModal } from "obsidian";
+import { FuzzySuggestModal, Keymap } from "obsidian";
 
 export class SmartChatsView extends SmartObsidianView2 {
   static get view_type() { return "smart-chat-view"; }
@@ -24,10 +24,7 @@ export class SmartChatsView extends SmartObsidianView2 {
       // callbacks
       open_chat_history: this.open_chat_history.bind(this),
       open_conversation_note: this.open_conversation_note.bind(this),
-      open_file_suggestion_modal: this.open_file_suggestion_modal.bind(this),
-      open_folder_suggestion_modal: this.open_folder_suggestion_modal.bind(this),
-      open_system_prompt_modal: this.open_system_prompt_modal.bind(this),
-      open_image_suggestion_modal: this.open_image_suggestion_modal.bind(this),
+      handle_chat_input_keydown: this.handle_chat_input_keydown.bind(this),
     });
 
   }
@@ -77,6 +74,27 @@ export class SmartChatsView extends SmartObsidianView2 {
     }
     // TODO: Handle other button clicks (e.g., copy context, copy prompt)
   }
+  handle_chat_input_keydown(event, chat_input) {
+    if (!["/", "@", "[", "!"].includes(event.key)) return;
+    
+    const pos = chat_input.selectionStart;
+    if (event.key === "@" && (!pos || [" ", "\n"].includes(chat_input.value[pos - 1]))) {
+      this.open_omni_modal();
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    else if (event.key === "[" && chat_input.value[pos - 1] === "[") {
+      setTimeout(() => this.open_file_suggestion_modal(), 10);
+    }
+    else if (event.key === "/" && (!pos || [" ", "\n"].includes(chat_input.value[pos - 1]))) {
+      setTimeout(() => this.open_folder_suggestion_modal(), 10);
+    }
+    else if (event.key === "!" && (!pos || [" ", "\n"].includes(chat_input.value[pos - 1]))) {
+      setTimeout(() => this.open_image_suggestion_modal(), 10);
+    }
+  
+  }
 
   /**
    * Copies the message content to the clipboard.
@@ -92,11 +110,29 @@ export class SmartChatsView extends SmartObsidianView2 {
     });
   }
 
+
+  open_omni_modal() {
+    if (!this.omni_selector) this.omni_selector = new ScOmniModal(this.plugin.app, this);
+    this.omni_selector.open();
+  }
+  open_modal(item) {
+    switch (item) {
+      case "Files": this.open_file_suggestion_modal(); break;
+      case "Folders": this.open_folder_suggestion_modal(); break;
+      case "Notes": this.open_notes_suggestion_modal(); break;
+      case "Images": this.open_image_suggestion_modal(); break;
+    }
+  }
+
   // open file suggestion modal
   open_file_suggestion_modal() {
     // open file suggestion modal
     if (!this.file_selector) this.file_selector = new ScFileSelectModal(this.plugin.app, this);
     this.file_selector.open();
+  }
+  open_notes_suggestion_modal() {
+    if (!this.notes_selector) this.notes_selector = new ScNotesSelectModal(this.plugin.app, this);
+    this.notes_selector.open();
   }
   // open folder suggestion modal
   async open_folder_suggestion_modal() {
@@ -121,18 +157,50 @@ export class SmartChatsView extends SmartObsidianView2 {
    * @param {string} insert_text - The text to insert.
    */
   insert_selection(insert_text) {
-    const textarea = this.container.querySelector(".sc-chat-form textarea");
-    let caret_pos = textarea.selectionStart;
-    let text_before = textarea.value.substring(0, caret_pos);
-    let text_after = textarea.value.substring(caret_pos, textarea.value.length);
-    textarea.value = text_before + insert_text + text_after;
-    textarea.selectionStart = caret_pos + insert_text.length;
-    textarea.selectionEnd = caret_pos + insert_text.length;
-    textarea.focus();
+    if(this.textarea.value.endsWith("[[")) this.textarea.value = this.textarea.value.slice(0, -2);
+    if(this.textarea.value.endsWith("/")) this.textarea.value = this.textarea.value.slice(0, -1);
+    let caret_pos = this.textarea.selectionStart;
+    let text_before = this.textarea.value.substring(0, caret_pos);
+    let text_after = this.textarea.value.substring(caret_pos, this.textarea.value.length);
+    this.textarea.value = text_before + insert_text + text_after;
+    this.textarea.selectionStart = caret_pos + insert_text.length;
+    this.textarea.selectionEnd = caret_pos + insert_text.length;
+    this.textarea.focus();
   }
-
+  get textarea() { return this.container.querySelector(".sc-chat-form textarea"); }
+  insert_system_prompt(prompt_file) {
+    const system_message = {
+      input: {
+        key: prompt_file.path
+      }
+    };
+    this.env.smart_threads.get_active_thread().add_system_message(system_message);
+    if(this.textarea.value.endsWith("[[")) this.textarea.value = this.textarea.value.slice(0, -2);
+  }
 }
 
+// Omni Modal
+class ScOmniModal extends FuzzySuggestModal {
+  constructor(app, view) {
+    super(app);
+    this.app = app;
+    this.view = view;
+    this.setPlaceholder("Select input type...");
+  }
+  getItems() {
+    return [
+      "Files",
+      "Folders",
+      "Notes",
+      // "System Prompt",
+      "Images"
+    ];
+  }
+  getItemText(item) { return item; }
+  onChooseItem(item) {
+    this.view.open_modal(item);
+  }
+}
 
 // File Select Fuzzy Suggest Modal
 class ScFileSelectModal extends FuzzySuggestModal {
@@ -141,11 +209,44 @@ class ScFileSelectModal extends FuzzySuggestModal {
     this.app = app;
     this.view = view;
     this.setPlaceholder("Type the name of a file...");
+    this.inputEl.addEventListener('keydown', (e) => {
+      if (e.key === "Escape") this.view.open_omni_modal();
+      if (e.key === "Enter") this.selectActiveSuggestion(e);
+    });
+    const mod_key = this.app.isMacOs ? `⌘` : `ctrl`;
+    this.setInstructions([
+      {
+        command: `↵`,
+        purpose: "Insert as link (references context)"
+      },
+      {
+        command: `${mod_key} ↵`,
+        purpose: "Insert as system prompt"
+      },
+      {
+        command: `shift ↵`,
+        purpose: "Insert as embedded link (inline context)"
+      }
+    ]);
   }
   // get all markdown files
-  getItems() { return this.app.vault.getMarkdownFiles().sort((a, b) => a.basename.localeCompare(b.basename)); }
+  getItems() { return this.app.vault.getFiles().sort((a, b) => a.basename.localeCompare(b.basename)); }
   getItemText(item) { return item.basename; }
-  onChooseItem(file) { this.view.insert_selection(file.basename + "]] "); }
+  selectSuggestion(item, evt) {
+    // console.log('selectSuggestion item', item);
+    // console.log('selectSuggestion evt', evt);
+    if(Keymap.isModEvent(evt)) this.view.insert_system_prompt(item.item);
+    else {
+      const link = `[[${item.item.path}]] `;
+      // if shift is held, prepend with !
+      if(evt.shiftKey) this.view.insert_selection('!' + link);
+      else this.view.insert_selection(link);
+    }
+    this.close();
+  }
+}
+class ScNotesSelectModal extends ScFileSelectModal {
+  getItems() { return this.app.vault.getMarkdownFiles().sort((a, b) => a.basename.localeCompare(b.basename)); }
 }
 // Folder Select Fuzzy Suggest Modal
 class ScFolderSelectModal extends FuzzySuggestModal {
@@ -158,8 +259,30 @@ class ScFolderSelectModal extends FuzzySuggestModal {
   }
   getItems() { return this.folders; }
   getItemText(item) { return item; }
-  onChooseItem(folder) { this.view.insert_selection(folder + "/ "); }
+  onChooseItem(folder) { this.view.insert_selection("/" + folder + "/ "); }
 }
+class ScChatHistoryModal extends FuzzySuggestModal {
+  constructor(app, view) {
+    super(app);
+    this.app = app;
+    this.view = view;
+    this.setPlaceholder("Type the name of a chat session...");
+  }
+  // sort alphabetically & then by startsWith UNITITLED
+  getItems() {
+    return Object.keys(this.view.env.smart_threads.items)
+      .map(key => this.view.thread_key_to_name(key))
+      .sort((a, b) => a.localeCompare(b))
+      .sort((a, b) => b.startsWith("UNTITLED") ? -1 : 1);
+  }
+  // if not UNTITLED, remove date after last em dash
+  getItemText(item) { return (item.indexOf("UNTITLED") === -1) ? item.replace(/—[^—]*$/, "") : item; }
+  // onChooseItem(session) { this.view.open_chat(session); }
+  onChooseItem(thread_name) { this.view.open_thread(thread_name); }
+}
+
+
+// Chopping block
 class ScSystemPromptSelectModal extends FuzzySuggestModal {
   constructor(app, view) {
     super(app);
@@ -200,26 +323,6 @@ class ScImageSelectModal extends FuzzySuggestModal {
   getItemText(item) { return item.path; }
   
   onChooseItem(image) {
-    this.view.insert_selection(`[${image.basename}](${image.path}) `);
+    this.view.insert_selection(`[[${image.path}]] `);
   }
-}
-class ScChatHistoryModal extends FuzzySuggestModal {
-  constructor(app, view) {
-    super(app);
-    this.app = app;
-    this.view = view;
-    this.setPlaceholder("Type the name of a chat session...");
-  }
-  // getItems() { return (this.view.files) ? this.view.files : []; }
-  // sort alphabetically & then by startsWith UNITITLED
-  getItems() {
-    return Object.keys(this.view.env.smart_threads.items)
-      .map(key => this.view.thread_key_to_name(key))
-      .sort((a, b) => a.localeCompare(b))
-      .sort((a, b) => b.startsWith("UNTITLED") ? -1 : 1);
-  }
-  // if not UNTITLED, remove date after last em dash
-  getItemText(item) { return (item.indexOf("UNTITLED") === -1) ? item.replace(/—[^—]*$/, "") : item; }
-  // onChooseItem(session) { this.view.open_chat(session); }
-  onChooseItem(thread_name) { this.view.open_thread(thread_name); }
 }
