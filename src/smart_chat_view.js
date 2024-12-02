@@ -178,89 +178,7 @@ export class SmartChatsView extends SmartObsidianView2 {
     if(this.textarea.value.endsWith("[[")) this.textarea.value = this.textarea.value.slice(0, -2);
   }
 }
-
-// Omni Modal
-class ScOmniModal extends FuzzySuggestModal {
-  constructor(app, view) {
-    super(app);
-    this.app = app;
-    this.view = view;
-    this.setPlaceholder("Select input type...");
-  }
-  getItems() {
-    return [
-      "Files",
-      "Folders",
-      "Notes",
-      // "System Prompt",
-      "Images"
-    ];
-  }
-  getItemText(item) { return item; }
-  onChooseItem(item) {
-    this.view.open_modal(item);
-  }
-}
-
-// File Select Fuzzy Suggest Modal
-class ScFileSelectModal extends FuzzySuggestModal {
-  constructor(app, view) {
-    super(app);
-    this.app = app;
-    this.view = view;
-    this.setPlaceholder("Type the name of a file...");
-    this.inputEl.addEventListener('keydown', (e) => {
-      if (e.key === "Escape") this.view.open_omni_modal();
-      if (e.key === "Enter") this.selectActiveSuggestion(e);
-    });
-    const mod_key = this.app.isMacOs ? `⌘` : `ctrl`;
-    this.setInstructions([
-      {
-        command: `↵`,
-        purpose: "Insert as link (references context)"
-      },
-      {
-        command: `${mod_key} ↵`,
-        purpose: "Insert as system prompt"
-      },
-      {
-        command: `shift ↵`,
-        purpose: "Insert as embedded link (inline context)"
-      }
-    ]);
-  }
-  // get all markdown files
-  getItems() { return this.app.vault.getFiles().sort((a, b) => a.basename.localeCompare(b.basename)); }
-  getItemText(item) { return item.basename; }
-  selectSuggestion(item, evt) {
-    // console.log('selectSuggestion item', item);
-    // console.log('selectSuggestion evt', evt);
-    if(Keymap.isModEvent(evt)) this.view.insert_system_prompt(item.item);
-    else {
-      const link = `[[${item.item.path}]] `;
-      // if shift is held, prepend with !
-      if(evt.shiftKey) this.view.insert_selection('!' + link);
-      else this.view.insert_selection(link);
-    }
-    this.close();
-  }
-}
-class ScNotesSelectModal extends ScFileSelectModal {
-  getItems() { return this.app.vault.getMarkdownFiles().sort((a, b) => a.basename.localeCompare(b.basename)); }
-}
-// Folder Select Fuzzy Suggest Modal
-class ScFolderSelectModal extends FuzzySuggestModal {
-  constructor(app, view, folders) {
-    super(app);
-    this.app = app;
-    this.folders = folders;
-    this.view = view;
-    this.setPlaceholder("Type the name of a folder...");
-  }
-  getItems() { return this.folders; }
-  getItemText(item) { return item; }
-  onChooseItem(folder) { this.view.insert_selection("/" + folder + "/ "); }
-}
+// CHAT HISTORY MODAL
 class ScChatHistoryModal extends FuzzySuggestModal {
   constructor(app, view) {
     super(app);
@@ -282,26 +200,120 @@ class ScChatHistoryModal extends FuzzySuggestModal {
 }
 
 
-// Chopping block
-class ScSystemPromptSelectModal extends FuzzySuggestModal {
+// CONTEXT MODALS
+// Omni Modal
+class ScOmniModal extends FuzzySuggestModal {
   constructor(app, view) {
     super(app);
     this.app = app;
     this.view = view;
-    this.setPlaceholder("Type the name of a system prompt...");
+    this.setPlaceholder("Select input type...");
+    this.inputEl.addEventListener('keydown', (e) => {
+      // arrow right to select
+      if (e.key === "ArrowRight") this.selectActiveSuggestion(e);
+    });
+    this.setInstructions([
+      {
+        command: `Enter or →`,
+        purpose: "Select a context type"
+      }
+    ]);
   }
-  getItems() { return this.view.plugin.system_prompts; }
-  getItemText(item) { return item.basename; }
-  onChooseItem(prompt) { this.view.insert_selection('"' + prompt.path + '"'); }
+  getItems() {
+    return [
+      "Files",
+      "Folders",
+      "Notes",
+      // "System Prompt",
+      "Images"
+    ];
+  }
+  getItemText(item) { return item; }
+  onChooseItem(item) {
+    this.view.open_modal(item);
+  }
 }
-class ScImageSelectModal extends FuzzySuggestModal {
+class ContextSelectModal extends FuzzySuggestModal {
   constructor(app, view) {
     super(app);
     this.app = app;
     this.view = view;
+    this.setPlaceholder("Find and select a context...");
+    this.inputEl.addEventListener('keydown', (e) => {
+      if (e.key === "Escape" || e.key === "ArrowLeft"){
+        this.view.open_omni_modal();
+        this.close();
+      }
+      if (e.key === "Enter") this.selectActiveSuggestion(e);
+    });
+  }
+}
+// File Select Fuzzy Suggest Modal
+class ScFileSelectModal extends ContextSelectModal {
+  constructor(app, view) {
+    super(app, view);
+    const mod_key = this.app.isMacOs ? `⌘` : `ctrl`;
+    this.setInstructions([
+      {
+        command: `←`,
+        purpose: "Go back"
+      },
+      {
+        command: `↵`,
+        purpose: "Insert as linked context"
+      },
+      {
+        command: `${mod_key} ↵`,
+        purpose: "Insert as system prompt"
+      },
+      {
+        command: `shift ↵`,
+        purpose: "Insert content inline"
+      }
+    ]);
+  }
+  // get all markdown files
+  getItems() { return this.app.vault.getFiles().sort((a, b) => a.basename.localeCompare(b.basename)); }
+  getItemText(item) { return item.basename; }
+  selectSuggestion(item, evt) {
+    // console.log('selectSuggestion item', item);
+    // console.log('selectSuggestion evt', evt);
+    if(Keymap.isModEvent(evt)) this.view.insert_system_prompt(item.item);
+    else {
+      const link = `[[${item.item.path}]] `;
+      if(evt.shiftKey) this.view.insert_selection('!' + link); // if shift is held, prepend with !
+      else this.view.insert_selection(link);
+    }
+    this.close();
+  }
+}
+class ScNotesSelectModal extends ScFileSelectModal {
+  getItems() { return this.app.vault.getMarkdownFiles().sort((a, b) => a.basename.localeCompare(b.basename)); }
+}
+// Folder Select Fuzzy Suggest Modal
+class ScFolderSelectModal extends ContextSelectModal {
+  constructor(app, view, folders) {
+    super(app, view);
+    this.folders = folders;
+    this.setPlaceholder("Type the name of a folder...");
+    this.inputEl.addEventListener('keydown', (e) => {
+      if (e.key === "Escape" || e.key === "ArrowLeft"){
+        this.view.open_omni_modal();
+        this.close();
+      }
+    });
+  }
+  getItems() { return this.folders; }
+  getItemText(item) { return item; }
+  onChooseItem(folder) { this.view.insert_selection("/" + folder + "/ "); }
+}
+
+
+class ScImageSelectModal extends ScFileSelectModal {
+  constructor(app, view) {
+    super(app, view);
     this.setPlaceholder("Type the name of an image...");
   }
-
   get image_extensions() {
     return [
       "gif",
@@ -313,16 +325,23 @@ class ScImageSelectModal extends FuzzySuggestModal {
       "webp"
     ];
   }
-
   getItems() {
     return this.app.vault.getFiles()
       .filter((file) => this.image_extensions.includes(file.extension))
       .sort((a, b) => a.basename.localeCompare(b.basename));
   }
-
   getItemText(item) { return item.path; }
-  
-  onChooseItem(image) {
-    this.view.insert_selection(`[[${image.path}]] `);
+}
+
+// Chopping block
+class ScSystemPromptSelectModal extends FuzzySuggestModal {
+  constructor(app, view) {
+    super(app);
+    this.app = app;
+    this.view = view;
+    this.setPlaceholder("Type the name of a system prompt...");
   }
+  getItems() { return this.view.plugin.system_prompts; }
+  getItemText(item) { return item.basename; }
+  onChooseItem(prompt) { this.view.insert_selection('"' + prompt.path + '"'); }
 }
