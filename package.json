@@ -52,7 +52,6 @@
     "smart-http-request": "file:../jsbrains/smart-http-request",
     "smart-instruct-model": "file:../jsbrains/smart-instruct-model",
     "smart-model": "file:../jsbrains/smart-model",
-    "smart-setting": "file:../jsbrains/smart-setting",
     "smart-settings": "file:../jsbrains/smart-settings",
     "smart-sources": "file:../jsbrains/smart-sources",
     "smart-view": "file:../jsbrains/smart-view"
