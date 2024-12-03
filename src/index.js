@@ -204,6 +204,12 @@ export default class SmartConnectionsPlugin extends Plugin {
       icon: "pencil_icon",
       hotkeys: [],
       editorCallback: (editor) => {
+        // if has selection, use selection
+        if(editor.somethingSelected()){
+          this.search_view.render_view(editor.getSelection());
+          return;
+        }
+
         if(editor.getCursor()?.line){ // if cursor is on a line greater than 0
           const line = editor.getCursor().line;
           const source = this.env.smart_sources.current_note;
