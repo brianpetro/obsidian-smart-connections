@@ -336,7 +336,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         {
           add_result_listeners: this.add_result_listeners.bind(this),
           attribution: this.attribution,
-          search_text: contents,
+          query: contents,
         }
       );
     }else{

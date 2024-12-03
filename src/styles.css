@@ -20,54 +20,6 @@
   }
 }
 
-div[data-type^="smart-connections-"] {
-  > .view-content {
-    display: flex;
-    flex-direction: column;
-    #settings, /* DEPRECATED v2.2 */
-    .sc-overlay {
-      background-color: var(--background-primary-alt);
-      max-width: 100%;
-      max-height: 42%;
-      &:has(.setting-component){
-        overflow-y: auto;
-        /* height: 100%; */
-        /* min-height: 42%; */
-        padding: var(--size-4-4);
-        flex: none;
-      }
-      .setting-item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .sc-search-container {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        .sc-search-input {
-          width: 100%;
-          display: flex;
-          flex-direction: row;
-          > textarea {
-            border-radius: 1.5rem;
-            margin-right: -4rem;
-            flex-grow: 1;
-            height: 4lh;
-            padding: 1rem 3rem 1rem 1rem;
-          }
-          > button {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 99999px;
-            margin: auto;
-            margin-right: 1rem;
-          }
-        }
-
-      }
-    }
-  }
-}
 .sc-list {
   .tree-item-self {
     cursor: pointer;
@@ -846,4 +798,81 @@ div[data-type^="smart-connections-"] {
 /* Add this to handle content visibility */
 .sg-directory-item.sg-collapsed .sg-directory-content {
   display: none;
+}
+
+/* Lookup */
+#sc-lookup-view {
+  .sc-container {
+    .sc-textarea-container {
+      display: flex;
+      padding: 0 10px 1rem 0;
+      width: 100%;
+      max-height: 50%;
+
+      > textarea {
+        flex-grow: 1;
+        padding: 0.88rem;
+        border: none;
+        border-radius: 1.5rem;
+        resize: none;
+        height: auto;
+        min-height: 4.2lh;
+        max-height: 100%;
+        background-color: var(--background-primary);
+        color: var(--text-normal);
+        margin-right: -2.7rem;
+        padding-right: 3rem;
+      }
+      .sc-textarea-btn-container {
+        width: 2rem;
+        height: 2rem;
+        margin: auto;
+      
+        > button.send-button {
+          border-radius: 99999px;
+          cursor: pointer;
+          outline: 2px solid transparent;
+          padding: 0;
+          outline-offset: 2px;
+          background: none !important;
+    
+          &:focus-visible{
+            outline-color: var(--text-faint);
+            box-shadow: none;
+          }
+        
+          > svg{
+            > circle {
+              fill: var(--text-faint);
+            }
+            > path {
+              fill: var(--background-primary);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Side Panes */
+div.workspace-leaf-content[data-type^="smart-"] {
+  > .view-content {
+    display: flex;
+    flex-direction: column;
+    .sc-overlay {
+      background-color: var(--background-primary-alt);
+      max-width: 100%;
+      max-height: 42%;
+      &:has(.setting-component){
+        overflow-y: auto;
+        padding: var(--size-4-4);
+        flex: none;
+      }
+      .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  }
 }
