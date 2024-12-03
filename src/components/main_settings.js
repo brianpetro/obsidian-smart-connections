@@ -82,10 +82,10 @@ function render_supporters_section(scope) {
     + render_supporter_benefits_html()
   ;
   const become_supporter_html = scope.EARLY_ACCESS ? '' : `<div class="setting-component"
-      data-name="Upgrade to Early Access Version (v2.2)"
-      data-description="Upgrade to v2.3 (Early Access) to access new features and improvements."
+      data-name="Upgrade to Early Access Version (v2.4)"
+      data-description="Upgrade to v2.4 (Early Access) to access new features and improvements."
       data-type="button"
-      data-btn-text="Upgrade to v2.3"
+      data-btn-text="Upgrade to early-access"
       data-callback="update_early_access"
     ></div>
     <div class="setting-component"
