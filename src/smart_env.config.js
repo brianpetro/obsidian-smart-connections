@@ -42,7 +42,7 @@ import { SmartThreads } from "smart-chats/smart_threads.js";
 import { SmartThread } from "smart-chats/smart_thread.js";
 import { SmartMessages } from "smart-chats/smart_messages.js";
 import { SmartMessage } from "smart-chats/smart_message.js";
-import { SmartThreadJsonDataAdapter } from "smart-chats/adapters/json.js";
+import { EnvJsonThreadSourceAdapter } from "smart-chats/adapters/json.js";
 
 export const smart_env_config = {
   global_ref: window,
@@ -72,8 +72,8 @@ export const smart_env_config = {
       class: SmartThreads,
       data_adapter: SmartCollectionMultiFileDataAdapter,
       source_adapters: {
-        "json": SmartThreadJsonDataAdapter,
-        "default": SmartThreadJsonDataAdapter,
+        "json": EnvJsonThreadSourceAdapter,
+        "default": EnvJsonThreadSourceAdapter,
       },
     },
     smart_messages: {

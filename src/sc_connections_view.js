@@ -48,7 +48,7 @@ export class ScConnectionsView extends SmartEntitiesView {
       add_result_listeners: this.add_result_listeners.bind(this),
       attribution: this.attribution,
       refresh_smart_view: this.refresh_smart_view.bind(this),
-      open_search_view: this.plugin.open_search_view.bind(this.plugin),
+      open_lookup_view: this.plugin.open_lookup_view.bind(this.plugin),
     });
 
     this.add_top_bar_listeners();

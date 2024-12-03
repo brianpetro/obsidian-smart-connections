@@ -206,7 +206,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       editorCallback: (editor) => {
         // if has selection, use selection
         if(editor.somethingSelected()){
-          this.search_view.render_view(editor.getSelection());
+          this.lookup_view.render_view(editor.getSelection());
           return;
         }
 
@@ -309,8 +309,8 @@ export default class SmartConnectionsPlugin extends Plugin {
   open_chat() { SmartChatsView.open(this.app.workspace); }
   get view() { return ScConnectionsView.get_view(this.app.workspace); } 
   open_view(active=true) { ScConnectionsView.open(this.app.workspace, active); }
-  open_search_view(){ ScLookupView.open(this.app.workspace); }
-  get search_view() { return ScLookupView.get_view(this.app.workspace); }
+  open_lookup_view(){ ScLookupView.open(this.app.workspace); }
+  get lookup_view() { return ScLookupView.get_view(this.app.workspace); }
   open_chatgpt() { SmartChatGPTView.open(this.app.workspace); }
   open_private_chat() { SmartPrivateChatView.open(this.app.workspace); }
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
@@ -356,7 +356,7 @@ export default class SmartConnectionsPlugin extends Plugin {
           refresh_smart_view: () => {
             this.render_code_block(contents, container, ctx);
           },
-          open_search_view: this.open_search_view.bind(this),
+          open_lookup_view: this.open_lookup_view.bind(this),
         }
       );
     }
