@@ -137,6 +137,8 @@ export const smart_env_config = {
       settings: source_settings_component,
     },
     smart_blocks: {
+      connections: connections_component,
+      lookup: lookup_component,
       settings: source_settings_component,
     },
     smart_threads: {

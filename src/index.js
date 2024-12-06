@@ -206,10 +206,12 @@ export default class SmartConnectionsPlugin extends Plugin {
       editorCallback: (editor) => {
         // if has selection, use selection
         if(editor.somethingSelected()){
+          if(!this.lookup_view) this.open_lookup_view();
           this.lookup_view.render_view(editor.getSelection());
           return;
         }
 
+        if(!this.view) this.open_view();
         if(editor.getCursor()?.line){ // if cursor is on a line greater than 0
           const line = editor.getCursor().line;
           const source = this.env.smart_sources.current_note;
