@@ -44,6 +44,7 @@ esbuild.build({
     'obsidian',
     'crypto',
     '@xenova/transformers',
+    '@huggingface/transformers',
   ],
   define: {
     'process.env.DEFAULT_OPEN_ROUTER_API_KEY': JSON.stringify(process.env.DEFAULT_OPEN_ROUTER_API_KEY),

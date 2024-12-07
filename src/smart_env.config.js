@@ -19,11 +19,11 @@ import { Notice } from "obsidian";
 import { SmartSettings } from "smart-settings";
 import { render as source_settings_component } from 'smart-sources/components/settings.js';
 import { render as collection_settings_component } from 'smart-collections/components/settings.js';
-import { render as env_settings_component } from './components/env_settings.js';
-import { render as connections_component } from 'smart-entities/components/connections.js';
-import { render as lookup_component } from 'smart-entities/components/lookup.js';
 import { render as model_settings_component } from "smart-model/components/settings.js";
-import { render as render_directories_component } from "smart-groups/components/directories.js";
+import { render as render_directories_component } from "smart-directories/components/directories.js";
+import { render as env_settings_component } from './components/env_settings.js';
+import { render as connections_component } from './components/connections.js';
+import { render as lookup_component } from './components/lookup.js';
 // import { SmartViewNodeAdapter } from 'smart-view/adapters/node.js';
 import { SmartChatModel } from "smart-chat-model";
 import {
@@ -37,7 +37,7 @@ import {
 } from "smart-chat-model/adapters.js";
 import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-request";
 import { requestUrl } from "obsidian";
-import { SmartDirectories, SmartDirectory } from "smart-groups";
+import { SmartDirectories, SmartDirectory } from "smart-directories";
 import { SmartThreads } from "smart-chats/smart_threads.js";
 import { SmartThread } from "smart-chats/smart_thread.js";
 import { SmartMessages } from "smart-chats/smart_messages.js";
