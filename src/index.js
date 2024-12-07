@@ -355,7 +355,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         {
           add_result_listeners: this.add_result_listeners.bind(this),
           attribution: this.attribution,
-          refresh_smart_view: () => {
+          re_render: () => {
             this.render_code_block(contents, container, ctx);
           },
           open_lookup_view: this.open_lookup_view.bind(this),
@@ -497,12 +497,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   //     if(!os.smart_notices) os.smart_notices = {};
   //     os.smart_notices.muted = {...this.env._settings.smart_notices.muted};
   //     delete this.env._settings.smart_notices;
-  //   }
-  //   // rename to model_key
-  //   if(this.env._settings.smart_sources?.embed_model_key){
-  //     if(!this.env._settings.smart_sources.embed_model) this.env._settings.smart_sources.embed_model = {};
-  //     this.env._settings.smart_sources.embed_model.model_key = this.env._settings.smart_sources.embed_model_key;
-  //     delete this.env._settings.smart_sources.embed_model_key;
   //   }
   //   // rename to embed_model
   //   if (os.smart_sources_embed_model) {

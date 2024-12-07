@@ -24,6 +24,8 @@ import { render as render_directories_component } from "smart-directories/compon
 import { render as env_settings_component } from './components/env_settings.js';
 import { render as connections_component } from './components/connections.js';
 import { render as lookup_component } from './components/lookup.js';
+import { render as results_component } from 'smart-entities/components/results.js';
+import { render as result_component } from 'smart-entities/components/result.js';
 // import { SmartViewNodeAdapter } from 'smart-view/adapters/node.js';
 import { SmartChatModel } from "smart-chat-model";
 import {
@@ -128,17 +130,17 @@ export const smart_env_config = {
     },
   },
   components: {
+    connections: connections_component,
+    lookup: lookup_component,
+    results: results_component,
+    // result: result_component,
     smart_env: {
       settings: env_settings_component,
     },
     smart_sources: {
-      connections: connections_component,
-      lookup: lookup_component,
       settings: source_settings_component,
     },
     smart_blocks: {
-      connections: connections_component,
-      lookup: lookup_component,
       settings: source_settings_component,
     },
     smart_threads: {
