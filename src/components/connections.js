@@ -8,7 +8,6 @@ export async function build_html(view, opts = {}) {
     { title: 'Help', icon: 'help-circle' }
   ].map(btn => `
     <button
-      class="sc-${btn.title.toLowerCase().replace(' ', '-')}"
       title="${btn.title}"
       aria-label="${btn.title} button"
       ${btn.style ? `style="${btn.style}"` : ''}
@@ -30,7 +29,7 @@ export async function build_html(view, opts = {}) {
           ${this.get_icon_html('x')}
         </button>
       </div>
-      <div class="settings-container"></div>
+      <div class="sc-settings"></div>
     </div>
     <div class="sc-list">
     </div>
@@ -71,7 +70,7 @@ export async function post_process(view, frag, opts = {}) {
   }
 
   // Add fold/unfold all functionality
-  const toggle_button = frag.querySelector(".sc-fold-toggle");
+  const toggle_button = frag.querySelector("[title='Fold toggle']");
   toggle_button.addEventListener("click", () => {
     const expanded = view.env.settings.expanded_view;
     container.querySelectorAll(".sc-result").forEach((elm) => {
@@ -89,28 +88,32 @@ export async function post_process(view, frag, opts = {}) {
     toggle_button.setAttribute('aria-label', view.env.settings.expanded_view ? 'Fold all' : 'Unfold all');
   });
 
-  const filter_button = frag.querySelector(".sc-filter");
+  const filter_button = frag.querySelector("[title='Filter']");
   filter_button.addEventListener("click", () => {
     render_filter_settings();
   });
 
   // refresh smart view
-  const refresh_button = frag.querySelector(".sc-refresh");
+  const refresh_button = frag.querySelector("[title='Refresh']");
   refresh_button.addEventListener("click", () => {
     opts.re_render();
   });
 
   // search
-  const search_button = frag.querySelector(".sc-search");
+  const search_button = frag.querySelector("[title='Search']");
   search_button.addEventListener("click", () => {
     opts.open_lookup_view();
   });
 
   // help documentation
-  const help_button = frag.querySelector(".sc-help");
+  const help_button = frag.querySelector("[title='Help']");
   help_button.addEventListener("click", () => {
     window.open("https://docs.smartconnections.app/connections-pane", "_blank");
   });
+
+  if(typeof opts.post_process === "function"){
+    await opts.post_process(view, frag, opts);
+  }
 
   return frag;
 }

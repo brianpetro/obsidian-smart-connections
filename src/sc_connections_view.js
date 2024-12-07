@@ -6,12 +6,6 @@ export class ScConnectionsView extends SmartEntitiesView {
   static get icon_name() { return "smart-connections"; }
   main_component_key = "connections";
 
-  constructor(leaf, plugin) {
-    super(leaf, plugin);
-    this.results_container = null;
-    this.header_container = null;
-    this.footer_container = null;
-  }
 
   register_plugin_events() {
     this.plugin.registerEvent(this.app.workspace.on('file-open', (file) => {
@@ -30,9 +24,12 @@ export class ScConnectionsView extends SmartEntitiesView {
     if (!this.results_container) return;
     this.entities_count_elm = this.header_container.querySelector('.sc-context');
     this.entities_count_elm.innerText = `${this.env.smart_sources.keys.length} (${this.env.smart_blocks.keys.length})`;
-    this.entities_count_elm.dataset.key = entity.key;
     this.status_elm = this.footer_container.querySelector('.sc-context');
     this.status_elm.innerText = "Loading...";
+    
+    // set context keys
+    this.entities_count_elm.dataset.key = entity.key;
+    this.status_elm.dataset.key = entity.key;
 
     const results = entity.find_connections({ 
       ...opts, 
@@ -57,6 +54,9 @@ export class ScConnectionsView extends SmartEntitiesView {
     attribution: this.attribution,
     open_lookup_view: this.plugin.open_lookup_view.bind(this.plugin),
     re_render: this.re_render.bind(this),
+    post_process: async (scope, frag, opts={}) => {
+      return post_process_note_inspect_opener(scope, frag, opts);
+    }
   };
   async render_view(entity=null, container=this.container) {
     if (container.checkVisibility() === false) return console.log("View inactive, skipping render nearest");
@@ -96,24 +96,22 @@ export class ScConnectionsView extends SmartEntitiesView {
       container.empty();
       container.appendChild(frag);
       
-      // Store reference to containers
-      this.results_container = container.querySelector('.sc-list');
-      this.header_container = container.querySelector('.sc-top-bar');
-      this.footer_container = container.querySelector('.sc-bottom-bar');
-      
-
-      // Add listeners
-      this.add_top_bar_listeners();
-      
       // Render initial results
       await this.render_results(entity, this.main_components_opts);
     } else {
       // Just update results if container exists
-      await this.render_results(entity, {
-        add_result_listeners: this.add_result_listeners.bind(this),
-        attribution: this.attribution
-      });
+      await this.render_results(entity, this.main_components_opts);
     }
+  }
+
+  get results_container() {
+    return this.container.querySelector('.sc-list');
+  }
+  get header_container() {
+    return this.container.querySelector('.sc-top-bar');
+  }
+  get footer_container() {
+    return this.container.querySelector('.sc-bottom-bar');
   }
 
   re_render() {
@@ -123,25 +121,19 @@ export class ScConnectionsView extends SmartEntitiesView {
     this.render_view();
   }
 
-  add_top_bar_listeners() {
-    const container = this.container;
+}
 
-
-    container.querySelectorAll(".sc-context").forEach(el => {
-      const entity = this.env.smart_sources.get(el.dataset.key);
+function post_process_note_inspect_opener(view, frag, opts = {}) {
+  frag.querySelectorAll(".sc-context").forEach(el => {
+    el.addEventListener("click", (event) => {
+      const entity = view.env.smart_sources.get(event.currentTarget.dataset.key);
       if(entity){
-        el.addEventListener("click", () => {
-          new SmartNoteInspectModal(this.env, entity).open();
-        });
+        new SmartNoteInspectModal(view.env, entity).open();
       }
     });
-  }
+  });
+  return frag;
 }
-// function on_open_overlay(overlay_container) {
-//   overlay_container.style.transition = "background-color 0.5s ease-in-out";
-//   overlay_container.style.backgroundColor = "var(--bold-color)";
-//   setTimeout(() => { overlay_container.style.backgroundColor = ""; }, 500);
-// }
 
 import { Modal } from "obsidian";
 export class SmartNoteInspectModal extends Modal {

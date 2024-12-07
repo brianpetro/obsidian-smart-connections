@@ -876,3 +876,13 @@ div.workspace-leaf-content[data-type^="smart-"] {
     }
   }
 }
+
+.sc-pro {
+  .sc-settings {
+    padding: var(--size-4-4);
+    textarea {
+      min-height: 4rem;
+      flex-grow: 1;
+    }
+  }
+}
