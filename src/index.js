@@ -18,16 +18,16 @@ import templates from "../build/views.json" assert { type: "json" };
 // rename modules
 import { ScConnectionsView } from "./sc_connections_view.js";
 import { ScLookupView } from "./sc_lookup_view.js";
-import { SmartSearch } from "./smart_search.js";
-// v2.1
 import { SmartChatsView } from "./smart_chat_view.js";
+import { SmartChatGPTView } from "./sc_chatgpt_view.js";
+import { SmartPrivateChatView } from "./sc_private_chat_view.js";
+import { ScDirsView } from "./sc_dirs_view.js";
+// v2.1
+import { SmartSearch } from "./smart_search.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";
 import { ScActionsUx } from "./sc_actions_ux.js";
 import { open_note } from "./open_note.js";
-import { SmartChatGPTView } from "./sc_chatgpt_view.js";
-import { SmartPrivateChatView } from "./sc_private_chat_view.js";
 import { ScAppConnector } from "./sc_app_connector.js";
-import { ScDirsView } from "./sc_dirs_view.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -86,8 +86,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     await this.check_for_updates();
     this._api = new SmartSearch(this);
     (window["SmartSearch"] = this._api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
-    this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_view(); });
-    this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat(); });
+    this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
+    this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat_view(); });
     this.register_code_blocks();
     this.new_user();
     console.log("loading env");
@@ -129,8 +129,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.settings.new_user = false;
     this.settings.version = this.manifest.version;
     setTimeout(() => {
-      this.open_view();
-      this.open_chat();
+      this.open_connections_view();
+      this.open_chat_view();
     }, 1000); // wait a sec to allow existing views to open
     if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
     this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env"); 
@@ -151,6 +151,14 @@ export default class SmartConnectionsPlugin extends Plugin {
         name: "Open: " + View.display_text + " view",
         callback: () => { View.open(this.app.workspace); }
       });
+      const method_name = View.view_type
+        .replace('smart-', '')
+        .replace(/-/g, '_')
+      ;
+      // getters
+      Object.defineProperty(this, method_name, { get: () => View.get_view(this.app.workspace) });
+      // open methods
+      this['open_' + method_name] = () => View.open(this.app.workspace);
     });
   }
   async check_for_updates() {
@@ -211,14 +219,14 @@ export default class SmartConnectionsPlugin extends Plugin {
           return;
         }
 
-        if(!this.view) this.open_view();
+        if(!this.connections_view) this.open_connections_view();
         if(editor.getCursor()?.line){ // if cursor is on a line greater than 0
           const line = editor.getCursor().line;
           const source = this.env.smart_sources.current_note;
           let item = source.get_block_by_line(line);
-          if(item?.vec) return this.view.render_view(item);
-          else this.view.render_view(source);
-        }else this.view.render_view();
+          if(item?.vec) return this.connections_view.render_view(item);
+          else this.connections_view.render_view(source);
+        }else this.connections_view.render_view();
       }
     });
     // make connections command
@@ -244,7 +252,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         await this.env.smart_sources.process_embed_queue();
         setTimeout(() => {
           // refresh view
-          this.view.render_view();
+          this.connections_view.render_view();
         }, 1000);
       }
     });
@@ -252,13 +260,13 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addCommand({
       id: "smart-connections-view",
       name: "Open: View Smart Connections",
-      callback: () => { this.open_view(); }
+      callback: () => { this.open_connections_view(); }
     });
     // open chat command
     this.addCommand({
       id: "smart-connections-chat",
       name: "Open: Smart Chat Conversation",
-      callback: () => { this.open_chat(); }
+      callback: () => { this.open_chat_view(); }
     });
     // open random note from nearest cache
     this.addCommand({
@@ -280,7 +288,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addCommand({
       id: "smart-connections-chatgpt",
       name: "Open: Smart ChatGPT",
-      callback: () => { this.open_chatgpt(); }
+      callback: () => { this.open_chatgpt_view(); }
     });
     // open private chat command
     this.addCommand({
@@ -290,8 +298,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     });
   }
   async make_connections(selected_text=null) {
-    if(!this.view) await this.open_view(); // open view if not open
-    await this.view.render_nearest(selected_text);
+    if(!this.connections_view) await this.open_connections_view(); // open view if not open
+    await this.connections_view.render_nearest(selected_text);
   }
   // utils
   async add_to_gitignore(ignore, message=null) {
@@ -307,14 +315,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     const notice_id = typeof message === 'string' ? message : message[0];
     return this.notices.show(notice_id, message, opts);
   }
-  get chat_view() { return SmartChatsView.get_view(this.app.workspace); }
-  open_chat() { SmartChatsView.open(this.app.workspace); }
-  get view() { return ScConnectionsView.get_view(this.app.workspace); } 
-  open_view(active=true) { ScConnectionsView.open(this.app.workspace, active); }
-  open_lookup_view(){ ScLookupView.open(this.app.workspace); }
-  get lookup_view() { return ScLookupView.get_view(this.app.workspace); }
-  open_chatgpt() { SmartChatGPTView.open(this.app.workspace); }
-  open_private_chat() { SmartPrivateChatView.open(this.app.workspace); }
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
   // get folders, traverse non-hidden sub-folders
   async get_folders(path = "/") {
@@ -365,9 +365,9 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   async render_code_block_context(results, container, ctx) {
     results = this.get_entities_from_context_codeblock(results);
-    container.innerHTML = this.view.render_template("smart_connections", { current_path: "context", results });
-    container.querySelectorAll(".sc-result").forEach((elm, i) => this.view.add_link_listeners(elm, results[i]));
-    container.querySelectorAll(".sc-result:not(.sc-collapsed) ul li").forEach(this.view.render_result.bind(this.view));
+    container.innerHTML = this.connections_view.render_template("smart_connections", { current_path: "context", results });
+    container.querySelectorAll(".sc-result").forEach((elm, i) => this.connections_view.add_link_listeners(elm, results[i]));
+    container.querySelectorAll(".sc-result:not(.sc-collapsed) ul li").forEach(this.connections_view.render_result.bind(this.connections_view));
   }
   get_entities_from_context_codeblock(results) {
     return results.split("\n").map(key => {

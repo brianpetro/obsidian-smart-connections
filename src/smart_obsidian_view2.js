@@ -27,7 +27,7 @@ export class SmartObsidianView2 extends ItemView {
   async initialize() {
     await this.wait_for_env_to_load();
     this.container.empty();
-    this.plugin[this.constructor.view_type.replace(/-/g, "_")] = this;
+    // this.plugin[this.constructor.view_type.replace(/-/g, "_")] = this;
     this.register_plugin_events();
     this.app.workspace.registerHoverLinkSource(this.constructor.view_type, { display: this.getDisplayText(), defaultMod: true });
     this.render_view();

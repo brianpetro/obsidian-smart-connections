@@ -1,7 +1,7 @@
 import { ItemView } from "obsidian";
 
 export class SmartPrivateChatView extends ItemView {
-  static get view_type() { return 'smart_private_chat'; }
+  static get view_type() { return 'smart-private-chat'; }
   static get display_text() { return "Smart Connections Supporter Private Chat"; }
   static get icon_name() { return "users"; }
   getViewType() { return this.constructor.view_type; }

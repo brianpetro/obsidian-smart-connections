@@ -1,7 +1,7 @@
 import { ItemView } from "obsidian";
 
 export class SmartChatGPTView extends ItemView {
-  static get view_type() { return 'smart_chatgpt'; }
+  static get view_type() { return 'smart-chatgpt-view'; }
   static get display_text() { return "Smart ChatGPT"; }
   static get icon_name() { return "bot"; }
   getViewType() { return this.constructor.view_type; }

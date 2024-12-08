@@ -86,7 +86,7 @@ export class SmartNotices {
   }
   // begin plugin specific methods
   show_requires_smart_view() {
-    const btn = { text: "Open Smart View", callback: () => { this.main.open_view(false); } };
+    const btn = { text: "Open Smart View", callback: () => { this.main.open_connections_view(false); } };
     const msg = "Smart View must be open to utilize all Smart Chat features. For example, asking things like \"Based on my notes...\" requires Smart View to be open.";
     this.show('requires smart view', msg, { button: btn, timeout: 0 });
   }
