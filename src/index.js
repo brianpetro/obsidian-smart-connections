@@ -91,7 +91,13 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.register_code_blocks();
     this.new_user();
     console.log("loading env");
-    await this.load_env();
+    if(this.obsidian.Platform.isMobile){
+      // render notice with button to load smart env
+      this.show_notice("Mobile detected: to prevent performance issues, click to load Smart Environment when ready.", {
+        button: {text: "Load Smart Env", callback: () => { this.load_env(); }},
+        timeout: 0,
+      });
+    }else await this.load_env();
     console.log("Smart Connections v2 loaded");
   }
   register_code_blocks() {

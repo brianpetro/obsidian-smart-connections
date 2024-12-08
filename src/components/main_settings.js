@@ -1,4 +1,15 @@
 export async function render(scope) {
+  if(!scope.env){
+    const load_frag = this.create_doc_fragment(`
+      <div><button>Load Smart Environment</button></div>
+    `);
+    load_frag.querySelector('button').addEventListener('click', (e) => {
+      scope.load_env();
+      // replace button with "reload settings after smart environment loads"
+      e.target.replaceWith(this.create_doc_fragment('<span>Reload settings after Smart Environment loads...</span>'));
+    });
+    return load_frag;
+  }
   const html = `
     <div id="smart-connections-settings">
       ${render_mobile_warning(scope)}
