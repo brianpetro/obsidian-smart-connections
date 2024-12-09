@@ -163,8 +163,11 @@ export const smart_env_config = {
     },
     smart_sources: {
       embed_model: {
-        model_key: 'TaylorAI/bge-micro-v2',
-        legacy_transformers: true,
+        adapter: "transformers",
+        transformers: {
+          legacy_transformers: false,
+          model_key: 'TaylorAI/bge-micro-v2',
+        },
       },
     },
     file_exclusions: 'Untitled',
