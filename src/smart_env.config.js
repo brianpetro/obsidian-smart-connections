@@ -6,7 +6,8 @@ import {
 } from "./sc_entities.js";
 import { SourceAdapter } from "smart-sources/adapters/_adapter.js";
 import { MarkdownSourceAdapter } from "smart-sources/adapters/markdown.js";
-import { SmartCollectionMultiFileDataAdapter } from "smart-collections/adapters/multi_file";
+import { AjsonMultiFileCollectionDataAdapter } from "smart-collections/adapters/ajson_multi_file.js";
+// import { JsonSingleFileCollectionDataAdapter } from "smart-collections/adapters/json_single_file.js";
 import { SmartEmbedModel } from "smart-embed-model";
 import { SmartEmbedOpenAIAdapter } from "smart-embed-model/adapters/openai.js";
 import { SmartEmbedTransformersIframeAdapter } from "smart-embed-model/adapters/transformers_iframe.js";
@@ -52,11 +53,12 @@ export const smart_env_config = {
   // env_data_dir: '.smart-env', // added in Plugin class
   collections: {
     smart_collections: {
-      data_adapter: SmartCollectionMultiFileDataAdapter
+      data_adapter: AjsonMultiFileCollectionDataAdapter
     },
     smart_sources: {
       class: SmartSources,
-      data_adapter: SmartCollectionMultiFileDataAdapter,
+      data_adapter: AjsonMultiFileCollectionDataAdapter,
+      // data_adapter: JsonSingleFileCollectionDataAdapter,
       source_adapters: {
         "md": MarkdownSourceAdapter,
         "txt": MarkdownSourceAdapter, // temp
@@ -72,7 +74,7 @@ export const smart_env_config = {
     },
     smart_threads: {
       class: SmartThreads,
-      data_adapter: SmartCollectionMultiFileDataAdapter,
+      data_adapter: AjsonMultiFileCollectionDataAdapter,
       source_adapters: {
         "json": EnvJsonThreadSourceAdapter,
         "default": EnvJsonThreadSourceAdapter,
@@ -162,6 +164,7 @@ export const smart_env_config = {
       embed_blocks: true,
     },
     smart_sources: {
+      single_file_data_path: '.smart-env/smart_sources.json',
       embed_model: {
         adapter: "transformers",
         transformers: {
