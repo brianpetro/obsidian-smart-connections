@@ -43,7 +43,8 @@ import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-re
 import { requestUrl } from "obsidian";
 import { SmartDirectories, SmartDirectory } from "smart-directories";
 import { SmartThreads } from "smart-chats/smart_threads.js";
-import { SmartThread } from "smart-chats/smart_thread.js";
+// import { SmartThread } from "smart-chats/smart_thread.js";
+import { ScThread as SmartThread } from "./sc_thread.js";
 import { SmartMessages } from "smart-chats/smart_messages.js";
 import { SmartMessage } from "smart-chats/smart_message.js";
 import { EnvJsonThreadSourceAdapter } from "smart-chats/adapters/json.js";
