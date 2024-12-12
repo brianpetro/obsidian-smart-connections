@@ -27,7 +27,7 @@ import { render as connections_component } from './components/connections.js';
 import { render as lookup_component } from './components/lookup.js';
 import { render as results_component } from 'smart-entities/components/results.js';
 import { render as result_component } from 'smart-entities/components/result.js';
-import { AjsonMultiFileSourceDataAdapter } from "smart-sources/adapters/data/ajson_multi_file.js";
+import { AjsonMultiFileSourcesDataAdapter } from "smart-sources/adapters/data/ajson_multi_file.js";
 // import { SmartViewNodeAdapter } from 'smart-view/adapters/node.js';
 import { SmartChatModel } from "smart-chat-model";
 import {
@@ -59,7 +59,7 @@ export const smart_env_config = {
     },
     smart_sources: {
       class: SmartSources,
-      data_adapter: AjsonMultiFileSourceDataAdapter,
+      data_adapter: AjsonMultiFileSourcesDataAdapter,
       // data_adapter: JsonSingleFileCollectionDataAdapter,
       source_adapters: {
         "md": MarkdownSourceAdapter,
