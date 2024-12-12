@@ -453,7 +453,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.env.smart_sources.clear();
     await this.env.smart_sources.init(); // trigger making new connections
     Object.values(this.env.smart_sources.items).forEach(item => item.queue_import());
-    await this.env.smart_sources.process_import_queue(); // trigger making new connections
+    await this.env.smart_sources.process_source_import_queue(); // trigger making new connections
   }
   async exclude_all_top_level_folders() {
     const folders = (await this.app.vault.adapter.list("/")).folders;
