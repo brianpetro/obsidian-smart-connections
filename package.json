@@ -40,6 +40,7 @@
   "dependencies": {
     "ejs": "file:./ejs.min",
     "obsidian": "latest",
+    "smart-blocks": "file:../jsbrains/smart-blocks",
     "smart-chat-model": "file:../jsbrains/smart-chat-model",
     "smart-chats": "file:../jsbrains/smart-chats",
     "smart-chunks": "file:../jsbrains/smart-chunks",

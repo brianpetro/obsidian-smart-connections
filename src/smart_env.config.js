@@ -1,11 +1,9 @@
-import {
-  SmartSources,
-  SmartBlocks,
-  SmartSource,
-  SmartBlock,
-} from "./sc_entities.js";
+import { SmartSources, SmartSource } from "smart-sources";
+import { SmartBlocks, SmartBlock } from "smart-blocks";
 import { SourceAdapter } from "smart-sources/adapters/_adapter.js";
 import { MarkdownSourceAdapter } from "smart-sources/adapters/markdown.js";
+import { MarkdownBlockContentAdapter } from "smart-blocks/adapters/markdown_block.js";
+import { MarkdownSourceContentAdapter } from "smart-sources/adapters/markdown_source.js";
 import { AjsonMultiFileCollectionDataAdapter } from "smart-collections/adapters/ajson_multi_file.js";
 // import { JsonSingleFileCollectionDataAdapter } from "smart-collections/adapters/json_single_file.js";
 import { SmartEmbedModel } from "smart-embed-model";
@@ -62,14 +60,22 @@ export const smart_env_config = {
       data_adapter: AjsonMultiFileSourcesDataAdapter,
       // data_adapter: JsonSingleFileCollectionDataAdapter,
       source_adapters: {
-        "md": MarkdownSourceAdapter,
-        "txt": MarkdownSourceAdapter, // temp
-        "canvas": MarkdownSourceAdapter, // temp
+        // "md": MarkdownSourceAdapter,
+        // "txt": MarkdownSourceAdapter, // temp
+        // "canvas": MarkdownSourceAdapter, // temp
+        "md": MarkdownSourceContentAdapter,
+        "txt": MarkdownSourceContentAdapter,
+        "canvas": MarkdownSourceContentAdapter,
         "default": SourceAdapter,
       },
     },
     smart_blocks: {
       class: SmartBlocks,
+      block_adapters: {
+        "md": MarkdownBlockContentAdapter,
+        "txt": MarkdownBlockContentAdapter,
+        "canvas": MarkdownBlockContentAdapter,
+      },
     },
     smart_directories: {
       class: SmartDirectories,
