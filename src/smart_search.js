@@ -16,7 +16,7 @@ export class SmartSearch {
         this.main.notices.show("embed search text failed", "Failed to embed search text.")
         return [];
       }
-      return collection.nearest(embedding.vec, filter)
+      return (await collection.nearest(embedding.vec, filter))
         // sort by sim desc
         .sort((a, b) => {
           if (a.score > b.score) return -1;

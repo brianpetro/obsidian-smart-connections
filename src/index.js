@@ -278,10 +278,10 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addCommand({
       id: "smart-connections-random",
       name: "Random Note",
-      callback: () => {
+      callback: async () => {
         const curr_file = this.app.workspace.getActiveFile();
         const entity = this.env.smart_sources.get(curr_file.path);
-        const connections = entity.find_connections({
+        const connections = await entity.find_connections({
             filter: {limit: 20},
           })
         ;
