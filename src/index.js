@@ -248,8 +248,9 @@ export default class SmartConnectionsPlugin extends Plugin {
         let source = this.env.smart_sources.get(curr_file.path);
         if(source) {
           source.data = {path: curr_file.path}; // forces should_import to true by removing last_import
-          // clear file at source.data_path
-          await this.env.data_fs.remove(source.data_path);
+          const source_data_path = source.collection.data_adapter.get_item_data_path(source);
+          // clear file at source_data_path
+          await this.env.data_fs.remove(source_data_path);
         }else{
           this.env.smart_sources.fs.include_file(curr_file.path); // add to fs
           source = this.env.smart_sources.init_file_path(curr_file.path); // init source
