@@ -45,7 +45,6 @@
     "smart-chats": "file:../jsbrains/smart-chats",
     "smart-chunks": "file:../jsbrains/smart-chunks",
     "smart-collections": "file:../jsbrains/smart-collections",
-    "smart-directories": "file:../jsbrains/smart-directories",
     "smart-embed-model": "file:../jsbrains/smart-embed-model",
     "smart-entities": "file:../jsbrains/smart-entities",
     "smart-environment": "file:../jsbrains/smart-environment",

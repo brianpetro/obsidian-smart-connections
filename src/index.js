@@ -21,7 +21,6 @@ import { ScLookupView } from "./sc_lookup_view.js";
 import { SmartChatsView } from "./smart_chat_view.js";
 import { SmartChatGPTView } from "./sc_chatgpt_view.js";
 import { SmartPrivateChatView } from "./sc_private_chat_view.js";
-import { ScDirsView } from "./sc_dirs_view.js";
 // v2.1
 import { SmartSearch } from "./smart_search.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";
@@ -34,7 +33,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   get item_views() {
     return {
       ScConnectionsView,
-      ScDirsView,
       ScLookupView,
       SmartChatsView,
       SmartChatGPTView,

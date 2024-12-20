@@ -16,7 +16,6 @@ import { SmartSettings } from "smart-settings";
 import { render as source_settings_component } from 'smart-sources/components/settings.js';
 import { render as collection_settings_component } from 'smart-collections/components/settings.js';
 import { render as model_settings_component } from "smart-model/components/settings.js";
-import { render as render_directories_component } from "smart-directories/components/directories.js";
 import { render as env_settings_component } from './components/env_settings.js';
 import { render as connections_component } from './components/connections.js';
 import { render as lookup_component } from './components/lookup.js';
@@ -35,9 +34,7 @@ import {
 } from "smart-chat-model/adapters.js";
 import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-request";
 import { requestUrl } from "obsidian";
-import { SmartDirectories, SmartDirectory } from "smart-directories";
 import { SmartThreads } from "smart-chats/smart_threads.js";
-// import { SmartThread } from "smart-chats/smart_thread.js";
 import { ScThread as SmartThread } from "./sc_thread.js";
 import { SmartMessages } from "smart-chats/smart_messages.js";
 import { SmartMessage } from "smart-chats/smart_message.js";
@@ -69,9 +66,6 @@ export const smart_env_config = {
         "canvas": MarkdownBlockContentAdapter,
       },
     },
-    smart_directories: {
-      class: SmartDirectories,
-    },
     smart_threads: {
       class: SmartThreads,
       data_adapter: AjsonMultiFileCollectionDataAdapter,
@@ -87,7 +81,6 @@ export const smart_env_config = {
   item_types: {
     SmartSource,
     SmartBlock,
-    SmartDirectory,
     SmartThread,
     SmartMessage,
   },
@@ -147,9 +140,6 @@ export const smart_env_config = {
     },
     smart_threads: {
       settings: collection_settings_component,
-    },
-    smart_directories: {
-      directories: render_directories_component,
     },
     smart_chat_model: {
       settings: model_settings_component,
