@@ -1,11 +1,9 @@
 import { SmartSources, SmartSource } from "smart-sources";
 import { SmartBlocks, SmartBlock } from "smart-blocks";
 import { SourceAdapter } from "smart-sources/adapters/_adapter.js";
-import { MarkdownSourceAdapter } from "smart-sources/adapters/markdown.js";
 import { MarkdownBlockContentAdapter } from "smart-blocks/adapters/markdown_block.js";
 import { MarkdownSourceContentAdapter } from "smart-sources/adapters/markdown_source.js";
 import { AjsonMultiFileCollectionDataAdapter } from "smart-collections/adapters/ajson_multi_file.js";
-// import { JsonSingleFileCollectionDataAdapter } from "smart-collections/adapters/json_single_file.js";
 import { SmartEmbedModel } from "smart-embed-model";
 import { SmartEmbedOpenAIAdapter } from "smart-embed-model/adapters/openai.js";
 import { SmartEmbedTransformersIframeAdapter } from "smart-embed-model/adapters/transformers_iframe.js";
@@ -24,15 +22,12 @@ import { render as env_settings_component } from './components/env_settings.js';
 import { render as connections_component } from './components/connections.js';
 import { render as lookup_component } from './components/lookup.js';
 import { render as results_component } from 'smart-entities/components/results.js';
-import { render as result_component } from 'smart-entities/components/result.js';
 import { AjsonMultiFileSourcesDataAdapter } from "smart-sources/adapters/data/ajson_multi_file.js";
-// import { SmartViewNodeAdapter } from 'smart-view/adapters/node.js';
 import { SmartChatModel } from "smart-chat-model";
 import {
   SmartChatModelAnthropicAdapter,
   SmartChatModelOpenaiAdapter,
   SmartChatModelGeminiAdapter,
-  SmartChatModelCohereAdapter,
   SmartChatModelOpenRouterAdapter,
   SmartChatModelCustomAdapter,
   SmartChatModelOllamaAdapter,
@@ -60,11 +55,7 @@ export const smart_env_config = {
     smart_sources: {
       class: SmartSources,
       data_adapter: AjsonMultiFileSourcesDataAdapter,
-      // data_adapter: JsonSingleFileCollectionDataAdapter,
       source_adapters: {
-        // "md": MarkdownSourceAdapter,
-        // "txt": MarkdownSourceAdapter, // temp
-        // "canvas": MarkdownSourceAdapter, // temp
         "md": MarkdownSourceContentAdapter,
         "txt": MarkdownSourceContentAdapter,
         "canvas": MarkdownSourceContentAdapter,
@@ -107,7 +98,6 @@ export const smart_env_config = {
       adapters: {
         openai: SmartChatModelOpenaiAdapter,
         anthropic: SmartChatModelAnthropicAdapter,
-        // cohere: SmartChatModelCohereAdapter,
         gemini: SmartChatModelGeminiAdapter,
         open_router: SmartChatModelOpenRouterAdapter,
         custom: SmartChatModelCustomAdapter,
@@ -147,7 +137,6 @@ export const smart_env_config = {
     connections: connections_component,
     lookup: lookup_component,
     results: results_component,
-    // result: result_component,
     smart_env: {
       settings: env_settings_component,
     },
