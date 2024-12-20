@@ -1,6 +1,5 @@
 import { SmartSources, SmartSource } from "smart-sources";
 import { SmartBlocks, SmartBlock } from "smart-blocks";
-import { SourceAdapter } from "smart-sources/adapters/_adapter.js";
 import { MarkdownBlockContentAdapter } from "smart-blocks/adapters/markdown_block.js";
 import { MarkdownSourceContentAdapter } from "smart-sources/adapters/markdown_source.js";
 import { AjsonMultiFileCollectionDataAdapter } from "smart-collections/adapters/ajson_multi_file.js";
@@ -59,7 +58,7 @@ export const smart_env_config = {
         "md": MarkdownSourceContentAdapter,
         "txt": MarkdownSourceContentAdapter,
         "canvas": MarkdownSourceContentAdapter,
-        "default": SourceAdapter,
+        "default": MarkdownSourceContentAdapter,
       },
     },
     smart_blocks: {
