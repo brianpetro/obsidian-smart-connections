@@ -39,6 +39,8 @@ import { ScThread as SmartThread } from "./sc_thread.js";
 import { SmartMessages } from "smart-chats/smart_messages.js";
 import { SmartMessage } from "smart-chats/smart_message.js";
 import { EnvJsonThreadSourceAdapter } from "smart-chats/adapters/json.js";
+import { CollectionDataAdapter } from "smart-collections/adapters/_adapter.js";
+import { AjsonMultiFileBlocksDataAdapter } from "smart-blocks/adapters/data/ajson_multi_file.js";
 
 export const smart_env_config = {
   global_ref: window,
@@ -54,21 +56,23 @@ export const smart_env_config = {
       source_adapters: {
         "md": MarkdownSourceContentAdapter,
         "txt": MarkdownSourceContentAdapter,
-        "canvas": MarkdownSourceContentAdapter,
-        "default": MarkdownSourceContentAdapter,
+        // "canvas": MarkdownSourceContentAdapter,
+        // "default": MarkdownSourceContentAdapter,
       },
     },
     smart_blocks: {
       class: SmartBlocks,
+      data_adapter: AjsonMultiFileBlocksDataAdapter,
       block_adapters: {
         "md": MarkdownBlockContentAdapter,
         "txt": MarkdownBlockContentAdapter,
-        "canvas": MarkdownBlockContentAdapter,
+        // "canvas": MarkdownBlockContentAdapter,
       },
     },
     smart_threads: {
       class: SmartThreads,
-      data_adapter: AjsonMultiFileCollectionDataAdapter,
+      // data_adapter: AjsonMultiFileCollectionDataAdapter,
+      data_adapter: CollectionDataAdapter,
       source_adapters: {
         "json": EnvJsonThreadSourceAdapter,
         "default": EnvJsonThreadSourceAdapter,
