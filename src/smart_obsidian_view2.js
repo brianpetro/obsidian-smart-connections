@@ -1,21 +1,104 @@
 import { ItemView } from "obsidian";
+
+/**
+ * Represents a SmartObsidianView2 for extended functionality.
+ * @extends ItemView
+ */
 export class SmartObsidianView2 extends ItemView {
+  /**
+   * Creates an instance of SmartObsidianView2.
+   * @param {any} leaf
+   * @param {any} plugin
+   */
   constructor(leaf, plugin) {
     super(leaf);
     this.app = plugin.app;
     this.plugin = plugin;
   }
-  // static
-  static get view_type() { throw new Error("view_type must be implemented in subclass"); }
-  static get display_text() { throw new Error("display_text must be implemented in subclass"); }
-  static get icon_name() { return "smart-connections"; }
-  static get_leaf(workspace) { return workspace.getLeavesOfType(this.view_type)?.find((leaf) => leaf.view instanceof this); }
-  static get_view(workspace) { return this.get_leaf(workspace)?.view; }
-  static open(workspace, active = true) {
-    if (this.get_leaf(workspace)) this.get_leaf(workspace).setViewState({ type: this.view_type, active });
-    else workspace.getRightLeaf(false).setViewState({ type: this.view_type, active });
-    if(workspace.rightSplit.collapsed) workspace.rightSplit.toggle();
+
+  /**
+   * The unique view type. Must be implemented in subclasses.
+   * @returns {string}
+   */
+  static get view_type() {
+    throw new Error("view_type must be implemented in subclass");
   }
+
+  /**
+   * The display text for this view. Must be implemented in subclasses.
+   * @returns {string}
+   */
+  static get display_text() {
+    throw new Error("display_text must be implemented in subclass");
+  }
+
+  /**
+   * The icon name for this view.
+   * @returns {string}
+   */
+  static get icon_name() {
+    return "smart-connections";
+  }
+
+  /**
+   * Retrieves the Leaf instance for this view type if it exists.
+   * @param {import("obsidian").Workspace} workspace
+   * @returns {import("obsidian").WorkspaceLeaf | undefined}
+   */
+  static get_leaf(workspace) {
+    return workspace
+      .getLeavesOfType(this.view_type)
+      ?.find((leaf) => leaf.view instanceof this);
+  }
+
+  /**
+   * Retrieves the view instance if it exists.
+   * @param {import("obsidian").Workspace} workspace
+   * @returns {SmartObsidianView2 | undefined}
+   */
+  static get_view(workspace) {
+    const leaf = this.get_leaf(workspace);
+    return leaf ? leaf.view : undefined;
+  }
+
+  /**
+   * Opens the view. If `this.default_open_location` is `'root'`,
+   * it will open (or reveal) in a "root" leaf; otherwise, it will
+   * open (or reveal) in the right leaf.
+   *
+   * @param {import("obsidian").Workspace} workspace
+   * @param {boolean} [active=true] - Whether the view should be focused when opened.
+   */
+  static open(workspace, active = true) {
+    const existing_leaf = this.get_leaf(workspace);
+
+    if (this.default_open_location === "root") {
+      // If there's already a leaf with this view, just set it active.
+      // Otherwise, create/open in a leaf in the root (left/main) area.
+      if (existing_leaf) {
+        existing_leaf.setViewState({ type: this.view_type, active });
+      } else {
+        workspace.getLeaf(false).setViewState({ type: this.view_type, active });
+      }
+    } else {
+      // If there's already a leaf with this view, just set it active.
+      // Otherwise, create/open in the right leaf.
+      if (existing_leaf) {
+        existing_leaf.setViewState({ type: this.view_type, active });
+      } else {
+        workspace.getRightLeaf(false).setViewState({
+          type: this.view_type,
+          active,
+        });
+      }
+
+      // Reveal the right split if it's collapsed
+      if (workspace.rightSplit?.collapsed) {
+        workspace.rightSplit.toggle();
+      }
+    }
+  }
+
   static is_open(workspace) { return this.get_leaf(workspace)?.view instanceof this; }
   // instance
   getViewType() { return this.constructor.view_type; }
