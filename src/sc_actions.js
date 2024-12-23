@@ -95,9 +95,7 @@ export class ScActions {
         }
       }]
     });
-    console.log("lookup", hyd);
     const results = await this.env.smart_sources.lookup({ hypotheticals: [hyd] });
-    console.log({results});
     await this.env.chats.current.add_tool_output("lookup", results);
     return;
   }
