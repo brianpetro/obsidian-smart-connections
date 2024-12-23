@@ -1,4 +1,4 @@
-import { SmartObsidianView2 } from "./smart_obsidian_view2.js";
+import { SmartObsidianView2 } from "./smart_view2.obsidian.js";
 import { FuzzySuggestModal, Keymap, Platform } from "obsidian";
 
 export class SmartChatsView extends SmartObsidianView2 {

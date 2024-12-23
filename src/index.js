@@ -16,11 +16,11 @@ import { default_settings } from "./default_settings.js";
 import ejs from "../ejs.min.cjs";
 import templates from "../build/views.json" assert { type: "json" };
 // rename modules
-import { ScConnectionsView } from "./sc_connections_view.js";
-import { ScLookupView } from "./sc_lookup_view.js";
-import { SmartChatsView } from "./smart_chat_view.js";
-import { SmartChatGPTView } from "./sc_chatgpt_view.js";
-import { SmartPrivateChatView } from "./sc_private_chat_view.js";
+import { ScConnectionsView } from "./views/sc_connections.obsidian.js";
+import { ScLookupView } from "./views/sc_lookup.obsidian.js";
+import { SmartChatsView } from "./views/smart_chat.obsidian.js";
+import { SmartChatGPTView } from "./views/sc_chatgpt.obsidian.js";
+import { SmartPrivateChatView } from "./views/sc_private_chat.obsidian.js";
 // v2.1
 import { SmartSearch } from "./smart_search.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";

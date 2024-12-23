@@ -1,4 +1,4 @@
-import { SmartEntitiesView } from "./smart_entities_view.js";
+import { SmartEntitiesView } from "./smart_entities.obsidian.js";
 
 export class ScLookupView extends SmartEntitiesView {
   static get view_type() { return "smart-lookup-view"; }

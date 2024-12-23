@@ -1,4 +1,4 @@
-import { SmartObsidianView2 } from "./smart_obsidian_view2.js";
+import { SmartObsidianView2 } from "./smart_view2.obsidian.js";
 
 export class SmartEntitiesView extends SmartObsidianView2 {
   add_result_listeners(elm) {
