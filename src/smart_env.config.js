@@ -130,17 +130,19 @@ export const smart_env_config = {
     },
   },
   components: {
-    connections: connections_component,
     lookup: lookup_component,
     results: results_component,
+    connections: connections_component,
     smart_env: {
       settings: env_settings_component,
     },
     smart_sources: {
       settings: source_settings_component,
+      connections: connections_component,
     },
     smart_blocks: {
       settings: source_settings_component,
+      connections: connections_component,
     },
     smart_threads: {
       settings: collection_settings_component,

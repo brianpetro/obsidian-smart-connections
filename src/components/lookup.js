@@ -56,6 +56,7 @@ export async function post_process(collection, frag, opts = {}) {
   const query_input = frag.querySelector('#query');
   const results_container = frag.querySelector('.sc-list');
   const render_lookup = async (query, results_container) => {
+    console.log("render_lookup", query);
     const results = await collection.lookup({ hypotheticals: [query] });
     results_container.innerHTML = ''; // Clear previous results
     const results_frag = await render_results.call(this, results, opts);
