@@ -27,6 +27,7 @@ import { ScSettingsTab } from "./sc_settings_tab.js";
 import { ScActionsUx } from "./sc_actions_ux.js";
 import { open_note } from "./open_note.js";
 import { ScAppConnector } from "./sc_app_connector.js";
+import { SmartSettings } from 'smart-settings/smart_settings.js';
 
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -74,8 +75,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   async initialize() {
     this.obsidian = Obsidian;
-    // await this.smart_env_config.modules.smart_settings.class.create(this); // fails on mobile
-    await smart_env_config.modules.smart_settings.class.create(this); // works on mobile (no this.smart_env_config)
+    await SmartSettings.create(this); // works on mobile (no this.smart_env_config)
     this.notices = new this.smart_env_config.modules.smart_notices.class(this);
     this.smart_connections_view = null;
     this.add_commands(); // add commands

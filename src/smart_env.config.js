@@ -12,7 +12,6 @@ import { SmartView } from 'smart-view/smart_view.js';
 import { SmartViewObsidianAdapter } from 'smart-view/adapters/obsidian.js';
 import { SmartNotices } from "./smart_notices.js";
 import { Notice } from "obsidian";
-import { SmartSettings } from "smart-settings";
 import { render as source_settings_component } from 'smart-sources/components/settings.js';
 import { render as collection_settings_component } from 'smart-collections/components/settings.js';
 import { render as model_settings_component } from "smart-model/components/settings.js";
@@ -124,9 +123,6 @@ export const smart_env_config = {
     smart_notices: {
       class: SmartNotices,
       adapter: Notice,
-    },
-    smart_settings: {
-      class: SmartSettings,
     },
   },
   components: {
