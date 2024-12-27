@@ -19,6 +19,7 @@ import { render as env_settings_component } from './components/env_settings.js';
 import { render as connections_component } from './components/connections.js';
 import { render as lookup_component } from './components/lookup.js';
 import { render as results_component } from 'smart-entities/components/results.js';
+import { render as smart_chat_component } from './views/smart_chat.js';
 import { AjsonMultiFileSourcesDataAdapter } from "smart-sources/adapters/data/ajson_multi_file.js";
 import { SmartChatModel } from "smart-chat-model";
 import {
@@ -35,6 +36,7 @@ import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-re
 import { requestUrl } from "obsidian";
 import { SmartThreads } from "smart-chats/smart_threads.js";
 import { ScThread as SmartThread } from "./sc_thread.js";
+import { render as thread_component } from 'smart-chats/components/thread.js';
 import { SmartMessages } from "smart-chats/smart_messages.js";
 import { SmartMessage } from "smart-chats/smart_message.js";
 import { EnvJsonThreadSourceAdapter } from "smart-chats/adapters/json.js";
@@ -127,6 +129,7 @@ export const smart_env_config = {
   components: {
     lookup: lookup_component,
     results: results_component,
+    smart_chat: smart_chat_component,
     connections: connections_component,
     smart_env: {
       settings: env_settings_component,
@@ -141,6 +144,7 @@ export const smart_env_config = {
     },
     smart_threads: {
       settings: collection_settings_component,
+      thread: thread_component,
     },
     smart_chat_model: {
       settings: model_settings_component,

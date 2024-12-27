@@ -18,15 +18,11 @@ export class SmartChatsView extends SmartObsidianView2 {
    */
   async render_view(thread_key=null) {
     this.container.innerHTML = 'Loading...';
-    await this.env.smart_threads.render(this.container, {
-      attribution: this.attribution,
+    const frag = await this.env.render_component("smart_chat", this, {
       thread_key,
-      // callbacks
-      open_chat_history: this.open_chat_history.bind(this),
-      open_conversation_note: this.open_conversation_note.bind(this),
-      handle_chat_input_keydown: this.handle_chat_input_keydown.bind(this),
     });
-
+    this.container.empty();
+    this.container.appendChild(frag);
   }
 
   /**
@@ -48,19 +44,6 @@ export class SmartChatsView extends SmartObsidianView2 {
 
 
   /**
-   * Opens the conversation note associated with the current chat thread.
-   */
-  async open_conversation_note() {
-    // Logic to open the conversation note
-    const current_thread = this.env.smart_threads.get(this.current_context);
-    if(current_thread){
-      this.plugin.open_note(current_thread.conversation_note_path, { active: true });
-    } else {
-      this.plugin.notices.show("No Conversation Note Found", "Unable to locate the conversation note for the current chat.");
-    }
-  }
-
-  /**
    * Handles click events on messages, such as copying to clipboard.
    * @param {Event} event - The click event.
    */
@@ -74,9 +57,10 @@ export class SmartChatsView extends SmartObsidianView2 {
     }
     // TODO: Handle other button clicks (e.g., copy context, copy prompt)
   }
-  handle_chat_input_keydown(event, chat_input) {
+  handle_chat_input_keydown(event) {
     if (!["/", "@", "[", "!"].includes(event.key)) return;
     
+    const chat_input = event.currentTarget;
     const pos = chat_input.selectionStart;
     if (event.key === "@" && (!pos || [" ", "\n"].includes(chat_input.value[pos - 1]))) {
       this.open_omni_modal();
