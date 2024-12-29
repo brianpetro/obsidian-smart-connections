@@ -616,6 +616,7 @@
   justify-content: space-between;
   align-items: baseline;
   font-size: var(--font-smallest);
+  flex-wrap: wrap;
 
   &:hover {
     background-color: var(--background-secondary-hover);
