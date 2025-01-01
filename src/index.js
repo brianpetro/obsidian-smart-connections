@@ -261,18 +261,6 @@ export default class SmartConnectionsPlugin extends Plugin {
         }, 1000);
       }
     });
-    // open view command
-    this.addCommand({
-      id: "smart-connections-view",
-      name: "Open: View Smart Connections",
-      callback: () => { this.open_connections_view(); }
-    });
-    // open chat command
-    this.addCommand({
-      id: "smart-connections-chat",
-      name: "Open: Smart Chat Conversation",
-      callback: () => { this.open_chat_view(); }
-    });
     // open random note from nearest cache
     this.addCommand({
       id: "smart-connections-random",
@@ -288,18 +276,6 @@ export default class SmartConnectionsPlugin extends Plugin {
         const rand_entity = connections[rand]; // get random from nearest cache
         this.open_note(rand_entity.item.path);
       }
-    });
-    // open chat command
-    this.addCommand({
-      id: "smart-connections-chatgpt",
-      name: "Open: Smart ChatGPT",
-      callback: () => { this.open_chatgpt_view(); }
-    });
-    // open private chat command
-    this.addCommand({
-      id: "smart-connections-private-chat",
-      name: "Open: Smart Connections Supporter Private Chat",
-      callback: () => { this.open_private_chat(); }
     });
   }
   async make_connections(selected_text=null) {
