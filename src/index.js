@@ -103,6 +103,9 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.register_code_block("sc-context", "render_code_block_context"); // code-block renderer
     // "AI change" dynamic code block
     this.register_code_block("sc-change", "change_code_block"); // DEPRECATED
+    /**
+     * @deprecated in favor of less invasive smart-changes collection
+     */
     this.register_code_block("smart-change", "change_code_block");
   }
   register_code_block(name, callback_name) {
