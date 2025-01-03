@@ -78,8 +78,17 @@ export async function post_process(obsidian_view, frag, opts) {
 
 
   const chat_input = frag.querySelector('.sc-chat-form textarea');
+  const send_button = frag.querySelector('.send-button');
   if (chat_input) {
     chat_input.addEventListener('keydown', obsidian_view.handle_chat_input_keydown.bind(obsidian_view));
+
+    // On enter press send button
+    chat_input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        send_button.click();
+      }
+    });
   }
 
   // Add close button handler
