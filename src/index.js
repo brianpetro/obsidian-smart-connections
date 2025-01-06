@@ -43,21 +43,23 @@ export default class SmartConnectionsPlugin extends Plugin {
   // GETTERS for overrides in subclasses without overriding the constructor or init method
   get smart_env_class() { return SmartEnv; }
   get smart_env_config() {
-    const config = {
-      ...smart_env_config,
-      env_path: '', // scope handled by Obsidian FS methods
-      // DEPRECATED schema
-      smart_env_settings: { // careful: overrides saved settings
-        is_obsidian_vault: true, // redundant with default_settings.is_obsidian_vault
-      },
-      // DEPRECATED usage
-      ejs: ejs,
-      templates: templates,
-      request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
-    };
-    // mobile enable/disable
-    if(this.obsidian.Platform.isMobile && !this.settings.enable_mobile) config.prevent_load_on_init = true;
-    return config;
+    if(!this._smart_env_config){
+      this._smart_env_config = {
+        ...smart_env_config,
+        env_path: '', // scope handled by Obsidian FS methods
+        // DEPRECATED schema
+        smart_env_settings: { // careful: overrides saved settings
+          is_obsidian_vault: true, // redundant with default_settings.is_obsidian_vault
+        },
+        // DEPRECATED usage
+        ejs: ejs,
+        templates: templates,
+        request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
+      };
+      // mobile enable/disable
+      if(this.obsidian.Platform.isMobile && !this.settings.enable_mobile) this._smart_env_config.prevent_load_on_init = true;
+    }
+    return this._smart_env_config;
   }
   get_tfile(file_path) { return this.app.vault.getAbstractFileByPath(file_path); }
   async read_file(tfile_or_path) {
