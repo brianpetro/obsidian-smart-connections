@@ -204,6 +204,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
   }
   async restart_plugin() {
+    this.env.unload_main('smart_connections_plugin');
     await this.saveData(this.settings); // save settings
     await new Promise(r => setTimeout(r, 3000));
     window.restart_plugin = async (id) => {
