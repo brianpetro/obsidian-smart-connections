@@ -124,9 +124,12 @@ export default class SmartConnectionsPlugin extends Plugin {
     console.log("env loaded");
     // skip if is mobile
     if(!this.obsidian.Platform.isMobile) ScAppConnector.create(this.env, 37042); // Smart Connect
-    // DEPRECATED getters: for Smart Visualizer backwards compatibility
-    Object.defineProperty(this.env, 'entities_loaded', { get: () => this.env.collections_loaded });
-    Object.defineProperty(this.env, 'smart_notes', { get: () => this.env.smart_sources });
+    /**
+     * @deprecated for Smart Visualizer backwards compatibility
+     * TODO: remove when new Smart [Clusters] Visualizer plugin is released
+     */
+    if(typeof this.env.collections === 'undefined') Object.defineProperty(this.env, 'entities_loaded', { get: () => this.env.collections_loaded });
+    if(typeof this.env.smart_sources === 'undefined') Object.defineProperty(this.env, 'smart_notes', { get: () => this.env.smart_sources });
   }
   async ready_to_load_collections() {
     await new Promise(r => setTimeout(r, 5000)); // wait 5 seconds for other processes to finish
