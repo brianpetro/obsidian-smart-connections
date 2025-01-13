@@ -967,3 +967,22 @@ div.workspace-leaf-content[data-type^="smart-"] {
     }
   }
 }
+
+.sc-inline-confirm-row {
+  margin-top: 10px;
+  padding: 6px;
+  border: 1px solid var(--interactive-normal);
+}
+.sc-inline-confirm-row-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+
+  & .sc-inline-confirm-yes {
+    font-weight: bold;
+  }
+  & .sc-inline-confirm-cancel {
+    font-weight: normal;
+  }
+}
