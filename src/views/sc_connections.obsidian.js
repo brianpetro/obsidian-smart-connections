@@ -75,6 +75,8 @@ export class ScConnectionsView extends SmartEntitiesView {
     
     if (!entity) return this.plugin.notices.show("no entity", "No entity found for key: " + key);
     
+    if(entity.excluded) return this.plugin.notices.show("excluded", "Cannot show Smart Connections for excluded entity: " + entity.key);
+    
     // Handle PDF special case
     if(entity.collection_key === "smart_sources" && entity?.path?.endsWith(".pdf")){
       const page_number = this.app.workspace.getActiveFileView().contentEl.firstChild.firstChild.children[8].value;
