@@ -47,8 +47,7 @@ export class SmartObsidianView2 extends ItemView {
    */
   static get_leaf(workspace) {
     return workspace
-      .getLeavesOfType(this.view_type)
-      ?.find((leaf) => leaf.view instanceof this);
+      .getLeavesOfType(this.view_type)[0]
   }
 
   /**
