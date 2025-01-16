@@ -52,8 +52,6 @@ export class ScConnectionsView extends SmartEntitiesView {
   main_components_opts = {
     add_result_listeners: this.add_result_listeners.bind(this),
     attribution: this.attribution,
-    open_lookup_view: this.plugin.open_lookup_view.bind(this.plugin),
-    re_render: this.re_render.bind(this),
     post_process: async (scope, frag, opts={}) => {
       return post_process_note_inspect_opener(scope, frag, opts);
     }
@@ -61,8 +59,9 @@ export class ScConnectionsView extends SmartEntitiesView {
   async render_view(entity=null, container=this.container) {
     if (container.checkVisibility() === false) return console.log("View inactive, skipping render nearest");
     
+    let current_file;
     if (!entity) {
-      const current_file = this.app.workspace.getActiveFile();
+      current_file = this.app.workspace.getActiveFile();
       if (current_file) entity = current_file?.path;
     }
     
@@ -73,9 +72,22 @@ export class ScConnectionsView extends SmartEntitiesView {
       entity = collection.get(key);
     }
     
-    if (!entity) return this.plugin.notices.show("no entity", "No entity found for key: " + key);
+    if(!entity && current_file){
+      console.log("Creating entity for current file", current_file.path);
+      this.env.smart_sources.fs.include_file(current_file.path);
+      entity = this.env.smart_sources.init_file_path(current_file.path);
+      await entity.import();
+      await entity.collection.process_embed_queue();
+    }
+    if (!entity){
+      return this.plugin.notices.show("no entity", "No entity found for key: " + key);
+    }
     
     if(entity.excluded) return this.plugin.notices.show("excluded", "Cannot show Smart Connections for excluded entity: " + entity.key);
+    if(!entity.vec) {
+      entity.queue_embed();
+      await entity.collection.process_embed_queue();
+    }
     
     // Handle PDF special case
     if(entity.collection_key === "smart_sources" && entity?.path?.endsWith(".pdf")){
@@ -116,6 +128,21 @@ export class ScConnectionsView extends SmartEntitiesView {
     return this.container.querySelector('.sc-bottom-bar');
   }
 
+  async refresh() {
+    // clear .sc-list and add refreshing message
+    this.results_container.empty();
+    this.results_container.createEl('p', { text: 'Refreshing...' });
+    // get data-key from .sc-list
+    const key = this.results_container.dataset.key;
+    // get entity
+    const entity = this.env.smart_sources.get(key);
+    if(entity){
+      await entity.read(); // updates last_read.hash to detect changes (if should import)
+      await entity.import();
+      await entity.collection.process_embed_queue();
+    }
+    this.re_render();
+  }
   re_render() {
     console.log("re_render");
     this.env.connections_cache = {}; // clear cache

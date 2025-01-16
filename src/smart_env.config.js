@@ -157,9 +157,11 @@ export const smart_env_config = {
     is_obsidian_vault: true,
     smart_blocks: {
       embed_blocks: true,
+      min_chars: 200,
     },
     smart_sources: {
       single_file_data_path: '.smart-env/smart_sources.json',
+      min_chars: 200,
       embed_model: {
         adapter: "transformers",
         transformers: {

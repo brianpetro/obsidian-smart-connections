@@ -60,7 +60,7 @@ export async function post_process(view, frag, opts = {}) {
     const filter_frag = await this.render_settings(view.env.smart_sources.connections_filter_config, {
       scope: {
         settings: view.env.settings,
-        re_render: opts.re_render,
+        re_render: view.re_render.bind(view),
         re_render_settings: render_filter_settings.bind(this),
       }
     });
@@ -96,13 +96,13 @@ export async function post_process(view, frag, opts = {}) {
   // refresh smart view
   const refresh_button = frag.querySelector("[title='Refresh']");
   refresh_button.addEventListener("click", () => {
-    opts.re_render();
+    view.refresh();
   });
 
   // search
   const search_button = frag.querySelector("[title='Search']");
   search_button.addEventListener("click", () => {
-    opts.open_lookup_view();
+    view.plugin.open_lookup_view();
   });
 
   // help documentation
