@@ -286,6 +286,14 @@ export default class SmartConnectionsPlugin extends Plugin {
         this.open_note(rand_entity.item.path);
       }
     });
+    // open smart connect GPT in browser
+    this.addCommand({
+      id: "smart-connections-gpt",
+      name: "Open: Smart Connect GPT ↗",
+      callback: () => {
+        window.open("https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2");
+      }
+    });
   }
   async make_connections(selected_text=null) {
     if(!this.connections_view) await this.open_connections_view(); // open view if not open
