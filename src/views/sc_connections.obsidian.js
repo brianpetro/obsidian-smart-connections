@@ -84,7 +84,7 @@ export class ScConnectionsView extends SmartEntitiesView {
     }
     
     if(entity.excluded) return this.plugin.notices.show("excluded", "Cannot show Smart Connections for excluded entity: " + entity.key);
-    if(!entity.vec) {
+    if(!entity.vec && entity.should_embed) {
       entity.queue_embed();
       await entity.collection.process_embed_queue();
     }
