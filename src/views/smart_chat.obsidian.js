@@ -1,7 +1,7 @@
-import { SmartObsidianView2 } from "./smart_view2.obsidian.js";
+import { SmartObsidianView } from "./smart_view.obsidian.js";
 import { FuzzySuggestModal, Keymap, Platform } from "obsidian";
 
-export class SmartChatsView extends SmartObsidianView2 {
+export class SmartChatsView extends SmartObsidianView {
   static get view_type() { return "smart-chat-view"; }
   static get display_text() { return "Smart Chat"; }
   static get icon_name() { return "message-square"; }
@@ -121,7 +121,7 @@ export class SmartChatsView extends SmartObsidianView2 {
   // open folder suggestion modal
   async open_folder_suggestion_modal() {
     if (!this.folder_selector) {
-      const folders = await this.plugin.get_folders();
+      const folders = this.env.fs.folder_paths;
       this.folder_selector = new ScFolderSelectModal(this.plugin.app, this, folders); // create folder suggestion modal
     }
     this.folder_selector.open(); // open folder suggestion modal
@@ -315,17 +315,4 @@ class ScImageSelectModal extends ScFileSelectModal {
       .sort((a, b) => a.basename.localeCompare(b.basename));
   }
   getItemText(item) { return item.path; }
-}
-
-// Chopping block
-class ScSystemPromptSelectModal extends FuzzySuggestModal {
-  constructor(app, view) {
-    super(app);
-    this.app = app;
-    this.view = view;
-    this.setPlaceholder("Type the name of a system prompt...");
-  }
-  getItems() { return this.view.plugin.system_prompts; }
-  getItemText(item) { return item.basename; }
-  onChooseItem(prompt) { this.view.insert_selection('"' + prompt.path + '"'); }
 }

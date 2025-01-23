@@ -1,12 +1,12 @@
 import { ItemView } from "obsidian";
 
 /**
- * Represents a SmartObsidianView2 for extended functionality.
+ * Represents a SmartObsidianView for extended functionality.
  * @extends ItemView
  */
-export class SmartObsidianView2 extends ItemView {
+export class SmartObsidianView extends ItemView {
   /**
-   * Creates an instance of SmartObsidianView2.
+   * Creates an instance of SmartObsidianView.
    * @param {any} leaf
    * @param {any} plugin
    */
@@ -53,7 +53,7 @@ export class SmartObsidianView2 extends ItemView {
   /**
    * Retrieves the view instance if it exists.
    * @param {import("obsidian").Workspace} workspace
-   * @returns {SmartObsidianView2 | undefined}
+   * @returns {SmartObsidianView | undefined}
    */
   static get_view(workspace) {
     const leaf = this.get_leaf(workspace);

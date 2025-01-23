@@ -59,7 +59,7 @@ export async function post_process(collection, frag, opts = {}) {
     console.log("render_lookup", query);
     const results = await collection.lookup({ hypotheticals: [query] });
     results_container.innerHTML = ''; // Clear previous results
-    const results_frag = await render_results.call(this, results, opts);
+    const results_frag = await collection.env.render_component('connections_results', results, opts);
     Array.from(results_frag.children).forEach((elm) => results_container.appendChild(elm));
   }
   

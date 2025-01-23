@@ -1,14 +1,8 @@
 import Obsidian from "obsidian";
 const {
-  addIcon,
-  Keymap,
-  MarkdownRenderer,
   Notice,
   Plugin,
-  request,
   requestUrl,
-  TAbstractFile,
-  TFile,
 } = Obsidian;
 import { SmartEnv } from 'smart-environment';
 import { smart_env_config } from "./smart_env.config.js";
@@ -24,7 +18,6 @@ import { SmartPrivateChatView } from "./views/sc_private_chat.obsidian.js";
 // v2.1
 import { SmartSearch } from "./smart_search.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";
-import { ScActionsUx } from "./sc_actions_ux.js";
 import { open_note } from "./open_note.js";
 import { ScAppConnector } from "./sc_app_connector.js";
 import { SmartSettings } from 'smart-settings/smart_settings.js';
@@ -102,13 +95,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   register_code_blocks() {
     this.register_code_block("smart-connections", "render_code_block"); // code-block renderer
-    this.register_code_block("sc-context", "render_code_block_context"); // code-block renderer
-    // "AI change" dynamic code block
-    this.register_code_block("sc-change", "change_code_block"); // DEPRECATED
-    /**
-     * @deprecated in favor of less invasive smart-changes collection
-     */
-    this.register_code_block("smart-change", "change_code_block");
   }
   register_code_block(name, callback_name) {
     try{
@@ -287,10 +273,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       }
     });
   }
-  async make_connections(selected_text=null) {
-    if(!this.connections_view) await this.open_connections_view(); // open view if not open
-    await this.connections_view.render_nearest(selected_text);
-  }
   // utils
   async add_to_gitignore(ignore, message=null) {
     if(!(await this.app.vault.adapter.exists(".gitignore"))) return; // if .gitignore skip
@@ -306,26 +288,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     return this.notices.show(notice_id, message, opts);
   }
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
-  // get folders, traverse non-hidden sub-folders
-  async get_folders(path = "/") {
-    try {
-      const folders = (await this.app.vault.adapter.list(path)).folders;
-      let folder_list = [];
-      for (let i = 0; i < folders.length; i++) {
-        if (folders[i].startsWith(".")) continue;
-        folder_list.push(folders[i]);
-        folder_list = folder_list.concat(await this.get_folders(folders[i] + "/"));
-      }
-      return folder_list;
-    } catch (error) {
-      console.warn("Error getting folders", error);
-      return [];
-    }
-  }
-  get_link_target_path(link_path, file_path) {
-    return this.app.metadataCache.getFirstLinkpathDest(link_path, file_path)?.path;
-  }
-  // SUPPORTERS
   async render_code_block(contents, container, ctx) {
     container.empty();
     container.createEl('span', {text: 'Loading...'});
@@ -333,7 +295,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       const frag = await this.env.smart_sources.render_component(
         'lookup',
         {
-          add_result_listeners: this.add_result_listeners.bind(this),
+          // add_result_listeners: this.add_result_listeners.bind(this),
           attribution: this.attribution,
           query: contents,
         }
@@ -344,7 +306,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       const entity = this.env.smart_sources.get(ctx.sourcePath);
       if(!entity) return container.innerHTML = 'Entity not found: ' + ctx.sourcePath;
       const component_opts = {
-        add_result_listeners: this.add_result_listeners.bind(this),
+        // add_result_listeners: this.add_result_listeners.bind(this),
         attribution: this.attribution,
         re_render: () => {
           this.render_code_block(contents, container, ctx);
@@ -357,7 +319,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       const results = await entity.find_connections({ 
         exclude_source_connections: entity.env.smart_blocks.settings.embed_blocks
       });
-      const results_frag = await entity.env.render_component('results', results, component_opts);
+      const results_frag = await entity.env.render_component('connections_results', results, component_opts);
       
       const results_container = container.querySelector('.sc-list');
       // Clear and update results container
@@ -373,26 +335,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       header_status_elm.innerText = context_name;
       return results;
     }
-  }
-  async render_code_block_context(results, container, ctx) {
-    results = this.get_entities_from_context_codeblock(results);
-    container.innerHTML = this.connections_view.render_template("smart_connections", { current_path: "context", results });
-    container.querySelectorAll(".sc-result").forEach((elm, i) => this.connections_view.add_link_listeners(elm, results[i]));
-    container.querySelectorAll(".sc-result:not(.sc-collapsed) ul li").forEach(this.connections_view.render_result.bind(this.connections_view));
-  }
-  get_entities_from_context_codeblock(results) {
-    return results.split("\n").map(key => {
-      // const key = line.substring(line.indexOf('[[') + 2, line.indexOf(']]'));
-      const entity = key.includes("#") ? this.env.smart_blocks.get(key) : this.env.smart_sources.get(key);
-      return entity ? entity : { name: "Not found: " + key };
-    });
-  }
-  // change code block
-  async change_code_block(source, el, ctx) {
-    const el_class = el.classList[0];
-    const codeblock_type = el_class.replace("block-language-", "");
-    const renderer = new ScActionsUx(this, el, codeblock_type);
-    renderer.change_code_block(source);
   }
   
   async update_early_access() {
@@ -444,13 +386,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   async save_settings(settings=this.smart_settings._settings) {
     await this.saveData(settings); // Obsidian API->saveData
   }
-  
-  get system_prompts() {
-    const folder = this.env.settings?.smart_chats?.prompts_path || this.settings.system_prompts_folder;
-    return this.app.vault.getMarkdownFiles()
-      .filter(file => file.path.includes(folder) || file.path.includes('.prompt') || file.path.includes('.sp'))
-    ;
-  }
 
   // FROM ScSettings
   async force_refresh() {
@@ -481,157 +416,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.restart_plugin();
   }
 
-
-  // // TODO: re-implement in plugin initialization
-  // /**
-  //  * Loads settings specific to Obsidian for backwards compatibility.
-  //  * @returns {Promise<void>} A promise that resolves when Obsidian settings have been loaded.
-  //  */
-  // async load_obsidian_settings() {
-  //   if (this._settings.is_obsidian_vault && this.env.smart_connections_plugin) {
-  //     const obsidian_settings = this._settings.smart_connections_plugin;
-  //     console.log("obsidian_settings", obsidian_settings, this._settings);
-  //     if(obsidian_settings){
-  //       this.transform_backwards_compatible_settings(obsidian_settings);
-  //       await this.save_settings();
-  //       this.env.smart_connections_plugin.save_settings(obsidian_settings);
-  //     }
-  //   }
-  // }
-  // /**
-  //  * Transforms settings to maintain backwards compatibility with older configurations.
-  //  * @param {Object} os - The old settings object to transform.
-  //  */
-  // transform_backwards_compatible_settings(os) {
-  //   // move muted notices to main 2024-09-27
-  //   if(this.env._settings.smart_notices){
-  //     if(!os.smart_notices) os.smart_notices = {};
-  //     os.smart_notices.muted = {...this.env._settings.smart_notices.muted};
-  //     delete this.env._settings.smart_notices;
-  //   }
-  //   // rename to embed_model
-  //   if (os.smart_sources_embed_model) {
-  //     if (!this.env._settings.smart_sources) this.env._settings.smart_sources = {};
-  //     if (!this.env._settings.smart_sources.embed_model) this.env._settings.smart_sources.embed_model = {};
-  //     if (!this.env._settings.smart_sources.embed_model.model_key) this.env._settings.smart_sources.embed_model.model_key = os.smart_sources_embed_model;
-  //     if (!this.env._settings.smart_sources.embed_model[os.smart_sources_embed_model]) this.env._settings.smart_sources.embed_model[os.smart_sources_embed_model] = {};
-  //     delete os.smart_sources_embed_model;
-  //   }
-  //   // move from main to embed_model in env
-  //   if (os.smart_blocks_embed_model) {
-  //     if (!this.env._settings.smart_blocks) this.env._settings.smart_blocks = {};
-  //     if (!this.env._settings.smart_blocks.embed_model) this.env._settings.smart_blocks.embed_model = {};
-  //     if (!this.env._settings.smart_blocks.embed_model.model_key) this.env._settings.smart_blocks.embed_model.model_key = os.smart_blocks_embed_model;
-  //     if (!this.env._settings.smart_blocks.embed_model[os.smart_blocks_embed_model]) this.env._settings.smart_blocks.embed_model[os.smart_blocks_embed_model] = {};
-  //     delete os.smart_blocks_embed_model;
-  //   }
-  //   if (os.api_key) {
-  //     Object.entries(this.env._settings.smart_sources?.embed_model || {}).forEach(([key, value]) => {
-  //       if (key.startsWith('text')) value.api_key = os.api_key;
-  //       if (os.embed_input_min_chars && typeof value === 'object' && !value.min_chars) value.min_chars = os.embed_input_min_chars;
-  //     });
-  //     Object.entries(this.env._settings.smart_blocks?.embed_model || {}).forEach(([key, value]) => {
-  //       if (key.startsWith('text')) value.api_key = os.api_key;
-  //       if (os.embed_input_min_chars && typeof value === 'object' && !value.min_chars) value.min_chars = os.embed_input_min_chars;
-  //     });
-  //     delete os.api_key;
-  //     delete os.embed_input_min_chars;
-  //   }
-  //   if(os.muted_notices) {
-  //     if(!this.env._settings.smart_notices) this.env._settings.smart_notices = {};
-  //     this.env._settings.smart_notices.muted = {...os.muted_notices};
-  //     delete os.muted_notices;
-  //   }
-  //   if(os.smart_connections_folder){
-  //     if(!os.env_data_dir) os.env_data_dir = os.smart_connections_folder;
-  //     delete os.smart_connections_folder;
-  //   }
-  //   if(os.smart_connections_folder_last){
-  //     os.env_data_dir_last = os.smart_connections_folder_last;
-  //     delete os.smart_connections_folder_last;
-  //   }
-  //   if(os.file_exclusions){
-  //     if(!this.env._settings.file_exclusions || this.env._settings.file_exclusions === 'Untitled') this.env._settings.file_exclusions = os.file_exclusions;
-  //     delete os.file_exclusions;
-  //   }
-  //   if(os.folder_exclusions){
-  //     if(!this.env._settings.folder_exclusions || this.env._settings.folder_exclusions === 'smart-chats') this.env._settings.folder_exclusions = os.folder_exclusions;
-  //     delete os.folder_exclusions;
-  //   }
-  //   if(os.system_prompts_folder){
-  //     if(!this.env._settings.smart_chats) this.env._settings.smart_chats = {};
-  //     if(!this.env._settings.smart_chats?.prompts_path) this.env._settings.smart_chats.prompts_path = os.system_prompts_folder;
-  //     delete os.system_prompts_folder;
-  //   }
-  //   if(os.smart_chat_folder){
-  //     if(!this.env._settings.smart_chats) this.env._settings.smart_chats = {};
-  //     if(!this.env._settings.smart_chats?.fs_path) this.env._settings.smart_chats.fs_path = os.smart_chat_folder;
-  //     delete os.smart_chat_folder;
-  //   }
-  // }
-
-
   remove_setting_elm(path, value, elm) {
     elm.remove();
-  }
-
-
-  // ENTITIES VIEW
-  add_result_listeners(elm, source) {
-    const toggle_result = async (result) => {
-      result.classList.toggle("sc-collapsed");
-      // if li contents is empty, render it
-      if(!result.querySelector("li").innerHTML){
-        const collection_key = result.dataset.collection;
-        const entity = this.env[collection_key].get(result.dataset.path);
-        await entity.render_item(result.querySelector("li"));
-      }
-    }
-    const handle_result_click = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const target = event.target;
-      const result = target.closest(".sc-result");
-      if (target.classList.contains("svg-icon")) {
-        toggle_result(result);
-        return;
-      }
-      
-      const link = result.dataset.link || result.dataset.path;
-      if(result.classList.contains("sc-collapsed")){
-        if (this.obsidian.Keymap.isModEvent(event)) {
-          console.log("open_note", link);
-          this.open_note(link, event);
-        } else {
-          toggle_result(result);
-        }
-      } else {
-        console.log("open_note", link);
-        this.open_note(link, event);
-      }
-    }
-    elm.addEventListener("click", handle_result_click.bind(this));
-    const path = elm.querySelector("li").dataset.key;
-    elm.addEventListener('dragstart', (event) => {
-      const drag_manager = this.app.dragManager;
-      const file_path = path.split("#")[0];
-      const file = this.app.metadataCache.getFirstLinkpathDest(file_path, '');
-      const drag_data = drag_manager.dragFile(event, file);
-      drag_manager.onDragStart(event, drag_data);
-    });
-
-    if (path.indexOf("{") === -1) {
-      elm.addEventListener("mouseover", (event) => {
-        this.app.workspace.trigger("hover-link", {
-          event,
-          // source: this.constructor.view_type,
-          source,
-          hoverParent: elm.parentElement,
-          targetEl: elm,
-          linktext: path,
-        });
-      });
-    }
   }
 
 }

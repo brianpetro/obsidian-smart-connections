@@ -18,7 +18,7 @@ import { render as model_settings_component } from "smart-model/components/setti
 import { render as env_settings_component } from './components/env_settings.js';
 import { render as connections_component } from './components/connections.js';
 import { render as lookup_component } from './components/lookup.js';
-import { render as results_component } from 'smart-entities/components/results.js';
+import { render as results_component } from './components/connections_results.js';
 import { render as smart_chat_component } from './views/smart_chat.js';
 import { AjsonMultiFileSourcesDataAdapter } from "smart-sources/adapters/data/ajson_multi_file.js";
 import { SmartChatModel } from "smart-chat-model";
@@ -128,7 +128,7 @@ export const smart_env_config = {
   },
   components: {
     lookup: lookup_component,
-    results: results_component,
+    connections_results: results_component,
     smart_chat: smart_chat_component,
     connections: connections_component,
     smart_env: {

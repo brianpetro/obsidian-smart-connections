@@ -1,0 +1,1 @@
+// future home of ConnectionsView (currently ScConnectionsView in sc_connections.obsidian.js)

@@ -1,6 +1,6 @@
-import { SmartEntitiesView } from "./smart_entities.obsidian.js";
+import { SmartObsidianView } from "./smart_view.obsidian.js";
 
-export class ScConnectionsView extends SmartEntitiesView {
+export class ScConnectionsView extends SmartObsidianView {
   static get view_type() { return "smart-connections-view"; }
   static get display_text() { return "Smart Connections"; }
   static get icon_name() { return "smart-connections"; }
@@ -36,7 +36,7 @@ export class ScConnectionsView extends SmartEntitiesView {
       exclude_source_connections: entity.env.smart_blocks.settings.embed_blocks 
     });
     
-    const results_frag = await entity.env.render_component('results', results, opts);
+    const results_frag = await entity.env.render_component('connections_results', results, opts);
     
     // Clear and update results container
     this.results_container.innerHTML = '';
@@ -50,7 +50,6 @@ export class ScConnectionsView extends SmartEntitiesView {
   }
   
   main_components_opts = {
-    add_result_listeners: this.add_result_listeners.bind(this),
     attribution: this.attribution,
     post_process: async (scope, frag, opts={}) => {
       return post_process_note_inspect_opener(scope, frag, opts);
