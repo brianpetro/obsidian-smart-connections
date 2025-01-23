@@ -125,7 +125,7 @@ export class ScAppConnector {
   async current_note() {
     const curr_file = this.sc_plugin.app.workspace.getActiveFile();
     if (!curr_file) return { path: null, content: null };
-    let content = await this.sc_plugin.read_file(curr_file);
+    let content = await this.env.fs.read(curr_file.path);
     return {
       path: curr_file.path,
       content: content,

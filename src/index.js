@@ -54,12 +54,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
     return this._smart_env_config;
   }
-  get_tfile(file_path) { return this.app.vault.getAbstractFileByPath(file_path); }
-  async read_file(tfile_or_path) {
-    const t_file = (typeof tfile_or_path === 'string') ? this.get_tfile(tfile_or_path) : tfile_or_path; // handle string (file_path) or Tfile input
-    if (!(t_file instanceof this.obsidian.TFile)) return null;
-    return await this.app.vault.cachedRead(t_file);
-  }
   get api() { return this._api; }
   async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
