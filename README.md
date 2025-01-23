@@ -16,6 +16,7 @@ Hey there, I'm Brian, the mind behind Smart Connections (still human, at this po
 Smart Connections is a [mission-driven](https://youtu.be/RtlpPTrEQ7c) software that's funded by users. Smart Connections is designed by an individual to enhance individual abilities so you can reach your goals and realize your visions for the future with software that's aligned with you. Follow [@wfhbrian](https://x.com/wfhbrian) for feature sneak peeks and other updates about the process of developing Smart Connections.
 
 ![Easy to install and use](./assets/smart-connections-install.gif)
+![Easy to install and use](./assets/using-smart-connections.gif)
 
 > [!NOTE]
 > Documentation site coming soon at [docs.smartconnections.app](https://docs.smartconnections.app). Contribute to the docs [here](https://github.com/brianpetro/Smart-Connections-Docs).
