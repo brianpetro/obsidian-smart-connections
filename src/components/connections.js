@@ -4,7 +4,7 @@ export async function build_html(view, opts = {}) {
     { title: 'Refresh', icon: 'refresh-cw' },
     { title: 'Fold toggle', icon: view.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical' },
     { title: 'Filter', icon: 'sliders-horizontal' },
-    { title: 'Search', icon: 'search' },
+    { title: 'Lookup', icon: 'search' },
     { title: 'Help', icon: 'help-circle' }
   ].map(btn => `
     <button
@@ -99,9 +99,9 @@ export async function post_process(view, frag, opts = {}) {
     view.refresh();
   });
 
-  // search
-  const search_button = frag.querySelector("[title='Search']");
-  search_button.addEventListener("click", () => {
+  // lookup
+  const lookup_button = frag.querySelector("[title='Lookup']");
+  lookup_button.addEventListener("click", () => {
     view.plugin.open_lookup_view();
   });
 
