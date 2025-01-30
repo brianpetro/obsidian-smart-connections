@@ -137,8 +137,8 @@ export class ScConnectionsView extends SmartObsidianView {
     const entity = this.env.smart_sources.get(key);
     if(entity){
       await entity.read(); // updates last_read.hash to detect changes (if should import)
-      await entity.import();
-      await entity.collection.process_embed_queue();
+      entity.queue_import();
+      await entity.collection.process_source_import_queue();
     }
     this.re_render();
   }
