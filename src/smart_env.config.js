@@ -24,6 +24,7 @@ import { AjsonMultiFileSourcesDataAdapter } from "smart-sources/adapters/data/aj
 import { SmartChatModel } from "smart-chat-model";
 import {
   SmartChatModelAnthropicAdapter,
+  SmartChatModelAzureAdapter,
   SmartChatModelOpenaiAdapter,
   SmartChatModelGeminiAdapter,
   SmartChatModelOpenRouterAdapter,
@@ -94,6 +95,7 @@ export const smart_env_config = {
       adapters: {
         openai: SmartChatModelOpenaiAdapter,
         anthropic: SmartChatModelAnthropicAdapter,
+        azure: SmartChatModelAzureAdapter,
         gemini: SmartChatModelGeminiAdapter,
         open_router: SmartChatModelOpenRouterAdapter,
         custom: SmartChatModelCustomAdapter,
