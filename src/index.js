@@ -79,11 +79,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.new_user();
     console.log("loading env");
     if(this.obsidian.Platform.isMobile){
-      // render notice with button to load smart env
-      this.show_notice("Mobile detected: to prevent performance issues, click to load Smart Environment when ready.", {
-        button: {text: "Load Smart Env", callback: () => { this.load_env(); }},
-        timeout: 0,
-      });
+      this.notices.show('load_env');
     }else await this.load_env();
     console.log("Smart Connections v2 loaded");
   }
@@ -108,7 +104,7 @@ export default class SmartConnectionsPlugin extends Plugin {
      * @deprecated for Smart Visualizer backwards compatibility
      * TODO: remove when new Smart [Clusters] Visualizer plugin is released
      */
-    if(typeof this.env.collections === 'undefined') Object.defineProperty(this.env, 'entities_loaded', { get: () => this.env.collections_loaded });
+    // if(typeof this.env.collections === 'undefined') Object.defineProperty(this.env, 'entities_loaded', { get: () => this.env.collections_loaded });
     if(typeof this.env.smart_sources === 'undefined') Object.defineProperty(this.env, 'smart_notes', { get: () => this.env.smart_sources });
   }
   async ready_to_load_collections() {
@@ -276,11 +272,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       console.log("Added to .gitignore: " + ignore);
     }
   }
-  show_notice(message, opts={}) {
-    console.log("old showing notice");
-    const notice_id = typeof message === 'string' ? message : message[0];
-    return this.notices.show(notice_id, message, opts);
-  }
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
   async render_code_block(contents, container, ctx) {
     container.empty();
@@ -332,8 +323,8 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   
   async update_early_access() {
-    // // if license key is not set, return
-    if(!this.settings.license_key) return this.show_notice("Supporter license key required for early access update");
+    // if license key is not set, return
+    if(!this.settings.license_key) return this.notices.show("supporter_key_required");
     const v2 = await this.obsidian.requestUrl({
       url: "https://sync.smartconnections.app/download_v2",
       method: "POST",

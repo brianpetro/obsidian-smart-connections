@@ -79,10 +79,10 @@ export class ScConnectionsView extends SmartObsidianView {
       await entity.collection.process_embed_queue();
     }
     if (!entity){
-      return this.plugin.notices.show("no entity", "No entity found for key: " + key);
+      return this.plugin.notices.show("missing_entity", {key});
     }
     
-    if(entity.excluded) return this.plugin.notices.show("excluded", "Cannot show Smart Connections for excluded entity: " + entity.key);
+    if(entity.excluded) return this.plugin.notices.show("item_excluded", {entity_key: entity.key});
     if(!entity.vec && entity.should_embed) {
       entity.queue_embed();
       await entity.collection.process_embed_queue();
