@@ -19,13 +19,37 @@ export class SmartChatGPTView extends ItemView {
   }
   initialize() {
     this.containerEl.empty();
+    // Create button container for inline layout
+    const buttonContainer = this.containerEl.createEl("div", {
+      cls: "button-container",
+    });
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.gap = "8px";
+    buttonContainer.style.marginBottom = "8px";
+
     // insert button to refresh
-    const refreshButton = this.containerEl.createEl("button", {
+    const refreshButton = buttonContainer.createEl("button", {
       text: "Refresh",
     });
     refreshButton.addEventListener("click", () => {
       this.initialize();
     });
+
+    // insert button to copy URL
+    const copyUrlButton = buttonContainer.createEl("button", {
+      text: "Copy URL",
+    });
+    copyUrlButton.addEventListener("click", () => {
+      const current_url = this.frame?.getAttribute("src");
+      if (current_url) {
+        navigator.clipboard.writeText(current_url);
+        // Optional: Show a notice that URL was copied
+        if (this.app) {
+          this.app.notices.create("URL copied to clipboard!");
+        }
+      }
+    });
+
     // insert ChatGPT
     this.containerEl.appendChild(this.create());
   }
