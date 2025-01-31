@@ -65,10 +65,7 @@ export const NOTICES = {
   copy_failed: {
     en: 'Unable to copy message to clipboard.'
   },
-  'requires smart view': {
-    en: 'Smart View must be open to utilize all Smart Chat features. For example, asking things like "Based on my notes..." requires Smart View to be open.'
+  copied_chatgpt_url_to_clipboard: {
+    en: 'ChatGPT URL copied to clipboard.'
   },
-  'Supporter license key required for early access update': {
-    en: 'Supporter license key required for early access update'
-  }
 };

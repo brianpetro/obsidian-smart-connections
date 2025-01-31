@@ -1,6 +1,6 @@
-import { ItemView } from "obsidian";
+import { SmartObsidianView } from "./smart_view.obsidian.js";
 
-export class SmartChatGPTView extends ItemView {
+export class SmartChatGPTView extends SmartObsidianView {
   static get view_type() { return 'smart-chatgpt-view'; }
   static get display_text() { return "Smart ChatGPT"; }
   static get icon_name() { return "bot"; }
@@ -44,8 +44,8 @@ export class SmartChatGPTView extends ItemView {
       if (current_url) {
         navigator.clipboard.writeText(current_url);
         // Optional: Show a notice that URL was copied
-        if (this.app) {
-          this.app.notices.create("URL copied to clipboard!");
+        if (this.plugin) {
+          this.plugin.notices.show("copied_chatgpt_url_to_clipboard");
         }
       }
     });
