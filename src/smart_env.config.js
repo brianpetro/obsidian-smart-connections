@@ -43,6 +43,10 @@ import { SmartMessage } from "smart-chats/smart_message.js";
 import { EnvJsonThreadSourceAdapter } from "smart-chats/adapters/json.js";
 import { AjsonMultiFileBlocksDataAdapter } from "smart-blocks/adapters/data/ajson_multi_file.js";
 
+// actions architecture
+import smart_block from "smart-blocks/smart_block.js";
+import smart_source from "smart-sources/smart_source.js";
+
 export const smart_env_config = {
   global_ref: window,
   env_path: '',
@@ -88,6 +92,10 @@ export const smart_env_config = {
     SmartBlock,
     SmartThread,
     SmartMessage,
+  },
+  items: {
+    smart_block,
+    smart_source,
   },
   modules: {
     smart_chat_model: {
