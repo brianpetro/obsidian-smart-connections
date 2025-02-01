@@ -106,7 +106,6 @@ export class SmartNotices {
    */
   show(id, opts = {}) {
     let message = null;
-    let opts = {};
 
     // temp backwards compatibility
     if (typeof opts === 'string') {
@@ -115,9 +114,8 @@ export class SmartNotices {
       opts = opts || {};
     }
 
-
     // If no explicit scope is passed, default to this.main
-    if (!('scope' in opts)) {
+    if (!opts.scope) {
       opts.scope = this.main;
     }
 

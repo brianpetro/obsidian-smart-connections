@@ -78,13 +78,14 @@ export const NOTICES = {
     en: 'Saving {{collection_key}}...'
   },
   initial_scan: {
-    en: 'Starting initial scan...',
+    en: '[{{collection_key}}] Starting initial scan...',
     timeout: 0
   },
   done_initial_scan: {
-    en: 'Initial scan complete.',
+    en: '[{{collection_key}}] Initial scan complete.',
     timeout: 3000
   },
+
   pruning_collection: {
     en: 'Pruning {{collection_key}}...'
   },

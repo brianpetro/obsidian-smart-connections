@@ -795,6 +795,10 @@
       display: flex;
       justify-content: flex-end;
     }
+    .setting-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 }
 
