@@ -68,4 +68,94 @@ export const NOTICES = {
   copied_chatgpt_url_to_clipboard: {
     en: 'ChatGPT URL copied to clipboard.'
   },
+  loading_collection: {
+    en: 'Loading {{collection_key}}...'
+  },
+  done_loading_collection: {
+    en: '{{collection_key}} loaded.'
+  },
+  saving_collection: {
+    en: 'Saving {{collection_key}}...'
+  },
+  initial_scan: {
+    en: 'Starting initial scan...',
+    timeout: 0
+  },
+  done_initial_scan: {
+    en: 'Initial scan complete.',
+    timeout: 3000
+  },
+  pruning_collection: {
+    en: 'Pruning {{collection_key}}...'
+  },
+  done_pruning_collection: {
+    en: 'Pruned {{count}} items from {{collection_key}}.'
+  },
+  embedding_progress: {
+    en: 'Embedding progress: {{progress}} / {{total}}\n{{tokens_per_second}} tokens/sec using {{model_name}}',
+    button: {
+      en: 'Pause',
+      callback: (scope) => { scope._embed_model.adapter.halt_embed_queue_processing(); }
+    },
+    timeout: 0
+  },
+
+  embedding_complete: {
+    en: 'Embedding complete. {{total_embeddings}} embeddings created. {{tokens_per_second}} tokens/sec using {{model_name}}',
+    timeout: 0
+  },
+  embedding_paused: {
+    en: 'Embedding paused. Progress: {{progress}} / {{total}}\n{{tokens_per_second}} tokens/sec using {{model_name}}',
+    button: {
+      en: 'Resume',
+      callback: (scope) => { scope._embed_model.adapter.resume_embed_queue_processing(100); }
+    },
+    timeout: 0
+  },
+
+  import_progress: {
+    en: 'Importing... {{progress}} / {{total}} sources',
+    timeout: 0
+  },
+
+  done_import: {
+    en: 'Import complete. {{count}} sources imported in {{time_in_seconds}}s',
+    timeout: 0
+  },
+
+  no_import_queue: {
+    en: 'No items in import queue'
+  },
+  
+  clearing_all: {
+    en: 'Clearing all data...',
+    timeout: 0
+  },
+
+
+  done_clearing_all: {
+    en: 'All data cleared and reimported',
+    timeout: 3000
+  },
+
+  image_extracting: {
+    en: 'Extracting text from Image(s)',
+    timeout: 0
+  },
+
+  pdf_extracting: {
+    en: 'Extracting text from PDF(s)',
+    timeout: 0
+  },
+
+  insufficient_settings: {
+    en: 'Insufficient settings for {{key}}, missing: {{missing}}',
+    timeout: 0
+  },
+
+
+
+
 };
+
+
