@@ -100,25 +100,21 @@ export class SmartNotices {
    * Displays a notice by key or custom message.
    * Usage:
    *   notices.show('load_env', { scope: this });
-   * or
-   *   notices.show('some-key', "Custom text", { timeout: 1000 });
    *
    * @param {string} id - The notice key or custom ID
-   * @param {string|object|null} [messageOrOpts] - If a string, used as message text. If object, treated as opts.
-   * @param {object} [maybeOpts] - Additional user opts (if message was a string)
+   * @param {object} opts - Additional user opts
    */
-  show(id, messageOrOpts, maybeOpts = {}) {
+  show(id, opts = {}) {
     let message = null;
     let opts = {};
 
-    if (typeof messageOrOpts === 'string') {
-      // message + maybeOpts style
-      message = messageOrOpts;
-      opts = maybeOpts;
-    } else if (typeof messageOrOpts === 'object') {
-      // just opts
-      opts = messageOrOpts || {};
+    // temp backwards compatibility
+    if (typeof opts === 'string') {
+      message = opts;
+    } else {
+      opts = opts || {};
     }
+
 
     // If no explicit scope is passed, default to this.main
     if (!('scope' in opts)) {
