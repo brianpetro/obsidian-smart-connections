@@ -31,7 +31,14 @@ export const NOTICES = {
     en: 'Notice muted'
   },
   new_version_available: {
-    en: 'A new version is available! (v{{version}})'
+    en: 'A new version is available! (v{{version}})',
+    timeout: 15000,
+    button: {
+      en: 'Release notes',
+      callback: (scope) => {
+        window.open("https://github.com/brianpetro/obsidian-smart-connections/releases", "_blank");
+      }
+    }
   },
   new_early_access_version_available: {
     en: 'A new early access version is available! (v{{version}})'

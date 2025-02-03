@@ -176,7 +176,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       // console.log(`Latest release: ${latest_release}`);
       // if latest_release is newer than current version, show message
       if(latest_release !== this.manifest.version) {
-        new Notice(`[Smart Connections] A new version is available! (v${latest_release})`);
+        this.notices.show('new_version_available', {version: latest_release});
         this.update_available = true;
       }
     } catch (error) {
