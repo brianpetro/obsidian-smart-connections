@@ -204,6 +204,7 @@
 
     .sc-chat-name-input {
       flex-grow: 1;
+      min-width: 20px;
     }
   }
 

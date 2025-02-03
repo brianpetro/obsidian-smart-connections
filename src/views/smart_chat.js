@@ -1,10 +1,11 @@
 export function build_html(obsidian_view, opts = {}) {
   const top_bar_buttons = [
     // { title: 'Open Conversation Note', icon: 'external-link' },
+    { title: 'New Chat', icon: 'plus' },
     { title: 'Chat History', icon: 'history' },
     { title: 'Chat Options', icon: 'sliders-horizontal', style: 'display: none;' },
     { title: 'Chat Settings', icon: 'settings' },
-    { title: 'New Chat', icon: 'plus' }
+    { title: 'Help', icon: 'help-circle' },
   ].map(btn => `
     <button title="${btn.title}" ${btn.style ? `style="${btn.style}"` : ''}>
       ${this.get_icon_html(btn.icon)}
@@ -97,6 +98,12 @@ export async function post_process(obsidian_view, frag, opts) {
     } else {
       overlay_container.style.display = 'none';
     }
+  });
+
+  // help documentation
+  const help_button = frag.querySelector("[title='Help']");
+  help_button.addEventListener("click", () => {
+    window.open("https://docs.smartconnections.app/smart-chat", "_blank");
   });
 
   // New chat button
