@@ -101,7 +101,7 @@ export async function post_process(view, frag, opts = {}) {
 
   // lookup
   const lookup_button = frag.querySelector("[title='Lookup']");
-  lookup_button.addEventListener("click", () => {
+  lookup_button?.addEventListener("click", () => {
     view.plugin.open_lookup_view();
   });
 

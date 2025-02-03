@@ -52,7 +52,6 @@ export async function render(result, opts = {}) {
  * @returns {Promise<DocumentFragment>} A promise that resolves to the post-processed document fragment.
  */
 export async function post_process(result, frag, opts = {}) {
-  console.log('new view');
   const { item, score } = result;
   const env = item.env;
   const plugin = env.smart_connections_plugin;
