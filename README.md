@@ -1,3 +1,6 @@
+---
+sync external: ../sc-obsidian/README.md
+---
 # 🧩 Smart Connections: AI-Powered Note Connections `v2.3`
 
 **Spend less time** *linking*, *tagging* and *organizing* because **Smart Connections *finds relevant notes*** so you don't have to!
@@ -19,7 +22,12 @@ Smart Connections is a [mission-driven](https://youtu.be/RtlpPTrEQ7c) software t
 ![Easy to install and use](./assets/using-smart-connections.gif)
 
 > [!NOTE]
-> Documentation site coming soon at [docs.smartconnections.app](https://docs.smartconnections.app). Contribute to the docs [here](https://github.com/brianpetro/Smart-Connections-Docs).
+> Documentation site:
+> - [Getting Started](https://docs.smartconnections.app/Smart-Connections/Getting-started)
+>- [Connections pane](https://docs.smartconnections.app/Smart-Connections/Connections-pane-filters)
+>- [Connections pane filters](https://docs.smartconnections.app/Smart-Connections/Connections-pane)
+>- [Lookup pane](https://docs.smartconnections.app/Smart-Connections/Lookup-pane)
+>- [Smart Chat](https://docs.smartconnections.app/Smart-Connections/Smart-Chat)
 
 ## A brief history
 The journey of Smart Connections is one I directly share with you. Smart Connections isn't just about some new features in Obsidian; it's a reflection of our shared experiences, your invaluable feedback, and a testament to what we can achieve together in the Obsidian community. A journey that's been both exhilarating and profoundly educational.
