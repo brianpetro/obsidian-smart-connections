@@ -8,10 +8,11 @@ import { SmartEnv } from 'smart-environment';
 import { smart_env_config } from "./smart_env.config.js";
 import { default_settings } from "./default_settings.js";
 import ejs from "../ejs.min.cjs";
-import templates from "../build/views.json" assert { type: "json" };
+import templates from "../build/views.json" with { type: "json" };
 // rename modules
 import { ScConnectionsView } from "./views/sc_connections.obsidian.js";
 import { ScLookupView } from "./views/sc_lookup.obsidian.js";
+
 import { SmartChatsView } from "./views/smart_chat.obsidian.js";
 import { SmartChatGPTView } from "./views/sc_chatgpt.obsidian.js";
 import { SmartPrivateChatView } from "./views/sc_private_chat.obsidian.js";

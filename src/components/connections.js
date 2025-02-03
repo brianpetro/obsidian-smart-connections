@@ -108,7 +108,7 @@ export async function post_process(view, frag, opts = {}) {
   // help documentation
   const help_button = frag.querySelector("[title='Help']");
   help_button.addEventListener("click", () => {
-    window.open("https://docs.smartconnections.app/connections-pane", "_blank");
+    window.open("https://docs.smartconnections.app/smart-connections/connections-pane", "_blank");
   });
 
   if(typeof opts.post_process === "function"){
