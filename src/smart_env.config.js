@@ -42,6 +42,7 @@ import { SmartMessages } from "smart-chats/smart_messages.js";
 import { SmartMessage } from "smart-chats/smart_message.js";
 import { EnvJsonThreadSourceAdapter } from "smart-chats/adapters/json.js";
 import { AjsonMultiFileBlocksDataAdapter } from "smart-blocks/adapters/data/ajson_multi_file.js";
+// import { SmartEmbedModelOllamaAdapter } from "smart-embed-model/adapters/ollama.js";
 
 // actions architecture
 import smart_block from "smart-blocks/smart_block.js";
@@ -121,6 +122,7 @@ export const smart_env_config = {
       adapters: {
         transformers: SmartEmbedTransformersIframeAdapter,
         openai: SmartEmbedOpenAIAdapter,
+        // ollama: SmartEmbedModelOllamaAdapter,
       },
     },
     smart_fs: {
