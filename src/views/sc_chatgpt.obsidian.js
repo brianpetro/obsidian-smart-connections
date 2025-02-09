@@ -56,6 +56,7 @@ export class SmartChatGPTView extends SmartObsidianView {
 
   create() {
     this.frame = document.createElement("webview");
+    this.frame.setAttribute("partition", "persist:smart-chatgpt");
     this.frame.setAttribute("nodeintegration", "");
     this.frame.setAttribute("contextisolation", "");
     this.frame.setAttribute("allowpopups", "");
