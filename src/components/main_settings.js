@@ -40,10 +40,17 @@ export async function post_process(scope, frag) {
     const sub_scope = container.dataset.smartSettings.split('.').reduce((acc, key) => acc[key], scope);
     await sub_scope.render_settings(container);
   }
-  // make .sc-supporters 100% max-height when clicking anywhere in it
-  frag.querySelector('.sc-supporters')?.addEventListener('click', (e) => {
-    e.currentTarget.style.maxHeight = '100%';
-  });
+  const supporter_container = frag.querySelector('.sc-supporters');
+  if(supporter_container){
+    // make .sc-supporters 100% max-height when clicking anywhere in it
+    const expand_container = (e) => {
+      e.currentTarget.style.maxHeight = '100%';
+      e.currentTarget.removeEventListener('click', expand_container);
+      e.currentTarget.removeEventListener('scroll', expand_container);
+    };
+    supporter_container.addEventListener('click', expand_container);
+    supporter_container.addEventListener('scroll', expand_container);
+  }
   return frag;
 }
 
@@ -92,13 +99,8 @@ function render_supporters_section(scope) {
   const stable_release_html = scope.EARLY_ACCESS ? '' : `<p>The success of Smart Connections is a direct result of our community of supporters who generously fund and evaluate new features. Their unwavering commitment to our privacy-focused, open-source software benefits all. Together, we can continue to innovate and make a positive impact on the world.</p>`
     + render_supporter_benefits_html()
   ;
-  const become_supporter_html = scope.EARLY_ACCESS ? '' : `<div class="setting-component"
-      data-name="Upgrade to Early Access Version (v2.4)"
-      data-description="Upgrade to v2.4 (Early Access) to access new features and improvements."
-      data-type="button"
-      data-btn-text="Upgrade to early-access"
-      data-callback="update_early_access"
-    ></div>
+  const become_supporter_html = `
+    ${render_sign_in_or_open_smart_plugins(scope)}
     <div class="setting-component"
       data-name="Become a Supporter"
       data-description="Become a Supporter"
@@ -240,4 +242,19 @@ function render_version_revert_button(scope) {
     `;
   }
   return '';
+}
+function render_sign_in_or_open_smart_plugins(scope) {
+  const isLoggedIn = !!localStorage.getItem('smart_plugins_oauth_token');
+  const buttonLabel = isLoggedIn ? 'Open Smart Plugins' : 'Sign in';
+  const buttonCallback = isLoggedIn ? 'open_smart_plugins_settings' : 'initiate_smart_plugins_oauth';
+
+  return `
+    <div class="setting-component"
+      data-name="Smart Plugins - Early Access"
+      data-type="button"
+      data-btn-text="${buttonLabel}"
+      data-description="Sign in to access early-release Smart Plugins"
+      data-callback="${buttonCallback}"
+    ></div>
+  `;
 }

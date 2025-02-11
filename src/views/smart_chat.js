@@ -62,6 +62,11 @@ export async function post_process(obsidian_view, frag, opts) {
   const settings_button = frag.querySelector('button[title="Chat Settings"]');
   const overlay_container = frag.querySelector(".smart-chat-overlay");
   const settings_container = overlay_container.querySelector(".sc-settings");
+  // wait for threads collection to be ready
+  // await obsidian_view.env.wait_for({collections: ['smart_threads']});
+  while(!obsidian_view.env.smart_threads){
+    await new Promise(resolve => setTimeout(resolve, 300));
+  }
   const threads_collection = obsidian_view.env.smart_threads;
   threads_collection.container = frag.querySelector('.sc-chat-container');
   

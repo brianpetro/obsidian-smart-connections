@@ -4,27 +4,31 @@ const {
   Plugin,
   requestUrl,
 } = Obsidian;
-import { SmartEnv } from 'smart-environment';
+
+import { SmartEnv } from 'smart-environment/obsidian.js';
 import { smart_env_config } from "./smart_env.config.js";
 import { default_settings } from "./default_settings.js";
 import ejs from "../ejs.min.cjs";
 import templates from "../build/views.json" with { type: "json" };
-// rename modules
+
 import { ScConnectionsView } from "./views/sc_connections.obsidian.js";
 import { ScLookupView } from "./views/sc_lookup.obsidian.js";
-
 import { SmartChatsView } from "./views/smart_chat.obsidian.js";
 import { SmartChatGPTView } from "./views/sc_chatgpt.obsidian.js";
 import { SmartPrivateChatView } from "./views/sc_private_chat.obsidian.js";
-// v2.1
+
 import { SmartSearch } from "./smart_search.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";
 import { open_note } from "./open_note.js";
 import { ScAppConnector } from "./sc_app_connector.js";
 import { SmartSettings } from 'smart-settings/smart_settings.js';
 
+// NEW OAUTH: import our OAuth logic
+import { exchange_code_for_tokens, installSmartPlugins, get_smart_server_url } from './sc_oauth.js';
+
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
+
   get item_views() {
     return {
       ScConnectionsView,
@@ -34,7 +38,8 @@ export default class SmartConnectionsPlugin extends Plugin {
       SmartPrivateChatView,
     }
   }
-  // GETTERS for overrides in subclasses without overriding the constructor or init method
+
+  // GETTERS
   get smart_env_class() { return SmartEnv; }
   get smart_env_config() {
     if(!this._smart_env_config){
@@ -63,29 +68,42 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.env = null;
     this.notices?.unload();
   }
+
   async initialize() {
     this.obsidian = Obsidian;
     await SmartSettings.create(this); // works on mobile (no this.smart_env_config)
     this.notices = new this.smart_env_config.modules.smart_notices.class(this);
+
     this.smart_connections_view = null;
-    this.add_commands(); // add commands
+    this.add_commands();
     this.register_views();
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
     await this.check_for_updates();
+
     this._api = new SmartSearch(this);
     (window["SmartSearch"] = this._api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
     this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
     this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat_view(); });
+
     this.register_code_blocks();
+
     this.new_user();
+
     console.log("loading env");
     if(this.obsidian.Platform.isMobile){
       this.notices.show('load_env');
-    }else await this.load_env();
+    }else {
+      await this.load_env();
+    }
+    // Register protocol handler for obsidian://sc-op/callback
+    this.registerObsidianProtocolHandler("sc-op/callback", async (params) => {
+      await this.handle_sc_op_oauth_callback(params);
+    });
     console.log("Smart Connections v2 loaded");
   }
+
   register_code_blocks() {
-    this.register_code_block("smart-connections", "render_code_block"); // code-block renderer
+    this.register_code_block("smart-connections", "render_code_block");
   }
   register_code_block(name, callback_name) {
     try{
@@ -96,7 +114,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async load_env() {
-    // if(this.obsidian.Platform.isMobile && !this.settings.enable_mobile) return console.warn("SKIPPING: Mobile and not enabled"); // SKIP if mobile and not enabled
     await this.smart_env_class.create(this, this.smart_env_config);
     console.log("env loaded");
     // skip if is mobile
@@ -120,11 +137,12 @@ export default class SmartConnectionsPlugin extends Plugin {
     setTimeout(() => {
       this.open_connections_view();
       this.open_chat_view();
-    }, 1000); // wait a sec to allow existing views to open
+    }, 1000);
     if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
-    this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env"); 
+    this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env");
     this.save_settings();
   }
+
   register_views() {
     this.obsidian.addIcon("smart-connections", `<path d="M50,20 L80,40 L80,60 L50,100" stroke="currentColor" stroke-width="4" fill="none"/>
     <path d="M30,50 L55,70" stroke="currentColor" stroke-width="5" fill="none"/>
@@ -133,6 +151,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     <circle cx="80" cy="70" r="9" fill="currentColor"/>
     <circle cx="50" cy="100" r="9" fill="currentColor"/>
     <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
+
     Object.values(this.item_views).forEach(View => {
       this.registerView(View.view_type, (leaf) => (new View(leaf, this)));
       this.addCommand({
@@ -142,27 +161,23 @@ export default class SmartConnectionsPlugin extends Plugin {
       });
       const method_name = View.view_type
         .replace('smart-', '')
-        .replace(/-/g, '_')
-      ;
-      // getters
+        .replace(/-/g, '_');
       Object.defineProperty(this, method_name, { get: () => View.get_view(this.app.workspace) });
-      // open methods
       this['open_' + method_name] = () => View.open(this.app.workspace);
     });
   }
+
   async check_for_updates() {
     if(this.settings.version !== this.manifest.version){
-      this.settings.version = this.manifest.version; // update version
-      await this.save_settings(); // save settings
+      this.settings.version = this.manifest.version;
+      await this.save_settings();
     }
-    setTimeout(this.check_for_update.bind(this), 3000); // run after 3 seconds
-    setInterval(this.check_for_update.bind(this), 10800000); // run check for update every 3 hours
+    setTimeout(this.check_for_update.bind(this), 3000);
+    setInterval(this.check_for_update.bind(this), 10800000);
   }
-  // check for update
+
   async check_for_update() {
-    // fail silently, ex. if no internet connection
     try {
-      // get latest release version from github
       const {json: response} = await requestUrl({
         url: "https://api.github.com/repos/brianpetro/obsidian-smart-connections/releases/latest",
         method: "GET",
@@ -171,10 +186,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         },
         contentType: "application/json",
       });
-      // get version number from response
       const latest_release = response.tag_name;
-      // console.log(`Latest release: ${latest_release}`);
-      // if latest_release is newer than current version, show message
       if(latest_release !== this.manifest.version) {
         this.notices.show('new_version_available', {version: latest_release});
         this.update_available = true;
@@ -183,9 +195,11 @@ export default class SmartConnectionsPlugin extends Plugin {
       console.log(error);
     }
   }
+
+
   async restart_plugin() {
     this.env.unload_main('smart_connections_plugin');
-    await this.saveData(this.settings); // save settings
+    await this.saveData(this.settings);
     await new Promise(r => setTimeout(r, 3000));
     window.restart_plugin = async (id) => {
       await window.app.plugins.disablePlugin(id);
@@ -195,22 +209,17 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   add_commands() {
-    // make connections command
     this.addCommand({
       id: "sc-find-notes",
       name: "Find: Make Smart Connections",
-      icon: "pencil_icon",
-      hotkeys: [],
       editorCallback: (editor) => {
-        // if has selection, use selection
         if(editor.somethingSelected()){
           if(!this.lookup_view) this.open_lookup_view();
           this.lookup_view.render_view(editor.getSelection());
           return;
         }
-
         if(!this.connections_view) this.open_connections_view();
-        if(editor.getCursor()?.line){ // if cursor is on a line greater than 0
+        if(editor.getCursor()?.line){
           const line = editor.getCursor().line;
           const source = this.env.smart_sources.current_note;
           let item = source.get_block_by_line(line);
@@ -219,35 +228,30 @@ export default class SmartConnectionsPlugin extends Plugin {
         }else this.connections_view.render_view();
       }
     });
-    // make connections command
+
     this.addCommand({
       id: "sc-refresh-connections",
       name: "Refresh & Make Connections",
-      icon: "pencil_icon",
-      hotkeys: [],
       editorCallback: async (editor) => {
-        // get current note
         const curr_file = this.app.workspace.getActiveFile();
         if(!curr_file?.path) return console.warn("No active file", curr_file);
         let source = this.env.smart_sources.get(curr_file.path);
         if(source) {
-          source.data = {path: curr_file.path}; // forces should_import to true by removing last_import
+          source.data = {path: curr_file.path};
           const source_data_path = source.collection.data_adapter.get_item_data_path(source.key);
-          // clear file at source_data_path
           await this.env.data_fs.remove(source_data_path);
         }else{
-          this.env.smart_sources.fs.include_file(curr_file.path); // add to fs
-          source = this.env.smart_sources.init_file_path(curr_file.path); // init source
+          this.env.smart_sources.fs.include_file(curr_file.path);
+          source = this.env.smart_sources.init_file_path(curr_file.path);
         }
         await source.import();
         await this.env.smart_sources.process_embed_queue();
         setTimeout(() => {
-          // refresh view
           this.connections_view.render_view();
         }, 1000);
       }
     });
-    // open random note from nearest cache
+
     this.addCommand({
       id: "smart-connections-random",
       name: "Random Note",
@@ -264,9 +268,10 @@ export default class SmartConnectionsPlugin extends Plugin {
       }
     });
   }
-  // utils
+
+  // We keep the old code
   async add_to_gitignore(ignore, message=null) {
-    if(!(await this.app.vault.adapter.exists(".gitignore"))) return; // if .gitignore skip
+    if(!(await this.app.vault.adapter.exists(".gitignore"))) return;
     let gitignore_file = await this.app.vault.adapter.read(".gitignore");
     if (gitignore_file.indexOf(ignore) < 0) {
       await this.app.vault.adapter.append(".gitignore", `\n\n${message ? "# " + message + "\n" : ""}${ignore}`);
@@ -302,13 +307,11 @@ export default class SmartConnectionsPlugin extends Plugin {
       const frag = await this.env.render_component('connections', entity, component_opts);
       container.empty();
       container.appendChild(frag);
-      const results = await entity.find_connections({ 
+      const results = await entity.find_connections({
         exclude_source_connections: entity.env.smart_blocks.settings.embed_blocks
       });
       const results_frag = await entity.env.render_component('connections_results', results, component_opts);
-      
       const results_container = container.querySelector('.sc-list');
-      // Clear and update results container
       results_container.innerHTML = '';
       Array.from(results_frag.children).forEach((elm) => {
         results_container.appendChild(elm);
@@ -321,27 +324,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       header_status_elm.innerText = context_name;
       return results;
     }
-  }
-  
-  async update_early_access() {
-    // if license key is not set, return
-    if(!this.settings.license_key) return this.notices.show("supporter_key_required");
-    const v2 = await this.obsidian.requestUrl({
-      url: "https://sync.smartconnections.app/download_v2",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        license_key: this.settings.license_key,
-      })
-    });
-    if(v2.status !== 200) return console.error("Error downloading early access update", v2);
-    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/main.js", v2.json.main); // add new
-    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", v2.json.manifest); // add new
-    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/styles.css", v2.json.styles); // add new
-    await window.app.plugins.loadManifests();
-    await this.restart_plugin();
   }
 
   get plugin_is_enabled() { return this.app?.plugins?.enabledPlugins?.has("smart-connections"); }
@@ -361,7 +343,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     return obsidian_sync_instance?.syncing;
   }
 
-  // main settings
   async load_settings() {
     const settings = (default_settings()).settings;
     // Object.assign(this, this.constructor.defaults); // set defaults
@@ -369,6 +350,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     Object.assign(settings, saved_settings || {}); // overwrites defaults with saved settings
     return settings;
   }
+
   async save_settings(settings=this.smart_settings._settings) {
     await this.saveData(settings); // Obsidian API->saveData
   }
@@ -405,5 +387,50 @@ export default class SmartConnectionsPlugin extends Plugin {
   remove_setting_elm(path, value, elm) {
     elm.remove();
   }
+  /**
+   * This is the function that is called by the new "Sign in with Smart Plugins" button.
+   * It replicates the old 'initiate_oauth()' logic from sc_settings_tab.js
+   */
+  initiate_smart_plugins_oauth() {
+    const state = Math.random().toString(36).slice(2);
+    const redirect_uri = encodeURIComponent("obsidian://sc-op/callback");
+    const url = `${get_smart_server_url()}/oauth?client_id=smart-plugins-op&redirect_uri=${redirect_uri}&state=${state}`;
+    window.open(url, "_blank");
+  }
+  /**
+   * Handles the OAuth callback from the Smart Plugins server.
+   * @param {Object} params - The URL parameters from the OAuth callback.
+   */
+  async handle_sc_op_oauth_callback(params) {
+    const code = params.code;
+    if (!code) {
+      new Notice("No OAuth code provided in URL. Login failed.");
+      return;
+    }
+    try {
+      // your existing OAuth + plugin install logic
+      await exchange_code_for_tokens(code);
+      await installSmartPlugins(this);
+      new Notice("Smart Plugins installed / updated successfully!");
+      this.open_smart_plugins_settings();
+    } catch (err) {
+      console.error("OAuth callback error", err);
+      new Notice(`OAuth callback error: ${err.message}`);
+    }
+  }
+  /**
+   * Opens the Obsidian settings window with the 'Smart Plugins' tab active.
+   * @public
+   */
+  open_smart_plugins_settings() {
+    // open Obsidian settings
+    this.app.commands.executeCommandById('app:open-settings');
+    // find the Smart Plugins tab by name
+    const spTab = this.app.setting.pluginTabs.find(t => t.name === 'Smart Plugins');
+    if (spTab) {
+      this.app.setting.openTab(spTab);
+    }
+  }
+
 
 }
