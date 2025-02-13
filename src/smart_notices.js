@@ -25,7 +25,7 @@ import { NOTICES } from './notices.js';
  *
  * That object is used by SmartNotices to build & render the final notice.
  */
-export function define_default_create_methods(notices) {
+export function define_default_create_methods(notices, scope=null) {
   for (const key of Object.keys(notices)) {
     const notice_obj = notices[key];
     if (typeof notice_obj.create !== 'function') {
@@ -45,7 +45,7 @@ export function define_default_create_methods(notices) {
           button = {
             text: btn_label,
             callback: (typeof this.button.callback === 'function')
-              ? () => this.button.callback(opts.scope || null)
+              ? this.button.callback
               : () => {} // no-op
           };
         } else {
@@ -83,7 +83,7 @@ export class SmartNotices {
     this.main = scope; // legacy alias
     this.active = {};
     // Make sure each notice entry has a .create() method
-    define_default_create_methods(NOTICES);
+    define_default_create_methods(NOTICES, scope);
   }
 
   /** plugin settings for notices (muted, etc.) */
@@ -142,7 +142,7 @@ export class SmartNotices {
 
     // If we have a notice entry, let its .create(opts) override
     if (notice_entry?.create) {
-      const result = notice_entry.create({ ...opts });
+      const result = notice_entry.create({ ...opts, scope: this.main });
       // if user provided a direct message, override the text from create():
       derived.text = message || result.text;
       derived.timeout = result.timeout;
@@ -220,7 +220,7 @@ export class SmartNotices {
         e.preventDefault();
         e.stopPropagation();
       }
-      btnConfig.callback?.();
+      btnConfig.callback?.(this.main);
     });
     container.appendChild(btn);
   }

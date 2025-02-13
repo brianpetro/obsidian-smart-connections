@@ -103,7 +103,7 @@ export const NOTICES = {
     en: 'Embedding progress: {{progress}} / {{total}}\n{{tokens_per_second}} tokens/sec using {{model_name}}',
     button: {
       en: 'Pause',
-      callback: (scope) => { scope._embed_model.adapter.halt_embed_queue_processing(); }
+      callback: (scope) => { console.log('pausing'); scope.env.smart_sources.entities_vector_adapter.halt_embed_queue_processing(); }
     },
     timeout: 0
   },
@@ -116,7 +116,7 @@ export const NOTICES = {
     en: 'Embedding paused. Progress: {{progress}} / {{total}}\n{{tokens_per_second}} tokens/sec using {{model_name}}',
     button: {
       en: 'Resume',
-      callback: (scope) => { scope._embed_model.adapter.resume_embed_queue_processing(100); }
+      callback: (scope) => { scope.env.smart_sources.entities_vector_adapter.resume_embed_queue_processing(100); }
     },
     timeout: 0
   },
