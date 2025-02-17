@@ -1,11 +1,9 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import fs from 'fs';
 import readline from 'readline';
 import archiver from 'archiver';
 import axios from 'axios';
 import { exec } from 'child_process';
-
-dotenv.config();
 
 // Read package.json and manifest.json
 const package_json = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
