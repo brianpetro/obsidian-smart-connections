@@ -1,6 +1,6 @@
 {
   "name": "obsidian-smart-connections",
-  "version": "2.3.54",
+  "version": "2.4.0",
   "type": "module",
   "description": "Link and chat with your notes using ChatGPT and embedding artificial intelligence from OpenAI.",
   "scripts": {
