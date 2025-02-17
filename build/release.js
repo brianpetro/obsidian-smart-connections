@@ -5,69 +5,6 @@ import archiver from 'archiver';
 import axios from 'axios';
 import { exec } from 'child_process';
 
-/**
- * @function get_release_notes_for_version
- * @description Reads 'releases.md' and returns the content under the heading that contains the version.
- *   It checks for lines starting with '#' (any level of heading) and tests if it includes the version
- *   or 'v' + version in the heading. It returns all lines until the next heading of the same or
- *   lower level is encountered.
- *
- * @param {string} version
- * @returns {string} Returns the release notes found for this version (may be an empty string if none found).
- */
-function get_release_notes_for_version(version) {
-  if (!fs.existsSync(process.cwd() + '/releases.md')) {
-    return '';
-  }
-  const file_lines = fs.readFileSync('releases.md', 'utf8').split('\n');
-  let found_heading = false;
-  let current_heading_level = 0;
-  const collected_lines = [];
-  // Accept either exact version '1.2.3' or preceded by 'v'
-  const possible_matches = [
-    version.toLowerCase(),
-    'v' + version.toLowerCase()
-  ];
-
-  for (let i = 0; i < file_lines.length; i++) {
-    const line = file_lines[i];
-    // Check if this line is a heading
-    const heading_match = line.match(/^(#+)\s+(.*)$/);
-    if (heading_match) {
-      const heading_level = heading_match[1].length;
-      const heading_content = heading_match[2].toLowerCase();
-
-      // If we haven't yet found the heading for our version,
-      // check if heading_content contains either 'version' or 'vversion'.
-      const includes_version = possible_matches.some(vm => heading_content.includes(vm));
-      if (!found_heading) {
-        if (includes_version) {
-          found_heading = true;
-          current_heading_level = heading_level;
-          continue;
-        }
-      } else {
-        // We already found the heading, so if we encounter another heading
-        // of the same or shallower depth, we end.
-        if (heading_level <= current_heading_level) {
-          break;
-        }
-      }
-    } else if (!found_heading) {
-      // Not in the version heading block yet
-      continue;
-    }
-
-    // If we've found the heading, collect lines until we hit a heading
-    if (found_heading) {
-      collected_lines.push(line);
-    }
-  }
-
-  // Return joined lines
-  return collected_lines.join('\n').trim();
-}
-
 dotenv.config();
 
 // Read package.json and manifest.json
@@ -75,12 +12,10 @@ const package_json = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 const manifest_json = JSON.parse(fs.readFileSync('./manifest.json', 'utf8'));
 const version = package_json.version;
 const manifest_id = manifest_json.id;
-const manifest_version = manifest_json.version;
 
-if (version !== manifest_version) {
-  console.error('Version mismatch between package.json and manifest.json');
-  process.exit(1);
-}
+
+// Replace calls to uploadAsset with uploadAssetCurl in your existing code
+
 
 // Create readline interface
 const rl_interface = readline.createInterface({
@@ -90,28 +25,16 @@ const rl_interface = readline.createInterface({
 
 rl_interface.question(`Confirm release version (${version}): `, (confirmed_version) => {
   if (!confirmed_version) confirmed_version = version;
+  const release_name = confirmed_version;
   console.log(`Creating release for version ${confirmed_version}`);
-
-  // Gather notes from releases.md
-  const version_notes = get_release_notes_for_version(confirmed_version);
-  
-  rl_interface.question('Enter additional release description (optional): ', async (user_description) => {
+  rl_interface.question('Enter release description: ', async (release_description) => {
     rl_interface.close();
-
-    // Combine user_description + version_notes
-    let release_body = '';
-    if (user_description && user_description.trim()) {
-      release_body += user_description.trim() + '\n\n';
-    }
-    if (version_notes) {
-      release_body += version_notes;
-    }
 
     // Prepare release data
     const release_data = {
-      tag_name: confirmed_version,
-      name: confirmed_version,
-      body: release_body,
+      tag_name: `${confirmed_version}`,
+      name: release_name,
+      body: release_description,
       draft: false,
       prerelease: false
     };
@@ -127,41 +50,53 @@ rl_interface.question(`Confirm release version (${version}): `, (confirmed_versi
 
     try {
       // Create GitHub release
-      const release_response = await axios.post(
-        `https://api.github.com/repos/${github_repo}/releases`,
-        release_data,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${github_token}`
-          }
+      const release_response = await axios.post(`https://api.github.com/repos/${github_repo}/releases`, release_data, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${github_token}`
         }
-      );
+      });
 
       const release_info = release_response.data;
-      console.log('Release created:', release_info.html_url);
+      console.log('Release created:', release_info);
 
-      /**
-       * @function upload_asset_curl
-       * @description Uploads a file to the GitHub release using curl (bypassing axios chunked issues).
-       * @param {string} asset_path
-       * @param {string} asset_name
-       */
-      function upload_asset_curl(asset_path, asset_name) {
-        const upload_url = `${release_info.upload_url.split('{')[0]}?name=${encodeURIComponent(asset_name)}`;
-        const mime_type = 'application/octet-stream';
-        const command = `curl -X POST -H "Authorization: Bearer ${github_token}" -H "Content-Type: ${mime_type}" --data-binary @${asset_path} "${upload_url}"`;
+      const uploadAsset = async (assetPath, assetName) => {
+        const uploadUrl = `${release_info.upload_url.split('{')[0]}?name=${encodeURIComponent(assetName)}`;
+        console.log(`Uploading ${assetName} to ${uploadUrl}`); // Debug log
+
+        try {
+          const stats = fs.statSync(assetPath);
+          const contentLength = stats.size;
+
+          const response = await axios.post(uploadUrl, fs.createReadStream(assetPath), {
+            headers: {
+              'Authorization': `Bearer ${github_token}`,
+              'Content-Type': 'application/octet-stream',
+              'Content-Length': contentLength
+            }
+          });
+
+          console.log(`File upload response for ${assetName}:`, response.data); // Debug log
+        } catch (error) {
+          console.error(`Error uploading file ${assetName}:`, error);
+        }
+      };
+      const uploadAssetCurl = (assetPath, assetName) => {
+        const uploadUrl = `${release_info.upload_url.split('{')[0]}?name=${encodeURIComponent(assetName)}`;
+        const mimeType = 'application/octet-stream'; // You can also use a library to determine the MIME type based on the file extension
+
+        const command = `curl -X POST -H "Authorization: Bearer ${github_token}" -H "Content-Type: ${mimeType}" --data-binary @${assetPath} "${uploadUrl}"`;
+
         exec(command, (error, stdout, stderr) => {
           if (error) {
-            console.error(`Error uploading file ${asset_name}:`, error);
+            console.error(`Error uploading file ${assetName}:`, error);
             return;
           }
-          console.log(`Uploaded file: ${asset_name}`);
-          if (stdout) console.log(stdout);
-          if (stderr) console.log(stderr);
+          console.log(`Uploaded file: ${assetName}`);
+          console.log(stdout);
         });
-      }
-
+      };
+      
       // Create a zip file of dist folder
       const zip_name = `${manifest_id}-${confirmed_version}.zip`;
       const output = fs.createWriteStream(`./${zip_name}`);
@@ -172,20 +107,24 @@ rl_interface.question(`Confirm release version (${version}): `, (confirmed_versi
       });
 
       archive.on('end', async function() {
-        console.log(`Archive wrote ${archive.pointer()} bytes`);
-        // Upload zip file
-        upload_asset_curl(`./${zip_name}`, zip_name);
+        console.log('Archive wrote %d bytes', archive.pointer());
+
+        // Upload zip file after archive has been finalized
+        // await uploadAsset(`./${zip_name}`, zip_name);
+        uploadAssetCurl(`./${zip_name}`, zip_name);
+        console.log('Zip file uploaded.');
 
         // Upload each file in dist folder
         const files = fs.readdirSync('./dist');
         for (const file of files) {
-          upload_asset_curl(`./dist/${file}`, file);
+          await uploadAsset(`./dist/${file}`, file);
+          console.log(`Uploaded file: ${file}`);
         }
 
-        // Remove zip file locally
+        // Remove zip file
         fs.unlinkSync(`./${zip_name}`);
 
-        console.log('All files requested for upload.');
+        console.log('All files uploaded.');
       });
 
       archive.pipe(output);
@@ -197,5 +136,3 @@ rl_interface.question(`Confirm release version (${version}): `, (confirmed_versi
     }
   });
 });
-
-
