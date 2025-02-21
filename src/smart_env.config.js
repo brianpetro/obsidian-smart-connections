@@ -36,7 +36,7 @@ import {
 import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-request";
 import { requestUrl } from "obsidian";
 import { SmartThreads } from "smart-chats/smart_threads.js";
-import { ScThread as SmartThread } from "./sc_thread.js";
+import { SmartThread } from "./sc_thread.js";
 import { render as thread_component } from 'smart-chats/components/thread.js';
 import { SmartMessages } from "smart-chats/smart_messages.js";
 import { SmartMessage } from "smart-chats/smart_message.js";
@@ -65,6 +65,7 @@ export const smart_env_config = {
         // "canvas": MarkdownSourceContentAdapter,
         // "default": MarkdownSourceContentAdapter,
       },
+      process_embed_queue: true,
     },
     smart_blocks: {
       class: SmartBlocks,

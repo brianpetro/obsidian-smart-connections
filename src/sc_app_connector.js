@@ -2,18 +2,20 @@ import http from 'http';
 import url from 'url';
 
 export class ScAppConnector {
-  constructor(env, port = 37042) {
-    this.env = env;
-    this.sc_plugin = this.env.smart_connections_plugin;
+  constructor(plugin, port = 37042) {
+    this.sc_plugin = plugin;
     this.port = port;
     this.server = null;
     this.dataview_api = null;
     this.check_env_interval = null;
   }
+  get env() {
+    return this.sc_plugin.env;
+  }
 
-  static async create(env, port) {
-    const connector = new ScAppConnector(env, port);
-    env.sc_app_connector = connector;
+  static async create(plugin, port) {
+    const connector = new ScAppConnector(plugin, port);
+    plugin.env.sc_app_connector = connector;
     await connector.init();
     return connector;
   }

@@ -165,12 +165,15 @@ function post_process_note_inspect_opener(view, frag, opts = {}) {
 
 import { Modal } from "obsidian";
 export class SmartNoteInspectModal extends Modal {
-  constructor(env, entity) {
-    super(env.smart_connections_plugin.app);
+  constructor(smart_connections_plugin, entity) {
+    super(smart_connections_plugin.app);
+    this.smart_connections_plugin = smart_connections_plugin;
     this.entity = entity;
-    this.env = env;
     this.template = this.env.opts.templates["smart_note_inspect"];
     this.ejs = this.env.ejs;
+  }
+  get env() {
+    return this.smart_connections_plugin.env;
   }
   onOpen() {
     this.titleEl.innerText = this.entity.key;

@@ -65,7 +65,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   onunload() {
     console.log("unloading plugin");
     this.env?.unload_main('smart_connections_plugin');
-    this.env = null;
     this.notices?.unload();
   }
 
@@ -117,7 +116,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     await this.smart_env_class.create(this, this.smart_env_config);
     console.log("env loaded");
     // skip if is mobile
-    if(!this.obsidian.Platform.isMobile) ScAppConnector.create(this.env, 37042); // Smart Connect
+    if(!this.obsidian.Platform.isMobile) ScAppConnector.create(this, 37042); // Smart Connect
     /**
      * @deprecated for Smart Visualizer backwards compatibility
      * TODO: remove when new Smart [Clusters] Visualizer plugin is released
@@ -126,7 +125,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     if(typeof this.env.smart_sources === 'undefined') Object.defineProperty(this.env, 'smart_notes', { get: () => this.env.smart_sources });
   }
   async ready_to_load_collections() {
-    await new Promise(r => setTimeout(r, 5000)); // wait 5 seconds for other processes to finish
+    await new Promise(r => setTimeout(r, 3000)); // wait 3 seconds for other processes to finish
     await this.wait_for_obsidian_sync();
   }
 

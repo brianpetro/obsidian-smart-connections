@@ -1,10 +1,6 @@
-import { SmartThread } from "smart-chats/smart_thread";
+import { SmartThread as SmartThreadBase } from "smart-chats/smart_thread";
 
-export class ScThread extends SmartThread {
-  // collection_key required by CollectionItem sub-classes
-  get collection_key() {
-    return 'smart_threads';
-  }
+export class SmartThread extends SmartThreadBase {
   /**
    * Handles the execution of detected tool calls from a message.
    * Currently supports 'lookup' tool calls. Additional tools can be integrated similarly.
