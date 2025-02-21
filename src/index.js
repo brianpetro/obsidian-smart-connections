@@ -395,7 +395,11 @@ export default class SmartConnectionsPlugin extends Plugin {
     const state = Math.random().toString(36).slice(2);
     const redirect_uri = encodeURIComponent("obsidian://sc-op/callback");
     const url = `${get_smart_server_url()}/oauth?client_id=smart-plugins-op&redirect_uri=${redirect_uri}&state=${state}`;
-    window.open(url, "_blank");
+    if(typeof this.app.internalPlugins.plugins?.webviewer?.instance?.openUrlExternally === 'function'){
+      this.app.internalPlugins.plugins.webviewer.instance.openUrlExternally(url);
+    }else{
+      window.open(url, "_blank");
+    }
   }
   /**
    * Handles the OAuth callback from the Smart Plugins server.
