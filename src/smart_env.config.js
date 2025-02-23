@@ -1,7 +1,7 @@
 import { SmartSources, SmartSource } from "smart-sources";
 import { SmartBlocks, SmartBlock } from "smart-blocks";
 import { MarkdownBlockContentAdapter } from "smart-blocks/adapters/markdown_block.js";
-import { MarkdownSourceContentAdapter } from "smart-sources/adapters/markdown_source.js";
+import { ObsidianMarkdownSourceContentAdapter } from "smart-sources/adapters/obsidian_markdown.js";
 import { AjsonMultiFileCollectionDataAdapter } from "smart-collections/adapters/ajson_multi_file.js";
 import { SmartEmbedModel } from "smart-embed-model";
 import { SmartEmbedOpenAIAdapter } from "smart-embed-model/adapters/openai.js";
@@ -60,8 +60,8 @@ export const smart_env_config = {
       class: SmartSources,
       data_adapter: AjsonMultiFileSourcesDataAdapter,
       source_adapters: {
-        "md": MarkdownSourceContentAdapter,
-        "txt": MarkdownSourceContentAdapter,
+        "md": ObsidianMarkdownSourceContentAdapter,
+        "txt": ObsidianMarkdownSourceContentAdapter,
         // "canvas": MarkdownSourceContentAdapter,
         // "default": MarkdownSourceContentAdapter,
       },
