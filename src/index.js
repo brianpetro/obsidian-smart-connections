@@ -64,7 +64,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
     console.log("unloading plugin");
-    this.env?.unload_main('smart_connections_plugin');
+    this.env?.unload_main?.(this);
     this.notices?.unload();
   }
 
@@ -197,7 +197,7 @@ export default class SmartConnectionsPlugin extends Plugin {
 
 
   async restart_plugin() {
-    this.env.unload_main('smart_connections_plugin');
+    this.env?.unload_main?.(this);
     await this.saveData(this.settings);
     await new Promise(r => setTimeout(r, 3000));
     window.restart_plugin = async (id) => {
