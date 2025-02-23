@@ -49,7 +49,6 @@ import smart_block from "smart-blocks/smart_block.js";
 import smart_source from "smart-sources/smart_source.js";
 
 export const smart_env_config = {
-  global_ref: window,
   env_path: '',
   // env_data_dir: '.smart-env', // added in Plugin class
   collections: {
