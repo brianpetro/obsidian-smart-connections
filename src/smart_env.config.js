@@ -55,26 +55,6 @@ export const smart_env_config = {
     smart_collections: {
       data_adapter: AjsonMultiFileCollectionDataAdapter
     },
-    smart_sources: {
-      class: SmartSources,
-      data_adapter: AjsonMultiFileSourcesDataAdapter,
-      source_adapters: {
-        "md": ObsidianMarkdownSourceContentAdapter,
-        "txt": ObsidianMarkdownSourceContentAdapter,
-        // "canvas": MarkdownSourceContentAdapter,
-        // "default": MarkdownSourceContentAdapter,
-      },
-      process_embed_queue: true,
-    },
-    smart_blocks: {
-      class: SmartBlocks,
-      data_adapter: AjsonMultiFileBlocksDataAdapter,
-      block_adapters: {
-        "md": MarkdownBlockContentAdapter,
-        "txt": MarkdownBlockContentAdapter,
-        // "canvas": MarkdownBlockContentAdapter,
-      },
-    },
     smart_threads: {
       class: SmartThreads,
       data_adapter: AjsonMultiFileCollectionDataAdapter,
