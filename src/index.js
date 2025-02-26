@@ -25,7 +25,7 @@ import { SmartSettings } from 'smart-settings/smart_settings.js';
 
 // NEW OAUTH: import our OAuth logic
 import { exchange_code_for_tokens, installSmartPlugins, get_smart_server_url } from './sc_oauth.js';
-
+import { SmartNotices } from 'smart-notices/smart_notices.js';
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
 
@@ -71,7 +71,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   async initialize() {
     this.obsidian = Obsidian;
     await SmartSettings.create(this); // works on mobile (no this.smart_env_config)
-    this.notices = new this.smart_env_config.modules.smart_notices.class(this);
+    this.notices = new SmartNotices(this, Notice);
 
     this.smart_connections_view = null;
     this.add_commands();
