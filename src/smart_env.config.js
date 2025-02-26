@@ -18,13 +18,14 @@ import { SmartChatModel } from "smart-chat-model";
 import {
   SmartChatModelAnthropicAdapter,
   SmartChatModelAzureAdapter,
-  SmartChatModelOpenaiAdapter,
-  SmartChatModelGeminiAdapter,
-  SmartChatModelOpenRouterAdapter,
+  // SmartChatModelCohereAdapter,
   SmartChatModelCustomAdapter,
-  SmartChatModelOllamaAdapter,
-  SmartChatModelLmStudioAdapter,
+  SmartChatModelGeminiAdapter,
   SmartChatModelGroqAdapter,
+  SmartChatModelLmStudioAdapter,
+  SmartChatModelOllamaAdapter,
+  SmartChatModelOpenaiAdapter,
+  SmartChatModelOpenRouterAdapter,
 } from "smart-chat-model/adapters.js";
 import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-request";
 import { requestUrl } from "obsidian";
@@ -71,16 +72,18 @@ export const smart_env_config = {
   modules: {
     smart_chat_model: {
       class: SmartChatModel,
+      // DEPRECATED FORMAT: will be changed (requires SmartModel adapters getters update)
       adapters: {
-        openai: SmartChatModelOpenaiAdapter,
         anthropic: SmartChatModelAnthropicAdapter,
         azure: SmartChatModelAzureAdapter,
-        gemini: SmartChatModelGeminiAdapter,
-        open_router: SmartChatModelOpenRouterAdapter,
+        // cohere: SmartChatModelCohereAdapter,
         custom: SmartChatModelCustomAdapter,
-        ollama: SmartChatModelOllamaAdapter,
-        lm_studio: SmartChatModelLmStudioAdapter,
+        gemini: SmartChatModelGeminiAdapter,
         groq: SmartChatModelGroqAdapter,
+        lm_studio: SmartChatModelLmStudioAdapter,
+        ollama: SmartChatModelOllamaAdapter,
+        open_router: SmartChatModelOpenRouterAdapter,
+        openai: SmartChatModelOpenaiAdapter,
       },
       http_adapter: new SmartHttpRequest({
         adapter: SmartHttpObsidianRequestAdapter,
