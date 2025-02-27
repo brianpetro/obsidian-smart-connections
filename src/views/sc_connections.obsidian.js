@@ -75,6 +75,7 @@ export class ScConnectionsView extends SmartObsidianView {
       console.log("Creating entity for current file", current_file.path);
       this.env.smart_sources.fs.include_file(current_file.path);
       entity = this.env.smart_sources.init_file_path(current_file.path);
+      if(!entity) return this.plugin.notices.show("unable_to_init_source", {key: current_file.path});
       await entity.import();
       await entity.collection.process_embed_queue();
     }

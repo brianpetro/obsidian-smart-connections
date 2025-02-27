@@ -243,6 +243,7 @@ export default class SmartConnectionsPlugin extends Plugin {
           this.env.smart_sources.fs.include_file(curr_file.path);
           source = this.env.smart_sources.init_file_path(curr_file.path);
         }
+        if(!source) return this.notices.show("unable_to_init_source", {key: curr_file.path});
         await source.import();
         await this.env.smart_sources.process_embed_queue();
         setTimeout(() => {
