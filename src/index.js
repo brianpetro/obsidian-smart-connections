@@ -40,6 +40,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   // GETTERS
+  get obsidian() { return Obsidian; }
   get smart_env_class() { return SmartEnv; }
   get smart_env_config() {
     if(!this._smart_env_config){
@@ -61,7 +62,11 @@ export default class SmartConnectionsPlugin extends Plugin {
     return this._smart_env_config;
   }
   get api() { return this._api; }
-  async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
+  onload() {
+    SmartEnv.create(this, this.smart_env_config);
+    this.app.workspace.onLayoutReady(this.initialize.bind(this)); // initialize when layout is ready
+  }
+  // async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
     console.log("unloading plugin");
     this.env?.unload_main?.(this);
@@ -69,9 +74,8 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async initialize() {
-    this.obsidian = Obsidian;
     await SmartSettings.create(this); // works on mobile (no this.smart_env_config)
-    this.notices = new SmartNotices(this, Notice);
+    // this.notices = new SmartNotices(this, Notice);
 
     this.smart_connections_view = null;
     this.add_commands();
@@ -89,11 +93,12 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.new_user();
 
     console.log("loading env");
-    if(this.obsidian.Platform.isMobile){
-      this.notices.show('load_env');
-    }else {
-      await this.load_env();
-    }
+    await SmartEnv.wait_for({ loaded: true });
+    // if(this.obsidian.Platform.isMobile){
+    //   this.notices.show('load_env');
+    // }else {
+    //   await this.load_env();
+    // }
     // Register protocol handler for obsidian://sc-op/callback
     this.registerObsidianProtocolHandler("sc-op/callback", async (params) => {
       await this.handle_sc_op_oauth_callback(params);
@@ -437,4 +442,12 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
 
+  // DEPRECATED
+  /**
+   * @deprecated use SmartEnv.notices instead
+   */
+  get notices() {
+    if(!this._notices) this._notices = new SmartNotices(this.env, Notice);
+    return this._notices;
+  }
 }

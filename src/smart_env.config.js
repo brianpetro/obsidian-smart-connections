@@ -45,6 +45,9 @@ export const smart_env_config = {
   env_path: '',
   // env_data_dir: '.smart-env', // added in Plugin class
   collections: {
+    smart_sources: {
+      process_embed_queue: true, // trigger embedding on load
+    },
     smart_collections: {
       data_adapter: AjsonMultiFileCollectionDataAdapter
     },
