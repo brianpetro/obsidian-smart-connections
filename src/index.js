@@ -5,7 +5,7 @@ const {
   requestUrl,
 } = Obsidian;
 
-import { SmartEnv } from 'smart-environment/obsidian.js';
+import { SmartEnv } from 'obsidian-smart-env';
 import { smart_env_config } from "./smart_env.config.js";
 import { default_settings } from "./default_settings.js";
 import ejs from "../ejs.min.cjs";
