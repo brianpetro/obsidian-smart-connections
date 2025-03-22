@@ -1,20 +1,11 @@
-export async function render(scope) {
-  if(!scope.env){
-    const load_frag = this.create_doc_fragment(`
-      <div><button>Load Smart Environment</button></div>
-    `);
-    load_frag.querySelector('button').addEventListener('click', (e) => {
-      scope.load_env();
-      // replace button with "reload settings after smart environment loads"
-      e.target.replaceWith(this.create_doc_fragment('<span>Reload settings after Smart Environment loads...</span>'));
-    });
-    return load_frag;
-  }
+import { render as render_muted_notices } from "./muted_notices.js";
+
+async function build_html(scope_plugin) {
   const html = `
     <div id="smart-connections-settings">
-      ${render_mobile_warning(scope)}
+      ${render_mobile_warning(scope_plugin)}
       ${render_info_callout()}
-      ${render_supporters_section(scope)}
+      ${render_supporters_section(scope_plugin)}
       <h2>Smart Environment</h2>
       <div data-smart-settings="env"></div>
       <p>Notes about embedding models:</p>
@@ -23,21 +14,37 @@ export async function render(scope) {
         <li>Local model compatibility depends on available CPU and RAM. Try reducing the max tokens (context) if a local model if failing.</li>
         <li>API models are not dependent on local compute, but they require an API key and send your notes to third-party servers for processing.</li>
       </ul>
+      <div data-smart-notices></div>
       <!-- OLD -->
-      ${render_muted_notices_section(scope)}
-      ${render_mobile_toggle(scope)}
-      ${render_version_revert_button(scope)}
+      ${render_mobile_toggle(scope_plugin)}
     </div>
   `;
+  return html;
+}
+export async function render(scope_plugin) {
+  if(!scope_plugin.env){
+    const load_frag = this.create_doc_fragment(`
+      <div><button>Load Smart Environment</button></div>
+    `);
+    load_frag.querySelector('button').addEventListener('click', (e) => {
+      scope_plugin.load_env();
+      // replace button with "reload settings after smart environment loads"
+      e.target.replaceWith(this.create_doc_fragment('<span>Reload settings after Smart Environment loads...</span>'));
+    });
+    return load_frag;
+  }
+  const html = await build_html.call(this, scope_plugin);
   const frag = this.create_doc_fragment(html);
-  return await post_process.call(this, scope, frag);
+  return await post_process.call(this, scope_plugin, frag);
 }
 
-export async function post_process(scope, frag) {
-  await this.render_setting_components(frag, { scope });
+export async function post_process(scope_plugin, frag) {
+  const muted_notices_frag = await render_muted_notices.call(this, scope_plugin.env);
+  frag.querySelector('[data-smart-notices]').appendChild(muted_notices_frag);
+  await this.render_setting_components(frag, { scope: scope_plugin });
   const smart_settings_containers = frag.querySelectorAll('[data-smart-settings]');
   for(const container of smart_settings_containers) {
-    const sub_scope = container.dataset.smartSettings.split('.').reduce((acc, key) => acc[key], scope);
+    const sub_scope = container.dataset.smartSettings.split('.').reduce((acc, key) => acc[key], scope_plugin);
     await sub_scope.render_settings(container);
   }
   const supporter_container = frag.querySelector('.sc-supporters');
@@ -54,8 +61,8 @@ export async function post_process(scope, frag) {
   return frag;
 }
 
-function render_mobile_warning(scope) {
-  if (scope.obsidian.Platform.isMobile && !scope.settings.enable_mobile) {
+function render_mobile_warning(scope_plugin) {
+  if (scope_plugin.obsidian.Platform.isMobile && !scope_plugin.settings.enable_mobile) {
     return `
       <div data-callout-metadata="" data-callout-fold="" data-callout="warning" class="callout">
         <div class="callout-title">
@@ -94,13 +101,13 @@ function render_info_callout() {
   `;
 }
 
-function render_supporters_section(scope) {
+function render_supporters_section(scope_plguin) {
   // Implement the supporters section here
-  const stable_release_html = scope.EARLY_ACCESS ? '' : `<p>The success of Smart Connections is a direct result of our community of supporters who generously fund and evaluate new features. Their unwavering commitment to our privacy-focused, open-source software benefits all. Together, we can continue to innovate and make a positive impact on the world.</p>`
+  const stable_release_html = scope_plguin.EARLY_ACCESS ? '' : `<p>The success of Smart Connections is a direct result of our community of supporters who generously fund and evaluate new features. Their unwavering commitment to our privacy-focused, open-source software benefits all. Together, we can continue to innovate and make a positive impact on the world.</p>`
     + render_supporter_benefits_html()
   ;
   const become_supporter_html = `
-    ${render_sign_in_or_open_smart_plugins(scope)}
+    ${render_sign_in_or_open_smart_plugins(scope_plguin)}
     <div class="setting-component"
       data-name="Become a Supporter"
       data-description="Become a Supporter"
@@ -191,30 +198,6 @@ function render_supporter_benefits_html() {
   `;
 }
 
-function render_muted_notices_section(scope) {
-  let html = `
-    <h1>Muted Notices</h1>
-  `;
-  
-  if (Object.keys(scope.notices.settings?.muted || {}).length) {
-    for (const notice in scope.notices.settings?.muted) {
-      html += `
-        <div class="setting-component"
-          data-name="${notice}"
-          data-setting="smart_notices.muted.${notice}"
-          data-type="remove"
-          data-btn-text="Unmute"
-          data-callback="remove_setting_elm"
-        ></div>
-      `;
-    }
-  } else {
-    html += `<p>No muted notices.</p>`;
-  }
-  
-  return html;
-}
-
 function render_mobile_toggle(scope) {
   return `
     <hr>
@@ -228,21 +211,6 @@ function render_mobile_toggle(scope) {
   `;
 }
 
-function render_version_revert_button(scope) {
-  if (scope.EARLY_ACCESS) {
-    return `
-      <hr>
-      <div class="setting-component"
-        data-name="Revert to Stable Release"
-        data-btn-text="Revert"
-        data-description='Revert to the stable release of Smart Connections. Requires "Check for Updates" and then "Update Plugin" to complete the process.'
-        data-type="button"
-        data-callback="revert_to_stable_release"
-      ></div>
-    `;
-  }
-  return '';
-}
 function render_sign_in_or_open_smart_plugins(scope) {
   const isLoggedIn = !!localStorage.getItem('smart_plugins_oauth_token');
   const buttonLabel = isLoggedIn ? 'Open Smart Plugins' : 'Sign in';
