@@ -58,6 +58,13 @@ export async function post_process(scope_plugin, frag) {
     supporter_container.addEventListener('click', expand_container);
     supporter_container.addEventListener('scroll', expand_container);
   }
+  const become_supporter_buttons = frag.querySelectorAll('.become-supporter-button');
+  for(const button of become_supporter_buttons){
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      scope_plugin.open_url_externally('https://buy.stripe.com/9AQ7sWemT48u1LGcN4');
+    });
+  }
   return frag;
 }
 
@@ -108,13 +115,11 @@ function render_supporters_section(scope_plguin) {
   ;
   const become_supporter_html = `
     ${render_sign_in_or_open_smart_plugins(scope_plguin)}
-    <div class="setting-component"
-      data-name="Become a Supporter"
-      data-description="Become a Supporter"
-      data-type="button"
-      data-href="https://buy.stripe.com/9AQ7sWemT48u1LGcN4"
-    ></div>`
-  ;
+    <div style="display: flex; justify-content: space-between; gap: 10px;">
+      <span>Become a Supporter</span>
+      <button class="become-supporter-button">Become a Supporter</button>
+    </div>
+  `;
   return `<div class="sc-supporters">
     <h1>Smart Connections Supporter Community</h1>
     <i>Join the next <a href="https://lu.ma/calendar/cal-ZJtdnzAdURyouM7">Lean Coffee session</a> to discuss future features & improvements.</i>
@@ -211,8 +216,9 @@ function render_mobile_toggle(scope) {
   `;
 }
 
-function render_sign_in_or_open_smart_plugins(scope) {
-  const isLoggedIn = !!localStorage.getItem('smart_plugins_oauth_token');
+function render_sign_in_or_open_smart_plugins(scope_plugin) {
+  const oauth_storage_prefix = scope_plugin.app.vault.getName().toLowerCase().replace(/[^a-z0-9]/g, '_') + '_smart_plugins_oauth_';
+  const isLoggedIn = !!localStorage.getItem(oauth_storage_prefix+'token');
   const buttonLabel = isLoggedIn ? 'Open Smart Plugins' : 'Sign in';
   const buttonCallback = isLoggedIn ? 'open_smart_plugins_settings' : 'initiate_smart_plugins_oauth';
 

@@ -23,7 +23,7 @@ import { open_note } from "./open_note.js";
 import { ScAppConnector } from "./sc_app_connector.js";
 import { SmartSettings } from 'smart-settings/smart_settings.js';
 
-import { exchange_code_for_tokens, installSmartPlugins, get_smart_server_url } from './sc_oauth.js';
+import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url } from './sc_oauth.js';
 import { SmartNotices } from 'smart-notices/smart_notices.js';
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -405,6 +405,21 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
   }
   /**
+   * Opens a URL externally, using the Obsidian webviewer plugin if possible,
+   * otherwise falling back to window.open().
+   *
+   * @param {string} url
+   */
+  open_url_externally(url) {
+    const webviewer = this.app.internalPlugins?.plugins?.webviewer?.instance;
+    if (webviewer && typeof webviewer.openUrlExternally === 'function') {
+      webviewer.openUrlExternally(url);
+    } else {
+      window.open(url, '_blank');
+    }
+  }
+
+  /**
    * Handles the OAuth callback from the Smart Plugins server.
    * @param {Object} params - The URL parameters from the OAuth callback.
    */
@@ -416,8 +431,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
     try {
       // your existing OAuth + plugin install logic
-      await exchange_code_for_tokens(code);
-      await installSmartPlugins(this);
+      await exchange_code_for_tokens(code, this);
+      await install_smart_plugins_plugin(this);
       new Notice("Smart Plugins installed / updated successfully!");
       this.open_smart_plugins_settings();
     } catch (err) {
