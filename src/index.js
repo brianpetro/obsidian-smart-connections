@@ -23,7 +23,6 @@ import { open_note } from "./open_note.js";
 import { ScAppConnector } from "./sc_app_connector.js";
 import { SmartSettings } from 'smart-settings/smart_settings.js';
 
-// NEW OAUTH: import our OAuth logic
 import { exchange_code_for_tokens, installSmartPlugins, get_smart_server_url } from './sc_oauth.js';
 import { SmartNotices } from 'smart-notices/smart_notices.js';
 export default class SmartConnectionsPlugin extends Plugin {
@@ -41,7 +40,6 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   // GETTERS
   get obsidian() { return Obsidian; }
-  get smart_env_class() { return SmartEnv; }
   get smart_env_config() {
     if(!this._smart_env_config){
       this._smart_env_config = {
@@ -76,6 +74,8 @@ export default class SmartConnectionsPlugin extends Plugin {
   async initialize() {
     await SmartSettings.create(this); // works on mobile (no this.smart_env_config)
     // this.notices = new SmartNotices(this, Notice);
+    console.log("loading env");
+    await SmartEnv.wait_for({ loaded: true });
 
     this.smart_connections_view = null;
     this.add_commands();
@@ -92,8 +92,6 @@ export default class SmartConnectionsPlugin extends Plugin {
 
     this.new_user();
 
-    console.log("loading env");
-    await SmartEnv.wait_for({ loaded: true });
     // if(this.obsidian.Platform.isMobile){
     //   this.notices.show('load_env');
     // }else {
@@ -118,7 +116,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async load_env() {
-    await this.smart_env_class.create(this, this.smart_env_config);
+    await SmartEnv.create(this, this.smart_env_config);
     console.log("env loaded");
     // skip if is mobile
     if(!this.obsidian.Platform.isMobile) ScAppConnector.create(this, 37042); // Smart Connect
@@ -447,6 +445,7 @@ export default class SmartConnectionsPlugin extends Plugin {
    * @deprecated use SmartEnv.notices instead
    */
   get notices() {
+    if(this.env?.notices) return this.env.notices;
     if(!this._notices) this._notices = new SmartNotices(this.env, Notice);
     return this._notices;
   }
