@@ -36,6 +36,7 @@ import { SmartMessages } from "smart-chats/smart_messages.js";
 import { SmartMessage } from "smart-chats/smart_message.js";
 import { EnvJsonThreadSourceAdapter } from "smart-chats/adapters/json.js";
 // import { SmartEmbedModelOllamaAdapter } from "smart-embed-model/adapters/ollama.js";
+import { render as source_inspector_component } from './components/source_inspector.js';
 
 // actions architecture
 import smart_block from "smart-blocks/smart_block.js";
@@ -115,6 +116,7 @@ export const smart_env_config = {
     connections_results: results_component,
     smart_chat: smart_chat_component,
     connections: connections_component,
+    source_inspector: source_inspector_component,
     smart_env: {
       settings: env_settings_component,
     },

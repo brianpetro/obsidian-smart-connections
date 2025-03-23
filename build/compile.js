@@ -5,22 +5,22 @@ import swaggerJsdoc from 'swagger-jsdoc';
 const templates_dir = path.join(process.cwd(), 'src', 'views'); // Directory containing EJS files
 let views = {};
 (async () => {
-  // Compile EJS templates into JSON
-  fs.readdir(templates_dir, (err, files) => {
-    if (err) {
-      console.error('Error reading the directory', err);
-      return;
-    }
-    files.forEach(file => {
-      if(!['.ejs', '.md'].includes(path.extname(file))) return;
-      const file_path = path.join(templates_dir, file);
-      const content = fs.readFileSync(file_path, 'utf8').replace(/\r\n/g, '\n');
-      views[path.basename(file, path.extname(file))] = content;
-    });
-    // console.log('views', views);
-    fs.writeFileSync('build/views.json', JSON.stringify(views, null, 2));
-    console.log('EJS templates compiled into templates.json');
-  });
+  // // Compile EJS templates into JSON
+  // fs.readdir(templates_dir, (err, files) => {
+  //   if (err) {
+  //     console.error('Error reading the directory', err);
+  //     return;
+  //   }
+  //   files.forEach(file => {
+  //     if(!['.ejs', '.md'].includes(path.extname(file))) return;
+  //     const file_path = path.join(templates_dir, file);
+  //     const content = fs.readFileSync(file_path, 'utf8').replace(/\r\n/g, '\n');
+  //     views[path.basename(file, path.extname(file))] = content;
+  //   });
+  //   // console.log('views', views);
+  //   fs.writeFileSync('build/views.json', JSON.stringify(views, null, 2));
+  //   console.log('EJS templates compiled into templates.json');
+  // });
 
   // Compile Tools into OpenAPI JSON
   const apis = [];

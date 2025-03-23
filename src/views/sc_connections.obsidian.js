@@ -157,7 +157,7 @@ function post_process_note_inspect_opener(view, frag, opts = {}) {
     el.addEventListener("click", (event) => {
       const entity = view.env.smart_sources.get(event.currentTarget.dataset.key);
       if(entity){
-        new SmartNoteInspectModal(view.env, entity).open();
+        new SmartNoteInspectModal(view.plugin, entity).open();
       }
     });
   });
@@ -170,8 +170,6 @@ export class SmartNoteInspectModal extends Modal {
     super(smart_connections_plugin.app);
     this.smart_connections_plugin = smart_connections_plugin;
     this.entity = entity;
-    this.template = this.env.opts.templates["smart_note_inspect"];
-    this.ejs = this.env.ejs;
   }
   get env() {
     return this.smart_connections_plugin.env;
@@ -181,8 +179,11 @@ export class SmartNoteInspectModal extends Modal {
     this.render();
   }
   async render() {
-    const html = await this.ejs.render(this.template, { note: this.entity }, { async: true });
-    // console.log(html);
-    this.contentEl.innerHTML = html;
+    this.contentEl.empty();
+
+    const frag = await this.env.render_component('source_inspector', this.entity);
+
+    this.contentEl.appendChild(frag);
   }
+
 }
