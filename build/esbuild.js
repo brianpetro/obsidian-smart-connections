@@ -99,6 +99,8 @@ esbuild.build({
     'crypto',
     '@xenova/transformers',
     '@huggingface/transformers',
+    'http',
+    'url',
   ],
   define: {
     'process.env.DEFAULT_OPEN_ROUTER_API_KEY': JSON.stringify(process.env.DEFAULT_OPEN_ROUTER_API_KEY),

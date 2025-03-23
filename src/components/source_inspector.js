@@ -48,7 +48,6 @@ export async function post_process(source, frag, opts = {}) {
   const container = frag.querySelector('.source-inspector .source-inspector-blocks-container');
   if (!container) return frag;
 
-  console.log(source);
   if (!source || !source.blocks || source.blocks.length === 0) {
     container.innerHTML = `<p>No blocks</p>`;
     return frag;

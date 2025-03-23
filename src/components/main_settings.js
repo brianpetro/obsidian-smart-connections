@@ -1,4 +1,5 @@
 import { render as render_muted_notices } from "./muted_notices.js";
+import { render as render_env_settings } from "./env_settings.js";
 
 async function build_html(scope_plugin) {
   const html = `
@@ -42,10 +43,15 @@ export async function post_process(scope_plugin, frag) {
   const muted_notices_frag = await render_muted_notices.call(this, scope_plugin.env);
   frag.querySelector('[data-smart-notices]').appendChild(muted_notices_frag);
   await this.render_setting_components(frag, { scope: scope_plugin });
-  const smart_settings_containers = frag.querySelectorAll('[data-smart-settings]');
-  for(const container of smart_settings_containers) {
-    const sub_scope = container.dataset.smartSettings.split('.').reduce((acc, key) => acc[key], scope_plugin);
-    await sub_scope.render_settings(container);
+  // const smart_settings_containers = frag.querySelectorAll('[data-smart-settings]');
+  // for(const container of smart_settings_containers) {
+  //   const sub_scope = container.dataset.smartSettings.split('.').reduce((acc, key) => acc[key], scope_plugin);
+  //   await sub_scope.render_settings(container);
+  // }
+  const env_settings_container = frag.querySelector('[data-smart-settings="env"]');
+  if(env_settings_container){
+    const env_settings_frag = await render_env_settings.call(this, scope_plugin.env);
+    env_settings_container.appendChild(env_settings_frag);
   }
   const supporter_container = frag.querySelector('.sc-supporters');
   if(supporter_container){

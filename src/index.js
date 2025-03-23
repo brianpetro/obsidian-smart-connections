@@ -3,6 +3,7 @@ const {
   Notice,
   Plugin,
   requestUrl,
+  Platform,
 } = Obsidian;
 
 import { SmartEnv } from 'obsidian-smart-env';
@@ -52,14 +53,15 @@ export default class SmartConnectionsPlugin extends Plugin {
         request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
       };
       // mobile enable/disable
-      if(this.obsidian.Platform.isMobile && !this.settings.enable_mobile) this._smart_env_config.prevent_load_on_init = true;
+      // if(Platform.isMobile && !this.settings.enable_mobile) this._smart_env_config.prevent_load_on_init = true;
+      if(Platform.isMobile) this._smart_env_config.prevent_load_on_init = true;
     }
     return this._smart_env_config;
   }
   get api() { return this._api; }
   onload() {
-    SmartEnv.create(this, this.smart_env_config);
     this.app.workspace.onLayoutReady(this.initialize.bind(this)); // initialize when layout is ready
+    if(!Platform.isMobile) SmartEnv.create(this); // IMPORTANT: works on mobile without this.smart_env_config as second arg
   }
   // async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
@@ -69,10 +71,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async initialize() {
-    await SmartSettings.create(this); // works on mobile (no this.smart_env_config)
-    // this.notices = new SmartNotices(this, Notice);
-    console.log("loading env");
-    await SmartEnv.wait_for({ loaded: true });
+    SmartSettings.create_sync(this);
 
     this.smart_connections_view = null;
     this.add_commands();
@@ -89,15 +88,27 @@ export default class SmartConnectionsPlugin extends Plugin {
 
     this.new_user();
 
-    // if(this.obsidian.Platform.isMobile){
-    //   this.notices.show('load_env');
-    // }else {
-    //   await this.load_env();
-    // }
-    // Register protocol handler for obsidian://sc-op/callback
-    this.registerObsidianProtocolHandler("sc-op/callback", async (params) => {
-      await this.handle_sc_op_oauth_callback(params);
-    });
+    if(Platform.isMobile){
+      console.log("showing load_env notice");
+      // create doc frag with a button to run load_env
+      const frag = document.createDocumentFragment();
+      const elm = document.createElement('div');
+      elm.innerHTML = `
+        <p>Smart Environment loading deferred on mobile.</p>
+        <button>Load Environment</button>
+      `;
+      frag.appendChild(elm);
+      elm.addEventListener('click', () => {
+        this.load_env();
+      });
+      new Notice(frag, 0);
+    }
+    if(!Platform.isMobile){
+      // Register protocol handler for obsidian://sc-op/callback
+      this.registerObsidianProtocolHandler("sc-op/callback", async (params) => {
+        await this.handle_sc_op_oauth_callback(params);
+      });
+    }
     console.log("Smart Connections v2 loaded");
   }
 
@@ -113,10 +124,12 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async load_env() {
-    await SmartEnv.create(this, this.smart_env_config);
+    console.log("loading env");
+    SmartEnv.create(this);
+    if(!Platform.isMobile) ScAppConnector.create(this, 37042); // Smart Connect
+    await SmartEnv.wait_for({ loaded: true });
     console.log("env loaded");
     // skip if is mobile
-    if(!this.obsidian.Platform.isMobile) ScAppConnector.create(this, 37042); // Smart Connect
     /**
      * @deprecated for Smart Visualizer backwards compatibility
      * TODO: remove when new Smart [Clusters] Visualizer plugin is released
@@ -191,7 +204,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         this.update_available = true;
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
