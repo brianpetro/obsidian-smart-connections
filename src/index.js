@@ -23,7 +23,7 @@ import { open_note } from "./open_note.js";
 import { ScAppConnector } from "./sc_app_connector.js";
 import { SmartSettings } from 'smart-settings/smart_settings.js';
 
-import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url } from './sc_oauth.js';
+import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url, enable_plugin } from './sc_oauth.js';
 import { SmartNotices } from 'smart-notices/smart_notices.js';
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -405,6 +405,7 @@ export default class SmartConnectionsPlugin extends Plugin {
    * It replicates the old 'initiate_oauth()' logic from sc_settings_tab.js
    */
   initiate_smart_plugins_oauth() {
+    console.log("initiate_smart_plugins_oauth");
     const state = Math.random().toString(36).slice(2);
     const redirect_uri = encodeURIComponent("obsidian://sc-op/callback");
     const url = `${get_smart_server_url()}/oauth?client_id=smart-plugins-op&redirect_uri=${redirect_uri}&state=${state}`;
@@ -454,7 +455,20 @@ export default class SmartConnectionsPlugin extends Plugin {
    * Opens the Obsidian settings window with the 'Smart Plugins' tab active.
    * @public
    */
-  open_smart_plugins_settings() {
+  async open_smart_plugins_settings() {
+    console.log("open_smart_plugins_settings");
+    // check if Smart Plugins is installed
+    const spInstalled = this.app.plugins.plugins['smart-plugins'];
+    if(!spInstalled) {
+      await install_smart_plugins_plugin(this);
+      await new Promise(r => setTimeout(r, 500));
+    }
+    // check if Smart Plugins is enabled
+    const spEnabled = this.app.plugins.enabledPlugins.has('smart-plugins');
+    if(!spEnabled) {
+      await enable_plugin(this.app, 'smart-plugins');
+      await new Promise(r => setTimeout(r, 500));
+    }
     // open Obsidian settings
     this.app.commands.executeCommandById('app:open-settings');
     // find the Smart Plugins tab by name

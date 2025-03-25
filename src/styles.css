@@ -458,7 +458,6 @@
 }
 
 .sc-supporters {
-  max-height: 37ch;
   border: 1px solid var(--h1-color);
   border-radius: 10px;
   padding: 10px;

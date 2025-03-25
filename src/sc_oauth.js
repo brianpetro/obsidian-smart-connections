@@ -20,7 +20,7 @@ import {
   write_files_with_adapter,
   enable_plugin,
 } from '../../smart-plugins-obsidian/utils.js';
-export { get_smart_server_url };
+export { get_smart_server_url, enable_plugin };
 
 const CLIENT_ID = 'smart-plugins-op';
 const CLIENT_SECRET = 'smart-plugins-op-secret';
