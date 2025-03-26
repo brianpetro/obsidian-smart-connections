@@ -20,7 +20,6 @@ import { SmartPrivateChatView } from "./views/sc_private_chat.obsidian.js";
 import { SmartSearch } from "./smart_search.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";
 import { open_note } from "./open_note.js";
-import { ScAppConnector } from "./sc_app_connector.js";
 import { SmartSettings } from 'smart-settings/smart_settings.js';
 
 import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url, enable_plugin } from './sc_oauth.js';
@@ -126,7 +125,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   async load_env() {
     console.log("loading env");
     SmartEnv.create(this);
-    if(!Platform.isMobile) ScAppConnector.create(this, 37042); // Smart Connect
     await SmartEnv.wait_for({ loaded: true });
     console.log("env loaded");
     // skip if is mobile
