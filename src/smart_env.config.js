@@ -1,6 +1,7 @@
 import { AjsonMultiFileCollectionDataAdapter } from "smart-collections/adapters/ajson_multi_file.js";
 import { SmartEmbedModel } from "smart-embed-model";
 import { SmartEmbedOpenAIAdapter } from "smart-embed-model/adapters/openai.js";
+import { SmartEmbedGeminiAdapter } from "./adapters/gemini.js";
 import { SmartEmbedTransformersIframeAdapter } from "smart-embed-model/adapters/transformers_iframe.js";
 import { SmartFs } from 'smart-file-system/smart_fs.js';
 import { SmartFsObsidianAdapter } from 'smart-file-system/adapters/obsidian.js';
@@ -99,6 +100,7 @@ export const smart_env_config = {
       adapters: {
         transformers: SmartEmbedTransformersIframeAdapter,
         openai: SmartEmbedOpenAIAdapter,
+        gemini: SmartEmbedGeminiAdapter,
         // ollama: SmartEmbedModelOllamaAdapter,
       },
     },
