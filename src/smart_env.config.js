@@ -9,7 +9,6 @@ import { SmartViewObsidianAdapter } from 'smart-view/adapters/obsidian.js';
 import { render as source_settings_component } from 'smart-sources/components/settings.js';
 import { render as collection_settings_component } from 'smart-collections/components/settings.js';
 import { render as model_settings_component } from "smart-model/components/settings.js";
-import { render as env_settings_component } from './components/env_settings.js';
 import { render as connections_component } from './components/connections.js';
 import { render as lookup_component } from './components/lookup.js';
 import { render as results_component } from './components/connections_results.js';
@@ -117,11 +116,8 @@ export const smart_env_config = {
     smart_chat: smart_chat_component,
     connections: connections_component,
     source_inspector: source_inspector_component,
-    smart_env: {
-      settings: env_settings_component,
-    },
     smart_sources: {
-      settings: source_settings_component,
+      // settings: source_settings_component,
       connections: connections_component,
     },
     smart_blocks: {

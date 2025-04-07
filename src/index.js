@@ -24,6 +24,8 @@ import { SmartSettings } from 'smart-settings/smart_settings.js';
 
 import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url, enable_plugin } from './sc_oauth.js';
 import { SmartNotices } from 'smart-notices/smart_notices.js';
+import { ScSupportersModal } from "./views/smart_supporters_modal.js";
+
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
 
@@ -454,6 +456,7 @@ export default class SmartConnectionsPlugin extends Plugin {
    * @public
    */
   async open_smart_plugins_settings() {
+    if(this.supporters_modal) this.supporters_modal.close();
     console.log("open_smart_plugins_settings");
     // check if Smart Plugins is installed
     const spInstalled = this.app.plugins.plugins['smart-plugins'];
@@ -474,6 +477,11 @@ export default class SmartConnectionsPlugin extends Plugin {
     if (spTab) {
       this.app.setting.openTab(spTab);
     }
+  }
+
+  open_supporters_modal() {
+    if(!this.supporters_modal) this.supporters_modal = new ScSupportersModal(this);
+    this.supporters_modal.open();
   }
 
 

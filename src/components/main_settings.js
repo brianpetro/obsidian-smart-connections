@@ -1,6 +1,4 @@
 import { render as render_muted_notices } from "./muted_notices.js";
-import { render as render_env_settings } from "./env_settings.js";
-import { ScSupportersModal } from "../views/smart_supporters_modal.js";
 
 async function build_html(scope_plugin) {
   const html = `
@@ -8,7 +6,6 @@ async function build_html(scope_plugin) {
       ${render_mobile_warning(scope_plugin)}
       ${render_info_callout()}
       ${render_brief_supporters_snippet(scope_plugin)}
-      <h2>Smart Environment</h2>
       <div data-smart-settings="env"></div>
       <p>Notes about embedding models:</p>
       <ul>
@@ -47,7 +44,7 @@ export async function post_process(scope_plugin, frag) {
 
   const env_settings_container = frag.querySelector('[data-smart-settings="env"]');
   if(env_settings_container){
-    const env_settings_frag = await render_env_settings.call(this, scope_plugin.env);
+    const env_settings_frag = await scope_plugin.env.render_component('env_settings', scope_plugin.env);
     env_settings_container.appendChild(env_settings_frag);
   }
 
@@ -55,8 +52,7 @@ export async function post_process(scope_plugin, frag) {
   const supportersButton = frag.querySelector('[data-setting="smart_community"] button');
   if (supportersButton) {
     supportersButton.addEventListener('click', () => {
-      const modal = new ScSupportersModal(scope_plugin);
-      modal.open();
+      scope_plugin.open_supporters_modal();
     });
   }
 
@@ -123,7 +119,6 @@ function render_brief_supporters_snippet(scope_plugin) {
         data-btn-text="More Info &amp; Join"
         data-description="Your support accelerates new features and improvements for everyone. Thank you!"
       ></div>
-      ${render_sign_in_or_open_smart_plugins(scope_plugin)}
     </div>
   `;
 }
@@ -141,19 +136,3 @@ function render_mobile_toggle(scope) {
   `;
 }
 
-function render_sign_in_or_open_smart_plugins(scope_plugin) {
-  const oauth_storage_prefix = scope_plugin.app.vault.getName().toLowerCase().replace(/[^a-z0-9]/g, '_') + '_smart_plugins_oauth_';
-  const isLoggedIn = !!localStorage.getItem(oauth_storage_prefix+'token');
-  const buttonLabel = isLoggedIn ? 'Open Smart Plugins' : 'Sign in';
-  const buttonCallback = isLoggedIn ? 'open_smart_plugins_settings' : 'initiate_smart_plugins_oauth';
-
-  return `
-    <div class="setting-component"
-      data-name="Smart Plugins - Early Access"
-      data-type="button"
-      data-btn-text="${buttonLabel}"
-      data-description="Supporters can sign in to access early-release Smart Plugins"
-      data-callback="${buttonCallback}"
-    ></div>
-  `;
-}

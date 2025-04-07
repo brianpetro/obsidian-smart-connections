@@ -83,6 +83,7 @@ export class ScSupportersModal extends Modal {
         data-description="Note: this is not required to use Smart Connections."
         data-placeholder="Enter your license_key"
       ></div> -->
+      ${render_sign_in_or_open_smart_plugins(this.plugin)}
       <div class="setting-component"
         data-name="Become a Supporter"
         data-setting="become_supporter"
@@ -123,4 +124,21 @@ export class ScSupportersModal extends Modal {
       });
     });
   }
+}
+
+function render_sign_in_or_open_smart_plugins(scope_plugin) {
+  const oauth_storage_prefix = scope_plugin.app.vault.getName().toLowerCase().replace(/[^a-z0-9]/g, '_') + '_smart_plugins_oauth_';
+  const isLoggedIn = !!localStorage.getItem(oauth_storage_prefix+'token');
+  const buttonLabel = isLoggedIn ? 'Open Smart Plugins' : 'Sign in';
+  const buttonCallback = isLoggedIn ? 'open_smart_plugins_settings' : 'initiate_smart_plugins_oauth';
+
+  return `
+    <div class="setting-component"
+      data-name="Smart Plugins - Early Access"
+      data-type="button"
+      data-btn-text="${buttonLabel}"
+      data-description="Supporters can sign in to access early-release Smart Plugins"
+      data-callback="${buttonCallback}"
+    ></div>
+  `;
 }
