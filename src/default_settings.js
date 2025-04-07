@@ -4,7 +4,6 @@ export function default_settings() {
       new_user: true,
       // v2.2
       legacy_transformers: false,
-      enable_mobile: true,
       actions: {
         "lookup": true
       },

@@ -25,6 +25,7 @@ import { SmartSettings } from 'smart-settings/smart_settings.js';
 import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url, enable_plugin } from './sc_oauth.js';
 import { SmartNotices } from 'smart-notices/smart_notices.js';
 import { ScSupportersModal } from "./views/smart_supporters_modal.js";
+import { merge_env_config } from "obsidian-smart-env";
 
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -54,8 +55,14 @@ export default class SmartConnectionsPlugin extends Plugin {
         request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
       };
       // mobile enable/disable
-      // if(Platform.isMobile && !this.settings.enable_mobile) this._smart_env_config.prevent_load_on_init = true;
-      if(Platform.isMobile) this._smart_env_config.prevent_load_on_init = true;
+      // if(Platform.isMobile) this._smart_env_config.prevent_load_on_init = true;
+      if(Platform.isMobile) {
+        merge_env_config(this._smart_env_config, {
+          collections: {
+            smart_sources: { prevent_load_on_init: true },
+          },
+        });
+      }
     }
     return this._smart_env_config;
   }
