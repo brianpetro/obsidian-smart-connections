@@ -10,11 +10,6 @@ async function build_html(scope_plugin) {
         <h2>Connections view</h2>
       </div>
       <div data-smart-settings="env"></div>
-      <p>Notes about embedding models:</p>
-      <ul>
-        <li>IMPORTANT: make sure local <code>BGE-micro-v2</code> embedding model works before trying other local models.</li>
-        <li>API models require an API key and send your notes to third-party servers for processing.</li>
-      </ul>
       <div data-smart-notices></div>
       <!-- OLD -->
       ${render_mobile_toggle(scope_plugin)}
