@@ -13,7 +13,6 @@ async function build_html(scope_plugin) {
       <p>Notes about embedding models:</p>
       <ul>
         <li>IMPORTANT: make sure local <code>BGE-micro-v2</code> embedding model works before trying other local models.</li>
-        <li>Local model compatibility depends on available CPU and RAM. Try reducing the max tokens (context) if a local model is failing.</li>
         <li>API models require an API key and send your notes to third-party servers for processing.</li>
       </ul>
       <div data-smart-notices></div>
