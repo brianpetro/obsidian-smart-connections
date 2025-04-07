@@ -131,7 +131,7 @@ function render_brief_supporters_snippet(scope_plugin) {
         data-name="Smart Community"
         data-setting="smart_community"
         data-type="button"
-        data-btn-text="More Info &amp; Join"
+        data-btn-text="Join us"
         data-description="Your support accelerates new features and improvements for everyone. Thank you!"
       ></div>
     </div>
@@ -142,7 +142,7 @@ function render_mobile_toggle(scope) {
   return `
     <hr>
     <div class="setting-component"
-      data-name="Enable Mobile (EXPERIMENTAL)"
+      data-name="Enable mobile (EXPERIMENTAL)"
       data-description="Enable mobile support for Smart Connections."
       data-type="toggle"
       data-setting="enable_mobile"
