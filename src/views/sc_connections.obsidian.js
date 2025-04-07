@@ -150,6 +150,12 @@ export class ScConnectionsView extends SmartObsidianView {
     this.render_view();
   }
 
+  async open_settings() {
+    // console.log('Smart Connections: Opening settings');
+    await this.app.setting.open();
+    await this.app.setting.openTabById('smart-connections');
+  }
+
 }
 
 function post_process_note_inspect_opener(view, frag, opts = {}) {

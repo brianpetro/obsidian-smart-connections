@@ -6,6 +6,9 @@ async function build_html(scope_plugin) {
       ${render_mobile_warning(scope_plugin)}
       ${render_info_callout()}
       ${render_brief_supporters_snippet(scope_plugin)}
+      <div data-connections-settings-container>
+        <h2>Connections view</h2>
+      </div>
       <div data-smart-settings="env"></div>
       <p>Notes about embedding models:</p>
       <ul>
@@ -54,6 +57,18 @@ export async function post_process(scope_plugin, frag) {
     supportersButton.addEventListener('click', () => {
       scope_plugin.open_supporters_modal();
     });
+  }
+
+  const connections_settings = frag.querySelector('[data-connections-settings-container]');
+  if (connections_settings) {
+    const connections_settings_frag = await this.render_settings(scope_plugin.env.smart_sources.connections_filter_config, {
+      scope: {
+        settings: scope_plugin.env.settings,
+        // re_render: scope_plugin.re_render.bind(scope_plugin),
+        // re_render_settings: render_connections_settings.bind(this),
+      }
+    });
+    connections_settings.appendChild(connections_settings_frag);
   }
 
   return frag;
@@ -111,7 +126,7 @@ function render_info_callout() {
 function render_brief_supporters_snippet(scope_plugin) {
   return `
     <div class="sc-supporters-brief">
-      <h3>Community Supporters</h3>
+      <h2>Community Supporters</h2>
       <div class="setting-component"
         data-name="Smart Community"
         data-setting="smart_community"

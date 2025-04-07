@@ -3,8 +3,8 @@ export async function build_html(view, opts = {}) {
   const top_bar_buttons = [
     { title: 'Refresh', icon: 'refresh-cw' },
     { title: 'Fold toggle', icon: view.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical' },
-    { title: 'Filter', icon: 'sliders-horizontal' },
     { title: 'Lookup', icon: 'search' },
+    { title: 'Settings', icon: 'settings' },
     { title: 'Help', icon: 'help-circle' }
   ].map(btn => `
     <button
@@ -53,21 +53,6 @@ export async function render(view, opts = {}) {
 
 export async function post_process(view, frag, opts = {}) {
   const container = frag.querySelector('.sc-list');
-  const overlay_container = frag.querySelector(".sc-overlay");
-  const render_filter_settings = async () => {
-    if(!overlay_container) throw new Error("Container is required");
-    overlay_container.innerHTML = '';
-    const filter_frag = await this.render_settings(view.env.smart_sources.connections_filter_config, {
-      scope: {
-        settings: view.env.settings,
-        re_render: view.re_render.bind(view),
-        re_render_settings: render_filter_settings.bind(this),
-      }
-    });
-    overlay_container.innerHTML = '';
-    overlay_container.appendChild(filter_frag);
-    this.on_open_overlay(overlay_container);
-  }
 
   // Add fold/unfold all functionality
   const toggle_button = frag.querySelector("[title='Fold toggle']");
@@ -88,11 +73,6 @@ export async function post_process(view, frag, opts = {}) {
     toggle_button.setAttribute('aria-label', view.env.settings.expanded_view ? 'Fold all' : 'Unfold all');
   });
 
-  const filter_button = frag.querySelector("[title='Filter']");
-  filter_button.addEventListener("click", () => {
-    render_filter_settings();
-  });
-
   // refresh smart view
   const refresh_button = frag.querySelector("[title='Refresh']");
   refresh_button.addEventListener("click", () => {
@@ -109,6 +89,12 @@ export async function post_process(view, frag, opts = {}) {
   const help_button = frag.querySelector("[title='Help']");
   help_button.addEventListener("click", () => {
     window.open("https://docs.smartconnections.app/connections-pane", "_blank");
+  });
+
+  // settings
+  const settings_button = frag.querySelector("[title='Settings']");
+  settings_button.addEventListener("click", () => {
+    view.open_settings();
   });
 
   if(typeof opts.post_process === "function"){
