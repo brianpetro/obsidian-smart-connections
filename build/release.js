@@ -169,7 +169,7 @@ rl_interface.question(`Confirm release version (${version}): `, (confirmed_versi
         throw err;
       });
 
-      archive.on('end', async function() {
+      archive.on('finish', async function() {
         console.log(`Archive wrote ${archive.pointer()} bytes`);
         // Upload zip file
         upload_asset_curl(`./${zip_name}`, zip_name);
