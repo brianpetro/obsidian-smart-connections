@@ -46,7 +46,7 @@
     "smart-collections": "file:../jsbrains/smart-collections",
     "smart-embed-model": "file:../jsbrains/smart-embed-model",
     "smart-entities": "file:../jsbrains/smart-entities",
-    "obsidian-smart-env": "file:../jsbrains/obsidian-smart-env",
+    "obsidian-smart-env": "file:../obsidian-smart-env",
     "smart-file-system": "file:../jsbrains/smart-fs",
     "smart-http-request": "file:../jsbrains/smart-http-request",
     "smart-instruct-model": "file:../jsbrains/smart-instruct-model",
