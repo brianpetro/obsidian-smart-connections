@@ -86,7 +86,7 @@ const rl_interface = readline.createInterface({
   output: process.stdout
 });
 
-rl_interface.question(`Confirm release version (${version}): `, (confirmed_version) => {
+rl_interface.question(`Confirm release version (${version}): `, async (confirmed_version) => {
   if (!confirmed_version) confirmed_version = version;
   console.log(`Creating release for version ${confirmed_version}`);
 
@@ -145,19 +145,24 @@ rl_interface.question(`Confirm release version (${version}): `, (confirmed_versi
        * @param {string} asset_path
        * @param {string} asset_name
        */
-      function upload_asset_curl(asset_path, asset_name) {
+      async function upload_asset_curl(asset_path, asset_name) {
         const upload_url = `${release_info.upload_url.split('{')[0]}?name=${encodeURIComponent(asset_name)}`;
         const mime_type = 'application/octet-stream';
         const command = `curl -X POST -H "Authorization: Bearer ${github_token}" -H "Content-Type: ${mime_type}" --data-binary @${asset_path} "${upload_url}"`;
-        exec(command, (error, stdout, stderr) => {
-          if (error) {
-            console.error(`Error uploading file ${asset_name}:`, error);
-            return;
-          }
-          console.log(`Uploaded file: ${asset_name}`);
-          if (stdout) console.log(stdout);
-          if (stderr) console.log(stderr);
+        const upload_promise = new Promise((resolve, reject) => {
+          exec(command, (error, stdout, stderr) => {
+            if (error) {
+              console.error(`Error uploading file ${asset_name}:`, error);
+              reject(error);
+              return;
+            }
+            console.log(`Uploaded file: ${asset_name}`);
+            if (stdout) console.log(stdout);
+            if (stderr) console.log(stderr);
+            resolve();
+          });
         });
+        return upload_promise;
       }
 
       // Create a zip file of dist folder
@@ -172,12 +177,12 @@ rl_interface.question(`Confirm release version (${version}): `, (confirmed_versi
       archive.on('finish', async function() {
         console.log(`Archive wrote ${archive.pointer()} bytes`);
         // Upload zip file
-        upload_asset_curl(`./${zip_name}`, zip_name);
+        await upload_asset_curl(`./${zip_name}`, zip_name);
 
         // Upload each file in dist folder
         const files = fs.readdirSync('./dist');
         for (const file of files) {
-          upload_asset_curl(`./dist/${file}`, file);
+          await upload_asset_curl(`./dist/${file}`, file);
         }
 
         // Remove zip file locally
