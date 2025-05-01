@@ -26,6 +26,7 @@ import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_serve
 import { SmartNotices } from 'smart-notices/smart_notices.js';
 import { ScSupportersModal } from "./views/smart_supporters_modal.js";
 import { merge_env_config } from "obsidian-smart-env";
+import { ConnectionsModal } from "./modals/connections.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -287,6 +288,17 @@ export default class SmartConnectionsPlugin extends Plugin {
         this.open_note(rand_entity.item.path);
       }
     });
+
+    this.addCommand({
+      id: 'open-connections-modal',
+      name: 'Connections Modal',
+      checkCallback: (checking) => {
+        if(checking) return !!this.app.workspace.getActiveFile()?.path;
+        const modal = new ConnectionsModal(this);
+        modal.open();
+      }
+    });
+
   }
 
   // We keep the old code
