@@ -3,7 +3,7 @@
 **Spend less time** *linking*, *tagging* and *organizing* because **Smart Connections *finds relevant notes*** so you don't have to!
 
 - *Supports **local chat models** like **Llama 3** through **Ollama**, **LM Studio** and many more.*
-- *100s of API models including Anthropic **Claude**, Google **Gemini**, and OpenAI **GPT-4**.*
+- *100s of API models including Anthropic **Claude**, Google **Gemini**, and OpenAI **GPT-4o**.*
 - *Supports **local embedding models**.*
 - *Saves **chats as notes** (markdown) and **canvas** (in early release).*
 - *See what **[people are saying](#user-testimonials)**.*
@@ -19,6 +19,9 @@ Smart Connections is a [mission-driven](https://youtu.be/RtlpPTrEQ7c) software t
 ![Easy to install and use](./assets/using-smart-connections.gif)
 
 > [!NOTE]
+> Getting Started AI:
+> - Allergic to technical documentation? Get personalized help with the [Smart Guide GPT](https://chatgpt.com/g/g-681225c25d188191a356a73e7ab6da0b-smart-guide).
+> 
 > Documentation site:
 > - [Getting Started](https://docs.smartconnections.app/Smart-Connections/Getting-started)
 >- [Connections pane](https://docs.smartconnections.app/Smart-Connections/Connections-pane-filters)
@@ -29,8 +32,8 @@ Smart Connections is a [mission-driven](https://youtu.be/RtlpPTrEQ7c) software t
 ## A brief history
 The journey of Smart Connections is one I directly share with you. Smart Connections isn't just about some new features in Obsidian; it's a reflection of our shared experiences, your invaluable feedback, and a testament to what we can achieve together in the Obsidian community. A journey that's been both exhilarating and profoundly educational.
 
-Obsidian wasn't my first attempt at trying to manage and make sense of my notes. And in late 2022, like what has happened with all of my past attempts, the system I had built in Obsidian was beginning to fall apart. There were too many notes and I didn't having enough time to organize, link, tag, and otherwise manage them properly.
-
+Obsidian wasn't my first attempt at trying to manage and make sense of my notes. 
+And in late 2022, like what has happened with all of my past attempts, the system I had built in Obsidian was beginning to fall apart. There were too many notes and I didn't have enough time to organize, link, tag, and otherwise manage them properly.
 Smart Connections started as way for me to keep track of my thousands of notes, prevent rework, and make new connections by showing relevant notes/excerpts alongside whatever note I was currently working on via the Smart View.
 
 Soon after its initial release, the community recognized the opportunity for Smart Chat, so you can now chat with your notes, using the same technology behind the Smart View.
@@ -166,11 +169,6 @@ Smart Connections utilizes advanced AI technology to analyze and connect your no
 - These embeddings are stored in a hidden `.smart-env` folder in your vault. This folder can be changed in the settings.
 - The plugin uses file modification times to determine if a note needs to be re-processed, ensuring efficiency.
 
-### Limitations
-- Currently, Smart Connections is desktop-only. Mobile support is currently in beta-testing in the early-release version (v2.2).
-
-For more detailed information on the plugin's operation, please refer to the features section below.
-
 ## Easy Installation
 Getting started with Smart Connections is easy. Simply install Smart Connections from the Obsidian Community plugins to begin enhancing your Obsidian experience with AI-powered functionalities.
 
@@ -180,7 +178,10 @@ Getting started with Smart Connections is easy. Simply install Smart Connections
 ## Settings
 ### Default settings
 ##### Local embedding models
-Local embedding models enable leveraging the power of Smart Connections without sending data to any third-party for processing. `BGE-micro` is a small and reliable local embedding model used by default. This allows Smart Connections Smart View to work out-of-box; no API key, additional software or setup required!
+Local embedding models enable leveraging the power of Smart Connections without sending data to any third-party for processing. 
+
+`BGE-micro-v2` is a small and reliable local embedding model used by default.
+This allows Smart Connections to work out of the box—no API key, additional software, or setup required!
 
 ### Additional setup
 #### File/folder exclusions
@@ -208,8 +209,7 @@ The Smart View provides real-time note suggestions based on your current note.
 
 ##### Smart View Search
 Click the search icon to input a search query.
-- note: it's important to remember that embedding search (semantic) does not function like a traditional keyword search (lexical).
-
+- Note: it's important to remember that embedding search (semantic) does not function like a traditional keyword search (lexical).
 ### Smart Chat
 Notes are retrieved to and used as context in the conversation when you input a self-referential pronoun like "my" in "Based on my notes..." 
 
@@ -233,7 +233,7 @@ Chat history is saved as a new note for each conversation.
 	- `claude-3-opus` (200K)
 	- `claude-3-sonnet` (200K)
 	- `claude-3-haiku` (200K)
-- Open Router
+- OpenRouter
 	- `llama-3-70b`
 	- *Too many models to list here*
 - Cohere
@@ -244,7 +244,7 @@ Chat history is saved as a new note for each conversation.
 	- LM Studio
 - Custom API
 ### Smart Random Note
-Jump to a not-too-random a note.
+Jump to a not-too-random note.
 - Limits possible random notes to the Smart Connections for the current note.
 - Opens to specific headings within a note.
 ### Smart Command (Find Notes)
@@ -306,7 +306,7 @@ Screen recording tools like Loom make it easy to record and share screencasts. I
 ## Smart Connections Architecture
 Delve into the architecture behind Smart Connections, designed with efficiency and user benefit in mind. Key design principles include:
 - minimizing external dependencies for easy to audit code
-- working out-of-box to maximize ease-of-use
+- working out of the box to maximize ease of use
 - modular open-source components for re-use in other project
 ### Local Models
 - Local models are an important development because they enable utilizing AI without sending potentially sensitive data to third-party providers like OpenAI.
@@ -316,18 +316,17 @@ Delve into the architecture behind Smart Connections, designed with efficiency a
 *Minimizing dependencies has been a key principle in the development of Smart Connections.* 
 ##### First-party Dependencies
 These are modules that I developed with the same principle of minimizing dependencies.
+- [`smart-environment`](https://github.com/brianpetro/jsbrains/tree/main/smart-environment)
+- [`smart-collections`](https://github.com/brianpetro/jsbrains/tree/main/smart-collections)
+- [`smart-entities`](https://github.com/brianpetro/jsbrains/tree/main/smart-entities)
+- [`smart-sources`](https://github.com/brianpetro/jsbrains/tree/main/smart-sources)
+- [`smart-blocks`](https://github.com/brianpetro/jsbrains/tree/main/smart-blocks)
 - [`smart-chat-model`](https://github.com/brianpetro/jsbrains/tree/main/smart-chat-model)
 - [`smart-embed-model`](https://github.com/brianpetro/jsbrains/tree/main/smart-embed-model)
-- [`smart-chats`](https://github.com/brianpetro/jsbrains/tree/main/smart-chats)
-- [`smart-chunks`](https://github.com/brianpetro/jsbrains/tree/main/smart-chunks)
-- [`smart-chunks`](https://github.com/brianpetro/jsbrains/tree/main/smart-chunks)
-- [`smart-entities`](https://github.com/brianpetro/jsbrains/tree/main/smart-entities)
 ##### Third-party Dependencies
-- `ejs`: a template engine used for rendering UI components
-	- Uses `ejs.min`, benefiting from being a minimized, standalone file that removes unnecessary dependencies like `fs`.
 - `transformer.js`: a library for running AI models by Hugging Face
 	- This is *not* bundled by default and is only used if you are using local models.
-	- This dependency is loaded within an iframe which "sandboxes" the code.  
+	- This dependency is loaded within an iframe which "sandboxes" the code.
 ### Themes & Styles
 Styles are designed to inherit from the user's theme whenever possible.
 
@@ -546,4 +545,3 @@ To create a dynamic code block for Smart Connections, follow these steps:
 	- **Note**: This feature is currently in beta. Create a GitHub issue if you want to learn how to use the beta version of this feature.
 - This plugin is designed to manage the vector interpretation ("embeddings") of the notes in your vaults. The requirements for managing this can be extensive.
 - While there are many ways to interpret the vector relationships and make them useful this plugin is focused on delivering the core capabilities required to utilize such a system.
-
