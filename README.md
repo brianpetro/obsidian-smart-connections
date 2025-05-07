@@ -166,7 +166,7 @@ Smart Connections utilizes advanced AI technology to analyze and connect your no
 
 ### Creating embeddings
 - When you first install Smart Connections, it processes all your notes to create "embeddings" - numerical representations of your notes' content.
-- These embeddings are stored in a hidden `.smart-env` folder in your vault. This folder can be changed in the settings.
+- These embeddings are stored in a hidden `.smart-env` folder in your vault.
 - The plugin uses file modification times to determine if a note needs to be re-processed, ensuring efficiency.
 
 ## Easy Installation
