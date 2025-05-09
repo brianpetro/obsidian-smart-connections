@@ -55,6 +55,7 @@
     "smart-notices": "file:../jsbrains/smart-notices",
     "smart-settings": "file:../jsbrains/smart-settings",
     "smart-sources": "file:../jsbrains/smart-sources",
+    "smart-utils": "file:../jsbrains/smart-utils",
     "smart-view": "file:../jsbrains/smart-view"
   },
   "ava": {
