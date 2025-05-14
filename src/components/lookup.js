@@ -58,7 +58,7 @@ export async function post_process(collection, frag, opts = {}) {
   const render_lookup = async (query, results_container) => {
     console.log("render_lookup", query);
     const results = await collection.lookup({ hypotheticals: [query] });
-    results_container.innerHTML = ''; // Clear previous results
+    this.empty(results_container); // Clear previous results
     const results_frag = await collection.env.render_component('connections_results', results, opts);
     Array.from(results_frag.children).forEach((elm) => results_container.appendChild(elm));
   }
@@ -104,7 +104,7 @@ export async function post_process(collection, frag, opts = {}) {
     }
     
     collection.settings.expanded_view = !expanded;
-    fold_toggle.innerHTML = this.get_icon_html(collection.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical');
+    this.safe_inner_html(fold_toggle, this.get_icon_html(collection.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical'));
     fold_toggle.setAttribute('aria-label', collection.settings.expanded_view ? 'Fold all' : 'Unfold all');
   });
 

@@ -49,7 +49,7 @@ export async function post_process(source, frag, opts = {}) {
   if (!container) return frag;
 
   if (!source || !source.blocks || source.blocks.length === 0) {
-    container.innerHTML = `<p>No blocks</p>`;
+    this.safe_inner_html(container, `<p>No blocks</p>`);
     return frag;
   }
 

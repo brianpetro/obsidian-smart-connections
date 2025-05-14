@@ -69,7 +69,7 @@ export async function post_process(view, frag, opts = {}) {
       }
     });
     view.env.settings.expanded_view = !expanded;
-    toggle_button.innerHTML = this.get_icon_html(view.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical');
+    this.safe_inner_html(toggle_button, this.get_icon_html(view.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical'));
     toggle_button.setAttribute('aria-label', view.env.settings.expanded_view ? 'Fold all' : 'Unfold all');
   });
 

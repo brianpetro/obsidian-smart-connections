@@ -22,7 +22,7 @@ export class ScSupportersModal extends Modal {
     this.contentEl.empty();
 
     const container = this.contentEl.createDiv({ cls: 'sc-supporters' });
-    container.innerHTML = `
+    this.plugin.env.smart_view.safe_inner_html(container, `
       <p>The success of Smart Connections is a direct result of our community of supporters who generously fund and evaluate new features. 
         Their unwavering commitment to privacy-focused, open-source software benefits all. 
         Together, we can continue to innovate and make a positive impact on the world.</p>
@@ -104,7 +104,7 @@ export class ScSupportersModal extends Modal {
         data-description='Chat with your notes in ChatGPT without uploading your notes to the cloud!'
         data-type="button"
       ></div>
-    `;
+    `);
     this.plugin.env.smart_view.render_setting_components(this.contentEl, { scope: this.plugin }).then(() => {
       // e.g. wire up the 'become-supporter-button' to open external link
       const become_supporter = container.querySelector('[data-setting="become_supporter"] button');

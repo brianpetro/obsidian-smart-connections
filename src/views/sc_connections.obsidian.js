@@ -39,7 +39,7 @@ export class ScConnectionsView extends SmartObsidianView {
     const results_frag = await entity.env.render_component('connections_results', results, opts);
     
     // Clear and update results container
-    this.results_container.innerHTML = '';
+    this.env.smart_view.empty(this.results_container);
     Array.from(results_frag.children).forEach((elm) => {
       this.results_container.appendChild(elm);
     });

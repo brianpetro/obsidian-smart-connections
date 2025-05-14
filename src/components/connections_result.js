@@ -120,7 +120,7 @@ export async function post_process(result, frag, opts = {}) {
   if (item) {
     await item.render_item(li, opts);
   } else {
-    li.innerHTML = "<p>Entity not found.</p>";
+    this.safe_inner_html(li, "<p>Entity not found.</p>");
   }
 
   return elm;

@@ -17,7 +17,7 @@ export class SmartChatsView extends SmartObsidianView {
    * @param {string|null} entity - The path or key of the chat thread to render.
    */
   async render_view(thread_key=null) {
-    this.container.innerHTML = 'Loading...';
+    this.env.smart_view.safe_inner_html(this.container, 'Loading...');
     const frag = await this.env.render_component("smart_chat", this, {
       thread_key,
     });
