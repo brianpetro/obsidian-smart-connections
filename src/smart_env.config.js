@@ -1,7 +1,4 @@
 import { AjsonMultiFileCollectionDataAdapter } from "smart-collections/adapters/ajson_multi_file.js";
-import { SmartEmbedModel } from "smart-embed-model";
-import { SmartEmbedOpenAIAdapter } from "smart-embed-model/adapters/openai.js";
-import { SmartEmbedTransformersIframeAdapter } from "smart-embed-model/adapters/transformers_iframe.js";
 import { SmartFs } from 'smart-file-system/smart_fs.js';
 import { SmartFsObsidianAdapter } from 'smart-file-system/adapters/obsidian.js';
 import { SmartView } from 'smart-view/smart_view.js';
@@ -91,14 +88,6 @@ export const smart_env_config = {
         adapter: SmartHttpObsidianRequestAdapter,
         obsidian_request_url: requestUrl,
       }),
-    },
-    smart_embed_model: {
-      class: SmartEmbedModel,
-      adapters: {
-        transformers: SmartEmbedTransformersIframeAdapter,
-        openai: SmartEmbedOpenAIAdapter,
-        // ollama: SmartEmbedModelOllamaAdapter,
-      },
     },
     smart_fs: {
       class: SmartFs,
