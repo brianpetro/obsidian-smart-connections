@@ -1,5 +1,5 @@
+[中文介绍](./README_CN.md)
 # 🧩 Smart Connections: AI-Powered Note Connections `v2.3`
-
 **Spend less time** *linking*, *tagging* and *organizing* because **Smart Connections *finds relevant notes*** so you don't have to!
 
 - *Supports **local chat models** like **Llama 3** through **Ollama**, **LM Studio** and many more.*
