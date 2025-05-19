@@ -19,7 +19,7 @@ import { SmartPrivateChatView } from "./views/sc_private_chat.obsidian.js";
 
 import { SmartSearch } from "./smart_search.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";
-import { open_note } from "./open_note.js";
+import { open_note } from "obsidian-smart-env/utils/open_note.js";
 import { SmartSettings } from 'smart-settings/smart_settings.js';
 
 import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url, enable_plugin } from './sc_oauth.js';
