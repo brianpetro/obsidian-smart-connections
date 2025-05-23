@@ -16,6 +16,9 @@ import { ScLookupView } from "./views/sc_lookup.obsidian.js";
 import { SmartChatsView } from "./views/smart_chat.obsidian.js";
 import { SmartChatGPTView } from "./views/sc_chatgpt.obsidian.js";
 import { SmartPrivateChatView } from "./views/sc_private_chat.obsidian.js";
+import { SmartChatView } from "smart-chat-obsidian/src/smart_chat.obsidian.js";
+import { add_smart_chat_icon } from "smart-chat-obsidian/src/utils/add_smart_chat_icon.js";
+import { smart_env_config as smart_chat_env_config } from "smart-chat-obsidian/smart_env.config.js";
 
 import { SmartSearch } from "./smart_search.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";
@@ -38,15 +41,16 @@ export default class SmartConnectionsPlugin extends Plugin {
       SmartChatsView,
       SmartChatGPTView,
       SmartPrivateChatView,
-    }
+    };
   }
 
   // GETTERS
   get obsidian() { return Obsidian; }
   get smart_env_config() {
     if(!this._smart_env_config){
+      const merged_env_config = merge_env_config(smart_env_config, smart_chat_env_config);
       this._smart_env_config = {
-        ...smart_env_config,
+        ...merged_env_config,
         env_path: '', // scope handled by Obsidian FS methods
         // DEPRECATED schema
         smart_env_settings: { // careful: overrides saved settings
@@ -119,6 +123,9 @@ export default class SmartConnectionsPlugin extends Plugin {
       });
     }
     console.log("Smart Connections v2 loaded");
+    add_smart_chat_icon(this);
+    SmartChatView.register_view(this);
+    console.log("Smart Chat View registered");
   }
 
   register_code_blocks() {

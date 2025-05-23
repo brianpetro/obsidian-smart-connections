@@ -56,16 +56,19 @@
     "smart-settings": "file:../jsbrains/smart-settings",
     "smart-sources": "file:../jsbrains/smart-sources",
     "smart-utils": "file:../jsbrains/smart-utils",
-    "smart-view": "file:../jsbrains/smart-view"
+    "smart-view": "file:../jsbrains/smart-view",
+    "smart-chat-obsidian": "file:../smart-chat-obsidian"
   },
   "ava": {
     "files": [
       "smart-chat/*.test.js",
-      "src/*.test.js"
+      "src/*.test.js",
+      "src/utils/*.test.js"
     ],
     "require": []
   },
   "workspaces": [
-    "../jsbrains/*"
+    "../jsbrains/*",
+    "../smart-chat-obsidian"
   ]
 }
