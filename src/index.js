@@ -322,8 +322,9 @@ export default class SmartConnectionsPlugin extends Plugin {
     container.empty();
     container.createEl('span', {text: 'Loading...'});
     if(contents.trim().length) {
-      const frag = await this.env.smart_sources.render_component(
+      const frag = await this.env.render_component(
         'lookup',
+        this.env.smart_sources,
         {
           // add_result_listeners: this.add_result_listeners.bind(this),
           attribution: this.attribution,

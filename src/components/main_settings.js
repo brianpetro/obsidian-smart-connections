@@ -4,6 +4,7 @@ async function build_html(scope_plugin) {
   const html = `
     <div id="smart-connections-settings">
       ${render_info_callout()}
+      ${render_supporters_callout()}
       ${render_brief_supporters_snippet(scope_plugin)}
       <div data-connections-settings-container>
         <h2>Connections view</h2>
@@ -80,6 +81,29 @@ function render_info_callout() {
           <p><strong>User Agreement:</strong> By using Smart Connections you agree to share how it helps you with at least one other person 😊🌴</p>
           <hr>
           <i>Join the next <a href="https://lu.ma/calendar/cal-ZJtdnzAdURyouM7">Lean Coffee session</a> to discuss future features & improvements.</i>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function render_supporters_callout() {
+  return `
+    <div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
+      <div class="callout-title">
+        <div class="callout-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="svg-icon lucide-info">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4"></path>
+            <path d="M12 8h.01"></path>
+          </svg>
+        </div>
+        <div class="callout-title-inner">
+          <p><strong>Empower Your Notes. Fuel User-Owned AI.</strong></p>
+          <p>Your support funds new features and shapes local-first AI.</p>
+          <a href="https://smartconnections.app/community-supporters" class="button">Become a Supporter</a>
         </div>
       </div>
     </div>

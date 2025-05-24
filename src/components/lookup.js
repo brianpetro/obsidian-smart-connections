@@ -1,4 +1,3 @@
-import { render as render_results } from "smart-entities/components/results.js";
 /**
  * Builds the HTML string for the component.
  * @param {Object} collection - The scope object containing component data.
