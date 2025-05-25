@@ -8,6 +8,7 @@ const {
 
 import { SmartEnv } from 'obsidian-smart-env';
 import { smart_env_config } from "./smart_env.config.js";
+import { smart_env_config as built_smart_env_config } from "../smart_env.config.js";
 import { default_settings } from "./default_settings.js";
 import templates from "../build/views.json" with { type: "json" };
 
@@ -50,7 +51,8 @@ export default class SmartConnectionsPlugin extends Plugin {
   get obsidian() { return Obsidian; }
   get smart_env_config() {
     if(!this._smart_env_config){
-      const merged_env_config = merge_env_config(smart_env_config, smart_chat_env_config);
+      const merged_env_config = merge_env_config(built_smart_env_config, smart_env_config);
+      merge_env_config(merged_env_config, smart_chat_env_config);
       this._smart_env_config = {
         ...merged_env_config,
         env_path: '', // scope handled by Obsidian FS methods
@@ -92,7 +94,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.add_commands();
     this.register_views();
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
-    this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
     await this.check_for_updates();
 
     this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
@@ -124,9 +125,14 @@ export default class SmartConnectionsPlugin extends Plugin {
       });
     }
     console.log("Smart Connections v2 loaded");
+    this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
+    this.register(() => {
+      console.log("removing smart-chat setting tab");
+      this.app.setting.removeSettingTab('smart-chat');
+    });
     add_smart_chat_icon(this);
     SmartChatView.register_view(this);
-    console.log("Smart Chat View registered");
+    console.log("Smart Chat is registered");
     // DEPRECATED (remove below)
     this._api = new SmartSearch(this);
     (window["SmartSearch"] = this._api) && this.register(() => delete window["SmartSearch"]); // register API to global window object

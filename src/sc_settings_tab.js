@@ -38,9 +38,10 @@ export class ScSettingsTab extends PluginSettingTab {
     if(!container) throw new Error("Container is required");
 
     this.smart_view.safe_inner_html(container, '<div class="sc-loading">Loading main settings...</div>');
-    const frag = await main_settings_component.call(this.smart_view, this.plugin, opts);
-    this.smart_view.empty(container);
-    container.appendChild(frag);
+    this.plugin.env.render_component('main_settings', this.plugin, opts).then(frag => {
+      this.smart_view.empty(container);
+      container.appendChild(frag);
+    });
     return container;
   }
 }

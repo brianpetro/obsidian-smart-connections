@@ -1,5 +1,3 @@
-import { render as render_muted_notices } from "./muted_notices.js";
-
 async function build_html(scope_plugin) {
   const html = `
     <div id="smart-connections-settings">
@@ -32,7 +30,7 @@ export async function render(scope_plugin) {
 }
 
 export async function post_process(scope_plugin, frag) {
-  const muted_notices_frag = await render_muted_notices.call(this, scope_plugin.env);
+  const muted_notices_frag = await scope_plugin.env.render_component('muted_notices', scope_plugin.env);
   frag.querySelector('[data-smart-notices]').appendChild(muted_notices_frag);
   await this.render_setting_components(frag, { scope: scope_plugin });
 

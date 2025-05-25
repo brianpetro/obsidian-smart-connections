@@ -20,7 +20,7 @@ export async function render(results, opts = {}) {
   const frag = this.create_doc_fragment(html);
   
   const result_frags = await Promise.all(results.map(result => {
-    return render_result.call(this, result, {...opts});
+    return result.item.env.render_component('connections_result', result, {...opts});
   }));
   result_frags.forEach(result_frag => frag.appendChild(result_frag));
   

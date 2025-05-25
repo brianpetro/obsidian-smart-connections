@@ -2,6 +2,15 @@ import esbuild from 'esbuild';
 import fs from 'fs';
 import path from 'path';
 import 'dotenv/config';
+import { build_smart_env_config } from 'obsidian-smart-env/build_smart_env_config.js';
+
+console.log('process.cwd()', process.cwd());
+const roots = [
+  path.resolve(process.cwd(), 'src'),
+  // path.resolve(process.cwd(), '..', 'smart-context-obsidian', 'src'),
+];
+console.log('roots', roots);
+build_smart_env_config(process.cwd(), roots);
 
 /**
  * Plugin to process CSS files imported with an import attribute:
