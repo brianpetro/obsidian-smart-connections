@@ -31,6 +31,8 @@ import { ScSupportersModal } from "./views/smart_supporters_modal.js";
 import { merge_env_config } from "obsidian-smart-env";
 import { ConnectionsModal } from "./modals/connections.js";
 
+import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
+
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
 
@@ -90,10 +92,9 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.add_commands();
     this.register_views();
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
+    this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
     await this.check_for_updates();
 
-    this._api = new SmartSearch(this);
-    (window["SmartSearch"] = this._api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
     this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
     this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat_view(); });
 
@@ -126,6 +127,9 @@ export default class SmartConnectionsPlugin extends Plugin {
     add_smart_chat_icon(this);
     SmartChatView.register_view(this);
     console.log("Smart Chat View registered");
+    // DEPRECATED (remove below)
+    this._api = new SmartSearch(this);
+    (window["SmartSearch"] = this._api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
   }
 
   register_code_blocks() {
@@ -258,7 +262,7 @@ export default class SmartConnectionsPlugin extends Plugin {
 
     this.addCommand({
       id: "sc-refresh-connections",
-      name: "Refresh & Make Connections",
+      name: "Refresh & make connections",
       editorCallback: async (editor) => {
         const curr_file = this.app.workspace.getActiveFile();
         if(!curr_file?.path) return console.warn("No active file", curr_file);
@@ -282,7 +286,7 @@ export default class SmartConnectionsPlugin extends Plugin {
 
     this.addCommand({
       id: "smart-connections-random",
-      name: "Random Note",
+      name: "Random note",
       callback: async () => {
         const curr_file = this.app.workspace.getActiveFile();
         const entity = this.env.smart_sources.get(curr_file.path);
@@ -298,7 +302,7 @@ export default class SmartConnectionsPlugin extends Plugin {
 
     this.addCommand({
       id: 'open-connections-modal',
-      name: 'Connections Modal',
+      name: 'Connections modal',
       checkCallback: (checking) => {
         if(checking) return !!this.app.workspace.getActiveFile()?.path;
         const modal = new ConnectionsModal(this);

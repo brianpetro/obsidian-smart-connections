@@ -3,14 +3,13 @@ import { render as render_muted_notices } from "./muted_notices.js";
 async function build_html(scope_plugin) {
   const html = `
     <div id="smart-connections-settings">
-      ${render_info_callout()}
-      ${render_supporters_callout()}
-      ${render_brief_supporters_snippet(scope_plugin)}
+      ${render_header_callout()}
       <div data-connections-settings-container>
         <h2>Connections view</h2>
       </div>
       <div data-smart-settings="env"></div>
       <div data-smart-notices></div>
+      ${render_footer_callout()}
     </div>
   `;
   return html;
@@ -66,28 +65,7 @@ export async function post_process(scope_plugin, frag) {
   return frag;
 }
 
-function render_info_callout() {
-  return `
-    <div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
-      <div class="callout-title">
-        <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round" class="svg-icon lucide-info">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M12 16v-4"></path>
-            <path d="M12 8h.01"></path>
-          </svg></div>
-        <div class="callout-title-inner">
-          <p><strong>User Agreement:</strong> By using Smart Connections you agree to share how it helps you with at least one other person 😊🌴</p>
-          <hr>
-          <i>Join the next <a href="https://lu.ma/calendar/cal-ZJtdnzAdURyouM7">Lean Coffee session</a> to discuss future features & improvements.</i>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function render_supporters_callout() {
+function render_footer_callout() {
   return `
     <div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
       <div class="callout-title">
@@ -110,21 +88,23 @@ function render_supporters_callout() {
   `;
 }
 
-/**
- * Renders a short snippet plus a button for opening the full supporters section in a modal.
- */
-function render_brief_supporters_snippet(scope_plugin) {
+function render_header_callout() {
   return `
-    <div class="sc-supporters-brief">
-      <h2>Community Supporters</h2>
-      <div class="setting-component"
-        data-name="Smart Community"
-        data-setting="smart_community"
-        data-type="button"
-        data-btn-text="Join us"
-        data-description="Your support accelerates new features and improvements for everyone. Thank you!"
-      ></div>
+    <div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
+      <div class="callout-title">
+        <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="svg-icon lucide-info">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4"></path>
+            <path d="M12 8h.01"></path>
+          </svg></div>
+        <div class="callout-title-inner">
+          <p><strong>User Agreement:</strong> By using Smart Connections you agree to share how it helps you with at least one other person 😊🌴</p>
+          <hr>
+          <i>Join the next <a href="https://lu.ma/calendar/cal-ZJtdnzAdURyouM7">Lean Coffee session</a> to discuss future features & improvements.</i>
+        </div>
+      </div>
     </div>
   `;
 }
-
