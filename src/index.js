@@ -34,6 +34,8 @@ import { ConnectionsModal } from "./modals/connections.js";
 
 import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
 
+import { SmartCosSim } from "./bases/cos_sim.js";
+
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
 
@@ -133,6 +135,12 @@ export default class SmartConnectionsPlugin extends Plugin {
     add_smart_chat_icon(this);
     SmartChatView.register_view(this);
     console.log("Smart Chat is registered");
+    // Bases integration
+    this.app.internalPlugins.plugins.bases.instance.registerFunction(new SmartCosSim(this.app));
+    this.register(() => {
+      console.log("unregistering Smart Cos Sim");
+      this.app.internalPlugins.plugins.bases.instance.deregisterFunction('cos_sim');
+    });
     // DEPRECATED (remove below)
     this._api = new SmartSearch(this);
     (window["SmartSearch"] = this._api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
@@ -315,7 +323,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         modal.open();
       }
     });
-
+    
   }
 
   // We keep the old code
