@@ -35,6 +35,7 @@ import { ConnectionsModal } from "./modals/connections.js";
 import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
 
 import { SmartCosSim } from "./bases/cos_sim.js";
+import { register_connections_score_command } from "./bases/connections_score_column.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -127,6 +128,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       });
     }
     console.log("Smart Connections v2 loaded");
+    await SmartEnv.wait_for({ loaded: true });
     this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
     this.register(() => {
       console.log("removing smart-chat setting tab");
@@ -141,6 +143,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       console.log("unregistering Smart Cos Sim");
       this.app.internalPlugins.plugins.bases.instance.deregisterFunction('cos_sim');
     });
+    register_connections_score_command(this);
     // DEPRECATED (remove below)
     this._api = new SmartSearch(this);
     (window["SmartSearch"] = this._api) && this.register(() => delete window["SmartSearch"]); // register API to global window object

@@ -32,7 +32,7 @@ export class SmartCosSim {
       if(!item_a?.vec || !item_b?.vec){
         return 0;
       }
-      return cos_sim(item_a.vec, item_b.vec)
+      return Math.round(cos_sim(item_a.vec, item_b.vec) * 1000) / 1000
     }catch(e){
       console.error(e);
       return 0;
