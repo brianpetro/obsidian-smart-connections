@@ -1,4 +1,4 @@
-import { SmartThread as SmartThreadBase } from "smart-chats/smart_thread";
+import { SmartThread as SmartThreadBase } from "../smart-chat-v0/index.js";
 
 export class SmartThread extends SmartThreadBase {
   /**

@@ -77,8 +77,8 @@ function render_footer_callout() {
           </svg>
         </div>
         <div class="callout-title-inner">
-          <p><strong>Empower Your Notes. Fuel User-Owned AI.</strong></p>
-          <p>Your support funds new features and shapes local-first AI.</p>
+          <p><strong>Fuel the circle of empowerment</strong></p>
+          <p>Your support shapes the future.</p>
           <a href="https://smartconnections.app/community-supporters" class="button">Become a Supporter</a>
         </div>
       </div>

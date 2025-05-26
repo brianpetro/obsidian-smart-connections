@@ -24,12 +24,14 @@ import {
 } from "smart-chat-model/adapters.js";
 import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-request";
 import { requestUrl } from "obsidian";
-import { SmartThreads } from "smart-chats/smart_threads.js";
+import { 
+  SmartThreads,
+  SmartMessages,
+  SmartMessage
+} from "../smart-chat-v0/index.js";
 import { SmartThread } from "./sc_thread.js";
-import { render as thread_component } from 'smart-chats/components/thread.js';
-import { SmartMessages } from "smart-chats/smart_messages.js";
-import { SmartMessage } from "smart-chats/smart_message.js";
-import { EnvJsonThreadSourceAdapter } from "smart-chats/adapters/json.js";
+import { render as thread_component } from '../smart-chat-v0/components/thread.js';
+import { EnvJsonThreadSourceAdapter } from "../smart-chat-v0/adapters/json.js";
 // import { SmartEmbedModelOllamaAdapter } from "smart-embed-model/adapters/ollama.js";
 import { render as source_inspector_component } from './components/source_inspector.js';
 
