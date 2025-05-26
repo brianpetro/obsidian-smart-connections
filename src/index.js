@@ -18,7 +18,6 @@ import { SmartChatsView } from "./views/smart_chat.obsidian.js";
 import { SmartChatGPTView } from "./views/sc_chatgpt.obsidian.js";
 import { SmartPrivateChatView } from "./views/sc_private_chat.obsidian.js";
 import { SmartChatView } from "smart-chat-obsidian/src/smart_chat.obsidian.js";
-import { add_smart_chat_icon } from "smart-chat-obsidian/src/utils/add_smart_chat_icon.js";
 import { smart_env_config as smart_chat_env_config } from "smart-chat-obsidian/smart_env.config.js";
 
 import { SmartSearch } from "./smart_search.js";
@@ -134,7 +133,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       console.log("removing smart-chat setting tab");
       this.app.setting.removeSettingTab('smart-chat');
     });
-    add_smart_chat_icon(this);
     SmartChatView.register_view(this);
     console.log("Smart Chat is registered");
     // Bases integration
@@ -192,14 +190,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   register_views() {
-    this.obsidian.addIcon("smart-connections", `<path d="M50,20 L80,40 L80,60 L50,100" stroke="currentColor" stroke-width="4" fill="none"/>
-    <path d="M30,50 L55,70" stroke="currentColor" stroke-width="5" fill="none"/>
-    <circle cx="50" cy="20" r="9" fill="currentColor"/>
-    <circle cx="80" cy="40" r="9" fill="currentColor"/>
-    <circle cx="80" cy="70" r="9" fill="currentColor"/>
-    <circle cx="50" cy="100" r="9" fill="currentColor"/>
-    <circle cx="30" cy="50" r="9" fill="currentColor"/>`);
-
     Object.values(this.item_views).forEach(View => {
       this.registerView(View.view_type, (leaf) => (new View(leaf, this)));
       this.addCommand({
