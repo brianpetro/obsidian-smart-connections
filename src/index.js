@@ -96,8 +96,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
     await this.check_for_updates();
 
-    this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
-    this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat_view(); });
 
     this.register_code_blocks();
 
@@ -126,6 +124,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
     console.log("Smart Connections v2 loaded");
     await SmartEnv.wait_for({ loaded: true });
+    this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
+    this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat_view(); });
     this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
     this.register(() => {
       console.log("removing smart-chat setting tab");
