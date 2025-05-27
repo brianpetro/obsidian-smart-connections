@@ -83,6 +83,12 @@ export default class SmartConnectionsPlugin extends Plugin {
   onload() {
     this.app.workspace.onLayoutReady(this.initialize.bind(this)); // initialize when layout is ready
     if(!Platform.isMobile) SmartEnv.create(this); // IMPORTANT: works on mobile without this.smart_env_config as second arg
+    this.register_views();
+    SmartChatView.register_view(this);
+    this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
+    this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
+    this.add_commands();
+    this.register_code_blocks();
   }
   // async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
@@ -93,11 +99,7 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   async initialize() {
     SmartSettings.create_sync(this);
-
     this.smart_connections_view = null;
-    
-    
-    
 
     if(Platform.isMobile){
       console.log("showing load_env notice");
@@ -121,15 +123,9 @@ export default class SmartConnectionsPlugin extends Plugin {
       });
     }
     console.log("Smart Connections v2 loaded");
-    this.register_views();
-    SmartChatView.register_view(this);
-    this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
     await SmartEnv.wait_for({ loaded: true });
     await this.check_for_updates();
     this.new_user();
-    this.add_commands();
-    this.register_code_blocks();
-    this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
     // this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat_view(); });
     this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
     this.register(() => {
