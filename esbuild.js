@@ -84,7 +84,7 @@ fs.writeFileSync(manifest_path, JSON.stringify(manifest_json, null, 2));
 fs.copyFileSync(manifest_path, path.join(process.cwd(), 'dist', 'manifest.json'));
 fs.copyFileSync(styles_path, path.join(process.cwd(), 'dist', 'styles.css'));
 
-const destination_vaults = process.env.DESTINATION_VAULTS.split(',');
+const destination_vaults = process.env.DESTINATION_VAULTS?.split(',') || [];
 
 // get first argument as entry point
 const entry_point = process.argv[2] || 'src/index.js';
