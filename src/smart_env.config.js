@@ -29,7 +29,7 @@ import {
   SmartMessages,
   SmartMessage
 } from "../smart-chat-v0/index.js";
-import { SmartThread } from "./sc_thread.js";
+import { SmartThread } from "../smart-chat-v0/sc_thread.js";
 import { render as thread_component } from '../smart-chat-v0/components/thread.js';
 import { EnvJsonThreadSourceAdapter } from "../smart-chat-v0/adapters/json.js";
 // import { SmartEmbedOllamaAdapter } from "smart-embed-model/adapters/ollama.js";

@@ -1,3 +1,0 @@
-{
-  "smart_note_inspect": "<h2>Blocks</h2>\n<% if(note.blocks.length === 0) { %>\n  <p>No blocks</p>\n<% } %>\n<% for(let block of note.blocks.sort((a, b) => a.line_start - b.line_start)) { %>\n<p>\n  <%- block.sub_key.split(\"#\").join(\" > \") + \" (\" + block.size + \" chars; lines: \" + block.line_start + \"-\" + block.line_end + \")\" %>\n  <br>\n  <%- block.should_embed ? \"<span style='color: green;'>should embed</span>\" : \"<span style='color: orange;'>embedding skipped</span>\" %>\n</p>\n<blockquote>\n  <%- (await block.read())\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\")\n    .replace(/\\n/g, \"<br>\")\n    .replace(/\\t/g, \"&nbsp;&nbsp;\")\n  %>\n</blockquote>\n<hr>\n<% } %>\n\n"
-}

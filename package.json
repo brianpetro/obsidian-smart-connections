@@ -4,9 +4,8 @@
   "type": "module",
   "description": "Link and chat with your notes using ChatGPT and embedding artificial intelligence from OpenAI.",
   "scripts": {
-    "build": "npm run compile && node build/esbuild.js",
-    "compile": "node build/compile.js",
-    "release": "node build/release.js",
+    "build": "node esbuild.js",
+    "release": "node release.js",
     "test": "npx ava --verbose"
   },
   "repository": {

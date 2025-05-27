@@ -10,7 +10,6 @@ import { SmartEnv } from 'obsidian-smart-env';
 import { smart_env_config } from "./smart_env.config.js";
 import { smart_env_config as built_smart_env_config } from "../smart_env.config.js";
 import { default_settings } from "./default_settings.js";
-import templates from "../build/views.json" with { type: "json" };
 
 import { ScConnectionsView } from "./views/sc_connections.obsidian.js";
 import { ScLookupView } from "./views/sc_lookup.obsidian.js";
@@ -62,7 +61,6 @@ export default class SmartConnectionsPlugin extends Plugin {
         smart_env_settings: { // careful: overrides saved settings
           is_obsidian_vault: true, // redundant with default_settings.is_obsidian_vault
         },
-        templates: templates,
         request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
       };
       // mobile enable/disable
