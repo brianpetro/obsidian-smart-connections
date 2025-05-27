@@ -2,7 +2,6 @@
 **Save time** *linking*, *tagging*, and *organizing!* **Smart Connections *finds relevant notes*** so you don't have to!
 
 > [!NOTE] Why do we make connections?
-> 
 > More links? Clear organization? A beautiful graph view? Survival? No! *We make connections to **empower ourselves** to see our ideas realized!*
 
 ✔️ Zero-setup: Local AI models for embeddings
@@ -33,7 +32,7 @@ User-aligned means privacy, local-first decisions, are by design and implemented
 
 Smart Connections isn't an alternative. It's a catalyst for you and I to realize our most extraordinary visions for the future.
 
-
+---
 
 ## Getting Started
 ### Easy Installation
@@ -200,6 +199,8 @@ Displays the current embedding coverage: how many content blocks have been proce
 When enabled, large documents are split into fine-grained blocks (based on headings and structure), improving semantic search and context relevance.
 ###### Minimum length (for blocks)  
 Sets the minimum character length for a block to be embedded. Avoids generating embeddings for very short or irrelevant sections.
+
+---
 ## Built for You
 
 > [!NOTE] Smart Connections changed my life
@@ -251,9 +252,6 @@ These plugins are built and maintained by Smart Community members.
 	- Graph-view for connections to your current note.
 - [Smart Vault Visualizer](https://obsidian.md/plugins?id=smart-vault-visualizer)
 	- Graph-view for visualizing clusters across the entire vault.
-
-  
-
 
 ## User Testimonials
 Hearing from those who use Smart Connections brings to life the impact it has on individuals' workflows and creativity. 
