@@ -177,6 +177,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   new_user() {
     if(!this.settings.new_user) return;
     this.settings.new_user = false;
+    this.settings.version = this.manifest.version;
     setTimeout(() => {
       this.open_connections_view();
       this.open_chat_view();
@@ -203,7 +204,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async check_for_updates() {
-    const was_upgrade = is_upgrade(this.env.settings.version, this.manifest.version);
+    const was_upgrade = is_upgrade(this.settings.version, this.manifest.version);
 
     if (was_upgrade) {
       try {
@@ -211,7 +212,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       } catch (e) {
         console.error('Failed to open ReleaseNotesModal', e);
       }
-      this.env.settings.version = this.manifest.version;
+      this.settings.version = this.manifest.version;
       await this.save_settings();
     }
     setTimeout(this.check_for_update.bind(this), 3000);
