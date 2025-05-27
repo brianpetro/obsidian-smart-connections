@@ -1,5 +1,4 @@
 import { PluginSettingTab } from "obsidian";
-import { render as main_settings_component } from "./components/main_settings.js";
 
 export class ScSettingsTab extends PluginSettingTab {
   constructor(app, plugin) {

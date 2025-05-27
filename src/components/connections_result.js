@@ -114,11 +114,11 @@ export async function post_process(result, frag, opts = {}) {
     });
   }
   
-  if(!filter_settings.expanded_view) return elm;
+  if(!env.settings.expanded_view) return elm;
   // Render entity details
   const li = elm.querySelector('li');
-  if (item) {
-    await item.render_item(li, opts);
+  if (result.item) {
+    await result.item.render_item(li, opts);
   } else {
     this.safe_inner_html(li, "<p>Entity not found.</p>");
   }
