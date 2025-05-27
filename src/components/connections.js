@@ -118,6 +118,7 @@ export function should_render_embed(entity) {
 export function process_for_rendering(content) {
   // prevent dataview rendering
   if(content.includes('```dataview')) content = content.replace(/```dataview/g, '```\\dataview');
+  if(content.includes('```smart-context')) content = content.replace(/```smart-context/g, '```\\smart-context');
   // prevent link embedding
   if(content.includes('![[')) content = content.replace(/\!\[\[/g, '! [[');
   return content;

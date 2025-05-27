@@ -89,6 +89,33 @@ const destination_vaults = process.env.DESTINATION_VAULTS.split(',');
 // get first argument as entry point
 const entry_point = process.argv[2] || 'src/index.js';
 
+// update release_notes.md with version
+const release_notes_path = path.join(process.cwd(), 'src', 'modals', 'release_notes.js');
+const release_notes_lines = fs.readFileSync(release_notes_path, 'utf8').split('\n');
+for(let i = 0; i < release_notes_lines.length; i++) {
+  if(release_notes_lines[i].startsWith('import release_notes_md from')) {
+    release_notes_lines[i] = `import release_notes_md from '../../releases/${package_json.version}.md' with { type: 'markdown' };`;
+    break;
+  }
+}
+const updated_release_notes_text = release_notes_lines.join('\n');
+fs.writeFileSync(release_notes_path, updated_release_notes_text);
+
+// markdown plugin
+const markdown_plugin = {
+  name: 'markdown',
+  setup(build) {
+    build.onLoad({ filter: /\.md$/ }, async (args) => {
+      if(args.with && args.with.type === 'markdown') {
+        const text = await fs.promises.readFile(args.path, 'utf8');
+        return {
+          contents: `export default ${JSON.stringify(text)};`,
+          loader: 'js'
+        };
+      }
+    });
+  }
+};
 // Build the project
 esbuild.build({
   entryPoints: [entry_point],
@@ -114,7 +141,7 @@ esbuild.build({
   define: {
     'process.env.DEFAULT_OPEN_ROUTER_API_KEY': JSON.stringify(process.env.DEFAULT_OPEN_ROUTER_API_KEY),
   },
-  plugins: [css_with_plugin()],
+  plugins: [css_with_plugin(), markdown_plugin],
 }).then(() => {
   console.log('Build complete');
   const release_file_paths = [manifest_path, styles_path, main_path];

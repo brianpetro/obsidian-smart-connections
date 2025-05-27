@@ -35,6 +35,10 @@ import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
 import { SmartCosSim } from "./bases/cos_sim.js";
 import { register_connections_score_command } from "./bases/connections_score_column.js";
 
+import { ReleaseNotesModal } from './modals/release_notes.js';
+import { is_upgrade } from './utils/version.js';
+
+
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
 
@@ -119,19 +123,19 @@ export default class SmartConnectionsPlugin extends Plugin {
       });
     }
     console.log("Smart Connections v2 loaded");
+    this.register_views();
+    SmartChatView.register_view(this);
+    this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
     await SmartEnv.wait_for({ loaded: true });
     this.add_commands();
     this.register_code_blocks();
-    this.register_views();
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
-    this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
-    this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat_view(); });
+    // this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat_view(); });
     this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
     this.register(() => {
       console.log("removing smart-chat setting tab");
       this.app.setting.removeSettingTab('smart-chat');
     });
-    SmartChatView.register_view(this);
     console.log("Smart Chat is registered");
     // Bases integration
     this.app.internalPlugins.plugins.bases.instance.registerFunction(new SmartCosSim(this.app));
@@ -204,7 +208,14 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async check_for_updates() {
-    if(this.settings.version !== this.manifest.version){
+    const was_upgrade = is_upgrade(this.settings.version, this.manifest.version);
+
+    if (was_upgrade) {
+      try {
+        new ReleaseNotesModal(this, this.manifest.version).open();
+      } catch (e) {
+        console.error('Failed to open ReleaseNotesModal', e);
+      }
       this.settings.version = this.manifest.version;
       await this.save_settings();
     }
@@ -314,7 +325,15 @@ export default class SmartConnectionsPlugin extends Plugin {
         modal.open();
       }
     });
-    
+
+    // show release notes
+    this.addCommand({
+      id: 'show-release-notes',
+      name: 'Show release notes',
+      callback: () => {
+        new ReleaseNotesModal(this, this.manifest.version).open();
+      }
+    });
   }
 
   // We keep the old code

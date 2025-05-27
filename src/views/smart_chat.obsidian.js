@@ -2,7 +2,7 @@ import { SmartObsidianView } from "./smart_view.obsidian.js";
 import { FuzzySuggestModal, Keymap, Platform } from "obsidian";
 
 export class SmartChatsView extends SmartObsidianView {
-  static get view_type() { return "smart-chat-view"; }
+  static get view_type() { return "smart-chat-v0"; }
   static get display_text() { return "Smart Chat (v0 legacy)"; }
   static get icon_name() { return "message-square"; }
 
