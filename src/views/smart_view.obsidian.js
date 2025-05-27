@@ -108,15 +108,12 @@ export class SmartObsidianView extends ItemView {
     this.app.workspace.onLayoutReady(this.initialize.bind(this));
   }
   async initialize() {
-    await this.wait_for_env_to_load();
+    await wait_for_env_to_load(this);
     this.container.empty();
     // this.plugin[this.constructor.view_type.replace(/-/g, "_")] = this;
     this.register_plugin_events();
     this.app.workspace.registerHoverLinkSource(this.constructor.view_type, { display: this.getDisplayText(), defaultMod: true });
     this.render_view();
-  }
-  async wait_for_env_to_load() {
-    await wait_for_env_to_load(this);
   }
   register_plugin_events() { /* OVERRIDE AS NEEDED */ }
   render_view() { throw new Error("render_view must be implemented in subclass"); }
