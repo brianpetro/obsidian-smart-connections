@@ -5,12 +5,19 @@
 > More links? Clear organization? A beautiful graph view? Survival? No! *We make connections to **empower ourselves** to see our ideas realized!*
 
 ✔️ Zero-setup: Local AI models for embeddings
+
 🔐 Private & offline by default
+
 📲 Works on mobile devices
+
 🤖 Supports 1000s of Local & API models
+
 🤖 Local models via Ollama, LM Studio & HuggingFace transformers.js 
+
 📁 Simple local data files
+
 🌐 Open-source
+
 ⚔️ Mission-driven, user-aligned, community-supported
 ## Mission-driven
 The Obsidian community opened my eyes to user-aligned software. That's why Smart Connections is [built on principles](https://smartconnections.app/smart-principles/) in an effort to create the most user-aligned Smart Tools available.
