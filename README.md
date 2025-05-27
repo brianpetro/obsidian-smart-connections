@@ -2,6 +2,7 @@
 **Save time** *linking*, *tagging*, and *organizing!* **Smart Connections *finds relevant notes*** so you don't have to!
 
 > [!NOTE] Why do we make connections?
+> 
 > More links? Clear organization? A beautiful graph view? Survival? No! *We make connections to **empower ourselves** to see our ideas realized!*
 
 ✔️ Zero-setup: Local AI models for embeddings
