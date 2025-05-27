@@ -129,7 +129,6 @@ export class SmartThread extends SmartThreadBase {
       }
     }
 
-    console.log('filter', filter);
     return filter;
   }
 }

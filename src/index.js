@@ -22,7 +22,6 @@ import { smart_env_config as smart_chat_env_config } from "smart-chat-obsidian/s
 import { SmartSearch } from "./smart_search.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";
 import { open_note } from "obsidian-smart-env/utils/open_note.js";
-import { SmartSettings } from 'smart-settings/smart_settings.js';
 
 import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url, enable_plugin } from './sc_oauth.js';
 import { SmartNotices } from 'smart-notices/smart_notices.js';
@@ -36,7 +35,6 @@ import { SmartCosSim } from "./bases/cos_sim.js";
 import { register_connections_score_command } from "./bases/connections_score_column.js";
 
 import { ReleaseNotesModal } from './modals/release_notes.js';
-import { is_upgrade } from './utils/version.js';
 
 
 export default class SmartConnectionsPlugin extends Plugin {
@@ -68,7 +66,6 @@ export default class SmartConnectionsPlugin extends Plugin {
         request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
       };
       // mobile enable/disable
-      // if(Platform.isMobile) this._smart_env_config.prevent_load_on_init = true;
       if(Platform.isMobile) {
         merge_env_config(this._smart_env_config, {
           collections: {
@@ -82,7 +79,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   get api() { return this._api; }
   onload() {
     this.app.workspace.onLayoutReady(this.initialize.bind(this)); // initialize when layout is ready
-    if(!Platform.isMobile) SmartEnv.create(this); // IMPORTANT: works on mobile without this.smart_env_config as second arg
+    SmartEnv.create(this); // IMPORTANT: works on mobile without this.smart_env_config as second arg
     this.register_views();
     SmartChatView.register_view(this);
     this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
@@ -98,24 +95,9 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async initialize() {
-    SmartSettings.create_sync(this);
+    // SmartSettings.create_sync(this);
     this.smart_connections_view = null;
 
-    if(Platform.isMobile){
-      console.log("showing load_env notice");
-      // create doc frag with a button to run load_env
-      const frag = document.createDocumentFragment();
-      const elm = document.createElement('div');
-      elm.innerHTML = `
-        <p>Smart Environment loading deferred on mobile.</p>
-        <button>Load Environment</button>
-      `;
-      frag.appendChild(elm);
-      elm.addEventListener('click', () => {
-        this.load_env();
-      });
-      new Notice(frag, 0);
-    }
     if(!Platform.isMobile){
       // Register protocol handler for obsidian://sc-op/callback
       this.registerObsidianProtocolHandler("sc-op/callback", async (params) => {
@@ -134,12 +116,14 @@ export default class SmartConnectionsPlugin extends Plugin {
     });
     console.log("Smart Chat is registered");
     // Bases integration
-    this.app.internalPlugins.plugins.bases.instance.registerFunction(new SmartCosSim(this.app));
-    this.register(() => {
-      console.log("unregistering Smart Cos Sim");
-      this.app.internalPlugins.plugins.bases.instance.deregisterFunction('cos_sim');
-    });
-    register_connections_score_command(this);
+    if(this.app.internalPlugins.plugins.bases?.instance){
+      this.app.internalPlugins.plugins.bases?.instance?.registerFunction(new SmartCosSim(this.app));
+      this.register(() => {
+        console.log("unregistering Smart Cos Sim");
+        this.app.internalPlugins.plugins.bases?.instance?.deregisterFunction('cos_sim');
+      });
+      register_connections_score_command(this);
+    }
     // DEPRECATED (remove below)
     this._api = new SmartSearch(this);
     (window["SmartSearch"] = this._api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
@@ -156,23 +140,11 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
   }
 
-  async load_env() {
-    console.log("loading env");
-    SmartEnv.create(this);
-    await SmartEnv.wait_for({ loaded: true });
-    console.log("env loaded");
-    // skip if is mobile
-    /**
-     * @deprecated for Smart Visualizer backwards compatibility
-     * TODO: remove when new Smart [Clusters] Visualizer plugin is released
-     */
-    // if(typeof this.env.collections === 'undefined') Object.defineProperty(this.env, 'entities_loaded', { get: () => this.env.collections_loaded });
-    if(typeof this.env.smart_sources === 'undefined') Object.defineProperty(this.env, 'smart_notes', { get: () => this.env.smart_sources });
-  }
   async ready_to_load_collections() {
     await new Promise(r => setTimeout(r, 3000)); // wait 3 seconds for other processes to finish
     await this.wait_for_obsidian_sync();
   }
+  get settings() { return this.env?.settings || {}; }
 
   new_user() {
     if(!this.settings.new_user) return;
@@ -184,7 +156,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     }, 1000);
     if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
     this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env");
-    this.save_settings();
+    // this.save_settings();
   }
 
   register_views() {
@@ -204,16 +176,16 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async check_for_updates() {
-    const was_upgrade = is_upgrade(this.settings.version, this.manifest.version);
+    const was_upgrade = this.settings.version !== this.manifest.version;
 
     if (was_upgrade) {
+      console.log("opening release notes modal");
       try {
-        new ReleaseNotesModal(this, this.manifest.version).open();
+        (new ReleaseNotesModal(this, this.manifest.version)).open();
       } catch (e) {
         console.error('Failed to open ReleaseNotesModal', e);
       }
       this.settings.version = this.manifest.version;
-      await this.save_settings();
     }
     setTimeout(this.check_for_update.bind(this), 3000);
     setInterval(this.check_for_update.bind(this), 10800000);
@@ -242,7 +214,6 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   async restart_plugin() {
     this.env?.unload_main?.(this);
-    await this.saveData(this.settings);
     await new Promise(r => setTimeout(r, 3000));
     window.restart_plugin = async (id) => {
       await window.app.plugins.disablePlugin(id);
@@ -405,18 +376,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     if(obsidian_sync_instance?.syncStatus.startsWith('Uploading')) return false; // if uploading, don't wait for obsidian sync
     if(obsidian_sync_instance?.syncStatus.startsWith('Fully synced')) return false; // if fully synced, don't wait for obsidian sync
     return obsidian_sync_instance?.syncing;
-  }
-
-  async load_settings() {
-    const settings = (default_settings()).settings;
-    // Object.assign(this, this.constructor.defaults); // set defaults
-    const saved_settings = await this.loadData();
-    Object.assign(settings, saved_settings || {}); // overwrites defaults with saved settings
-    return settings;
-  }
-
-  async save_settings(settings=this.smart_settings._settings) {
-    await this.saveData(settings); // Obsidian API->saveData
   }
 
   // FROM ScSettings

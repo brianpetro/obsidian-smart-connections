@@ -1,4 +1,5 @@
 import { ItemView } from "obsidian";
+import { wait_for_env_to_load } from "obsidian-smart-env/utils/wait_for_env_to_load.js";
 
 /**
  * Represents a SmartObsidianView for extended functionality.
@@ -115,25 +116,7 @@ export class SmartObsidianView extends ItemView {
     this.render_view();
   }
   async wait_for_env_to_load() {
-    if (!this.env?.collections_loaded) {
-      while(!this.env) {
-        // button to load env
-        this.env.smart_view.safe_inner_html(this.containerEl.children[1], '<button>Load Smart Environment</button>');
-        this.containerEl.children[1].querySelector('button').addEventListener('click', () => {
-          this.plugin.load_env();
-        });
-        await new Promise(r => setTimeout(r, 2000));
-      }
-      // wait for entities to be initialized
-      while (!this.env.collections_loaded){
-        const loading_msg = this.env?.smart_connections_plugin?.obsidian_is_syncing ? "Waiting for Obsidian Sync to finish..." : "Loading Smart Connections...";
-        // set loading message
-        if(this.containerEl.children[1].innerHTML !== loading_msg){
-          this.env.smart_view.safe_inner_html(this.containerEl.children[1], loading_msg);
-        }
-        await new Promise(r => setTimeout(r, 2000));
-      }
-    }
+    await wait_for_env_to_load(this);
   }
   register_plugin_events() { /* OVERRIDE AS NEEDED */ }
   render_view() { throw new Error("render_view must be implemented in subclass"); }
@@ -160,3 +143,4 @@ export class SmartObsidianView extends ItemView {
     `;
   }
 }
+

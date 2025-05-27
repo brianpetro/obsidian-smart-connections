@@ -1,4 +1,5 @@
 import { PluginSettingTab } from "obsidian";
+import { wait_for_env_to_load } from "obsidian-smart-env/utils/wait_for_env_to_load.js";
 
 export class ScSettingsTab extends PluginSettingTab {
   constructor(app, plugin) {
@@ -12,13 +13,14 @@ export class ScSettingsTab extends PluginSettingTab {
      */
     this.main_settings_container = null;
   }
+  get env() { return this.plugin.env; }
 
   /**
    * Called by Obsidian to display the settings tab
    */
   display() {
     console.log("displaying settings tab");
-    this.render_settings(this.containerEl);
+    this.render();
   }
 
   get smart_view() {
@@ -30,17 +32,12 @@ export class ScSettingsTab extends PluginSettingTab {
     return this._smart_view;
   }
 
-  async render_settings(container=this.main_settings_container, opts = {}) {
-    if(!this.main_settings_container || container !== this.main_settings_container) {
-      this.main_settings_container = container;
-    }
-    if(!container) throw new Error("Container is required");
-
-    this.smart_view.safe_inner_html(container, '<div class="sc-loading">Loading main settings...</div>');
-    this.plugin.env.render_component('main_settings', this.plugin, opts).then(frag => {
-      this.smart_view.empty(container);
-      container.appendChild(frag);
+  async render() {
+    await wait_for_env_to_load(this);
+    this.smart_view.safe_inner_html(this.containerEl, '<div class="sc-loading">Loading main settings...</div>');
+    this.plugin.env.render_component('main_settings', this.plugin).then(frag => {
+      this.containerEl.empty();
+      this.containerEl.appendChild(frag);
     });
-    return container;
   }
 }

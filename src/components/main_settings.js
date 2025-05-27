@@ -19,7 +19,7 @@ export async function render(scope_plugin) {
       <div><button>Load Smart Environment</button></div>
     `);
     load_frag.querySelector('button').addEventListener('click', (e) => {
-      scope_plugin.load_env();
+      scope_plugin.env.load(true);
       e.target.replaceWith(this.create_doc_fragment('<span>Reload settings after Smart Environment loads...</span>'));
     });
     return load_frag;

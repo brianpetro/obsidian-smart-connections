@@ -82,13 +82,11 @@ export async function post_process(result, frag, opts = {}) {
     const link = result.dataset.link || result.dataset.path;
     if(result.classList.contains("sc-collapsed")){
       if (Keymap.isModEvent(event)) {
-        console.log("open_note", link, this);
         plugin.open_note(link, event);
       } else {
         toggle_result(result);
       }
     } else {
-      console.log("open_note", link);
       plugin.open_note(link, event);
     }
   }

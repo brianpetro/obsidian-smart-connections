@@ -86,7 +86,6 @@ export async function post_process(thread, frag, opts) {
   
   // Setup chat input handlers
   const chat_input = frag.querySelector('.sc-chat-form textarea');
-  console.log('chat_input', chat_input);
   if (chat_input) {
     chat_input.addEventListener('keydown', async (e) => {
       const is_mod = this.adapter.is_mod_event(e);
@@ -118,7 +117,6 @@ export async function post_process(thread, frag, opts) {
 
   // Insert notice if configuration is invalid
   const validation_result = thread.chat_model.validate_config();
-  console.log('validation_result', validation_result);
   if (!validation_result.valid) {
     const notice = frag.querySelector('.sc-config-error-notice');
     const message = document.createElement('span');
