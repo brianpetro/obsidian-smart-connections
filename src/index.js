@@ -95,11 +95,9 @@ export default class SmartConnectionsPlugin extends Plugin {
     SmartSettings.create_sync(this);
 
     this.smart_connections_view = null;
-    await this.check_for_updates();
-
-
-
-    this.new_user();
+    
+    
+    
 
     if(Platform.isMobile){
       console.log("showing load_env notice");
@@ -127,6 +125,8 @@ export default class SmartConnectionsPlugin extends Plugin {
     SmartChatView.register_view(this);
     this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
     await SmartEnv.wait_for({ loaded: true });
+    await this.check_for_updates();
+    this.new_user();
     this.add_commands();
     this.register_code_blocks();
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
@@ -181,7 +181,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   new_user() {
     if(!this.settings.new_user) return;
     this.settings.new_user = false;
-    this.settings.version = this.manifest.version;
     setTimeout(() => {
       this.open_connections_view();
       this.open_chat_view();
@@ -208,7 +207,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async check_for_updates() {
-    const was_upgrade = is_upgrade(this.settings.version, this.manifest.version);
+    const was_upgrade = is_upgrade(this.env.settings.version, this.manifest.version);
 
     if (was_upgrade) {
       try {
@@ -216,7 +215,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       } catch (e) {
         console.error('Failed to open ReleaseNotesModal', e);
       }
-      this.settings.version = this.manifest.version;
+      this.env.settings.version = this.manifest.version;
       await this.save_settings();
     }
     setTimeout(this.check_for_update.bind(this), 3000);
