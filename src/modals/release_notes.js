@@ -1,4 +1,4 @@
-import release_notes_md from '../../releases/2.5.17.md' with { type: 'markdown' };
+import release_notes_md from '../../releases/3.0.0.md' with { type: 'markdown' };
 import { Modal, MarkdownRenderer } from 'obsidian';
 
 /**
