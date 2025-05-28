@@ -1,6 +1,6 @@
 async function build_html(env, opts = {}) {
   let html = `<div class="muted-notice-container" style="display: flex; flex-direction: column; gap: 10px;">
-    <h1>Muted notices</h1>
+    <h2>Muted notices</h2>
   `;
   
   if (Object.keys(env.notices.settings?.muted || {}).length) {

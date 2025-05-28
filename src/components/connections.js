@@ -55,24 +55,14 @@ export async function post_process(view, frag, opts = {}) {
   const container = frag.querySelector('.sc-list');
 
   // Add fold/unfold all functionality
-  const toggle_button = frag.querySelector("[title='Fold toggle']");
+  const toggle_button = frag.querySelector("[title='Fold all toggle']");
   toggle_button.addEventListener("click", () => {
     const expanded = view.env.settings.expanded_view;
     container.querySelectorAll(".sc-result").forEach(async (elm) => {
       if (expanded) {
         elm.classList.add("sc-collapsed");
       } else {
-        elm.classList.remove("sc-collapsed");
-        const collection_key = elm.dataset.collection;
-        const entity = view.env[collection_key].get(elm.dataset.path);
-        let content = await entity.read();
-        if(should_render_embed(entity)){
-          content = entity.embed_link;
-        } else {
-          content = process_for_rendering(content);
-        }
-        const entity_frag = await this.render_markdown(content, entity);
-        elm.querySelector("li").appendChild(entity_frag);
+        elm.classList.remove("sc-collapsed"); // classchange listener will render the result in connected_result.js
       }
     });
     view.env.settings.expanded_view = !expanded;
@@ -109,17 +99,4 @@ export async function post_process(view, frag, opts = {}) {
   }
 
   return frag;
-}
-export function should_render_embed(entity) {
-  if (!entity) return false;
-  if (entity.is_media) return true;
-  return false;
-}
-export function process_for_rendering(content) {
-  // prevent dataview rendering
-  if(content.includes('```dataview')) content = content.replace(/```dataview/g, '```\\dataview');
-  if(content.includes('```smart-context')) content = content.replace(/```smart-context/g, '```\\smart-context');
-  // prevent link embedding
-  if(content.includes('![[')) content = content.replace(/\!\[\[/g, '! [[');
-  return content;
 }

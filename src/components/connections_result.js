@@ -35,14 +35,14 @@ export async function build_html(result, opts = {}) {
 
 /**
  * Renders the result component by building the HTML and post-processing it.
- * @param {Object} result - The result object containing component data.
+ * @param {Object} result_scope - The result object containing component data.
  * @param {Object} [opts={}] - Optional parameters.
  * @returns {Promise<DocumentFragment>} A promise that resolves to the processed document fragment.
  */
-export async function render(result, opts = {}) {
-  let html = await build_html.call(this, result, opts);
+export async function render(result_scope, opts = {}) {
+  let html = await build_html.call(this, result_scope, opts);
   const frag = this.create_doc_fragment(html);
-  return await post_process.call(this, result, frag, opts);
+  return await post_process.call(this, result_scope, frag, opts);
 }
 
 /**
@@ -51,48 +51,57 @@ export async function render(result, opts = {}) {
  * @param {Object} [opts={}] - Optional parameters.
  * @returns {Promise<DocumentFragment>} A promise that resolves to the post-processed document fragment.
  */
-export async function post_process(result, frag, opts = {}) {
-  const { item, score } = result;
+export async function post_process(result_scope, frag, opts = {}) {
+  const { item, score } = result_scope;
   const env = item.env;
   const plugin = env.smart_connections_plugin;
   const app = plugin.app;
   const filter_settings = env.settings.smart_view_filter;
-  const elm = frag.querySelector('.sc-result');
-  if(!filter_settings.render_markdown) elm.classList.add('sc-result-plaintext');
+  const result_elm = frag.querySelector('.sc-result');
+  if(!filter_settings.render_markdown) result_elm.classList.add('sc-result-plaintext');
   
-  const toggle_result = async (result) => {
-    result.classList.toggle("sc-collapsed");
+  const render_result = async (_result_elm) => {
     // if li contents is empty, render it
-    if(!result.querySelector("li").innerHTML){
-      const collection_key = result.dataset.collection;
-      const entity = env[collection_key].get(result.dataset.path);
-      await entity.render_item(result.querySelector("li"));
+    if(!_result_elm.querySelector("li").innerHTML){
+      const collection_key = _result_elm.dataset.collection;
+      const entity = env[collection_key].get(_result_elm.dataset.path);
+      let markdown;
+      if (should_render_embed(entity)) markdown = `${entity.embed_link}\n\n${await entity.read()}`;
+      else markdown = process_for_rendering(await entity.read());
+      let entity_frag;
+      if (filter_settings.render_markdown) entity_frag = await this.render_markdown(markdown, entity);
+      else entity_frag = this.create_doc_fragment(markdown);
+      result_elm.querySelector("li").appendChild(entity_frag);
     }
+  }
+  const toggle_result = async (_result_elm) => {
+    _result_elm.classList.toggle("sc-collapsed");
+    await render_result(_result_elm);
   }
   const handle_result_click = (event) => {
     event.preventDefault();
     event.stopPropagation();
     const target = event.target;
-    const result = target.closest(".sc-result");
+    const _result_elm = target.closest(".sc-result");
     if (target.classList.contains("svg-icon")) {
-      toggle_result(result);
+      toggle_result(_result_elm);
       return;
     }
     
-    const link = result.dataset.link || result.dataset.path;
-    if(result.classList.contains("sc-collapsed")){
+    const link = _result_elm.dataset.link || _result_elm.dataset.path;
+    if(_result_elm.classList.contains("sc-collapsed")){
       if (Keymap.isModEvent(event)) {
         plugin.open_note(link, event);
       } else {
-        toggle_result(result);
+        toggle_result(_result_elm);
       }
     } else {
       plugin.open_note(link, event);
     }
   }
-  elm.addEventListener("click", handle_result_click.bind(plugin));
-  const path = elm.querySelector("li").dataset.key;
-  elm.addEventListener('dragstart', (event) => {
+  result_elm.addEventListener("click", handle_result_click.bind(plugin));
+  const path = result_elm.querySelector("li").dataset.key;
+  result_elm.addEventListener('dragstart', (event) => {
     const drag_manager = app.dragManager;
     const file_path = path.split("#")[0];
     const file = app.metadataCache.getFirstLinkpathDest(file_path, '');
@@ -101,25 +110,42 @@ export async function post_process(result, frag, opts = {}) {
   });
 
   if (path.indexOf("{") === -1) {
-    elm.addEventListener("mouseover", (event) => {
+    result_elm.addEventListener("mouseover", (event) => {
       app.workspace.trigger("hover-link", {
         event,
         source: "smart-connections-view",
-        hoverParent: elm.parentElement,
-        targetEl: elm,
+        hoverParent: result_elm.parentElement,
+        targetEl: result_elm,
         linktext: path,
       });
     });
   }
-  
-  if(!env.settings.expanded_view) return elm;
-  // Render entity details
-  const li = elm.querySelector('li');
-  if (result.item) {
-    await result.item.render_item(li, opts);
-  } else {
-    this.safe_inner_html(li, "<p>Entity not found.</p>");
-  }
+  // listen for class change where .sc-collapsed is removed from result_elm
+  result_elm.addEventListener('classchange', (event) => {
+    if(!result_elm.classList.contains("sc-collapsed")) render_result(result_elm);
+  });
 
-  return elm;
+
+  
+  if(!env.settings.expanded_view) return result_elm;
+  
+  // render if already expanded
+  await render_result(result_elm);
+  return result_elm;
+
+}
+
+export function should_render_embed(entity) {
+  if (!entity) return false;
+  if (entity.is_media) return true;
+  return false;
+}
+export function process_for_rendering(content) {
+  // prevent dataview rendering
+  if(content.includes('```dataview')) content = content.replace(/```dataview/g, '```\\dataview');
+  if(content.includes('```smart-context')) content = content.replace(/```smart-context/g, '```\\smart-context');
+  if(content.includes('```smart-chatgpt')) content = content.replace(/```smart-chatgpt/g, '```\\smart-chatgpt');
+  // prevent link embedding
+  if(content.includes('![[')) content = content.replace(/\!\[\[/g, '! [[');
+  return content;
 }

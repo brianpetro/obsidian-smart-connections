@@ -7,6 +7,7 @@ async function build_html(scope_plugin) {
       </div>
       <div data-smart-settings="env"></div>
       <div data-smart-notices></div>
+      ${render_sign_in_or_open_smart_plugins(scope_plugin)}
       ${render_footer_callout()}
     </div>
   `;
@@ -60,12 +61,28 @@ export async function post_process(scope_plugin, frag) {
     connections_settings.appendChild(connections_settings_frag);
   }
 
+  // open links externally
+  const header_btn = frag.querySelector('#header-callout a');
+  if(header_btn){
+    header_btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      scope_plugin.open_url_externally(header_btn.href);
+    });
+  }
+  const footer_btn = frag.querySelector('#footer-callout a');
+  if(footer_btn){
+    footer_btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      scope_plugin.open_url_externally(footer_btn.href);
+    });
+  }
+
   return frag;
 }
 
 function render_footer_callout() {
   return `
-    <div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
+    <div id="footer-callout" data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
       <div class="callout-title">
         <div class="callout-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -88,7 +105,7 @@ function render_footer_callout() {
 
 function render_header_callout() {
   return `
-    <div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
+    <div id="header-callout" data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
       <div class="callout-title">
         <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -104,5 +121,22 @@ function render_header_callout() {
         </div>
       </div>
     </div>
+  `;
+}
+
+function render_sign_in_or_open_smart_plugins(scope_plugin) {
+  const oauth_storage_prefix = scope_plugin.app.vault.getName().toLowerCase().replace(/[^a-z0-9]/g, '_') + '_smart_plugins_oauth_';
+  const isLoggedIn = !!localStorage.getItem(oauth_storage_prefix+'token');
+  const buttonLabel = isLoggedIn ? 'Open Smart Plugins' : 'Sign in';
+  const buttonCallback = isLoggedIn ? 'open_smart_plugins_settings' : 'initiate_smart_plugins_oauth';
+
+  return `
+    <div class="setting-component"
+      data-name="Smart Plugins - Early Access"
+      data-type="button"
+      data-btn-text="${buttonLabel}"
+      data-description="Supporters can sign in to access early-release Smart Plugins"
+      data-callback="${buttonCallback}"
+    ></div>
   `;
 }
