@@ -35,6 +35,11 @@ import { SmartCosSim } from "./bases/cos_sim.js";
 import { register_connections_score_command } from "./bases/connections_score_column.js";
 
 import { ReleaseNotesModal } from './modals/release_notes.js';
+import {
+  get_last_known_version,
+  set_last_known_version,
+  should_show_release_notes
+} from './utils/release_notes.js';
 
 
 export default class SmartConnectionsPlugin extends Plugin {
@@ -149,7 +154,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   new_user() {
     if(!this.settings.new_user) return;
     this.settings.new_user = false;
-    this.settings.version = this.manifest.version;
+    set_last_known_version(this.manifest.version);
     setTimeout(() => {
       this.open_connections_view();
       this.open_chat_view();
@@ -176,16 +181,14 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async check_for_updates() {
-    const was_upgrade = this.settings.version !== this.manifest.version;
-
-    if (was_upgrade) {
+    if (should_show_release_notes(this.manifest.version)) {
       console.log("opening release notes modal");
       try {
         (new ReleaseNotesModal(this, this.manifest.version)).open();
       } catch (e) {
         console.error('Failed to open ReleaseNotesModal', e);
       }
-      this.settings.version = this.manifest.version;
+      set_last_known_version(this.manifest.version);
     }
     setTimeout(this.check_for_update.bind(this), 3000);
     setInterval(this.check_for_update.bind(this), 10800000);
