@@ -2,7 +2,7 @@
 export async function build_html(view, opts = {}) {
   const top_bar_buttons = [
     { title: 'Refresh', icon: 'refresh-cw' },
-    { title: 'Fold toggle', icon: view.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical' },
+    { title: 'Fold all toggle', icon: view.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical' },
     { title: 'Lookup', icon: 'search' },
     { title: 'Settings', icon: 'settings' },
     { title: 'Help', icon: 'help-circle' }
