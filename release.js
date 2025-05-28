@@ -58,7 +58,7 @@ function latest_release_file(dir, current_version) {
  * @returns {string}
  */
 function build_combined_notes(current_version, prior_notes, user_desc) {
-  const heading = `\n\n# Smart Connections v${current_version}\n\n`;
+  const heading = `\n\n## patch \`v${current_version}\`\n\n`;
   const desc_block = user_desc?.trim() ? `${user_desc.trim()}\n` : '';
   return `${prior_notes ?? ''}${heading}${desc_block}`.trim();
 }
@@ -127,9 +127,19 @@ async function run_release() {
     user_desc = await ask('Enter additional release description (optional): ');
     const prior_notes = prior_file ? fs.readFileSync(prior_file, 'utf8').trim() : '';
     version_notes = build_combined_notes(confirmed_version, prior_notes, user_desc);
-    fs.writeFileSync(release_file, version_notes);
+    fs.writeFileSync(prior_file, version_notes);
   }
   rl.close();
+
+  // re-run npm run build and wait for it to finish
+  await new Promise((resolve, reject) => {
+    exec('npm run build', (err, stdout, stderr) => {
+      if (err) reject(err);
+      if (stdout) console.log(stdout);
+      console.log('build finished');
+      resolve();
+    });
+  });
 
   // GitHub release body
   const release_body = version_notes;
