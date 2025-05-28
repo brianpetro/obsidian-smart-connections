@@ -33,7 +33,8 @@ export class ScConnectionsView extends SmartObsidianView {
 
     const results = await entity.find_connections({ 
       ...opts, 
-      exclude_source_connections: entity.env.smart_blocks.settings.embed_blocks 
+      exclude_source_connections: entity.env.smart_blocks.settings.embed_blocks,
+      exclude_key_ends_with: "---frontmatter---"
     });
     
     const results_frag = await entity.env.render_component('connections_results', results, opts);

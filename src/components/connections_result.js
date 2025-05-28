@@ -120,10 +120,15 @@ export async function post_process(result_scope, frag, opts = {}) {
       });
     });
   }
-  // listen for class change where .sc-collapsed is removed from result_elm
-  result_elm.addEventListener('classchange', (event) => {
-    if(!result_elm.classList.contains("sc-collapsed")) render_result(result_elm);
+  // listen for class changes on result_elm
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class' && !result_elm.classList.contains("sc-collapsed")) {
+        render_result(result_elm);
+      }
+    });
   });
+  observer.observe(result_elm, { attributes: true });
 
 
   
