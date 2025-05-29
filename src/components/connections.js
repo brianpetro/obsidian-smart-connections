@@ -58,6 +58,7 @@ export async function post_process(view, frag, opts = {}) {
   const toggle_button = frag.querySelector("[title='Fold all toggle']");
   toggle_button.addEventListener("click", () => {
     const expanded = view.env.settings.expanded_view;
+    view.env.settings.expanded_view = !expanded;
     container.querySelectorAll(".sc-result").forEach(async (elm) => {
       if (expanded) {
         elm.classList.add("sc-collapsed");
@@ -65,7 +66,6 @@ export async function post_process(view, frag, opts = {}) {
         elm.classList.remove("sc-collapsed"); // classchange listener will render the result in connected_result.js
       }
     });
-    view.env.settings.expanded_view = !expanded;
     this.safe_inner_html(toggle_button, this.get_icon_html(view.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical'));
     toggle_button.setAttribute('aria-label', view.env.settings.expanded_view ? 'Fold all' : 'Unfold all');
   });
@@ -84,13 +84,13 @@ export async function post_process(view, frag, opts = {}) {
 
   // help documentation
   const help_button = frag.querySelector("[title='Help']");
-  help_button.addEventListener("click", () => {
+  help_button?.addEventListener("click", () => {
     window.open("https://docs.smartconnections.app/connections-pane", "_blank");
   });
 
   // settings
   const settings_button = frag.querySelector("[title='Settings']");
-  settings_button.addEventListener("click", () => {
+  settings_button?.addEventListener("click", () => {
     view.open_settings();
   });
 

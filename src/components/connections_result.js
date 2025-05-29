@@ -13,7 +13,7 @@ export async function build_html(result, opts = {}) {
   
   return `<div class="temp-container">
     <div
-      class="sc-result${expanded_view ? '' : ' sc-collapsed'}"
+      class="sc-result sc-collapsed"
       data-path="${item.path.replace(/"/g, '&quot;')}"
       data-link="${item.link?.replace(/"/g, '&quot;') || ''}"
       data-collection="${item.collection_key}"
@@ -74,9 +74,8 @@ export async function post_process(result_scope, frag, opts = {}) {
       result_elm.querySelector("li").appendChild(entity_frag);
     }
   }
-  const toggle_result = async (_result_elm) => {
+  const toggle_result = (_result_elm) => {
     _result_elm.classList.toggle("sc-collapsed");
-    await render_result(_result_elm);
   }
   const handle_result_click = (event) => {
     event.preventDefault();
@@ -122,22 +121,29 @@ export async function post_process(result_scope, frag, opts = {}) {
   }
   // listen for class changes on result_elm
   const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.attributeName === 'class' && !result_elm.classList.contains("sc-collapsed")) {
-        render_result(result_elm);
-      }
+    // Only process class changes that affect expansion state
+    const has_expansion_change = mutations.some(mutation => {
+      const target = mutation.target;
+      return mutation.attributeName === 'class' && 
+        mutation.oldValue?.includes('sc-collapsed') !== target.classList.contains('sc-collapsed');
     });
+
+    // Render only when expanding from collapsed state
+    if (has_expansion_change && !mutations[0].target.classList.contains('sc-collapsed')) {
+      render_result(mutations[0].target);
+    }
   });
-  observer.observe(result_elm, { attributes: true });
+  observer.observe(result_elm, { 
+    attributes: true,
+    attributeOldValue: true,
+    attributeFilter: ['class'] // Only observe class changes
+  });
 
-
-  
   if(!env.settings.expanded_view) return result_elm;
   
   // render if already expanded
-  await render_result(result_elm);
+  toggle_result(result_elm);
   return result_elm;
-
 }
 
 export function should_render_embed(entity) {
