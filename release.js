@@ -124,9 +124,14 @@ async function run_release() {
     version_notes = fs.readFileSync(release_file, 'utf8').trim();
   } else {
     const prior_file = latest_release_file(releases_dir, confirmed_version);
-    user_desc = await ask('Enter additional release description (optional): ');
-    const prior_notes = prior_file ? fs.readFileSync(prior_file, 'utf8').trim() : '';
-    version_notes = build_combined_notes(confirmed_version, prior_notes, user_desc);
+    let prior_notes = prior_file ? fs.readFileSync(prior_file, 'utf8').trim() : '';
+    if (prior_notes.includes('## next patch')) {
+      prior_notes = prior_notes.replace('## next patch', `## patch \`v${confirmed_version}\`\n`);
+      version_notes = prior_notes;
+    }else{
+      user_desc = await ask('Enter additional release description (optional): ');
+      version_notes = build_combined_notes(confirmed_version, prior_notes, user_desc);
+    }
     fs.writeFileSync(prior_file, version_notes);
   }
   rl.close();
