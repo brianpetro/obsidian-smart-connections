@@ -32,7 +32,7 @@ import { ConnectionsModal } from "./modals/connections.js";
 import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
 
 import { SmartCosSim } from "./bases/cos_sim.js";
-import { register_connections_score_command } from "./bases/connections_score_column.js";
+import { register_connections_score_command } from "./bases/connections_score_column_modal.js";
 
 import { ReleaseNotesModal } from './modals/release_notes.js';
 import {
