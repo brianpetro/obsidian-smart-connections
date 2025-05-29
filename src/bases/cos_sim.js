@@ -21,8 +21,9 @@ export class SmartCosSim {
 	}
 	apply(a, b){
     try{
-      const a_key = a.path ?? a;
-      const b_key = b.path ?? b;
+      const a_key = a?.path ?? a;
+      const b_key = b?.path ?? b;
+			if(!a_key || !b_key) return 0;
       const item_a = smart_env.smart_sources.get(a_key);
       let item_b = smart_env.smart_sources.get(b_key);
       if(!item_b){
