@@ -19,7 +19,6 @@ import { SmartPrivateChatView } from "./views/sc_private_chat.obsidian.js";
 import { SmartChatView } from "smart-chat-obsidian/src/smart_chat.obsidian.js";
 import { smart_env_config as smart_chat_env_config } from "smart-chat-obsidian/smart_env.config.js";
 
-import { SmartSearch } from "./smart_search.js";
 import { ScSettingsTab } from "./sc_settings_tab.js";
 import { open_note } from "obsidian-smart-env/utils/open_note.js";
 
@@ -91,6 +90,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
     this.add_commands();
     this.register_code_blocks();
+    this.register_bases_integration();
   }
   // async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
@@ -120,8 +120,10 @@ export default class SmartConnectionsPlugin extends Plugin {
       this.app.setting.removeSettingTab('smart-chat');
     });
     console.log("Smart Chat is registered");
-    // Bases integration
-    if(this.app.internalPlugins.plugins.bases?.instance){
+  }
+
+  register_bases_integration() {
+    if (this.app.internalPlugins.plugins.bases?.instance) {
       this.app.internalPlugins.plugins.bases?.instance?.registerFunction(new SmartCosSim(this.app));
       this.register(() => {
         console.log("unregistering Smart Cos Sim");
@@ -129,9 +131,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       });
       register_connections_score_command(this);
     }
-    // DEPRECATED (remove below)
-    this._api = new SmartSearch(this);
-    (window["SmartSearch"] = this._api) && this.register(() => delete window["SmartSearch"]); // register API to global window object
   }
 
   register_code_blocks() {
