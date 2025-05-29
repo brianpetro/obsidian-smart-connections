@@ -22,15 +22,6 @@ export async function build_html(view, opts = {}) {
       </p>
       ${top_bar_buttons}
     </div>
-    <div id="settings" class="sc-overlay"></div>
-    <div class="sc-advanced-overlay smart-chat-overlay" style="display: none;">
-      <div class="sc-advanced-overlay-header">
-        <button class="sc-advanced-overlay-close">
-          ${this.get_icon_html('x')}
-        </button>
-      </div>
-      <div class="sc-settings"></div>
-    </div>
     <div class="sc-list">
     </div>
     <div class="sc-bottom-bar">
