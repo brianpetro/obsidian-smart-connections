@@ -21,6 +21,7 @@ export class SmartCosSim {
 	}
 	apply(a, b){
     try{
+			if(!smart_env || smart_env.state !== 'loaded') return "Loading...";
       const a_key = a?.path ?? a;
       const b_key = b?.path ?? b;
 			if(!a_key || !b_key) return 0;
