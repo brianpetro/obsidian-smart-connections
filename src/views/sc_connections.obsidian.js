@@ -15,7 +15,11 @@ export class ScConnectionsView extends SmartObsidianView {
 
     this.plugin.registerEvent(this.app.workspace.on('active-leaf-change', (leaf) => {
       if (leaf.view instanceof this.constructor) {
-        this.render_view();
+        const leaf_path = leaf.view.file?.path;
+        if(leaf_path && leaf_path !== this.last_leaf_path){
+          this.last_leaf_path = leaf_path;
+          this.render_view();
+        }
       }
     }));
   }
