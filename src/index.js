@@ -18,6 +18,7 @@ import { SmartChatGPTView } from "./views/sc_chatgpt.obsidian.js";
 import { SmartPrivateChatView } from "./views/sc_private_chat.obsidian.js";
 import { SmartChatView } from "smart-chat-obsidian/src/smart_chat.obsidian.js";
 import { smart_env_config as smart_chat_env_config } from "smart-chat-obsidian/smart_env.config.js";
+import { smart_env_config as smart_context_env_config } from "smart-context-obsidian/smart_env.config.js";
 
 import { ScSettingsTab } from "./sc_settings_tab.js";
 import { open_note } from "obsidian-smart-env/utils/open_note.js";
@@ -60,6 +61,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     if(!this._smart_env_config){
       const merged_env_config = merge_env_config(built_smart_env_config, smart_env_config);
       merge_env_config(merged_env_config, smart_chat_env_config);
+      merge_env_config(merged_env_config, smart_context_env_config);
       this._smart_env_config = {
         ...merged_env_config,
         env_path: '', // scope handled by Obsidian FS methods
