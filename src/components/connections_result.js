@@ -1,4 +1,5 @@
 import { Keymap } from "obsidian";
+import { register_block_hover_popover } from 'obsidian-smart-env/utils/register_block_hover_popover.js';
 /**
  * Builds the HTML string for the result component.
  * .temp-container is used so listeners can be added to .sc-result (otherwise does not persist) 
@@ -110,14 +111,17 @@ export async function post_process(result_scope, frag, opts = {}) {
 
   if (path.indexOf("{") === -1) {
     result_elm.addEventListener("mouseover", (event) => {
+      const linktext_path = path.replace(/#$/, ""); // remove trailing #
       app.workspace.trigger("hover-link", {
         event,
         source: "smart-connections-view",
         hoverParent: result_elm.parentElement,
         targetEl: result_elm,
-        linktext: path,
+        linktext: linktext_path,
       });
     });
+  }else{
+    register_block_hover_popover(result_elm.parentElement, result_elm, env, path, plugin);
   }
   // listen for class changes on result_elm
   const observer = new MutationObserver((mutations) => {
