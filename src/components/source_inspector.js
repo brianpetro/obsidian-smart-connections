@@ -62,9 +62,12 @@ export async function post_process(source, frag, opts = {}) {
     const blockInfo = `${subKeyDisplay} (${block.size} chars; lines: ${block.line_start}-${block.line_end})`;
 
     // Flag
-    const embedStatus = block.should_embed
+    const should_embed = block.should_embed
       ? `<span style="color: green;">should embed</span>`
       : `<span style="color: orange;">embedding skipped</span>`;
+    const embed_status = block.vec
+      ? `<span style="color: green;">vectorized</span>`
+      : `<span style="color: orange;">not vectorized</span>`;
 
     // Read and sanitize content
     let blockContent = '';
@@ -84,7 +87,7 @@ export async function post_process(source, frag, opts = {}) {
     const blockFrag = this.create_doc_fragment(`
       <p>
         ${blockInfo}<br>
-        ${embedStatus}
+        ${should_embed} | ${embed_status}
       </p>
       <blockquote>${blockContent}</blockquote>
       <hr>
