@@ -15,6 +15,11 @@ export class ScConnectionsView extends SmartObsidianView {
 
     this.plugin.registerEvent(this.app.workspace.on('active-leaf-change', (leaf) => {
       if (leaf.view instanceof this.constructor) {
+        if (this.container.checkVisibility() === false) return console.log("event: active-leaf-change: View inactive, skipping render nearest");
+        if(this.plugin.app.workspace.activeLeaf.view.constructor.view_type === this.constructor.view_type) {
+          this.render_view();
+          return;
+        }
         const leaf_path = leaf.view.file?.path;
         if(leaf_path && leaf_path !== this.last_leaf_path){
           this.last_leaf_path = leaf_path;
@@ -61,7 +66,7 @@ export class ScConnectionsView extends SmartObsidianView {
     }
   };
   async render_view(entity=null, container=this.container) {
-    if (container.checkVisibility() === false) return console.log("View inactive, skipping render nearest");
+    if (container.checkVisibility() === false) return console.log("render_view: View inactive, skipping render nearest");
     
     let current_file;
     if (!entity) {
