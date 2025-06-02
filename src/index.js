@@ -25,7 +25,6 @@ import { open_note } from "obsidian-smart-env/utils/open_note.js";
 
 import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url, enable_plugin } from './sc_oauth.js';
 import { SmartNotices } from 'smart-notices/smart_notices.js';
-import { ScSupportersModal } from "./views/smart_supporters_modal.js";
 import { merge_env_config } from "obsidian-smart-env";
 import { ConnectionsModal } from "./modals/connections.js";
 
@@ -491,11 +490,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     if (spTab) {
       this.app.setting.openTab(spTab);
     }
-  }
-
-  open_supporters_modal() {
-    if(!this.supporters_modal) this.supporters_modal = new ScSupportersModal(this);
-    this.supporters_modal.open();
   }
 
 

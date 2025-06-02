@@ -41,14 +41,6 @@ export async function post_process(scope_plugin, frag) {
     env_settings_container.appendChild(env_settings_frag);
   }
 
-  // wire up "Open Supporters Modal" button
-  const supportersButton = frag.querySelector('[data-setting="smart_community"] button');
-  if (supportersButton) {
-    supportersButton.addEventListener('click', () => {
-      scope_plugin.open_supporters_modal();
-    });
-  }
-
   const connections_settings = frag.querySelector('[data-connections-settings-container]');
   if (connections_settings) {
     const connections_settings_frag = await this.render_settings(scope_plugin.env.smart_sources.connections_filter_config, {
