@@ -15,7 +15,10 @@ export class ScConnectionsView extends SmartObsidianView {
 
     this.plugin.registerEvent(this.app.workspace.on('active-leaf-change', (leaf) => {
       if (leaf.view instanceof this.constructor) {
-        if (this.container.checkVisibility() === false) return console.log("event: active-leaf-change: View inactive, skipping render nearest");
+        if (!this.container) return console.log("Connections view event: active-leaf-change: no container, skipping");
+        if ((typeof this.container.checkVisibility === 'function') && (this.container.checkVisibility() === false)) {
+          return console.log("Connections view event: active-leaf-change: not visible, skipping");
+        }
         if(this.plugin.app.workspace.activeLeaf.view.constructor.view_type === this.constructor.view_type) {
           this.render_view();
           return;
