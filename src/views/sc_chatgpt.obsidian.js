@@ -58,7 +58,7 @@ export class SmartChatGPTView extends SmartObsidianView {
     this.frame = document.createElement("webview", {});
     this.frame.setAttribute("allowpopups", "");
     this.frame.setAttribute("useragent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.191 Safari/537.36");
-    this.frame.setAttribute("partition", "persist:smart-chatgpt");
+    this.frame.setAttribute("partition", this.plugin.app.getWebviewPartition());
     this.frame.style.width = "100%";
     this.frame.style.height = "100%";
     this.frame.setAttribute("src", "https://chatgpt.com/");
