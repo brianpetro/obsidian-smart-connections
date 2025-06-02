@@ -40,6 +40,8 @@ import {
   should_show_release_notes
 } from './utils/release_notes.js';
 
+import { open_url_externally } from "obsidian-smart-env/utils/open_url_externally.js";
+
 
 export default class SmartConnectionsPlugin extends Plugin {
   static get defaults() { return default_settings() }
@@ -432,17 +434,12 @@ export default class SmartConnectionsPlugin extends Plugin {
    * Opens a URL externally, using the Obsidian webviewer plugin if possible,
    * otherwise falling back to window.open().
    *
+   * @deprecated use open_url_externally from obsidian-smart-env/utils/open_url_externally.js instead
    * @param {string} url
    */
   open_url_externally(url) {
-    const webviewer = this.app.internalPlugins?.plugins?.webviewer?.instance;
-    if (webviewer && typeof webviewer.openUrlExternally === 'function') {
-      webviewer.openUrlExternally(url);
-    } else {
-      window.open(url, '_blank');
-    }
+    open_url_externally(this, url);
   }
-
   /**
    * Handles the OAuth callback from the Smart Plugins server.
    * @param {Object} params - The URL parameters from the OAuth callback.

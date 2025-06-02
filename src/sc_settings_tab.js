@@ -33,7 +33,7 @@ export class ScSettingsTab extends PluginSettingTab {
   }
 
   async render() {
-    await wait_for_env_to_load(this, { wait_for_state: 'loading' });
+    await wait_for_env_to_load(this, { wait_for_states: ['loading', 'loaded'] });
     this.smart_view.safe_inner_html(this.containerEl, '<div class="sc-loading">Loading main settings...</div>');
     this.plugin.env.render_component('main_settings', this.plugin).then(frag => {
       this.containerEl.empty();
