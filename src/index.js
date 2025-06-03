@@ -114,7 +114,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     await SmartEnv.wait_for({ loaded: true });
     await this.check_for_updates();
     this.new_user();
-    // this.addRibbonIcon("message-square", "Open: Smart Chat Conversation", () => { this.open_chat_view(); });
     this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
     this.register(() => {
       console.log("removing smart-chat setting tab");
@@ -157,7 +156,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     set_last_known_version(this.manifest.version);
     setTimeout(() => {
       this.open_connections_view();
-      this.open_chat_view();
     }, 1000);
     if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
     this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env");
