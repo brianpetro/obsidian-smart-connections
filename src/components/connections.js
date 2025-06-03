@@ -1,20 +1,34 @@
-
-export async function build_html(view, opts = {}) {
-  const top_bar_buttons = [
+/**
+ * Build the top bar button markup.
+ * @param {Object} view
+ * @returns {string}
+ */
+export function build_top_bar_buttons(view) {
+  const buttons = [
     { title: 'Refresh', icon: 'refresh-cw' },
     { title: 'Fold all toggle', icon: view.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical' },
     { title: 'Lookup', icon: 'search' },
     { title: 'Settings', icon: 'settings' },
     { title: 'Help', icon: 'help-circle' }
-  ].map(btn => `
+  ];
+  return buttons.map(btn => `
     <button
       title="${btn.title}"
       aria-label="${btn.title} button"
-      ${btn.style ? `style="${btn.style}"` : ''}
     >
       ${this.get_icon_html(btn.icon)}
     </button>
   `).join('');
+}
+
+/**
+ * Build the main HTML structure for the connections view.
+ * @param {Object} view
+ * @param {Object} [opts]
+ * @returns {Promise<string>}
+ */
+export async function build_html(view, opts = {}) {
+  const top_bar_buttons = build_top_bar_buttons.call(this, view);
   const html = `<div class="sc-connections-view">
     <div class="sc-top-bar">
       <p class="sc-context" data-key="">
@@ -36,12 +50,25 @@ export async function build_html(view, opts = {}) {
 }
 
 
+/**
+ * Render the connections fragment.
+ * @param {Object} view
+ * @param {Object} [opts]
+ * @returns {Promise<DocumentFragment>}
+ */
 export async function render(view, opts = {}) {
-  let html = await build_html.call(this, view, opts);
+  const html = await build_html.call(this, view, opts);
   const frag = this.create_doc_fragment(html);
   return await post_process.call(this, view, frag, opts);
 }
 
+/**
+ * Attach event listeners to the rendered fragment.
+ * @param {Object} view
+ * @param {DocumentFragment} frag
+ * @param {Object} [opts]
+ * @returns {Promise<DocumentFragment>}
+ */
 export async function post_process(view, frag, opts = {}) {
   const container = frag.querySelector('.sc-list');
 
