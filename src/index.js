@@ -9,9 +9,8 @@ const {
 import { SmartEnv } from 'obsidian-smart-env';
 import { smart_env_config } from "./smart_env.config.js";
 import { smart_env_config as built_smart_env_config } from "../smart_env.config.js";
-import { default_settings } from "./default_settings.js";
 
-import { ScConnectionsView } from "./views/sc_connections.obsidian.js";
+import { ConnectionsView } from "./views/connections_view.js";
 import { ScLookupView } from "./views/sc_lookup.obsidian.js";
 import { SmartChatsView } from "./views/smart_chat.obsidian.js";
 import { SmartChatGPTView } from "./views/sc_chatgpt.obsidian.js";
@@ -44,11 +43,10 @@ import { open_url_externally } from "obsidian-smart-env/utils/open_url_externall
 
 
 export default class SmartConnectionsPlugin extends Plugin {
-  static get defaults() { return default_settings() }
 
   get item_views() {
     return {
-      ScConnectionsView,
+      ConnectionsView,
       ScLookupView,
       SmartChatsView,
       SmartChatGPTView,

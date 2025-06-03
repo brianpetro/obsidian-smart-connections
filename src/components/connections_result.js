@@ -10,7 +10,6 @@ import { register_block_hover_popover } from 'obsidian-smart-env/utils/register_
 export async function build_html(result, opts = {}) {
   const item = result.item;
   const score = result.score; // Extract score from opts
-  const expanded_view = item.env.settings.expanded_view;
   
   return `<div class="temp-container">
     <div
@@ -143,7 +142,10 @@ export async function post_process(result_scope, frag, opts = {}) {
     attributeFilter: ['class'] // Only observe class changes
   });
 
-  if(!env.settings.expanded_view) return result_elm;
+  const expanded_view = env.settings.smart_view_filter.expanded_view
+    ?? env.settings.expanded_view // @deprecated
+  ;
+  if(!expanded_view) return result_elm;
   
   // render if already expanded
   toggle_result(result_elm);

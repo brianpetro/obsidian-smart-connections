@@ -1,12 +1,16 @@
+import { open_url_externally } from 'obsidian-smart-env/utils/open_url_externally.js';
 /**
  * Build the top bar button markup.
  * @param {Object} view
  * @returns {string}
  */
 export function build_top_bar_buttons(view) {
+  const expanded_view = view.env.settings.smart_view_filter.expanded_view
+    ?? view.env.settings.expanded_view // @deprecated
+  ;
   const buttons = [
     { title: 'Refresh', icon: 'refresh-cw' },
-    { title: 'Fold all toggle', icon: view.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical' },
+    { title: 'Fold all toggle', icon: expanded_view ? 'fold-vertical' : 'unfold-vertical' },
     { title: 'Lookup', icon: 'search' },
     { title: 'Settings', icon: 'settings' },
     { title: 'Help', icon: 'help-circle' }
@@ -75,8 +79,11 @@ export async function post_process(view, frag, opts = {}) {
   // Add fold/unfold all functionality
   const toggle_button = frag.querySelector("[title='Fold all toggle']");
   toggle_button.addEventListener("click", () => {
-    const expanded = view.env.settings.expanded_view;
-    view.env.settings.expanded_view = !expanded;
+    const expanded = view.env.settings.smart_view_filter.expanded_view
+      ?? view.env.settings.expanded_view // @deprecated
+    ;
+    if(!view.env.settings.smart_view_filter) view.env.settings.smart_view_filter = {};
+    view.env.settings.smart_view_filter.expanded_view = !expanded;
     container.querySelectorAll(".sc-result").forEach(async (elm) => {
       if (expanded) {
         elm.classList.add("sc-collapsed");
@@ -84,8 +91,9 @@ export async function post_process(view, frag, opts = {}) {
         elm.classList.remove("sc-collapsed"); // classchange listener will render the result in connected_result.js
       }
     });
-    this.safe_inner_html(toggle_button, this.get_icon_html(view.env.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical'));
-    toggle_button.setAttribute('aria-label', view.env.settings.expanded_view ? 'Fold all' : 'Unfold all');
+    const updated_expanded_view = view.env.settings.smart_view_filter.expanded_view;
+    this.safe_inner_html(toggle_button, this.get_icon_html(updated_expanded_view ? 'fold-vertical' : 'unfold-vertical'));
+    toggle_button.setAttribute('aria-label', updated_expanded_view ? 'Fold all' : 'Unfold all');
   });
 
   // refresh smart view
@@ -103,7 +111,7 @@ export async function post_process(view, frag, opts = {}) {
   // help documentation
   const help_button = frag.querySelector("[title='Help']");
   help_button?.addEventListener("click", () => {
-    window.open("https://docs.smartconnections.app/connections-pane", "_blank");
+    open_url_externally("https://smartconnections.app/story/smart-connections-getting-started");
   });
 
   // settings

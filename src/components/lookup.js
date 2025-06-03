@@ -5,9 +5,12 @@
  * @returns {Promise<string>} A promise that resolves to the HTML string.
  */
 export async function build_html(collection, opts = {}) {
+  const expanded_view = collection.settings.smart_view_filter.expanded_view
+    ?? collection.settings.expanded_view // @deprecated
+  ;
   return `<div id="sc-lookup-view">
     <div class="sc-top-bar">
-      <button class="sc-fold-toggle">${this.get_icon_html(collection.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical')}</button>
+      <button class="sc-fold-toggle">${this.get_icon_html(expanded_view ? 'fold-vertical' : 'unfold-vertical')}</button>
     </div>
     <div class="sc-container">
       <h2>Smart Lookup</h2>
@@ -90,7 +93,9 @@ export async function post_process(collection, frag, opts = {}) {
   const fold_toggle = frag.querySelector('.sc-fold-toggle');
   fold_toggle.addEventListener('click', async (event) => {
     const container = event.target.closest('#sc-lookup-view');
-    const expanded = collection.settings.expanded_view;
+    const expanded = collection.settings.smart_view_filter.expanded_view
+      ?? collection.settings.expanded_view // @deprecated
+    ;
     const results = container.querySelectorAll(".sc-result");
     
     for (const elm of results) {
@@ -100,10 +105,11 @@ export async function post_process(collection, frag, opts = {}) {
         elm.click();
       }
     }
-    
-    collection.settings.expanded_view = !expanded;
-    this.safe_inner_html(fold_toggle, this.get_icon_html(collection.settings.expanded_view ? 'fold-vertical' : 'unfold-vertical'));
-    fold_toggle.setAttribute('aria-label', collection.settings.expanded_view ? 'Fold all' : 'Unfold all');
+    if(!collection.settings.smart_view_filter) collection.settings.smart_view_filter = {};
+    collection.settings.smart_view_filter.expanded_view = !expanded;
+    const updated_expanded_view = collection.settings.smart_view_filter.expanded_view;
+    this.safe_inner_html(fold_toggle, this.get_icon_html(updated_expanded_view ? 'fold-vertical' : 'unfold-vertical'));
+    fold_toggle.setAttribute('aria-label', updated_expanded_view ? 'Fold all' : 'Unfold all');
   });
 
   return frag;
