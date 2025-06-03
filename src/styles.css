@@ -991,3 +991,13 @@ div.workspace-leaf-content[data-type^="smart-"] {
     font-weight: normal;
   }
 }
+
+.sc-getting-started-modal {
+  width: 80% !important;
+  height: 80% !important;
+}
+.sc-getting-started-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}

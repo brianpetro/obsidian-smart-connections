@@ -41,6 +41,7 @@ import {
 
 import { open_url_externally } from "obsidian-smart-env/utils/open_url_externally.js";
 
+import { GettingStartedModal } from './modals/getting_started.js';
 
 export default class SmartConnectionsPlugin extends Plugin {
 
@@ -156,6 +157,9 @@ export default class SmartConnectionsPlugin extends Plugin {
     set_last_known_version(this.manifest.version);
     setTimeout(() => {
       this.open_connections_view();
+    }, 1000);
+    setTimeout(() => {
+      new GettingStartedModal(this).open();
     }, 1000);
     if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
     this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env");
@@ -300,6 +304,15 @@ export default class SmartConnectionsPlugin extends Plugin {
       name: 'Show release notes',
       callback: () => {
         new ReleaseNotesModal(this, this.manifest.version).open();
+      }
+    });
+
+    // show getting started
+    this.addCommand({
+      id: 'show-getting-started',
+      name: 'Show getting started',
+      callback: () => {
+        new GettingStartedModal(this).open();
       }
     });
   }

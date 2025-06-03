@@ -1,7 +1,12 @@
+import { GettingStartedModal } from '../modals/getting_started.js';
+
 async function build_html(scope_plugin) {
   const html = `
     <div id="smart-connections-settings">
       ${render_header_callout()}
+      <div id="smart-connections-getting-started-container">
+        <button class="sc-getting-started-button">Getting started guide</button>
+      </div>
       <div data-connections-settings-container>
         <h2>Connections view</h2>
       </div>
@@ -64,6 +69,14 @@ export async function post_process(scope_plugin, frag) {
   // Render supporter callout
   const supporter_callout = await scope_plugin.env.render_component('supporter_callout', scope_plugin);
   frag.appendChild(supporter_callout);
+
+  // getting started button
+  const getting_started_button = frag.querySelector('.sc-getting-started-button');
+  if(getting_started_button){
+    getting_started_button.addEventListener('click', (e) => {
+      new GettingStartedModal(scope_plugin).open();
+    });
+  }
 
   return frag;
 }
