@@ -5,8 +5,8 @@
  * @returns {Promise<string>} A promise that resolves to the HTML string.
  */
 export async function build_html(collection, opts = {}) {
-  const expanded_view = collection.settings.smart_view_filter.expanded_view
-    ?? collection.settings.expanded_view // @deprecated
+  const expanded_view = collection.env.settings.smart_view_filter?.expanded_view
+    ?? collection.env.settings.expanded_view // @deprecated
   ;
   return `<div id="sc-lookup-view">
     <div class="sc-top-bar">
@@ -93,8 +93,8 @@ export async function post_process(collection, frag, opts = {}) {
   const fold_toggle = frag.querySelector('.sc-fold-toggle');
   fold_toggle.addEventListener('click', async (event) => {
     const container = event.target.closest('#sc-lookup-view');
-    const expanded = collection.settings.smart_view_filter.expanded_view
-      ?? collection.settings.expanded_view // @deprecated
+    const expanded = collection.env.settings.smart_view_filter?.expanded_view
+      ?? collection.env.settings.expanded_view // @deprecated
     ;
     const results = container.querySelectorAll(".sc-result");
     
