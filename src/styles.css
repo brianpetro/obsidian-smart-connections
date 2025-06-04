@@ -992,11 +992,11 @@ div.workspace-leaf-content[data-type^="smart-"] {
   }
 }
 
-.sc-getting-started-modal {
+.sc-story-modal {
   width: 80% !important;
   height: 80% !important;
 }
-.sc-getting-started-container {
+.sc-story-container {
   display: flex;
   flex-direction: column;
   height: 100%;

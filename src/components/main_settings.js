@@ -1,4 +1,4 @@
-import { GettingStartedModal } from '../modals/getting_started.js';
+import { StoryModal } from '../modals/story.js';
 
 async function build_html(scope_plugin) {
   const html = `
@@ -74,7 +74,10 @@ export async function post_process(scope_plugin, frag) {
   const getting_started_button = frag.querySelector('.sc-getting-started-button');
   if(getting_started_button){
     getting_started_button.addEventListener('click', (e) => {
-      new GettingStartedModal(scope_plugin).open();
+      StoryModal.open(scope_plugin, {
+        title: 'Getting Started With Smart Connections',
+        url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=sc-op-settings',
+      });
     });
   }
 
