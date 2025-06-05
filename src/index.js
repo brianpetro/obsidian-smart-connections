@@ -38,6 +38,10 @@ import {
   set_last_known_version,
   should_show_release_notes
 } from './utils/release_notes.js';
+import {
+  is_new_user,
+  set_new_user,
+} from './utils/new_user.js';
 
 import { open_url_externally } from "obsidian-smart-env/utils/open_url_externally.js";
 
@@ -112,6 +116,14 @@ export default class SmartConnectionsPlugin extends Plugin {
       });
     }
     console.log("Smart Connections v2 loaded");
+    if(is_new_user()) {
+      setTimeout(() => {
+        StoryModal.open(this, {
+          title: 'Getting Started With Smart Connections',
+          url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=sc-op-new-user',
+        });
+      }, 1000);
+    }
     await SmartEnv.wait_for({ loaded: true });
     await this.check_for_updates();
     this.new_user();
@@ -152,21 +164,14 @@ export default class SmartConnectionsPlugin extends Plugin {
   get settings() { return this.env?.settings || {}; }
 
   new_user() {
-    if(!this.settings.new_user) return;
-    this.settings.new_user = false;
+    if(!is_new_user()) return;
+    set_new_user(false);
     set_last_known_version(this.manifest.version);
     setTimeout(() => {
       this.open_connections_view();
     }, 1000);
-    setTimeout(() => {
-      StoryModal.open(this, {
-        title: 'Getting Started With Smart Connections',
-        url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=sc-op-new-user',
-      });
-    }, 1000);
     if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
     this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env");
-    // this.save_settings();
   }
 
   register_views() {
