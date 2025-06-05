@@ -1,24 +1,39 @@
 import { cos_sim } from "smart-entities/utils/cos_sim.js";
+import { register_connections_score_command } from "./connections_score_column_modal.js";
+export function register_bases_integration(plugin) {
+	if (plugin.app.internalPlugins.plugins.bases?.enabled) {
+		plugin.registerInstanceFunc({type: 'File'}, SmartCosSim);
+		plugin.app.workspace.registerOperatorFuncConfigs("bases", [
+			...plugin.app.workspace.operatorFuncConfigs?.bases || [],
+			{
+				funcName: "cos_sim",
+				display: "Embedding similarity",
+				inverseDisplay: "Embedding dissimilarity",
+			}
+		]);
+		// this.app.internalPlugins.plugins.bases?.instance?.registerFunction(new SmartCosSim(this.app));
+		plugin.register(() => {
+			console.log("unregistering Smart Cos Sim");
+			plugin.app.workspace?.unregisterOperatorFuncConfigs("bases", ['cos_sim']);
+		});
+		register_connections_score_command(plugin);
+	}
+}
 export class SmartCosSim {
 	constructor(app){
 		this.app = app;
 	}
-	isOperator = false;
-	returnType = "number";
 	name = "cos_sim";
-	args = [
+	params = [
 		{
 			name: "file",
-			type: ["this_file"]
+			type: ["self"]
 		},
 		{
 			name: "compared_to",
 			type: ["file"]
 		}
 	];
-	getDisplayName() {
-		return "embedding similarity"
-	}
 	apply(a, b){
     try{
 			if(!smart_env || smart_env.state !== 'loaded') return "Loading...";

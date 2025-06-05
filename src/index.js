@@ -29,8 +29,7 @@ import { ConnectionsModal } from "./modals/connections.js";
 
 import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
 
-import { SmartCosSim } from "./bases/cos_sim.js";
-import { register_connections_score_command } from "./bases/connections_score_column_modal.js";
+import { register_bases_integration } from './bases/cos_sim.js';
 
 import { ReleaseNotesModal } from './modals/release_notes.js';
 import {
@@ -96,7 +95,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
     this.add_commands();
     this.register_code_blocks();
-    this.register_bases_integration();
+    // register_bases_integration(this); // register bases integration if enabled
   }
   // async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
@@ -135,16 +134,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     console.log("Smart Chat is registered");
   }
 
-  register_bases_integration() {
-    if (this.app.internalPlugins.plugins.bases?.instance) {
-      this.app.internalPlugins.plugins.bases?.instance?.registerFunction(new SmartCosSim(this.app));
-      this.register(() => {
-        console.log("unregistering Smart Cos Sim");
-        this.app.internalPlugins.plugins.bases?.instance?.deregisterFunction('cos_sim');
-      });
-      register_connections_score_command(this);
-    }
-  }
 
   register_code_blocks() {
     this.register_code_block("smart-connections", "render_code_block");
