@@ -439,20 +439,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     const state = Math.random().toString(36).slice(2);
     const redirect_uri = encodeURIComponent("obsidian://sc-op/callback");
     const url = `${get_smart_server_url()}/oauth?client_id=smart-plugins-op&redirect_uri=${redirect_uri}&state=${state}`;
-    if(typeof this.app.internalPlugins.plugins?.webviewer?.instance?.openUrlExternally === 'function'){
-      this.app.internalPlugins.plugins.webviewer.instance.openUrlExternally(url);
-    }else{
-      window.open(url, "_blank");
-    }
-  }
-  /**
-   * Opens a URL externally, using the Obsidian webviewer plugin if possible,
-   * otherwise falling back to window.open().
-   *
-   * @deprecated use open_url_externally from obsidian-smart-env/utils/open_url_externally.js instead
-   * @param {string} url
-   */
-  open_url_externally(url) {
     open_url_externally(this, url);
   }
   /**

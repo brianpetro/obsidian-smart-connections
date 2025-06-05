@@ -111,7 +111,7 @@ export async function post_process(view, frag, opts = {}) {
   // help documentation
   const help_button = frag.querySelector("[title='Help']");
   help_button?.addEventListener("click", () => {
-    open_url_externally("https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-view-help");
+    open_url_externally(view.plugin, "https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-view-help");
   });
 
   // settings

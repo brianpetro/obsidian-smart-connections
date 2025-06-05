@@ -1,4 +1,5 @@
 import { StoryModal } from '../modals/story.js';
+import { open_url_externally } from 'obsidian-smart-env/utils/open_url_externally.js';
 
 async function build_html(scope_plugin) {
   const html = `
@@ -62,7 +63,7 @@ export async function post_process(scope_plugin, frag) {
   if(header_btn){
     header_btn.addEventListener('click', (e) => {
       e.preventDefault();
-      scope_plugin.open_url_externally(header_btn.href);
+      open_url_externally(scope_plugin, header_btn.href);
     });
   }
 
