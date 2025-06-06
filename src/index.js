@@ -392,38 +392,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     return obsidian_sync_instance?.syncing;
   }
 
-  // FROM ScSettings
-  async force_refresh() {
-    this.env.smart_blocks.clear();
-    this.env.smart_sources.clear();
-    await this.env.smart_sources.init(); // trigger making new connections
-    Object.values(this.env.smart_sources.items).forEach(item => item.queue_import());
-    await this.env.smart_sources.process_source_import_queue(); // trigger making new connections
-  }
-  async exclude_all_top_level_folders() {
-    const folders = (await this.app.vault.adapter.list("/")).folders;
-    const input = document.querySelector("#smart-connections-settings div[data-setting='folder_exclusions'] input");
-    input.value = folders.join(", ");
-    input.dispatchEvent(new Event("input")); // send update event
-    this.update_exclusions();
-  }
-  async update_exclusions() {
-    this.env.smart_sources.smart_fs = null; // clear smart fs cache (re adds exclusions) (should only require clearing smart_sources.smart_fs)
-    console.log("render_file_counts");
-    const elm = document.querySelector("#smart-connections-settings #file-counts");
-    elm.setText(`Included files: ${this.included_files} / Total files: ${this.total_files}`);
-  }
-  async toggle_mobile(setting, value, elm) {
-    const manifest = JSON.parse(await this.app.vault.adapter.read(".obsidian/plugins/smart-connections/manifest.json"));
-    manifest.isDesktopOnly = !value;
-    await this.app.vault.adapter.write(".obsidian/plugins/smart-connections/manifest.json", JSON.stringify(manifest, null, 2));
-    console.log("Manifest written");
-    this.restart_plugin();
-  }
-
-  remove_setting_elm(path, value, elm) {
-    elm.remove();
-  }
   /**
    * This is the function that is called by the new "Sign in with Smart Plugins" button.
    * It replicates the old 'initiate_oauth()' logic from sc_settings_tab.js
