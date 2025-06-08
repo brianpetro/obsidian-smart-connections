@@ -19,7 +19,7 @@ export class StoryModal extends Modal {
     this.modalEl.addClass('sc-story-modal');
 
     if (Platform.isMobile) {
-      open_url_externally(this.plugin, this.url);
+      // open_url_externally(this.plugin, this.url);
       this.close();
       return; // nothing else to render on mobile
     }
