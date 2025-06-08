@@ -18,21 +18,27 @@ export class StoryModal extends Modal {
     this.titleEl.setText(this.title);
     this.modalEl.addClass('sc-story-modal');
 
-    if (Platform.isMobile) {
-      // open_url_externally(this.plugin, this.url);
-      this.close();
-      return; // nothing else to render on mobile
-    }
-
     const container = this.contentEl.createEl('div', {
       cls: 'sc-story-container',
     });
 
-    const webview = container.createEl('webview', {
-      attr: { src: this.url, allowpopups: '' },
-    });
-    webview.style.width = '100%';
-    webview.style.height = '100%';
+    if (Platform.isMobile) {
+      // Add a button to open the URL externally
+      const btn = container.createEl('button', { text: 'Open in browser' });
+      btn.addEventListener('click', () => {
+        open_url_externally(this.plugin, this.url);
+        this.close();
+      });
+      return; // nothing else to render on mobile
+    }else{
+
+      const webview = container.createEl('webview', {
+        attr: { src: this.url, allowpopups: '' },
+      });
+      webview.style.width = '100%';
+      webview.style.height = '100%';
+    }
+
   }
 
   onClose() {
