@@ -32,15 +32,6 @@ import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
 import { register_bases_integration } from './bases/cos_sim.js';
 
 import { ReleaseNotesModal } from './modals/release_notes.js';
-import {
-  get_last_known_version,
-  set_last_known_version,
-  should_show_release_notes
-} from './utils/release_notes.js';
-import {
-  is_new_user,
-  set_new_user,
-} from './utils/new_user.js';
 
 import { open_url_externally } from "obsidian-smart-env/utils/open_url_externally.js";
 
@@ -96,6 +87,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.add_commands();
     this.register_code_blocks();
     // register_bases_integration(this); // register bases integration if enabled
+    this.load_new_user_state();
   }
   // async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
@@ -115,7 +107,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       });
     }
     console.log("Smart Connections v2 loaded");
-    if(is_new_user()) {
+    if(this.is_new_user()) {
       setTimeout(() => {
         StoryModal.open(this, {
           title: 'Getting Started With Smart Connections',
@@ -124,6 +116,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       }, 1000);
     }
     await SmartEnv.wait_for({ loaded: true });
+    await this.migrate_last_version_from_localStorage();
     await this.check_for_updates();
     this.new_user();
     this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
@@ -152,9 +145,9 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
   get settings() { return this.env?.settings || {}; }
 
-  new_user() {
-    if(!is_new_user()) return;
-    set_new_user(false);
+  async new_user() {
+    if(!this.is_new_user()) return;
+    await this.save_installed_at(Date.now());
     set_last_known_version(this.manifest.version);
     setTimeout(() => {
       this.open_connections_view();
@@ -180,14 +173,14 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async check_for_updates() {
-    if (should_show_release_notes(this.manifest.version)) {
+    if (await this.should_show_release_notes(this.manifest.version)) {
       console.log("opening release notes modal");
       try {
         (new ReleaseNotesModal(this, this.manifest.version)).open();
       } catch (e) {
         console.error('Failed to open ReleaseNotesModal', e);
       }
-      set_last_known_version(this.manifest.version);
+      await this.set_last_known_version(this.manifest.version);
     }
     setTimeout(this.check_for_update.bind(this), 3000);
     setInterval(this.check_for_update.bind(this), 10800000);
@@ -462,4 +455,88 @@ export default class SmartConnectionsPlugin extends Plugin {
     if(!this._notices) this._notices = new SmartNotices(this.env, Notice);
     return this._notices;
   }
+
+  async load_new_user_state() {
+    this._installed_at = null;
+    const data = await this.loadData();
+    // Migration: check for old localStorage value
+    if (this.migrate_installed_at_from_localStorage()) {
+      // migration handled, _installed_at is set and saved
+      return;
+    }
+    if (data && typeof data.installed_at !== 'undefined') {
+      this._installed_at = data.installed_at;
+    }
+  }
+
+  migrate_installed_at_from_localStorage() {
+    const localStorageKey = 'smart_connections_new_user';
+    if (typeof localStorage !== 'undefined' && localStorage.getItem(localStorageKey) !== null) {
+      const oldValue = localStorage.getItem(localStorageKey) !== 'false';
+      if (!oldValue) {
+        // If oldValue is false, user is NOT new, so set installed_at to now
+        this._installed_at = Date.now();
+        this.save_installed_at(this._installed_at);
+      }
+      // If oldValue is true, user is new, so leave _installed_at null
+      localStorage.removeItem(localStorageKey);
+      return true;
+    }
+    return false;
+  }
+
+  async save_installed_at(value) {
+    this._installed_at = value;
+    const data = (await this.loadData()) || {};
+    data.installed_at = value;
+    // Remove old new_user property if present
+    if ('new_user' in data) delete data.new_user;
+    await this.saveData(data);
+  }
+
+  is_new_user() {
+    return !this._installed_at;
+  }
+
+  /**
+   * MIGRATION: Move last_version from localStorage to plugin data.
+   */
+  async migrate_last_version_from_localStorage() {
+    const localStorageKey = 'smart_connections_last_version';
+    if (typeof localStorage !== 'undefined' && localStorage.getItem(localStorageKey)) {
+      const version = localStorage.getItem(localStorageKey);
+      await this.set_last_known_version(version);
+      localStorage.removeItem(localStorageKey);
+    }
+  }
+
+  /**
+   * Returns the last saved plugin version or an empty string.
+   * @returns {Promise<string>}
+   */
+  async get_last_known_version() {
+    const data = (await this.loadData()) || {};
+    return data.last_version || '';
+  }
+
+  /**
+   * Persists the provided plugin version as last shown.
+   * @param {string} version
+   * @returns {Promise<void>}
+   */
+  async set_last_known_version(version) {
+    const data = (await this.loadData()) || {};
+    data.last_version = version;
+    await this.saveData(data);
+  }
+
+  /**
+   * Determines if release notes should be shown for `current_version`.
+   * @param {string} current_version
+   * @returns {Promise<boolean>}
+   */
+  async should_show_release_notes(current_version) {
+    return (await this.get_last_known_version()) !== current_version;
+  }
+
 }
