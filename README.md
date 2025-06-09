@@ -114,16 +114,6 @@ Include files in the chat using drag and drop.
 ![](./assets/Smart-Chat-drag-files-annotations-2025-05-26.png)
 
 
-## Bases integration
-Add the connections score based on a specified note to the bases table. 
-![](./assets/SC-OP-Bases-integration-annotations-2025-05-26.png)
-### Quick setup
-1. Open any `.base` file.
-2. Run **Add: Connections score base column** from the command palette.
-3. Choose the reference note ⇒ column is created (first position) and the table refreshes.
-	- Use the "Current/active file" option to show based on the current file. Drag the base to the sidebar for your own custom "Connections view" using bases.
-[Read the documentation](https://github.com/brianpetro/obsidian-smart-connections/blob/main/src/bases/README.md) for the `cos_sim` function that is available in your bases through Smart Connections.
-
 ## Notifications & Settings
 ### Process Notifications
 Gain insight into what's happening under-the-hood.
