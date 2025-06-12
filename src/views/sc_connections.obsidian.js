@@ -1,4 +1,5 @@
 import { SmartObsidianView } from "./smart_view.obsidian.js";
+import { Platform } from "obsidian";
 
 export class ScConnectionsView extends SmartObsidianView {
   static get view_type() { return "smart-connections-view"; }
@@ -19,14 +20,9 @@ export class ScConnectionsView extends SmartObsidianView {
         if ((typeof this.container.checkVisibility === 'function') && (this.container.checkVisibility() === false)) {
           return console.log("Connections view event: active-leaf-change: not visible, skipping");
         }
-        if(this.plugin.app.workspace.activeLeaf.view.constructor.view_type === this.constructor.view_type) {
+        if(Platform.isMobile && this.plugin.app.workspace.activeLeaf.view.constructor.view_type === this.constructor.view_type) {
           this.render_view();
           return;
-        }
-        const leaf_path = leaf.view.file?.path;
-        if(leaf_path && leaf_path !== this.last_leaf_path){
-          this.last_leaf_path = leaf_path;
-          this.render_view();
         }
       }
     }));
