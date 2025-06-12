@@ -1001,3 +1001,40 @@ div.workspace-leaf-content[data-type^="smart-"] {
   flex-direction: column;
   height: 100%;
 }
+
+/* Base styles for all interactive icons in the tree */
+.sc-tree-remove, 
+.sc-tree-connections, 
+.sc-tree-links {
+  display: inline-flex;
+  width: 20px;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease; /* Smooth transition for hover effects */
+}
+
+/* Hover state for all icons in the tree */
+.sc-tree-remove:hover,
+.sc-tree-connections:hover,
+.sc-tree-links:hover {
+  border-color: var(--interactive-accent);
+}
+
+/* Specific background for the remove, connections, and links buttons */
+.sc-tree-remove,
+.sc-tree-connections,
+.sc-tree-links {
+  background-color: var(--background-modifier-hover);
+}
+
+/* * Hover state for tree elements that should change text/icon color.
+ * This includes the label and the connection/link icons.
+ */
+.sc-tree-label:hover,
+.sc-tree-connections:hover,
+.sc-tree-links:hover {
+  color: var(--text-accent);
+}
+
