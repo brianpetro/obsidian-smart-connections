@@ -148,7 +148,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   async new_user() {
     if(!this.is_new_user()) return;
     await this.save_installed_at(Date.now());
-    set_last_known_version(this.manifest.version);
+    await this.set_last_known_version(this.manifest.version);
     setTimeout(() => {
       this.open_connections_view();
     }, 1000);
