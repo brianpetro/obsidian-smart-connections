@@ -87,7 +87,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.add_commands();
     this.register_code_blocks();
     // register_bases_integration(this); // register bases integration if enabled
-    this.load_new_user_state();
   }
   // async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
@@ -97,6 +96,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async initialize() {
+    await this.load_new_user_state();
     // SmartSettings.create_sync(this);
     this.smart_connections_view = null;
 
