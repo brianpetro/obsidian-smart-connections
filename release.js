@@ -1,7 +1,3 @@
-// release.js – Smart Connections GH release helper
-// ----------------------------------------------------------------------------
-// Node ≥18, ESM, zero-dep (aside from existing std/archiver/axios libs)
-
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
@@ -10,10 +6,6 @@ import archiver from 'archiver';
 import axios from 'axios';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
-
-/* -------------------------------------------------------------------------- */
-/*  Pure helpers – kept free of side-effects for easy unit testing            */
-/* -------------------------------------------------------------------------- */
 
 /**
  * Compares two SemVer strings (major.minor.patch).
