@@ -90,7 +90,7 @@ const destination_vaults = process.env.DESTINATION_VAULTS?.split(',') || [];
 const entry_point = process.argv[2] || 'src/index.js';
 
 // update release_notes.md with version
-const release_notes_path = path.join(process.cwd(), 'src', 'modals', 'release_notes.js');
+const release_notes_path = path.join(process.cwd(), 'src', 'views', 'release_notes_view.js');
 const release_notes_lines = fs.readFileSync(release_notes_path, 'utf8').split('\n');
 const release_notes_version_file_exists = fs.existsSync(path.join(process.cwd(), 'releases', package_json.version + '.md'));
 if(release_notes_version_file_exists) {

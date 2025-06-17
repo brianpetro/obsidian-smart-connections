@@ -31,7 +31,7 @@ import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
 
 import { register_bases_integration } from './bases/cos_sim.js';
 
-import { ReleaseNotesModal } from './modals/release_notes.js';
+import { ReleaseNotesView }    from "./views/release_notes_view.js";
 
 import { open_url_externally } from "obsidian-smart-env/utils/open_url_externally.js";
 
@@ -46,6 +46,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       SmartChatsView,
       SmartChatGPTView,
       SmartPrivateChatView,
+      ReleaseNotesView,
     };
   }
 
@@ -176,9 +177,9 @@ export default class SmartConnectionsPlugin extends Plugin {
     if (await this.should_show_release_notes(this.manifest.version)) {
       console.log("opening release notes modal");
       try {
-        (new ReleaseNotesModal(this, this.manifest.version)).open();
+        ReleaseNotesView.open(this.app.workspace, this.manifest.version);
       } catch (e) {
-        console.error('Failed to open ReleaseNotesModal', e);
+        console.error('Failed to open ReleaseNotesView', e);
       }
       await this.set_last_known_version(this.manifest.version);
     }
@@ -292,9 +293,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addCommand({
       id: 'show-release-notes',
       name: 'Show release notes',
-      callback: () => {
-        new ReleaseNotesModal(this, this.manifest.version).open();
-      }
+      callback: () => ReleaseNotesView.open(this.app.workspace, this.manifest.version)
     });
 
     // show getting started
