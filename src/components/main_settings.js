@@ -1,4 +1,4 @@
-import { StoryModal } from '../modals/story.js';
+import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 import { open_url_externally } from 'obsidian-smart-env/utils/open_url_externally.js';
 
 async function build_html(scope_plugin) {

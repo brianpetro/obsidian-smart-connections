@@ -35,7 +35,7 @@ import { ReleaseNotesView }    from "./views/release_notes_view.js";
 
 import { open_url_externally } from "obsidian-smart-env/utils/open_url_externally.js";
 
-import { StoryModal } from './modals/story.js';
+import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 
 export default class SmartConnectionsPlugin extends Plugin {
 
