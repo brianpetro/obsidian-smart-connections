@@ -1,5 +1,5 @@
 # Functions
-### Numbers 
+### Numbers 
 #### `cos_sim()`
 - `cos_sim(file, compared_to)` returns the cosine similarity between the vector embeddings of two notes.
 - The **first argument** is usually `file.file` (the note currently being evaluated).
