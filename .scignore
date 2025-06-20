@@ -5,8 +5,10 @@ smart-chat-v0/
 src/bases/**
 
 # releases
-#releases/**
+releases/**
 
 # build files
-#release.js
-#esbuild.js
+release.js
+esbuild.js
+
+*.md
