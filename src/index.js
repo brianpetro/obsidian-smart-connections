@@ -258,7 +258,7 @@ export default class SmartConnectionsPlugin extends Plugin {
         await source.import();
         await this.env.smart_sources.process_embed_queue();
         setTimeout(() => {
-          this.connections_view.render_view();
+          this.connections_view?.render_view?.();
         }, 1000);
       }
     });
