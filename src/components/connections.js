@@ -1,4 +1,4 @@
-import { open_url_externally } from 'obsidian-smart-env/utils/open_url_externally.js';
+import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 /**
  * Build the top bar button markup.
  * @param {Object} view
@@ -111,7 +111,10 @@ export async function post_process(view, frag, opts = {}) {
   // help documentation
   const help_button = frag.querySelector("[title='Help']");
   help_button?.addEventListener("click", () => {
-    open_url_externally(view.plugin, "https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-view-help");
+    StoryModal.open(view.plugin, {
+      title: 'Getting Started With Smart Connections',
+      url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-view-help',
+    });
   });
 
   // settings
