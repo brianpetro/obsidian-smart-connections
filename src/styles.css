@@ -523,9 +523,6 @@
 }
 
 /* SINCE COMPONENT PATTERN SETTINGS */
-.setting-component[data-setting="is_obsidian_vault"] {
-  display: none;
-}
 
 .setting-component[data-setting="smart_change.active"] {
   display: none;
