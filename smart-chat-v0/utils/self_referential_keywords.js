@@ -1,4 +1,4 @@
-import ScTranslations from "./ScTranslations.json" with { type: "json" };
+import ScTranslations from "smart-chat-obsidian/src/utils/ScTranslations.json" with { type: "json" };
 
 // check if includes keywords referring to one's own notes
 export function contains_self_referential_keywords(user_input, language) {

@@ -126,7 +126,6 @@ esbuild.build({
   format: 'cjs',
   bundle: true,
   write: true,
-  sourcemap: 'inline',
   target: "es2022",
   logLevel: "info",
   treeShaking: true,
