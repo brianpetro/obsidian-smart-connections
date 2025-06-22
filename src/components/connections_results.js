@@ -18,6 +18,12 @@ export async function build_html(results, opts = {}) {
 export async function render(results, opts = {}) {
   const html = await build_html.call(this, results, opts);
   const frag = this.create_doc_fragment(html);
+
+  if(!results || !Array.isArray(results) || results.length === 0) {
+    const no_results = this.create_doc_fragment(`<p class="sc-no-results">No results found.<br><em>Try running "Clear sources data" and then "Reload sources" in the Smart Environment settings.</em></p>`);
+    frag.appendChild(no_results);
+    return frag;
+  }
   
   const result_frags = await Promise.all(results.map(result => {
     return result.item.env.render_component('connections_result', result, {...opts});

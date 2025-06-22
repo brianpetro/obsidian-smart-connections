@@ -66,7 +66,10 @@ export class ScConnectionsView extends SmartObsidianView {
   };
   async render_view(entity=null, container=this.container) {
     if (container.checkVisibility() === false) return console.log("render_view: View inactive, skipping render nearest");
-    
+    // immediately render the main component if not already present
+    if(!container.querySelector('.sc-list')) {
+      await this.render_main_component(container);
+    }
     let current_file;
     if (!entity) {
       current_file = this.app.workspace.getActiveFile();
@@ -89,7 +92,13 @@ export class ScConnectionsView extends SmartObsidianView {
       await entity.collection.process_embed_queue();
     }
     if (!entity){
-      return this.plugin.notices.show("missing_entity", {key});
+      const list_container = container.querySelector('.sc-list');
+      if(list_container){
+        list_container.empty();
+        list_container.createEl('p', { text: 'No entity found for the current note: ' + key });
+        list_container.createEl('em', { text: 'Click the refresh button to create entity for the note.' });
+      }
+      return;
     }
     
     if(entity.excluded) return this.plugin.notices.show("item_excluded", {entity_key: entity.key});
@@ -97,27 +106,13 @@ export class ScConnectionsView extends SmartObsidianView {
       entity.queue_embed();
       await entity.collection.process_embed_queue();
     }
-    
-    // Handle PDF special case
-    if(entity.collection_key === "smart_sources" && entity?.path?.endsWith(".pdf")){
-      const page_number = this.app.workspace.getActiveFileView().contentEl.firstChild.firstChild.children[8].value;
-      if(!["1", 1].includes(page_number)){ // skip page 1
-        const page_block = entity.blocks?.find(b => b.sub_key.includes(`age ${page_number}`));
-        if(page_block){
-          return await this.render_view(page_block);
-        }
-      }
-    }
 
     // Check if we need to re-render the whole view
     if (!this.results_container || this.current_context !== entity?.key) {
       this.current_context = entity?.key;
-      
 
       // Render full connections view
-      const frag = await entity.env.render_component(this.main_component_key, this, this.main_components_opts);
-      container.empty();
-      container.appendChild(frag);
+      await this.render_main_component(container);
       
       // Render initial results
       await this.render_results(entity, this.main_components_opts);
@@ -125,6 +120,11 @@ export class ScConnectionsView extends SmartObsidianView {
       // Just update results if container exists
       await this.render_results(entity, this.main_components_opts);
     }
+  }
+  async render_main_component(container) {
+    const frag = await this.env.render_component(this.main_component_key, this, this.main_components_opts);
+    container.empty();
+    container.appendChild(frag);
   }
 
   get results_container() {
