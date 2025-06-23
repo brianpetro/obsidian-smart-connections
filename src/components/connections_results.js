@@ -1,4 +1,3 @@
-import { render as render_result } from "./connections_result.js";
 /**
  * Builds the HTML string for the .sc-list fragment.
  * @param {Array} results - The results array.
@@ -20,7 +19,7 @@ export async function render(results, opts = {}) {
   const frag = this.create_doc_fragment(html);
 
   if(!results || !Array.isArray(results) || results.length === 0) {
-    const no_results = this.create_doc_fragment(`<p class="sc-no-results">No results found.<br><em>Try running "Clear sources data" and then "Reload sources" in the Smart Environment settings.</em></p>`);
+    const no_results = this.create_doc_fragment(`<p class="sc-no-results">No results found.<br><em>Try using the refresh button. If that doesn't work, try running "Clear sources data" and then "Reload sources" in the Smart Environment settings.</em></p>`);
     frag.appendChild(no_results);
     return frag;
   }
