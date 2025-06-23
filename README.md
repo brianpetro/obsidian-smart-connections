@@ -15,13 +15,20 @@
 
 🤖 Supports 1000s of Local & API models
 
-🤖 Local models via Ollama, LM Studio & HuggingFace transformers.js 
+🤖 Local models via Ollama, LM Studio & HuggingFace transformers.js
 
 📁 Simple local data files
+
+📄 **PDFs support in Smart  Chat** – drag research papers straight into the conversation  
+
+📦 Ultra‑lightweight bundle (~1 MB) with minimal/no third-party dependencies
+
+🔍 Streamlined codebase with minimal/no dependencies can be audited >3× faster than comparable AI plugins
 
 🌐 Open-source
 
 ⚔️ Mission-driven, user-aligned, community-supported
+
 ## Mission-driven
 The Obsidian community opened my eyes to user-aligned software. That's why Smart Connections is [built on principles](https://smartconnections.app/smart-principles/) in an effort to create the most user-aligned Smart Tools available.
 
