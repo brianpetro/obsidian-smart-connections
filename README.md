@@ -1,3 +1,6 @@
+> I just stumbled across a forgotten 20-page Google Doc I poured my heart into months ago, and the rush of lost momentum hit me like a punch.  
+> — Brian (December 2022)
+
 # Smart Connections `v3.0`
 **Save time** *linking*, *tagging*, and *organizing!* **Smart Connections *finds relevant notes*** so you don't have to!
 
