@@ -4,7 +4,7 @@ import { open_url_externally } from 'obsidian-smart-env/utils/open_url_externall
 async function build_html(scope_plugin) {
   const html = `
     <div id="smart-connections-settings">
-      ${render_header_callout()}
+      <div data-user-agreement></div>
       <div id="smart-connections-getting-started-container">
         <button class="sc-getting-started-button">Getting started guide</button>
       </div>
@@ -12,7 +12,6 @@ async function build_html(scope_plugin) {
         <h2>Connections view</h2>
       </div>
       <div data-smart-settings="env"></div>
-      <div data-smart-notices></div>
       ${render_sign_in_or_open_smart_plugins(scope_plugin)}
     </div>
   `;
@@ -36,9 +35,12 @@ export async function render(scope_plugin) {
 }
 
 export async function post_process(scope_plugin, frag) {
-  const muted_notices_frag = await scope_plugin.env.render_component('muted_notices', scope_plugin.env);
-  frag.querySelector('[data-smart-notices]').appendChild(muted_notices_frag);
-  await this.render_setting_components(frag, { scope: scope_plugin });
+  // Render user agreement callout
+  const user_agreement_container = frag.querySelector('[data-user-agreement]');
+  if (user_agreement_container) {
+    const user_agreement = await scope_plugin.env.render_component('user_agreement_callout', scope_plugin);
+    user_agreement_container.appendChild(user_agreement);
+  }
 
   const env_settings_container = frag.querySelector('[data-smart-settings="env"]');
   if(env_settings_container){
@@ -83,27 +85,6 @@ export async function post_process(scope_plugin, frag) {
   }
 
   return frag;
-}
-
-function render_header_callout() {
-  return `
-    <div id="header-callout" data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout" style="mix-blend-mode: unset;">
-      <div class="callout-title">
-        <div class="callout-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round" class="svg-icon lucide-info">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M12 16v-4"></path>
-            <path d="M12 8h.01"></path>
-          </svg></div>
-        <div class="callout-title-inner">
-          <p><strong>User Agreement:</strong> By using Smart Connections you agree to share how it helps you with at least one other person 😊🌴</p>
-          <hr>
-          <i>Join the next <a href="https://lu.ma/calendar/cal-ZJtdnzAdURyouM7">Lean Coffee session</a> to discuss future features & improvements.</i>
-        </div>
-      </div>
-    </div>
-  `;
 }
 
 function render_sign_in_or_open_smart_plugins(scope_plugin) {
