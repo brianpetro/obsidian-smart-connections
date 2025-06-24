@@ -19,9 +19,9 @@
 
 📁 Simple local data files
 
-📄 **PDFs support in Smart  Chat** – drag research papers straight into the conversation  
+📄 **PDFs support in Smart  Chat** – drag research papers straight into the conversation  
 
-📦 Ultra‑lightweight bundle (~1 MB) with minimal/no third-party dependencies
+📦 Ultra-lightweight bundle (~1 MB) with minimal/no third-party dependencies
 
 🔍 Streamlined codebase with minimal/no dependencies can be audited >3× faster than comparable AI plugins
 
