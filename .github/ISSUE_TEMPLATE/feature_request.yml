@@ -1,0 +1,39 @@
+name: "Feature Request"
+description: "Suggest a feature or enhancement for the Smart Connections plugin"
+title: "[Feature]: <short description>"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request
+        Suggest a feature or enhancement for the Smart Connections plugin.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem would this feature solve?
+    validations:
+      required: false
+  - type: textarea
+    id: desired
+    attributes:
+      label: Desired Solution
+      description: Describe the feature or enhancement.
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered alternative solutions?
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information.
+      placeholder: "Add any other context or screenshots about the feature request here."
+    validations:
+      required: false

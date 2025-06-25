@@ -1,30 +1,25 @@
-name: "Bug Report / Feature Request"
-description: "Report a bug or suggest a feature for the Smart Connections plugin"
-title: "[Bug]/[Feature]: <short description>"
-labels: []
-assignees: []
+name: "Bug Report"
+description: "Report a bug with the Smart Connections plugin"
+title: "[Bug]: <short description>"
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        ## Description
-        A clear and concise description of the problem or request.
+        ## Bug Description
+        A clear and concise description of the problem.
   - type: textarea
     id: description
     attributes:
       label: Description
-      description: A clear and concise description of the problem or request.
+      description: A clear and concise description of the problem.
       placeholder: "e.g. When I enable Smart Connections, Obsidian freezes."
     validations:
       required: true
-  - type: markdown
-    attributes:
-      value: |
-        ### For Bugs
   - type: textarea
     id: steps
     attributes:
-      label: Steps to Reproduce (for bugs)
+      label: Steps to Reproduce
       description: List the steps to reproduce the issue.
       placeholder: |
         1. Open Obsidian
@@ -35,7 +30,7 @@ body:
   - type: textarea
     id: expected
     attributes:
-      label: Expected Behavior (for bugs)
+      label: Expected Behavior
       description: What did you expect to happen?
       placeholder: "The plugin should..."
     validations:
@@ -43,23 +38,11 @@ body:
   - type: textarea
     id: actual
     attributes:
-      label: Actual Behavior (for bugs)
+      label: Actual Behavior
       description: What actually happened?
       placeholder: "Instead..."
     validations:
       required: false
-  - type: textarea
-    id: logs
-    attributes:
-      label: Screenshots or Console Logs (for bugs)
-      description: Attach screenshots or paste logs if applicable.
-      render: shell
-    validations:
-      required: false
-  - type: markdown
-    attributes:
-      value: |
-        ### Environment (for bugs)
   - type: input
     id: os
     attributes:
@@ -95,29 +78,12 @@ body:
       placeholder: "List other enabled plugins or \"none\""
     validations:
       required: false
-  - type: markdown
-    attributes:
-      value: |
-        ### Feature Requests
   - type: textarea
-    id: problem
+    id: logs
     attributes:
-      label: Problem Statement (for feature requests)
-      description: What problem would this feature solve?
-    validations:
-      required: false
-  - type: textarea
-    id: desired
-    attributes:
-      label: Desired Solution (for feature requests)
-      description: Describe the feature or enhancement.
-    validations:
-      required: false
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: Alternatives Considered (for feature requests)
-      description: Have you considered alternative solutions?
+      label: Screenshots or Console Logs
+      description: Attach screenshots or paste logs if applicable. You can also drag and drop files here.
+      render: shell
     validations:
       required: false
   - type: textarea
