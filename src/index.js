@@ -22,7 +22,7 @@ import { smart_env_config as smart_context_env_config } from "smart-context-obsi
 import { ScSettingsTab } from "./sc_settings_tab.js";
 import { open_note } from "obsidian-smart-env/utils/open_note.js";
 
-import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url, enable_plugin } from './sc_oauth.js';
+// import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url, enable_plugin } from './sc_oauth.js';
 import { SmartNotices } from 'smart-notices/smart_notices.js';
 import { merge_env_config } from "obsidian-smart-env";
 import { ConnectionsModal } from "./modals/connections.js";
@@ -101,12 +101,12 @@ export default class SmartConnectionsPlugin extends Plugin {
     // SmartSettings.create_sync(this);
     this.smart_connections_view = null;
 
-    if(!Platform.isMobile){
-      // Register protocol handler for obsidian://sc-op/callback
-      this.registerObsidianProtocolHandler("sc-op/callback", async (params) => {
-        await this.handle_sc_op_oauth_callback(params);
-      });
-    }
+    // if(!Platform.isMobile){
+    //   // Register protocol handler for obsidian://sc-op/callback
+    //   this.registerObsidianProtocolHandler("sc-op/callback", async (params) => {
+    //     await this.handle_sc_op_oauth_callback(params);
+    //   });
+    // }
     console.log("Smart Connections v2 loaded");
     if(this.is_new_user()) {
       setTimeout(() => {
@@ -383,67 +383,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     if(obsidian_sync_instance?.syncStatus.startsWith('Fully synced')) return false; // if fully synced, don't wait for obsidian sync
     return obsidian_sync_instance?.syncing;
   }
-
-  /**
-   * This is the function that is called by the new "Sign in with Smart Plugins" button.
-   * It replicates the old 'initiate_oauth()' logic from sc_settings_tab.js
-   */
-  initiate_smart_plugins_oauth() {
-    console.log("initiate_smart_plugins_oauth");
-    const state = Math.random().toString(36).slice(2);
-    const redirect_uri = encodeURIComponent("obsidian://sc-op/callback");
-    const url = `${get_smart_server_url()}/oauth?client_id=smart-plugins-op&redirect_uri=${redirect_uri}&state=${state}`;
-    open_url_externally(this, url);
-  }
-  /**
-   * Handles the OAuth callback from the Smart Plugins server.
-   * @param {Object} params - The URL parameters from the OAuth callback.
-   */
-  async handle_sc_op_oauth_callback(params) {
-    const code = params.code;
-    if (!code) {
-      new Notice("No OAuth code provided in URL. Login failed.");
-      return;
-    }
-    try {
-      // your existing OAuth + plugin install logic
-      await exchange_code_for_tokens(code, this);
-      await install_smart_plugins_plugin(this);
-      new Notice("Smart Plugins installed / updated successfully!");
-      this.open_smart_plugins_settings();
-    } catch (err) {
-      console.error("OAuth callback error", err);
-      new Notice(`OAuth callback error: ${err.message}`);
-    }
-  }
-  /**
-   * Opens the Obsidian settings window with the 'Smart Plugins' tab active.
-   * @public
-   */
-  async open_smart_plugins_settings() {
-    if(this.supporters_modal) this.supporters_modal.close();
-    console.log("open_smart_plugins_settings");
-    // check if Smart Plugins is installed
-    const spInstalled = this.app.plugins.plugins['smart-plugins'];
-    if(!spInstalled) {
-      await install_smart_plugins_plugin(this);
-      await new Promise(r => setTimeout(r, 500));
-    }
-    // check if Smart Plugins is enabled
-    const spEnabled = this.app.plugins.enabledPlugins.has('smart-plugins');
-    if(!spEnabled) {
-      await enable_plugin(this.app, 'smart-plugins');
-      await new Promise(r => setTimeout(r, 500));
-    }
-    // open Obsidian settings
-    this.app.commands.executeCommandById('app:open-settings');
-    // find the Smart Plugins tab by name
-    const spTab = this.app.setting.pluginTabs.find(t => t.name === 'Smart Plugins');
-    if (spTab) {
-      this.app.setting.openTab(spTab);
-    }
-  }
-
 
   // DEPRECATED
   /**
