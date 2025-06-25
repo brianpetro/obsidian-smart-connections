@@ -12,7 +12,6 @@ async function build_html(scope_plugin) {
         <h2>Connections view</h2>
       </div>
       <div data-smart-settings="env"></div>
-      ${render_sign_in_or_open_smart_plugins(scope_plugin)}
     </div>
   `;
   return html;
@@ -85,21 +84,4 @@ export async function post_process(scope_plugin, frag) {
   }
 
   return frag;
-}
-
-function render_sign_in_or_open_smart_plugins(scope_plugin) {
-  const oauth_storage_prefix = scope_plugin.app.vault.getName().toLowerCase().replace(/[^a-z0-9]/g, '_') + '_smart_plugins_oauth_';
-  const isLoggedIn = !!localStorage.getItem(oauth_storage_prefix+'token');
-  const buttonLabel = isLoggedIn ? 'Open Smart Plugins' : 'Sign in';
-  const buttonCallback = isLoggedIn ? 'open_smart_plugins_settings' : 'initiate_smart_plugins_oauth';
-
-  return `
-    <div class="setting-component"
-      data-name="Smart Plugins - Early Access"
-      data-type="button"
-      data-btn-text="${buttonLabel}"
-      data-description="Supporters can sign in to access early-release Smart Plugins"
-      data-callback="${buttonCallback}"
-    ></div>
-  `;
 }
