@@ -7,33 +7,37 @@ body:
     attributes:
       value: |
         ## Feature Request
-        Suggest a feature or enhancement for the Smart Connections plugin.
+        Thank you for helping improve the Smart Connections plugin!
+        Please fill out the form below to describe your feature request.
   - type: textarea
     id: problem
     attributes:
       label: Problem Statement
-      description: What problem would this feature solve?
+      description: What problem would this feature solve? Please be specific.
+      placeholder: "e.g., It's difficult to visualize connections between notes."
     validations:
-      required: false
+      required: true
   - type: textarea
     id: desired
     attributes:
       label: Desired Solution
-      description: Describe the feature or enhancement.
+      description: Describe the feature or enhancement you would like to see.
+      placeholder: "e.g., Add a graph view to display note connections visually."
     validations:
-      required: false
+      required: true
   - type: textarea
     id: alternatives
     attributes:
       label: Alternatives Considered
-      description: Have you considered alternative solutions?
+      description: Have you considered alternative solutions? If so, please describe them.
+      placeholder: "e.g., I tried using tags, but it doesn't provide a visual overview."
     validations:
       required: false
   - type: textarea
     id: context
     attributes:
       label: Additional Context
-      description: Any other relevant information.
+      description: Any other relevant information, screenshots, or mockups.
       placeholder: "Add any other context or screenshots about the feature request here."
     validations:
       required: false

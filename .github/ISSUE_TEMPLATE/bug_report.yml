@@ -71,7 +71,7 @@ body:
     id: plugin_version
     attributes:
       label: Smart Connections Version
-      placeholder: "e.g. 2.5.17"
+      placeholder: "e.g. 3.0.42"
     validations:
       required: false
   - type: input
@@ -92,11 +92,10 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: Screenshots or Console Logs
+      label: Screenshots
       description: |
-        Attach screenshots or paste logs if applicable.
+        Attach screenshots of the console logs, settings, or other relevant context.
         Tip: You can also drag and drop files here.
-      render: shell
     validations:
       required: false
   - type: textarea
