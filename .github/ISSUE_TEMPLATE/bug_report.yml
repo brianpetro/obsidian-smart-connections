@@ -7,7 +7,8 @@ body:
     attributes:
       value: |
         ## Bug Description
-        Thank you for taking the time to report a bug! Please fill out the form below as completely as possible to help us resolve your issue quickly.
+        Thank you for taking the time to report a bug! Please fill out the form below as completely as possible to help resolve the issue quickly.
+        *Console logs: Please do not "copy & paste" console logs. Instead, please screenshot relevant portions of the logs.*
   - type: textarea
     id: description
     attributes:
@@ -47,6 +48,16 @@ body:
       placeholder: "e.g. Obsidian became unresponsive after clicking 'Connect'."
     validations:
       required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots
+      description: |
+        Screenshots are often very helpful for debugging issues (console logs, settings, etc.)
+        Tip: You can also drag and drop files here.
+        Put "NA" if not applicable.
+    validations:
+      required: true 
   - type: markdown
     attributes:
       value: |
@@ -87,15 +98,6 @@ body:
       label: Other Enabled Plugins
       description: List other enabled plugins, or type "none" if no others are enabled.
       placeholder: "e.g. Calendar, Dataview, or \"none\""
-    validations:
-      required: false
-  - type: textarea
-    id: logs
-    attributes:
-      label: Screenshots
-      description: |
-        Attach screenshots of the console logs, settings, or other relevant context.
-        Tip: You can also drag and drop files here.
     validations:
       required: false
   - type: textarea
