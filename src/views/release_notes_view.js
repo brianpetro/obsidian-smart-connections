@@ -1,31 +1,17 @@
-/**
- * ReleaseNotesView
- * -----------------------------------------------------------------------------
- * Renders changelog markdown inside a normal Obsidian item‑view so that it
- * looks & feels just like reading a note.  The view occupies a root leaf by
- * default (same area as your notes) and autoscrolls to the section that matches
- * the installed plugin version.
- *
- * ─────────────────────────────────────────────────────────────────────────────
- *  Smart Connections • Copyright 2025 Brian Petro  GPL‑3.0
- */
-
 import { ItemView, MarkdownRenderer } from 'obsidian';
 import release_notes_md from '../../releases/3.0.0.md' with { type: 'markdown' };
 
 export class ReleaseNotesView extends ItemView {
-  /* ─────────────────────────────── metadata ─────────────────────────────── */
   static get view_type()    { return 'smart-release-notes-view'; }
   static get display_text() { return 'Release Notes';           }
   static get icon_name()    { return 'file-text';               }
 
-  /** Convenience helper – opens (or reveals) the view in a root leaf. */
   static open(workspace, version, active = true) {
-    const leaf = workspace.getLeavesOfType(this.view_type)[0] ?? workspace.getLeaf(false);
+    const leaf = workspace.getLeaf('tab'); // always open in a new tab
     leaf.setViewState({ type: this.view_type, active, state: { version } });
   }
 
-  /* ───────────────────────────── item‑view API ───────────────────────────── */
+  /* ───────────────────────────── item-view API ───────────────────────────── */
   getViewType()    { return ReleaseNotesView.view_type;    }
   getDisplayText() { return ReleaseNotesView.display_text; }
   getIcon()        { return ReleaseNotesView.icon_name;    }
@@ -35,7 +21,6 @@ export class ReleaseNotesView extends ItemView {
    * output styles match native note preview exactly.
    */
   onOpen() {
-
     this.titleEl.setText(`What’s new in v${this.version}`);
     this.render();
   }
@@ -63,7 +48,6 @@ export class ReleaseNotesView extends ItemView {
     return version;
   }
 
-  /* ────────────────────────────── utilities ─────────────────────────────── */
   #scroll_to_version(container, version) {
     if (!version) return;
     const safe = version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
