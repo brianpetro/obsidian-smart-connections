@@ -7,12 +7,14 @@ body:
     attributes:
       value: |
         ## Bug Description
-        A clear and concise description of the problem.
+        Thank you for taking the time to report a bug! Please fill out the form below as completely as possible to help us resolve your issue quickly.
   - type: textarea
     id: description
     attributes:
       label: Description
-      description: A clear and concise description of the problem.
+      description: |
+        Please provide a clear and concise description of the problem.
+        Tip: Include what you were trying to do and what went wrong.
       placeholder: "e.g. When I enable Smart Connections, Obsidian freezes."
     validations:
       required: true
@@ -20,7 +22,9 @@ body:
     id: steps
     attributes:
       label: Steps to Reproduce
-      description: List the steps to reproduce the issue.
+      description: |
+        List the steps to reproduce the issue, if possible.
+        Tip: Number each step for clarity.
       placeholder: |
         1. Open Obsidian
         2. Enable Smart Connections
@@ -32,7 +36,7 @@ body:
     attributes:
       label: Expected Behavior
       description: What did you expect to happen?
-      placeholder: "The plugin should..."
+      placeholder: "e.g. The plugin should connect without freezing."
     validations:
       required: false
   - type: textarea
@@ -40,14 +44,20 @@ body:
     attributes:
       label: Actual Behavior
       description: What actually happened?
-      placeholder: "Instead..."
+      placeholder: "e.g. Obsidian became unresponsive after clicking 'Connect'."
     validations:
       required: false
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ### Environment Information
+        Please provide details about your setup. This helps us reproduce and fix the issue.
   - type: input
     id: os
     attributes:
-      label: OS
-      placeholder: "Windows 11, macOS 13.4, Ubuntu 22.04"
+      label: Operating System
+      placeholder: "e.g. Windows 11, macOS 13.4, Ubuntu 22.04"
     validations:
       required: false
   - type: input
@@ -74,15 +84,18 @@ body:
   - type: textarea
     id: other_plugins
     attributes:
-      label: Other Plugins
-      placeholder: "List other enabled plugins or \"none\""
+      label: Other Enabled Plugins
+      description: List other enabled plugins, or type "none" if no others are enabled.
+      placeholder: "e.g. Calendar, Dataview, or \"none\""
     validations:
       required: false
   - type: textarea
     id: logs
     attributes:
       label: Screenshots or Console Logs
-      description: Attach screenshots or paste logs if applicable. You can also drag and drop files here.
+      description: |
+        Attach screenshots or paste logs if applicable.
+        Tip: You can also drag and drop files here.
       render: shell
     validations:
       required: false
@@ -90,6 +103,7 @@ body:
     id: context
     attributes:
       label: Additional Context
-      description: Any other relevant information.
+      description: Any other relevant information that might help us understand the issue.
+      placeholder: "e.g. This only happens after a recent update."
     validations:
       required: false
