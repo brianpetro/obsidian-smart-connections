@@ -55,7 +55,6 @@ body:
       label: Screenshots
       description: |
         Screenshots are often very helpful for debugging issues (console logs, settings, etc.)
-        Tip: You can also drag and drop files here.
         Put "NA" if not applicable.
     validations:
       required: true 
