@@ -1,0 +1,129 @@
+name: "Bug Report / Feature Request"
+description: "Report a bug or suggest a feature for the Smart Connections plugin"
+title: "[Bug]/[Feature]: <short description>"
+labels: []
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Description
+        A clear and concise description of the problem or request.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the problem or request.
+      placeholder: "e.g. When I enable Smart Connections, Obsidian freezes."
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ### For Bugs
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce (for bugs)
+      description: List the steps to reproduce the issue.
+      placeholder: |
+        1. Open Obsidian
+        2. Enable Smart Connections
+        3. Click 'Connect'
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior (for bugs)
+      description: What did you expect to happen?
+      placeholder: "The plugin should..."
+    validations:
+      required: false
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior (for bugs)
+      description: What actually happened?
+      placeholder: "Instead..."
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots or Console Logs (for bugs)
+      description: Attach screenshots or paste logs if applicable.
+      render: shell
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        ### Environment (for bugs)
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: "Windows 11, macOS 13.4, Ubuntu 22.04"
+    validations:
+      required: false
+  - type: input
+    id: obsidian_version
+    attributes:
+      label: Obsidian Version
+      placeholder: "e.g. 1.8.10"
+    validations:
+      required: false
+  - type: input
+    id: plugin_version
+    attributes:
+      label: Smart Connections Version
+      placeholder: "e.g. 2.5.17"
+    validations:
+      required: false
+  - type: input
+    id: ai_provider
+    attributes:
+      label: AI Provider/Model
+      placeholder: "e.g. OpenAI GPT-4, Ollama – Llama2 7B"
+    validations:
+      required: false
+  - type: textarea
+    id: other_plugins
+    attributes:
+      label: Other Plugins
+      placeholder: "List other enabled plugins or \"none\""
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        ### Feature Requests
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement (for feature requests)
+      description: What problem would this feature solve?
+    validations:
+      required: false
+  - type: textarea
+    id: desired
+    attributes:
+      label: Desired Solution (for feature requests)
+      description: Describe the feature or enhancement.
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered (for feature requests)
+      description: Have you considered alternative solutions?
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information.
+    validations:
+      required: false
