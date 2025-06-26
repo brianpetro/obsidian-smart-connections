@@ -86,14 +86,15 @@ Opens the Lookup pane to make a semantic query.
 Creating links from the Connections view is as easy as dragging a result into an open note. Holding `⌘/ctrl` while hovering the mouse over a result will show the Obsidian native Hover Preview.
 ![](./assets/SC-OP-connections-view-mouse-annotations-2025-05-20.jpg)
 ### Inline connections (Early Release)
-> [!TIP]
-> **Inline Connections** is an *Early Release* feature that’s currently available to Smart Connections **community supporters**.  
-> Enable it from **Settings → Smart Connections → Smart Plugins**.
-
 Hover the <span style="color:lime;">connections icon</span> that appears inline with your content to surface a pop‑over of semantically related blocks from across your vault.  
 Hold **⌘/Ctrl** while hovering over a result (<span style="color:cyan;">blue highlight</span>) to trigger Obsidian’s Hover Preview (displayed in <span style="color:magenta;">pink</span>). Click a result to open its note in a new tab.
 
 ![](./assets/SC-OP-inline-block-connections-2025-06-25.png)
+
+> [!TIP]
+> **Inline Connections** is an *Early Release* feature that’s currently available to Smart Connections **community supporters**.  
+> Enable it from **Settings → Smart Connections → Smart Plugins**.
+
 ### Smart Chat
 #### Opening the Smart Chat
 Click the Chat view icon (<span style="color:lime;">circle</span>) or open the command palette to select the Chat view command (<span style="color:lime;">rectangle</span>).
