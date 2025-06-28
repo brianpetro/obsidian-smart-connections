@@ -11,4 +11,4 @@ releases/**
 release.js
 esbuild.js
 
-*.md
+#*.md

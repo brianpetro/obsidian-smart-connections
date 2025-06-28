@@ -7,6 +7,8 @@ async function build_html(scope_plugin) {
       <div data-user-agreement></div>
       <div id="smart-connections-getting-started-container">
         <button class="sc-getting-started-button">Getting started guide</button>
+        <button class="sc-report-bug-button">Report a bug</button>
+        <button class="sc-request-feature-button">Request a feature</button>
       </div>
       <div data-connections-settings-container>
         <h2>Connections view</h2>
@@ -82,6 +84,22 @@ export async function post_process(scope_plugin, frag) {
       });
     });
   }
+
+  frag.querySelector('.sc-report-bug-button')
+    ?.addEventListener('click', () => {
+      open_url_externally(
+        scope_plugin,
+        'https://github.com/brianpetro/obsidian-smart-connections/issues/new?template=bug_report.yml',
+      );
+    });
+
+  frag.querySelector('.sc-request-feature-button')
+    ?.addEventListener('click', () => {
+      open_url_externally(
+        scope_plugin,
+        'https://github.com/brianpetro/obsidian-smart-connections/issues/new?template=feature_request.yml',
+      );
+    });
 
   return frag;
 }
