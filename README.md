@@ -357,3 +357,7 @@ Here's what some of them have to say:
 </details>
 
 [Even more love for Smart Connections 🥰](https://smartconnections.app/smart-connections-love/)
+
+## Troubleshooting
+### Syncthing
+Add the hidden `.smart-env` directory to your Syncthing "ignore patterns".
