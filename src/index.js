@@ -140,10 +140,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
   }
 
-  async ready_to_load_collections() {
-    await new Promise(r => setTimeout(r, 3000)); // wait 3 seconds for other processes to finish
-    await this.wait_for_obsidian_sync();
-  }
   get settings() { return this.env?.settings || {}; }
 
   async new_user() {
@@ -368,21 +364,6 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   get plugin_is_enabled() { return this.app?.plugins?.enabledPlugins?.has("smart-connections"); }
-  // WAIT FOR OBSIDIAN SYNC
-  async wait_for_obsidian_sync() {
-    while (this.obsidian_is_syncing) {
-      if(!this.plugin_is_enabled) throw new Error("Smart Connections: plugin disabled while waiting for obsidian sync"); // if plugin is disabled, stop waiting for sync
-      console.log("Smart Connections: Waiting for Obsidian Sync to finish");
-      await new Promise(r => setTimeout(r, 1000));
-    }
-  }
-  get obsidian_is_syncing() {
-    const obsidian_sync_instance = this.app?.internalPlugins?.plugins?.sync?.instance;
-    if(!obsidian_sync_instance) return false; // if no obsidian sync instance, not syncing
-    if(obsidian_sync_instance?.syncStatus.startsWith('Uploading')) return false; // if uploading, don't wait for obsidian sync
-    if(obsidian_sync_instance?.syncStatus.startsWith('Fully synced')) return false; // if fully synced, don't wait for obsidian sync
-    return obsidian_sync_instance?.syncing;
-  }
 
   // DEPRECATED
   /**
