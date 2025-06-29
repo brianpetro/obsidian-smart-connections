@@ -1,3 +1,8 @@
+<h2 align="center" style="border-bottom: none;">
+More time for what matters most<br>
+<img src="./assets/SC-OP-more-time-for.gif" alt="More time for what matters most" width="400"/>
+</h2>
+
 > I just stumbled across a forgotten 20-page Google Doc I poured my heart into months ago, and the rush of lost momentum hit me like a punch.  
 > — Brian (December 2022)
 
