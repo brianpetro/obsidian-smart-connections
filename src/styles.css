@@ -490,7 +490,7 @@
 }
 
 .sc-bottom-bar {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   right: 0;
   left: 0;
@@ -592,11 +592,11 @@
     font-weight: var(--font-medium);
     cursor: pointer;
     user-select: none;
-  
+
     &:hover {
       background-color: var(--background-primary-hover);
     }
-  
+
     &:focus {
       outline: 2px solid var(--text-muted);
       outline-offset: 2px;
