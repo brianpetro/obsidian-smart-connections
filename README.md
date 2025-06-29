@@ -1,6 +1,6 @@
-<h2 align="center" style="border-bottom: none;">
-More time for what matters most<br>
-<img src="./assets/SC-OP-more-time-for.gif" alt="More time for what matters most" width="400"/>
+<h2 align="center">
+More time for what matters most
+<a href="https://smartconnections.app/?utm_source=README-what-matters-most" target="_external"><img src="./assets/SC-OP-more-time-for.gif" alt="More time for what matters most" width="300"/></a>
 </h2>
 
 > I just stumbled across a forgotten 20-page Google Doc I poured my heart into months ago, and the rush of lost momentum hit me like a punch.  
