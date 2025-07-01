@@ -1,4 +1,5 @@
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
+import { SmartNoteInspectModal } from "../views/note_inspect_modal.js";
 
 function build_top_bar_buttons(view_env) {
   const expanded_view =
@@ -136,6 +137,16 @@ export async function post_process(entity, container, opts = {}) {
 
   /* make plaintext vs markdown toggle persist */
   if (!filter_settings.render_markdown) list_el.classList.add('sc-result-plaintext');
+
+
+  container.querySelectorAll(".sc-context").forEach(el => {
+    el.addEventListener("click", (event) => {
+      const entity = entity.env.smart_sources.get(event.currentTarget.dataset.key);
+      if(entity){
+        new SmartNoteInspectModal(plugin, entity).open();
+      }
+    });
+  });
 
   return container;
 }
