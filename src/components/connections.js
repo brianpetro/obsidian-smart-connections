@@ -1,13 +1,10 @@
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
-/**
- * Build the top bar button markup.
- * @param {Object} view
- * @returns {string}
- */
-export function build_top_bar_buttons(view) {
-  const expanded_view = view.env.settings.smart_view_filter.expanded_view
-    ?? view.env.settings.expanded_view // @deprecated
-  ;
+
+function build_top_bar_buttons(view_env) {
+  const expanded_view =
+    view_env.settings.smart_view_filter.expanded_view ??
+    view_env.settings.expanded_view; /* @deprecated */
+
   const buttons = [
     { title: 'Refresh', icon: 'refresh-cw' },
     { title: 'Fold all toggle', icon: expanded_view ? 'fold-vertical' : 'unfold-vertical' },
@@ -15,117 +12,130 @@ export function build_top_bar_buttons(view) {
     { title: 'Settings', icon: 'settings' },
     { title: 'Help', icon: 'help-circle' }
   ];
-  return buttons.map(btn => `
-    <button
-      title="${btn.title}"
-      aria-label="${btn.title} button"
-    >
+
+  return buttons
+    .map(
+      (btn) => `
+    <button title="${btn.title}" aria-label="${btn.title} button">
       ${this.get_icon_html(btn.icon)}
-    </button>
-  `).join('');
+    </button>`
+    )
+    .join('');
 }
 
-/**
- * Build the main HTML structure for the connections view.
- * @param {Object} view
- * @param {Object} [opts]
- * @returns {Promise<string>}
- */
-export async function build_html(view, opts = {}) {
-  const top_bar_buttons = build_top_bar_buttons.call(this, view);
-  const html = `<div class="sc-connections-view">
+export async function build_html(entity, opts = {}) {
+  const top_bar_buttons = build_top_bar_buttons.call(this, entity.env);
+  return `<div><div class="sc-connections-view">
     <div class="sc-top-bar">
-      <p class="sc-context" data-key="">
-        Loading...
-      </p>
+      <p class="sc-context" data-key="">Loading…</p>
       ${top_bar_buttons}
     </div>
-    <div class="sc-list">
-    </div>
+    <div class="sc-list"></div>
     <div class="sc-bottom-bar">
-      <span class="sc-context" data-key="" title="Loading context...">
-        Loading context...
-      </span>
+      <span class="sc-context" data-key="" title="Loading context…">Loading context…</span>
       ${opts.attribution || ''}
     </div>
-  </div>`;
-
-  return html;
+  </div></div>`;
 }
 
-
-/**
- * Render the connections fragment.
- * @param {Object} view
- * @param {Object} [opts]
- * @returns {Promise<DocumentFragment>}
- */
-export async function render(view, opts = {}) {
-  const html = await build_html.call(this, view, opts);
+export async function render(entity, opts = {}) {
+  const html = await build_html.call(this, entity, opts);
   const frag = this.create_doc_fragment(html);
-  return await post_process.call(this, view, frag, opts);
+  const container = frag.querySelector('.sc-connections-view');
+  post_process.call(this, entity, container, opts);
+  return container;
 }
 
-/**
- * Attach event listeners to the rendered fragment.
- * @param {Object} view
- * @param {DocumentFragment} frag
- * @param {Object} [opts]
- * @returns {Promise<DocumentFragment>}
- */
-export async function post_process(view, frag, opts = {}) {
-  const container = frag.querySelector('.sc-list');
+export async function post_process(entity, container, opts = {}) {
+  const plugin = entity.env.smart_connections_plugin;
+  const list_el = container.querySelector('.sc-list');
+  const header_ctx = container.querySelector('.sc-top-bar .sc-context');
+  const footer_ctx = container.querySelector('.sc-bottom-bar .sc-context');
+  const filter_settings = entity.env.settings.smart_view_filter;
+  const view_ref = opts.view; // reference back to the ItemView
 
-  // Add fold/unfold all functionality
-  const toggle_button = frag.querySelector("[title='Fold all toggle']");
-  toggle_button.addEventListener("click", () => {
-    const expanded = view.env.settings.smart_view_filter.expanded_view
-      ?? view.env.settings.expanded_view // @deprecated
-    ;
-    if(!view.env.settings.smart_view_filter) view.env.settings.smart_view_filter = {};
-    view.env.settings.smart_view_filter.expanded_view = !expanded;
-    container.querySelectorAll(".sc-result").forEach(async (elm) => {
-      if (expanded) {
-        elm.classList.add("sc-collapsed");
-      } else {
-        elm.classList.remove("sc-collapsed"); // classchange listener will render the result in connected_result.js
-      }
+  const render_results = async () => {
+    const exclude_keys = Object.keys(entity.data.hidden_connections || {});
+    const results = await entity.find_connections({
+      exclude_source_connections: entity.env.smart_blocks.settings.embed_blocks,
+      exclude_key_ends_with: '---frontmatter---',
+      exclude_keys
     });
-    const updated_expanded_view = view.env.settings.smart_view_filter.expanded_view;
-    this.safe_inner_html(toggle_button, this.get_icon_html(updated_expanded_view ? 'fold-vertical' : 'unfold-vertical'));
-    toggle_button.setAttribute('aria-label', updated_expanded_view ? 'Fold all' : 'Unfold all');
+
+    const results_frag = await entity.env.render_component(
+      'connections_results',
+      results,
+      opts
+    );
+
+    this.empty(list_el);
+    Array.from(results_frag.children).forEach((el) => list_el.appendChild(el));
+
+    /* update context labels */
+    header_ctx.innerText = entity.path.split('/').pop();
+    footer_ctx.innerText = entity.path.split('/').pop();
+    header_ctx.dataset.key = entity.key;
+    footer_ctx.dataset.key = entity.key;
+    list_el.dataset.key = entity.key;
+  };
+
+  await render_results(); /* initial fetch */
+
+  /* ──────────────── event wiring ───────────────────────────────────── */
+  const toggle_btn = container.querySelector('[title="Fold all toggle"]');
+  toggle_btn.addEventListener('click', () => {
+    const expanded =
+      entity.env.settings.smart_view_filter.expanded_view ??
+      entity.env.settings.expanded_view;
+
+    entity.env.settings.smart_view_filter.expanded_view = !expanded;
+
+    list_el.querySelectorAll('.sc-result').forEach((elm) =>
+      expanded ? elm.classList.add('sc-collapsed') : elm.classList.remove('sc-collapsed')
+    );
+
+    this.safe_inner_html(
+      toggle_btn,
+      this.get_icon_html(expanded ? 'unfold-vertical' : 'fold-vertical')
+    );
   });
 
-  // refresh smart view
-  const refresh_button = frag.querySelector("[title='Refresh']");
-  refresh_button.addEventListener("click", () => {
-    view.refresh();
+  /* Refresh – light if view not supplied, heavy if it is --------------- */
+  const refresh_btn = container.querySelector('[title="Refresh"]');
+  refresh_btn.addEventListener('click', async () => {
+    // if (view_ref?.refresh) {
+    //   await view_ref.refresh();
+    //   return;
+    // }
+    /* light‑weight fallback: re‑import + re‑embed current entity */
+    await entity.read();
+    entity.queue_import();
+    await entity.collection.process_source_import_queue?.();
+    await render_results();
   });
 
-  // lookup
-  const lookup_button = frag.querySelector("[title='Lookup']");
-  lookup_button?.addEventListener("click", () => {
-    view.plugin.open_lookup_view();
-  });
+  /* Lookup opens Smart Lookup view */
+  container
+    .querySelector('[title="Lookup"]')
+    ?.addEventListener('click', () => plugin.open_lookup_view());
 
-  // help documentation
-  const help_button = frag.querySelector("[title='Help']");
-  help_button?.addEventListener("click", () => {
-    StoryModal.open(view.plugin, {
+  /* Help */
+  container.querySelector('[title="Help"]')?.addEventListener('click', () =>
+    StoryModal.open(plugin, {
       title: 'Getting Started With Smart Connections',
-      url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-view-help',
-    });
+      url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-view-help#page=understanding-connections-1'
+    })
+  );
+
+  /* Settings */
+  container.querySelector('[title="Settings"]')?.addEventListener('click', async () => {
+    // view.open_settings();
+    await app.setting.open();
+    await app.setting.openTabById('smart-connections');
   });
 
-  // settings
-  const settings_button = frag.querySelector("[title='Settings']");
-  settings_button?.addEventListener("click", () => {
-    view.open_settings();
-  });
+  /* make plaintext vs markdown toggle persist */
+  if (!filter_settings.render_markdown) list_el.classList.add('sc-result-plaintext');
 
-  if(typeof opts.post_process === "function"){
-    await opts.post_process(view, frag, opts);
-  }
-
-  return frag;
+  return container;
 }

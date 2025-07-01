@@ -315,53 +315,43 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
   }
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
+
   async render_code_block(contents, container, ctx) {
     container.empty();
-    container.createEl('span', {text: 'Loading...'});
-    if(contents.trim().length) {
+    container.createEl('span', { text: 'Loading…' });
+
+    /* semantic query mode (original behaviour unchanged) */
+    if (contents.trim().length) {
       const frag = await this.env.render_component(
         'lookup',
         this.env.smart_sources,
-        {
-          // add_result_listeners: this.add_result_listeners.bind(this),
-          attribution: this.attribution,
-          query: contents,
-        }
+        { attribution: this.attribution, query: contents }
       );
       container.empty();
       container.appendChild(frag);
-    }else{
-      const entity = this.env.smart_sources.get(ctx.sourcePath);
-      if(!entity) return container.innerHTML = 'Entity not found: ' + ctx.sourcePath;
-      const component_opts = {
-        // add_result_listeners: this.add_result_listeners.bind(this),
-        attribution: this.attribution,
-        re_render: () => {
-          this.render_code_block(contents, container, ctx);
-        },
-        open_lookup_view: this.open_lookup_view.bind(this),
-      };
-      const frag = await this.env.render_component('connections', entity, component_opts);
-      container.empty();
-      container.appendChild(frag);
-      const results = await entity.find_connections({
-        exclude_source_connections: entity.env.smart_blocks.settings.embed_blocks
-      });
-      const results_frag = await entity.env.render_component('connections_results', results, component_opts);
-      const results_container = container.querySelector('.sc-list');
-      results_container.innerHTML = '';
-      Array.from(results_frag.children).forEach((elm) => {
-        results_container.appendChild(elm);
-      });
-      const header_status_elm = container.querySelector('.sc-top-bar .sc-context');
-      results_container.dataset.key = entity.key;
-      const context_name = (entity.path).split('/').pop();
-      const status_elm = container.querySelector('.sc-bottom-bar .sc-context');
-      status_elm.innerText = context_name;
-      header_status_elm.innerText = context_name;
-      return results;
+      return;
     }
+
+    /* connections mode – component now fetches its own results */
+    const entity =
+      this.env.smart_sources.get(ctx.sourcePath) ??
+      this.env.smart_sources.init_file_path(ctx.sourcePath);
+
+    if (!entity) {
+      container.empty();
+      container.createEl('p', { text: 'Entity not found: ' + ctx.sourcePath });
+      return;
+    }
+
+    const frag = await this.env.render_component(
+      'connections',
+      entity,
+      { attribution: this.attribution }
+    );
+    container.empty();
+    container.appendChild(frag);
   }
+
 
   get plugin_is_enabled() { return this.app?.plugins?.enabledPlugins?.has("smart-connections"); }
 
