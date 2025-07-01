@@ -38,11 +38,13 @@ export class ScConnectionsView extends SmartObsidianView {
     // set context keys
     this.entities_count_elm.dataset.key = entity.key;
     this.status_elm.dataset.key = entity.key;
+    const exclude_keys = Object.keys(entity.data.hidden_connections || {});
 
     const results = await entity.find_connections({ 
       ...opts, 
       exclude_source_connections: entity.env.smart_blocks.settings.embed_blocks,
-      exclude_key_ends_with: "---frontmatter---"
+      exclude_key_ends_with: "---frontmatter---",
+      exclude_keys,
     });
     
     const results_frag = await entity.env.render_component('connections_results', results, opts);

@@ -1,5 +1,6 @@
-import { Keymap } from "obsidian";
+import { Keymap, Menu, Notice } from 'obsidian';
 import { register_block_hover_popover } from 'obsidian-smart-env/utils/register_block_hover_popover.js';
+
 /**
  * Builds the HTML string for the result component.
  * .temp-container is used so listeners can be added to .sc-result (otherwise does not persist) 
@@ -18,6 +19,7 @@ export async function build_html(result, opts = {}) {
       data-link="${item.link?.replace(/"/g, '&quot;') || ''}"
       data-collection="${item.collection_key}"
       data-score="${score}"
+      data-key="${item.key}"
       draggable="true"
     >
       <span class="header">
@@ -52,17 +54,16 @@ export async function render(result_scope, opts = {}) {
  * @returns {Promise<DocumentFragment>} A promise that resolves to the post-processed document fragment.
  */
 export async function post_process(result_scope, frag, opts = {}) {
-  const { item, score } = result_scope;
+  const { item } = result_scope;
   const env = item.env;
   const plugin = env.smart_connections_plugin;
   const app = plugin.app;
   const filter_settings = env.settings.smart_view_filter;
   const result_elm = frag.querySelector('.sc-result');
-  if(!filter_settings.render_markdown) result_elm.classList.add('sc-result-plaintext');
-  
+  if (!filter_settings.render_markdown) result_elm.classList.add('sc-result-plaintext');
+
   const render_result = async (_result_elm) => {
-    // if li contents is empty, render it
-    if(!_result_elm.querySelector("li").innerHTML){
+    if (!_result_elm.querySelector('li').innerHTML) {
       const collection_key = _result_elm.dataset.collection;
       const entity = env[collection_key].get(_result_elm.dataset.path);
       let markdown;
@@ -71,24 +72,26 @@ export async function post_process(result_scope, frag, opts = {}) {
       let entity_frag;
       if (filter_settings.render_markdown) entity_frag = await this.render_markdown(markdown, entity);
       else entity_frag = this.create_doc_fragment(markdown);
-      result_elm.querySelector("li").appendChild(entity_frag);
+      result_elm.querySelector('li').appendChild(entity_frag);
     }
-  }
+  };
+
   const toggle_result = (_result_elm) => {
-    _result_elm.classList.toggle("sc-collapsed");
-  }
+    _result_elm.classList.toggle('sc-collapsed');
+  };
+
   const handle_result_click = (event) => {
     event.preventDefault();
     event.stopPropagation();
     const target = event.target;
-    const _result_elm = target.closest(".sc-result");
-    if (target.classList.contains("svg-icon")) {
+    const _result_elm = target.closest('.sc-result');
+    if (target.classList.contains('svg-icon')) {
       toggle_result(_result_elm);
       return;
     }
-    
+
     const link = _result_elm.dataset.link || _result_elm.dataset.path;
-    if(_result_elm.classList.contains("sc-collapsed")){
+    if (_result_elm.classList.contains('sc-collapsed')) {
       if (Keymap.isModEvent(event)) {
         plugin.open_note(link, event);
       } else {
@@ -97,56 +100,114 @@ export async function post_process(result_scope, frag, opts = {}) {
     } else {
       plugin.open_note(link, event);
     }
-  }
-  result_elm.addEventListener("click", handle_result_click.bind(plugin));
-  const path = result_elm.querySelector("li").dataset.key;
+  };
+
+  result_elm.addEventListener('click', handle_result_click.bind(plugin));
+
+  const path = result_elm.querySelector('li').dataset.key;
   result_elm.addEventListener('dragstart', (event) => {
     const drag_manager = app.dragManager;
-    const file_path = path.split("#")[0];
+    const file_path = path.split('#')[0];
     const file = app.metadataCache.getFirstLinkpathDest(file_path, '');
     const drag_data = drag_manager.dragFile(event, file);
     drag_manager.onDragStart(event, drag_data);
   });
 
-  if (path.indexOf("{") === -1) {
-    result_elm.addEventListener("mouseover", (event) => {
-      const linktext_path = path.replace(/#$/, ""); // remove trailing #
-      app.workspace.trigger("hover-link", {
+  /* ---------- hover preview ---------- */
+  if (path.indexOf('{') === -1) {
+    result_elm.addEventListener('mouseover', (event) => {
+      const linktext_path = path.replace(/#$/, ''); // remove trailing hash if present
+      app.workspace.trigger('hover-link', {
         event,
-        source: "smart-connections-view",
+        source: 'smart-connections-view',
         hoverParent: result_elm.parentElement,
         targetEl: result_elm,
-        linktext: linktext_path,
+        linktext: linktext_path
       });
     });
-  }else{
+  } else {
     register_block_hover_popover(result_elm.parentElement, result_elm, env, path, plugin);
   }
-  // listen for class changes on result_elm
+
   const observer = new MutationObserver((mutations) => {
-    // Only process class changes that affect expansion state
-    const has_expansion_change = mutations.some(mutation => {
+    const has_expansion_change = mutations.some((mutation) => {
       const target = mutation.target;
-      return mutation.attributeName === 'class' && 
+      return mutation.attributeName === 'class' &&
         mutation.oldValue?.includes('sc-collapsed') !== target.classList.contains('sc-collapsed');
     });
 
-    // Render only when expanding from collapsed state
     if (has_expansion_change && !mutations[0].target.classList.contains('sc-collapsed')) {
       render_result(mutations[0].target);
     }
   });
-  observer.observe(result_elm, { 
+
+  observer.observe(result_elm, {
     attributes: true,
     attributeOldValue: true,
-    attributeFilter: ['class'] // Only observe class changes
+    attributeFilter: ['class']
+  });
+
+  plugin.registerDomEvent(result_elm, 'contextmenu', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const curr_key = result_elm.closest('.sc-list')?.dataset.key;
+    if(!curr_key) {
+      return;
+    }
+    const curr_collection = curr_key.includes('#')
+      ? env.smart_blocks
+      : env.smart_sources
+    ;
+    const curr_item = curr_collection.get(curr_key);
+    if(!curr_item) return;
+    const menu = new Menu(app);
+    menu.addItem((menu_item) => {
+      menu_item
+        .setTitle(`Hide ${item.name}`)
+        .setIcon('eye-off')
+        .onClick(() => {
+          try {
+            if(!curr_item.data.hidden_connections) curr_item.data.hidden_connections = {};
+            curr_item.data.hidden_connections[result_elm.dataset.key] = Date.now();
+            curr_item.queue_save();
+            result_elm.style.display = 'none'; // hide the result element
+            curr_item.collection.save();
+          } catch (err) {
+            new Notice('Hide failed – check console');
+            console.error(err);
+          }
+        })
+      ;
+    });
+    // separator
+    menu.addSeparator();
+    // unhide-all
+    menu.addItem((menu_item) => {
+      menu_item
+        .setTitle(`Unhide All (${Object.keys(curr_item.data.hidden_connections || {}).length})`)
+        .setIcon('eye')
+        .onClick(() => {
+          try {
+            if(!curr_item.data.hidden_connections) return;
+            delete curr_item.data.hidden_connections;
+            curr_item.queue_save();
+            result_elm.closest('.sc-connections-view')?.querySelector('[title="Refresh"]')?.click(); // refresh the results
+            curr_item.collection.save();
+          } catch (err) {
+            new Notice('Unhide failed – check console');
+            console.error(err);
+          }
+        })
+      ;
+    });
+    menu.showAtMouseEvent(event);
   });
 
   const expanded_view = env.settings.smart_view_filter.expanded_view
     ?? env.settings.expanded_view // @deprecated
   ;
-  if(!expanded_view) return result_elm;
-  
+  if (!expanded_view) return result_elm;
+
   // render if already expanded
   toggle_result(result_elm);
   return result_elm;
@@ -157,12 +218,13 @@ export function should_render_embed(entity) {
   if (entity.is_media) return true;
   return false;
 }
+
 export function process_for_rendering(content) {
   // prevent dataview rendering
-  if(content.includes('```dataview')) content = content.replace(/```dataview/g, '```\\dataview');
-  if(content.includes('```smart-context')) content = content.replace(/```smart-context/g, '```\\smart-context');
-  if(content.includes('```smart-chatgpt')) content = content.replace(/```smart-chatgpt/g, '```\\smart-chatgpt');
+  if (content.includes('```dataview')) content = content.replace(/```dataview/g, '```\\dataview');
+  if (content.includes('```smart-context')) content = content.replace(/```smart-context/g, '```\\smart-context');
+  if (content.includes('```smart-chatgpt')) content = content.replace(/```smart-chatgpt/g, '```\\smart-chatgpt');
   // prevent link embedding
-  if(content.includes('![[')) content = content.replace(/\!\[\[/g, '! [[');
+  if (content.includes('![[')) content = content.replace(/\!\[\[/g, '! [[');
   return content;
 }
