@@ -1,5 +1,5 @@
 <h2 align="center">
-More time for what matters most
+More time for what matters most<br>
 <a href="https://smartconnections.app/?utm_source=README-what-matters-most" target="_external"><img src="./assets/SC-OP-more-time-for.gif" alt="More time for what matters most" width="300"/></a>
 </h2>
 
@@ -12,7 +12,7 @@ More time for what matters most
 > [!WARNING] **The Problem**
 > Valuable insights disappear in a sea of unlinked notes, forcing endless scrolling, re‑reading, and duplicated work. Time you wanted for creativity leaks away into manual organization.
 
-[**Install Smart Connections now →**](https://obsidian.md/plugins?id=smart-connections)
+<a href="https://smartconnections.app/?utm_source=README-what-matters-most" target="_external">**Install Smart Connections now →**</a>
 
 # Smart Connections `v3.0`
 
