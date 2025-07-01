@@ -7,7 +7,7 @@ More time for what matters most<br>
 > — Brian (December 2022)
 
 > [!QUESTION] **Is this you?**
-> You're an Obsidian power‑user, researcher, writer, or lifelong learner with **hundreds or thousands of notes**. You capture ideas quickly—but later struggle to find and connect them when it matters most.
+> You're an Obsidian power‑user, researcher, writer, or lifelong learner with **hundreds or thousands of notes**. You capture ideas quickly, but later struggle to find and connect them when it matters most.
 
 > [!WARNING] **The Problem**
 > Valuable insights disappear in a sea of unlinked notes, forcing endless scrolling, re‑reading, and duplicated work. Time you wanted for creativity leaks away into manual organization.
@@ -50,7 +50,7 @@ More time for what matters most<br>
 The Obsidian community opened my eyes to user-aligned software. That's why Smart Connections is [built on principles](https://smartconnections.app/smart-principles/) in an effort to create the most user-aligned Smart Tools available.
 
 > [!INFO] **Your Guide**
-> Built by Brian—a fellow Obsidian user who felt the same pain—Smart Connections pairs hard‑won experience with open‑source AI expertise to lead you from overwhelm to insight.
+> Built by Brian, a fellow Obsidian user who felt the same pain, Smart Connections pairs hard‑won experience with open‑source AI expertise to lead you from overwhelm to insight.
 
 ## Private by Design, Privacy by Default
 User-aligned means privacy, local-first decisions, are by design and implemented by default. Privacy shouldn't be an opt-in only or premium feature. Smart Connections default settings are designed to work with zero setup, using a local AI embedding model that works offline.
