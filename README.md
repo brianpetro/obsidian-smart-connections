@@ -6,7 +6,16 @@ More time for what matters most
 > I just stumbled across a forgotten 20-page Google Doc I poured my heart into months ago, and the rush of lost momentum hit me like a punch.  
 > — Brian (December 2022)
 
+> [!QUESTION] **Is this you?**
+> You're an Obsidian power‑user, researcher, writer, or lifelong learner with **hundreds or thousands of notes**. You capture ideas quickly—but later struggle to find and connect them when it matters most.
+
+> [!WARNING] **The Problem**
+> Valuable insights disappear in a sea of unlinked notes, forcing endless scrolling, re‑reading, and duplicated work. Time you wanted for creativity leaks away into manual organization.
+
+[**Install Smart Connections now →**](https://obsidian.md/plugins?id=smart-connections)
+
 # Smart Connections `v3.0`
+
 **Save time** *linking*, *tagging*, and *organizing!* **Smart Connections *finds relevant notes*** so you don't have to!
 
 > [!NOTE] Why do we make connections?
@@ -34,8 +43,14 @@ More time for what matters most
 
 ⚔️ Mission-driven, user-aligned, community-supported
 
+> [!SUCCESS] **What Success Looks Like**
+> With Smart Connections running, ideas resurface precisely when you need them, writing flows faster, and your note‑taking system finally feels like the trusted "second brain" you imagined.
+
 ## Mission-driven
 The Obsidian community opened my eyes to user-aligned software. That's why Smart Connections is [built on principles](https://smartconnections.app/smart-principles/) in an effort to create the most user-aligned Smart Tools available.
+
+> [!INFO] **Your Guide**
+> Built by Brian—a fellow Obsidian user who felt the same pain—Smart Connections pairs hard‑won experience with open‑source AI expertise to lead you from overwhelm to insight.
 
 ## Private by Design, Privacy by Default
 User-aligned means privacy, local-first decisions, are by design and implemented by default. Privacy shouldn't be an opt-in only or premium feature. Smart Connections default settings are designed to work with zero setup, using a local AI embedding model that works offline.
@@ -57,6 +72,16 @@ Smart Connections isn't an alternative. It's a catalyst for you and I to realize
 ---
 
 ## Getting Started
+
+> [!TLDR] **3‑Step Plan**
+>
+> 1. **Install & Enable** Smart Connections from Obsidian's Community Plugins
+> 2. **Keep writing** – the built‑in local AI automatically indexes your vault
+> 3. **Watch** relevant notes, links, and chat answers appear as you work
+
+> [!FAILURE] **The Cost of Doing Nothing**
+> Stay stuck sifting through files, forgetting past research, and wasting precious creative energy on housekeeping instead of creation.
+
 ### Easy Installation
 Find Smart Connections in the [Obsidian Community plugins](https://obsidian.md/plugins?id=smart-connections).  
 ![](./assets/SC-OP-install-and-enable-2025-05-20.png)
