@@ -117,10 +117,10 @@ Creating links from the Connections view is as easy as dragging a result into an
 ![](./assets/SC-OP-connections-view-mouse-annotations-2025-05-20.jpg)
 #### Hide connections
 Right-click a connection to open the menu and hide it from the results.
-![](SC-OP-Connections-view-right-click-to-hide-2025-07-01.png)
+![](./assets/SC-OP-Connections-view-right-click-to-hide-2025-07-01.png)
 #### Unhide connections
 Right-click any connection to open the menu and unhide all previously hidden connections.
-![](SC-OP-Connections-view-right-click-to-unhide-2025-07-01.png)
+![](./assets/SC-OP-Connections-view-right-click-to-unhide-2025-07-01.png)
 ### Inline connections (Early Release)
 Hover the <span style="color:lime;">connections icon</span> that appears inline with your content to surface a pop‑over of semantically related blocks from across your vault.  
 Hold **⌘/Ctrl** while hovering over a result (<span style="color:cyan;">blue highlight</span>) to trigger Obsidian’s Hover Preview (displayed in <span style="color:magenta;">pink</span>). Click a result to open its note in a new tab.
