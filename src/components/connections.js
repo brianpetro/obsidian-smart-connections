@@ -141,10 +141,7 @@ export async function post_process(entity, container, opts = {}) {
 
   container.querySelectorAll(".sc-context").forEach(el => {
     el.addEventListener("click", (event) => {
-      const entity = entity.env.smart_sources.get(event.currentTarget.dataset.key);
-      if(entity){
-        new SmartNoteInspectModal(plugin, entity).open();
-      }
+      new SmartNoteInspectModal(plugin, entity).open();
     });
   });
 
