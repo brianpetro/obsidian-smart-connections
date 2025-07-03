@@ -12,7 +12,7 @@ More time for what matters most<br>
 > [!WARNING] **The Problem**
 > Valuable insights disappear in a sea of unlinked notes, forcing endless scrolling, re‑reading, and duplicated work. Time you wanted for creativity leaks away into manual organization.
 
-<a href="https://smartconnections.app/?utm_source=README-what-matters-most" target="_external">**Install Smart Connections now →**</a>
+<a href="https://smartconnections.app/?utm_source=README-what-matters-most" target="_external">**Install Smart Connections now →**</a>
 
 # Smart Connections `v3.0`
 
@@ -33,24 +33,24 @@ More time for what matters most<br>
 
 📁 Simple local data files
 
-📄 **PDFs support in Smart  Chat** – drag research papers straight into the conversation  
+📄 **PDFs support in Smart Chat** – drag research papers straight into the conversation  
 
-📦 Ultra-lightweight bundle (~1 MB) with minimal/no third-party dependencies
+📦 Ultra-lightweight bundle (~1 MB) with minimal/no third-party dependencies
 
-🔍 Streamlined codebase with minimal/no dependencies can be audited >3× faster than comparable AI plugins
+🔍 Streamlined codebase with minimal/no dependencies can be audited >3× faster than comparable AI plugins
 
 🌐 Open-source
 
 ⚔️ Mission-driven, user-aligned, community-supported
 
 > [!SUCCESS] **What Success Looks Like**
-> With Smart Connections running, ideas resurface precisely when you need them, writing flows faster, and your note‑taking system finally feels like the trusted "second brain" you imagined.
+> With Smart Connections running, ideas resurface precisely when you need them, writing flows faster, and your note‑taking system finally feels like the trusted "second brain" you imagined.
 
 ## Mission-driven
 The Obsidian community opened my eyes to user-aligned software. That's why Smart Connections is [built on principles](https://smartconnections.app/smart-principles/) in an effort to create the most user-aligned Smart Tools available.
 
 > [!INFO] **Your Guide**
-> Built by Brian, a fellow Obsidian user who felt the same pain, Smart Connections pairs hard‑won experience with open‑source AI expertise to lead you from overwhelm to insight.
+> Built by Brian, a fellow Obsidian user who felt the same pain, Smart Connections pairs hard‑won experience with open‑source AI expertise to lead you from overwhelm to insight.
 
 ## Private by Design, Privacy by Default
 User-aligned means privacy, local-first decisions, are by design and implemented by default. Privacy shouldn't be an opt-in only or premium feature. Smart Connections default settings are designed to work with zero setup, using a local AI embedding model that works offline.
@@ -75,7 +75,7 @@ Smart Connections isn't an alternative. It's a catalyst for you and I to realize
 
 > [!TLDR] **3‑Step Plan**
 >
-> 1. **Install & Enable** Smart Connections from Obsidian's Community Plugins
+> 1. **Install & Enable** Smart Connections from Obsidian's Community Plugins
 > 2. **Keep writing** – the built‑in local AI automatically indexes your vault
 > 3. **Watch** relevant notes, links, and chat answers appear as you work
 
@@ -121,15 +121,15 @@ Right-click a connection to open the menu and hide it from the results.
 #### Unhide connections
 Right-click any connection to open the menu and unhide all previously hidden connections.
 ![](./assets/SC-OP-Connections-view-right-click-to-unhide-2025-07-01.png)
-### Inline connections (Early Release)
+### Inline connections (Early Release)
 Hover the <span style="color:lime;">connections icon</span> that appears inline with your content to surface a pop‑over of semantically related blocks from across your vault.  
-Hold **⌘/Ctrl** while hovering over a result (<span style="color:cyan;">blue highlight</span>) to trigger Obsidian’s Hover Preview (displayed in <span style="color:magenta;">pink</span>). Click a result to open its note in a new tab.
+Hold **⌘/Ctrl** while hovering over a result (<span style="color:cyan;">blue highlight</span>) to trigger Obsidian’s Hover Preview (displayed in <span style="color:magenta;">pink</span>). Click a result to open its note in a new tab.
 
 ![](./assets/SC-OP-inline-block-connections-2025-06-25.png)
 
 > [!TIP]
-> **Inline Connections** is an *Early Release* feature that’s currently available to Smart Connections **community supporters**.  
-> Enable it from **Settings → Smart Connections → Smart Plugins**.
+> **Inline Connections** is an *Early Release* feature that’s currently available to Smart Connections **community supporters**.  
+> Enable it from **Settings → Smart Connections → Smart Plugins**.
 
 ### Smart Chat
 #### Opening the Smart Chat

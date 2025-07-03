@@ -115,7 +115,7 @@ export async function post_process(entity, container, opts = {}) {
     await render_results();
   });
 
-  /* Lookup opens Smart Lookup view */
+  /* Lookup opens Smart Lookup view */
   container
     .querySelector('[title="Lookup"]')
     ?.addEventListener('click', () => plugin.open_lookup_view());
