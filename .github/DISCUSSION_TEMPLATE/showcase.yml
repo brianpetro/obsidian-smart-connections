@@ -1,0 +1,43 @@
+title: "[Workflow]: <short description>"
+labels: ["workflow"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to inspire others 😊  
+        Please answer the questions below. Feel free to remove or add anything you think will help.
+  - type: textarea
+    id: before_problem
+    attributes:
+      label: What was the problem you were having before Smart Connections?
+      placeholder: "e.g. I kept losing research buried in hundreds of notes…"
+    validations:
+      required: true
+  - type: textarea
+    id: frustration
+    attributes:
+      label: What did the frustration feel like when you decided to solve that problem?
+      placeholder: "e.g. It felt like rewriting the same material over and over."
+    validations:
+      required: true
+  - type: textarea
+    id: difference
+    attributes:
+      label: What was different about Smart Connections?
+      placeholder: "e.g. It surfaced related notes automatically instead of keyword search."
+    validations:
+      required: true
+  - type: textarea
+    id: realisation
+    attributes:
+      label: What did it look like when you realised Smart Connections solved the problem?
+      placeholder: "e.g. I linked five forgotten ideas in minutes and finished my draft."
+    validations:
+      required: true
+  - type: textarea
+    id: workflow_now
+    attributes:
+      label: What does your workflow look like now with Smart Connections?
+      placeholder: "e.g. I keep Connections view open; inline connections guide daily writing…"
+    validations:
+      required: true
