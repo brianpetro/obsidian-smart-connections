@@ -79,175 +79,22 @@ Smart Connections isn't an alternative. It's a catalyst for you and I to realize
 > 2. **Keep writing** – the built‑in local AI automatically indexes your vault
 > 3. **Watch** relevant notes, links, and chat answers appear as you work
 
-> [!FAILURE] **The Cost of Doing Nothing**
-> Stay stuck sifting through files, forgetting past research, and wasting precious creative energy on housekeeping instead of creation.
-
 ### Easy Installation
 Find Smart Connections in the [Obsidian Community plugins](https://obsidian.md/plugins?id=smart-connections).  
 ![](./assets/SC-OP-install-and-enable-2025-05-20.png)
 #### Install & Enable, That's It!
 A [local model](https://www.perplexity.ai/search/what-are-local-ai-models-why-a-0TrSFXyaSZW3vOSpfQ8QHw) will immediately begin creating [AI embeddings](https://www.perplexity.ai/search/what-are-ai-embeddings-.MkBTzOISHiCj9MuYVqASw), no installing third-party software and no API key required!
 ![](./assets/SC-OP-notices-embedding-complete-2025-05-20.png)
-### Connections view
-Use the Connections view to see relevant content based on the current note.
-
-![](./assets/SC-OP-connections-view-2025-05-20.png)
-#### Opening the Connections view
-Click the Connections view icon (<span style="color:lime;">circle</span>) or open the command palette to select one of the Connection view commands (<span style="color:lime;">rectangle</span>).
-
-![](./assets/SC-OP-Commands-Icon-to-open-Connections-view-2025-05-20.png)
-
-#### Using the Connections view
-Connections view results update automatically when you change notes. The name of the <span style="color:lime;">current note</span> is located in the bottom-left of the Connections view. 
-
-![](./assets/SC-OP-connections-view-feature-annotations-2025-05-20.png)
-##### Result score (<span style="color: yellow;">underlined</span>)
-The result score is based on the semantic similarity between the result and the current note. The value and range will change depending on the embedding model being used. 
-##### Show/hide content (<span style="color:magenta;">expand or collapse</span>)
-Results can be expanded or collapsed within the Connections view. The button in the row at the top can be used to expand/collapse all results.
-##### Updating the results (<span style="color:orange;">refresh</span>)
-Use the refresh button to update the embedding for the current active note and re-generate the connections results.
-##### Lookup query (<span style="color:teal;">semantic search</span>)
-Opens the Lookup pane to make a semantic query.
-> [!NOTE]
-> Semantic queries do not work like regular search queries. For example, a note containing the exact query may not be returned in the results.
-
-#### Interacting with the Connections view
-Creating links from the Connections view is as easy as dragging a result into an open note. Holding `⌘/ctrl` while hovering the mouse over a result will show the Obsidian native Hover Preview.
-![](./assets/SC-OP-connections-view-mouse-annotations-2025-05-20.jpg)
-#### Hide connections
-Right-click a connection to open the menu and hide it from the results.
-![](./assets/SC-OP-Connections-view-right-click-to-hide-2025-07-01.png)
-#### Unhide connections
-Right-click any connection to open the menu and unhide all previously hidden connections.
-![](./assets/SC-OP-Connections-view-right-click-to-unhide-2025-07-01.png)
-### Inline connections (Early Release)
-Hover the <span style="color:lime;">connections icon</span> that appears inline with your content to surface a pop‑over of semantically related blocks from across your vault.  
-Hold **⌘/Ctrl** while hovering over a result (<span style="color:cyan;">blue highlight</span>) to trigger Obsidian’s Hover Preview (displayed in <span style="color:magenta;">pink</span>). Click a result to open its note in a new tab.
-
-![](./assets/SC-OP-inline-block-connections-2025-06-25.png)
-
-> [!TIP]
-> **Inline Connections** is an *Early Release* feature that’s currently available to Smart Connections **community supporters**.  
-> Enable it from **Settings → Smart Connections → Smart Plugins**.
-
-### Smart Chat
-#### Opening the Smart Chat
-Click the Chat view icon (<span style="color:lime;">circle</span>) or open the command palette to select the Chat view command (<span style="color:lime;">rectangle</span>).
-![](./assets/SC-OP-Commands-Icon-to-open-Chat-view-2025-05-26.png)
-
-#### Using the Smart Chat
-Smart Chat leverages context from your notes. Context can be added both manually and through AI guided semantic lookup.
-![](./assets/Smart-Chat-feature-annotations-2025-05-26.png)
-##### New chat (<span style="color: lime;">green squares</span>)
-Open notes are automatically added to the chat context 
-##### Chat history and conversation names (<span style="color:orange;">orange squares</span>)
-Chats can be named directly in Smart Chat. Click the chat history icon to access past chats. 
-##### System prompt (<span style="color:blue;">blue square</span>)
-System prompts can be added alongside the user chat input and will be handled differently depending on the currently configured chat model.
-
-#### Adding context to the Smart Chat
-Open the <span style="color:teal;">context builder</span> by clicking the "Edit context" button and then select "Done" to insert the selected context into the conversation. 
-
-![](./assets/Smart-Chat-context-annotations-2025-05-26.png)
-##### Show connections (<span style="color: lime;">connections icon</span>)
-Click the connections icon next to any context item to show a list of connections that can be added as context.
-##### Show links (<span style="color:magenta;">link icon</span>)
-Click the link icon next to any context item to show a list of links that can be added as context.
-##### Remove context (<span style="color:orange;">x</span>)
-Individually remove context items by clicking the "x" button to the left of the item. Clicking the "New" button will remove all context items.
-##### Trigger retrieval with self-referential pronouns
-Use a self-referential pronoun to trigger note retrieval (<span style="color: lime;">lookup context action</span>) from within a conversation.
-![](./assets/Smart-Chat-retrieval-annotations-2025-05-26.png)
-###### Review the retrieved context and send
-Retrieved notes are displayed before the AI finishes responding. Context items may be added or removed before continuing. Click the "Send" button (<span style="color:teal;">blue square</span>) to complete the request based on the context.
-
-The language setting determines which pronouns are detected to trigger the lookup. Both self-referential pronoun detection and reviewing context before completion are also configurable via the settings.
-
-##### Drag files into the conversation to add as context
-Include files in the chat using drag and drop.
-![](./assets/Smart-Chat-drag-files-annotations-2025-05-26.png)
 
 
-## Notifications & Settings
-### Process Notifications
-Gain insight into what's happening under-the-hood.
+> [!FAILURE] **The Cost of Doing Nothing**
+> Stay stuck sifting through files, forgetting past research, and wasting precious creative energy on housekeeping instead of creation.
 
-![](./assets/SC-OP-notices-embedding-progress-2025-05-20.png)
-#### Pause embedding process (<span style="color:lime;">green</span>)
-After clicking pause a new notification with a "Resume" button will appear.
-#### Mute notification (<span style="color:cyan;">blue</span>)
-Most notification are mutable. Notifications can be un-muted from the settings.
-##### Muted notices in the settings
-Muted notices will appear at the bottom of the Smart Connections settings. Use the "Remove" button to un-mute a notice. 
-![](./assets/SC-OP-settings-Muted-notices-2025-05-20.png)
+### Feature walkthrough
+Access the Getting Started guide from the Smart Connections settings.
+[![Smart Context Getting Started](./assets/smart-connections-getting-started.gif)](https://smartconnections.app/story/smart-connections-getting-started/)
+Watch the [feature walkthrough slideshow]](https://smartconnections.app/story/smart-connections-getting-started/) or read the [Getting Started guide](https://smartconnections.app/smart-connections-getting-started/) to learn how Smart Connections empowers your workflows.
 
-## Settings
-#### Customizing the Connections view
-![](./assets/SC-OP-settings-Connections-view-2025-05-20.png)
-##### Show full path
-Toggle this to show the full file path for each result in the Connections view. Helpful for disambiguating similarly named notes in different folders.
-##### Render markdown
-When enabled, renders markdown (e.g., bold, links, lists) directly in the preview of connection results, making context easier to interpret at a glance.
-##### Results limit
-Set a cap on how many connection results are shown per note. A smaller number can improve clarity and performance; a higher number surfaces more context.
-##### Exclude inlinks (backlinks)
-Hides notes that link *to* the current note. Useful if you want to see only AI-suggested relationships and ignore existing manual backlinks.
-##### Exclude outlinks
-Hides notes that the current note already links *out* to. Keeps your Connections view focused on new or unlinked associations.
-##### Include filter
-Restrict results to only those whose file path contains this value. Example: entering `projects/` will only show notes from the `projects` folder.
-##### Exclude filter
-Hides results with a file path containing this value. Example: entering `archive/` will hide archived notes from appearing in the Connections view.
-
-#### Smart Chat settings
-##### Chat interface
-![](./assets/Smart-Chat-settings-Chat-2025-05-26.png)
-##### Model configuration
-![](./assets/Smart-Chat-settings-Model-2025-05-26.png)
-#### Smart Environment settings
-![](./assets/SC-OP-settings-Smart-Environment-2025-05-20.png)
-##### Action buttons
-###### Show stats
-Displays key metrics and diagnostic stats about your current Smart Environment (e.g. number of blocks, sources indexed, excluded items). Useful for debugging or performance tuning.
-###### Reload sources
-Reprocesses all sources in the environment, including notes, folders, and files. Handy after significant file changes or if context seems stale.
-###### Clean-up data
-Runs a safe cleanup process to remove orphaned or obsolete blocks and ensure metadata integrity. Does _not_ affect your source files.
-###### Clear sources data
-Wipes all Smart Environment data (sources, blocks, embeddings, metadata) without touching original files. Ideal when switching datasets or fixing corrupted states. *Does not delete settings.*
-##### 📁 Excluded Folders
-Lists folders that should be completely ignored by the Smart Environment. Any content in these folders won’t be indexed or included in prompts.
-- Click **“Add excluded folder”** to select a folder.
-- Click `(x)` to remove it from the exclusion list.
-##### 📄 Excluded Files
-Manually exclude individual files from being processed by Smart Context. Useful for private drafts or noisy files that distort context.
-- Use **“Add excluded file”** to select files.
-- Click `(x)` to remove a file from exclusion.
-##### 🗂 Show Excluded
-Opens a panel showing all currently excluded files and folders, giving you a full overview of what’s opted-out of the Smart Environment.
-
-#### Sources and Blocks settings
-![](./assets/SC-OP-settings-Sources-and-Blocks-2025-05-20.png)
-##### Smart Sources
-###### Minimum length
-Minimum number of characters an entity (e.g., paragraph, heading) must have to be embedded. Shorter entries are ignored to reduce noise.
-###### Embedding model platform  
-Choose where embeddings are generated.
-- `Transformers (Local, built-in)` uses bundled models for full local processing.
-- Other options may appear if remote APIs or custom models are integrated.
-###### Embedding model  
-Choose which model to use for generating embeddings.  
-Example: `BGE-micro-v2` is lightweight and fast, suitable for small-to-medium vaults.
-###### Legacy transformers (no GPU)  
-Enables v2 transformer logic, which may be more compatible on systems without GPU acceleration. Toggle this if local embeddings fail to load or crash.
-##### Smart Blocks
-###### 100% embedded (2636/2636)  
-Displays the current embedding coverage: how many content blocks have been processed.
-###### Utilize Smart Blocks  
-When enabled, large documents are split into fine-grained blocks (based on headings and structure), improving semantic search and context relevance.
-###### Minimum length (for blocks)  
-Sets the minimum character length for a block to be embedded. Avoids generating embeddings for very short or irrelevant sections.
 
 ---
 ## Built for You
@@ -394,6 +241,7 @@ Here's what some of them have to say:
 
 [Even more love for Smart Connections 🥰](https://smartconnections.app/smart-connections-love/)
 
-## Troubleshooting
-### Syncthing
-Add the hidden `.smart-env` directory to your Syncthing "ignore patterns".
+## FAQs & Troubleshooting
+### Syncthing (third-party syncing)
+*Official services, like Obsidian Sync, help keep Obsidian user-aligned. Smart Connections has built-in compatibility with Obsidian Sync.*
+However, if you must use a third-party sync service, be sure to **add the `.smart-env/` directory to "ignore patterns"** to prevent issues.
