@@ -58,7 +58,11 @@ export async function post_process(collection, frag, opts = {}) {
   const query_input = frag.querySelector('#query');
   const results_container = frag.querySelector('.sc-list');
   const render_lookup = async (query, results_container) => {
-    const results = await collection.lookup({ hypotheticals: [query] });
+    const lookup_params = {
+      hypotheticals: [query],
+      filter: opts.filter,
+    };
+    const results = await collection.lookup(lookup_params);
     this.empty(results_container); // Clear previous results
     const results_frag = await collection.env.render_component('connections_results', results, opts);
     Array.from(results_frag.children).forEach((elm) => results_container.appendChild(elm));

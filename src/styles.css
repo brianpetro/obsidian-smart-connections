@@ -24,6 +24,8 @@
 }
 
 .sc-list {
+  padding-bottom: 20px;
+
   .tree-item-self {
     cursor: pointer;
 
@@ -393,7 +395,7 @@
 }
 
 .sc-bottom-bar {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   right: 0;
   left: 0;

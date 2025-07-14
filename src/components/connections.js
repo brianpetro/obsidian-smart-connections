@@ -60,7 +60,8 @@ export async function post_process(entity, container, opts = {}) {
     const results = await entity.find_connections({
       exclude_source_connections: entity.env.smart_blocks.settings.embed_blocks,
       exclude_key_ends_with: '---frontmatter---',
-      exclude_keys
+      exclude_keys,
+      ...(opts.filter || {}),
     });
 
     const results_frag = await entity.env.render_component(

@@ -319,13 +319,38 @@ export default class SmartConnectionsPlugin extends Plugin {
   async render_code_block(contents, container, ctx) {
     container.empty();
     container.createEl('span', { text: 'Loading…' });
+    await SmartEnv.wait_for({ loaded: true });
 
     /* semantic query mode (original behaviour unchanged) */
+    const content_lines = []
+    const filter = {};
     if (contents.trim().length) {
+      const lines = contents.split('\n').map(line => line.trim()).filter(line => line.length);
+      for (const line of lines) {
+        if(line.startsWith('include:')) {
+          const value = line.replace('include:', '').trim();
+          if(value) filter.key_includes_any = value.split(',').map(v => v.trim());
+          continue;
+        }
+        if(line.startsWith('does not end with:')) {
+          const value = line.replace('does not end with:', '').trim();
+          if(value) filter.exclude_key_ends_with_any = value.split(',').map(v => v.trim());
+          continue;
+        }
+        if(line.startsWith('limit:')) {
+          const value = line.replace('limit:', '').trim();
+          if(value) filter.limit = parseInt(value);
+          continue;
+        }
+        content_lines.push(line);
+      }
+    }
+    if (content_lines.length) {
+      contents = content_lines.join('\n');
       const frag = await this.env.render_component(
         'lookup',
         this.env.smart_sources,
-        { attribution: this.attribution, query: contents }
+        { attribution: this.attribution, query: contents, filter }
       );
       container.empty();
       container.appendChild(frag);
@@ -346,7 +371,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     const frag = await this.env.render_component(
       'connections',
       entity,
-      { attribution: this.attribution }
+      { attribution: this.attribution, filter }
     );
     container.empty();
     container.appendChild(frag);
