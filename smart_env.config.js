@@ -7,7 +7,6 @@ import { render as connections_results_component } from './src/components/connec
 import { render as connections_v1_component } from './src/components/connections_v1.js';
 import { render as lookup_component } from './src/components/lookup.js';
 import { render as main_settings_component } from './src/components/main_settings.js';
-import { render as source_inspector_component } from './src/components/source_inspector.js';
 
 export const smart_env_config = {
   collections: {
@@ -22,7 +21,6 @@ export const smart_env_config = {
     connections_results: connections_results_component,
     connections_v1: connections_v1_component,
     lookup: lookup_component,
-    main_settings: main_settings_component,
-    source_inspector: source_inspector_component
+    main_settings: main_settings_component
   }
 };
