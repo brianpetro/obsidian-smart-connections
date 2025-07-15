@@ -27,8 +27,66 @@ export class ConnectionsView extends SmartObsidianView {
   /* ------------------------------------------------------------------ */
   async render_view(target = null, container = this.container) {
     if (container.checkVisibility?.() === false) return;
+    if (!target) target = this.app.workspace.getActiveFile()?.path;
+    if (!target) {
+      container.empty();
+      container.createEl('p', { text: 'No active file to render connections.' });
+      return;
+    }
+    const target_key = typeof target === 'string'
+      ? target
+      : target.key ?? target.path
+    ;
+    if (!target_key) {
+      container.empty();
+      let msg = 'No valid target key provided.';
+      if (target && typeof target === 'object') {
+        msg += ` Received target object: ${JSON.stringify(target)}`;
+      }
+      container.createEl('p', { text: msg });
+      return;
+    }
+    let entity;
+    const is_block = target_key.includes('#');
+    if(is_block) {
+      entity = this.env.smart_blocks.get(target_key);
+      if(!entity) {
+        console.warn("ConnectionsView: No entity found for block: " + target_key);
+        const source_key = target_key.split('#')[0];
+        const source = this.env.smart_sources.get(source_key);
+        if(source) {
+          return this.render_view(source, container);
+        } else {
+          container.empty();
+          container.createEl('p', { text: 'No block or source found for "' + target_key + '".' });
+          return;
+        }
+      }
+    }else{
+      entity = this.env.smart_sources.get(target_key);
+      if(!entity) {
+        console.warn("ConnectionsView: No entity found for source: " + target_key);
+        const source = this.env.smart_sources.init_file_path(target_key);
+        if(source) {
+          this.env.queue_source_re_import(source);
+          container.empty();
+          container.createEl('p', { text: 'Source not found, but initialized. Requires embedding.' });
+          container.createEl('button', {
+            text: 'Embed now',
+          }).addEventListener('click', async () => {
+            await this.env.run_re_import();
+            this.render_view(source, container);
+          });
+          return;
+        }else{
+          container.empty();
+          container.createEl('p', { text: 'No source found for "' + target_key + '". Unable to import. Check Smart Environment exclusion settings.' });
+          return;
+        }
+      }
+    }
 
-    let entity = await this.#resolve_entity(target);
+    // This should be unreachable (remove in future 2025-07-15)
     if (!entity) {
       container.empty();
       container.createEl('p', { text: 'No entity found for the current note.' });
@@ -56,31 +114,4 @@ export class ConnectionsView extends SmartObsidianView {
     this.render_view(entity.key);
   }
 
-  /* ------------------------------------------------------------------ */
-  async #resolve_entity(input) {
-    if (!input) input = this.app.workspace.getActiveFile()?.path;
-    if (!input) return null;
-
-    if (typeof input !== 'string') input = input.path ?? '';
-
-    const collection = input.includes('#')
-      ? this.env.smart_blocks
-      : this.env.smart_sources;
-
-    let entity = collection.get(input);
-    if (!entity) {
-      entity = collection.init_file_path(input);
-      if (entity) {
-        await entity.import();
-        await collection.process_embed_queue();
-      }
-    }
-
-    if (entity?.should_embed && !entity.vec) {
-      entity.queue_embed();
-      await collection.process_embed_queue();
-    }
-
-    return entity;
-  }
 }

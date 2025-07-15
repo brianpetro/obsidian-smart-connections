@@ -1,5 +1,6 @@
 import { SmartObsidianView } from "./smart_view.obsidian.js";
 import { Platform } from "obsidian";
+import { SmartNoteInspectModal } from "obsidian-smart-env/views/source_inspector.js";
 
 /**
  * @deprecated Use `ConnectionsView` instead.
@@ -183,4 +184,3 @@ function post_process_note_inspect_opener(view, frag, opts = {}) {
   return frag;
 }
 
-import { SmartNoteInspectModal } from "./note_inspect_modal.js";

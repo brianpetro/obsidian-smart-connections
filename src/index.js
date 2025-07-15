@@ -25,7 +25,7 @@ import { open_note } from "obsidian-smart-env/utils/open_note.js";
 // import { exchange_code_for_tokens, install_smart_plugins_plugin, get_smart_server_url, enable_plugin } from './sc_oauth.js';
 import { SmartNotices } from 'smart-notices/smart_notices.js';
 import { merge_env_config } from "obsidian-smart-env";
-import { ConnectionsModal } from "./modals/connections.js";
+import { ConnectionsModal } from "./views/connections_modal.js";
 
 import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
 

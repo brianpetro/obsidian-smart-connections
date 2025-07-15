@@ -1,5 +1,5 @@
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
-import { SmartNoteInspectModal } from "../views/note_inspect_modal.js";
+import { SmartNoteInspectModal } from "obsidian-smart-env/views/source_inspector.js";
 
 function build_top_bar_buttons(view_env) {
   const expanded_view =
@@ -53,7 +53,6 @@ export async function post_process(entity, container, opts = {}) {
   const header_ctx = container.querySelector('.sc-top-bar .sc-context');
   const footer_ctx = container.querySelector('.sc-bottom-bar .sc-context');
   const filter_settings = entity.env.settings.smart_view_filter;
-  const view_ref = opts.view; // reference back to the ItemView
 
   const render_results = async () => {
     const exclude_keys = Object.keys(entity.data.hidden_connections || {});
@@ -81,9 +80,25 @@ export async function post_process(entity, container, opts = {}) {
     list_el.dataset.key = entity.key;
   };
 
-  await render_results(); /* initial fetch */
+  if(entity.vec) {
+    await render_results(); /* initial fetch */
+  }else{
+    // if no vectorization, show warning
+    list_el.createEl('p', {
+      text: 'This source is not embedded. Check your Smart Environment settings. For example, the current content may be less than the minimum embedding size.',
+      cls: 'sc-warning'
+    });
+    // button to show source inspector
+    const inspect_btn = list_el.createEl('button', {
+      text: 'Inspect Source',
+      cls: 'sc-inspect-source-btn',
+      title: 'Inspect source details'
+    });
+    inspect_btn.addEventListener('click', async () => {
+      new SmartNoteInspectModal(plugin, entity).open();
+    });
+  }
 
-  /* ──────────────── event wiring ───────────────────────────────────── */
   const toggle_btn = container.querySelector('[title="Fold all toggle"]');
   toggle_btn.addEventListener('click', () => {
     const expanded =
@@ -102,14 +117,8 @@ export async function post_process(entity, container, opts = {}) {
     );
   });
 
-  /* Refresh – light if view not supplied, heavy if it is --------------- */
   const refresh_btn = container.querySelector('[title="Refresh"]');
   refresh_btn.addEventListener('click', async () => {
-    // if (view_ref?.refresh) {
-    //   await view_ref.refresh();
-    //   return;
-    // }
-    /* light‑weight fallback: re‑import + re‑embed current entity */
     await entity.read();
     entity.queue_import();
     await entity.collection.process_source_import_queue?.();
@@ -131,7 +140,6 @@ export async function post_process(entity, container, opts = {}) {
 
   /* Settings */
   container.querySelector('[title="Settings"]')?.addEventListener('click', async () => {
-    // view.open_settings();
     await app.setting.open();
     await app.setting.openTabById('smart-connections');
   });
