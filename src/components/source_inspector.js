@@ -1,4 +1,4 @@
- /**
+/**
   * Build raw HTML container. The detailed content for each block
   * will be appended in post_process (because block.read() is async).
   * @param {Object} source
@@ -6,12 +6,18 @@
   * @returns {string}
   */
 export function build_html(source, opts = {}) {
-  return `
+  return `<div>
+    <div class="source-inspector-source-info">
+      <button class="source-inspector-show-data-btn" type="button">Show source data</button>
+      <div class="source-inspector-source-data" style="display:none; margin: 0.5em 0;">
+        <pre style="max-height:300px; overflow:auto; background:#222; color:#fff; padding:0.5em; border-radius:4px;"></pre>
+      </div>
+    </div>
     <div class="smart-chat-message source-inspector">
       <h2>Blocks</h2>
       <div class="source-inspector-blocks-container"></div>
     </div>
-  `;
+  </div>`;
 }
 
 import inspector_css from './source_inspector.css' with { type: 'css' };
@@ -26,7 +32,7 @@ import inspector_css from './source_inspector.css' with { type: 'css' };
  * @param {Object} [opts]
  * @returns {Promise<DocumentFragment>}
  */
-export async function render(source, opts={}) {
+export async function render(source, opts = {}) {
   const html = build_html(source, opts);
   const frag = this.create_doc_fragment(html);
   this.apply_style_sheet(inspector_css);
@@ -47,6 +53,36 @@ export async function render(source, opts={}) {
 export async function post_process(source, frag, opts = {}) {
   const container = frag.querySelector('.source-inspector .source-inspector-blocks-container');
   if (!container) return frag;
+  const source_info = frag.querySelector('.source-inspector-source-info');
+
+  // Add show/hide source data button logic
+  const btn = frag.querySelector('.source-inspector-show-data-btn');
+  const data_div = frag.querySelector('.source-inspector-source-data');
+  const pre = data_div?.querySelector('pre');
+  if (btn && data_div && pre) {
+    btn.addEventListener('click', () => {
+      if (data_div.style.display === 'none') {
+        pre.textContent = JSON.stringify(source.data, null, 2);
+        data_div.style.display = '';
+        btn.textContent = 'Hide source data';
+      } else {
+        data_div.style.display = 'none';
+        btn.textContent = 'Show source data';
+      }
+    });
+  }
+
+  // added source-level should_embed/vectorize checks
+  const source_should_embed = source.should_embed
+    ? `<span style="color: green;">should embed</span>`
+    : `<span style="color: orange;">embedding skipped</span>`
+  ;
+  const source_embed_status = source.vec
+    ? `<span style="color: green;">vectorized</span>`
+    : `<span style="color: orange;">not vectorized</span>`
+  ;
+  const source_info_frag = this.create_doc_fragment(`<p>${source_should_embed} | ${source_embed_status}</p>`);
+  source_info.appendChild(source_info_frag);
 
   if (!source || !source.blocks || source.blocks.length === 0) {
     this.safe_inner_html(container, `<p>No blocks</p>`);
@@ -54,12 +90,12 @@ export async function post_process(source, frag, opts = {}) {
   }
 
   // Sort blocks
-  const sortedBlocks = source.blocks.sort((a, b) => a.line_start - b.line_start);
+  const sorted_blocks = source.blocks.sort((a, b) => a.line_start - b.line_start);
 
-  for (const block of sortedBlocks) {
+  for (const block of sorted_blocks) {
     // Build the short info line
-    const subKeyDisplay = block.sub_key.split('#').join(' > ');
-    const blockInfo = `${subKeyDisplay} (${block.size} chars; lines: ${block.line_start}-${block.line_end})`;
+    const sub_key_display = block.sub_key.split('#').join(' > ');
+    const block_info = `${sub_key_display} (${block.size} chars; lines: ${block.line_start}-${block.line_end})`;
 
     // Flag
     const should_embed = block.should_embed
@@ -70,29 +106,29 @@ export async function post_process(source, frag, opts = {}) {
       : `<span style="color: orange;">not vectorized</span>`;
 
     // Read and sanitize content
-    let blockContent = '';
+    let block_content = '';
     try {
       const raw = await block.read();
-      blockContent = raw
+      block_content = raw
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/\n/g, '<br>')
         .replace(/\t/g, '&nbsp;&nbsp;');
     } catch (err) {
       console.error('[source_inspector] Error reading block:', err);
-      blockContent = `<em style="color:red;">Error reading block content</em>`;
+      block_content = `<em style="color:red;">Error reading block content</em>`;
     }
 
     // Append to container
-    const blockFrag = this.create_doc_fragment(`
+    const block_frag = this.create_doc_fragment(`
       <p>
-        ${blockInfo}<br>
+        ${block_info}<br>
         ${should_embed} | ${embed_status}
       </p>
-      <blockquote>${blockContent}</blockquote>
+      <blockquote>${block_content}</blockquote>
       <hr>
     `);
-    container.appendChild(blockFrag);
+    container.appendChild(block_frag);
   }
 
   return frag;
