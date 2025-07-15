@@ -26,7 +26,6 @@ export class ConnectionsModal extends FuzzySuggestModal {
 
     // Initialise entity if needed.
     if (!entity) {
-      env.smart_sources.fs.include_file(active.path);
       entity = env.smart_sources.init_file_path(active.path);
       if (!entity) return;
       await entity.import();

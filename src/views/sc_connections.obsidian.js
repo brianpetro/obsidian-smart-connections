@@ -1,6 +1,9 @@
 import { SmartObsidianView } from "./smart_view.obsidian.js";
 import { Platform } from "obsidian";
 
+/**
+ * @deprecated Use `ConnectionsView` instead.
+ */
 export class ScConnectionsView extends SmartObsidianView {
   static get view_type() { return "smart-connections-view"; }
   static get display_text() { return "Smart Connections"; }
@@ -87,7 +90,6 @@ export class ScConnectionsView extends SmartObsidianView {
     
     if(!entity && current_file){
       console.log("Creating entity for current file " + current_file.path);
-      this.env.smart_sources.fs.include_file(current_file.path);
       entity = this.env.smart_sources.init_file_path(current_file.path);
       if(!entity) return this.plugin.notices.show("unable_to_init_source", {key: current_file.path});
       await entity.import();

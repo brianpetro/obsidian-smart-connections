@@ -69,7 +69,6 @@ export class ConnectionsView extends SmartObsidianView {
 
     let entity = collection.get(input);
     if (!entity) {
-      collection.fs.include_file(input);
       entity = collection.init_file_path(input);
       if (entity) {
         await entity.import();
