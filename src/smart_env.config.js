@@ -143,6 +143,7 @@ export const smart_env_config = {
     smart_view_filter: {
       render_markdown: true,
       show_full_path: false,
+      exclude_blocks_from_source_connections: false,
     },
   },
 };
