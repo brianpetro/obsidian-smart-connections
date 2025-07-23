@@ -57,8 +57,6 @@ export async function post_process(entity, container, opts = {}) {
   const render_results = async () => {
     const exclude_keys = Object.keys(entity.data.hidden_connections || {});
     const results = await entity.find_connections({
-      exclude_key_ends_with: '---frontmatter---',
-      exclude_blocks_from_source_connections: filter_settings.exclude_blocks_from_source_connections ?? false,
       exclude_keys,
       ...(opts.filter || {}),
     });

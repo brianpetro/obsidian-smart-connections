@@ -46,8 +46,6 @@ export class ScConnectionsView extends SmartObsidianView {
 
     const results = await entity.find_connections({
       ...opts,
-      exclude_key_ends_with: "---frontmatter---",
-      exclude_blocks_from_source_connections: this.env.settings.smart_view_filter.exclude_blocks_from_source_connections ?? false,
       exclude_keys,
     });
     

@@ -144,6 +144,7 @@ export const smart_env_config = {
       render_markdown: true,
       show_full_path: false,
       exclude_blocks_from_source_connections: false,
+      exclude_frontmatter_blocks: true,
     },
   },
 };
