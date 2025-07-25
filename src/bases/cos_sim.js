@@ -1,4 +1,4 @@
-import { cos_sim } from "smart-entities/utils/cos_sim.js";
+import { cos_sim } from "smart-utils/cos_sim.js";
 import { register_connections_score_command } from "./connections_score_column_modal.js";
 export function register_bases_integration(plugin) {
 	if (plugin.app.internalPlugins.plugins.bases?.enabled) {
