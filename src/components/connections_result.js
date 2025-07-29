@@ -1,5 +1,6 @@
 import { Keymap, Menu, Notice } from 'obsidian';
 import { register_block_hover_popover } from 'obsidian-smart-env/utils/register_block_hover_popover.js';
+import { handle_drag_result } from '../utils/drag.js';
 
 /**
  * Builds the HTML string for the result component.
@@ -104,19 +105,15 @@ export async function post_process(result_scope, frag, opts = {}) {
 
   result_elm.addEventListener('click', handle_result_click.bind(plugin));
 
-  const path = result_elm.querySelector('li').dataset.key;
+  const key = result_elm.querySelector('li').dataset.key;
   result_elm.addEventListener('dragstart', (event) => {
-    const drag_manager = app.dragManager;
-    const file_path = path.split('#')[0];
-    const file = app.metadataCache.getFirstLinkpathDest(file_path, '');
-    const drag_data = drag_manager.dragFile(event, file);
-    drag_manager.onDragStart(event, drag_data);
+    handle_drag_result(app, event, key);
   });
 
   /* ---------- hover preview ---------- */
-  if (path.indexOf('{') === -1) {
+  if (key.indexOf('{') === -1) {
     result_elm.addEventListener('mouseover', (event) => {
-      const linktext_path = path.replace(/#$/, ''); // remove trailing hash if present
+      const linktext_path = key.replace(/#$/, ''); // remove trailing hash if present
       app.workspace.trigger('hover-link', {
         event,
         source: 'smart-connections-view',
@@ -126,7 +123,7 @@ export async function post_process(result_scope, frag, opts = {}) {
       });
     });
   } else {
-    register_block_hover_popover(result_elm.parentElement, result_elm, env, path, plugin);
+    register_block_hover_popover(result_elm.parentElement, result_elm, env, key, plugin);
   }
 
   const observer = new MutationObserver((mutations) => {
