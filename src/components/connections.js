@@ -1,10 +1,12 @@
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 import { SmartNoteInspectModal } from "obsidian-smart-env/views/source_inspector.js";
+import { ConnectionsFilterModal } from '../modals/connections_filter.js';
 
-function build_top_bar_buttons(view_env) {
-  const expanded_view =
-    view_env.settings.smart_view_filter.expanded_view ??
-    view_env.settings.expanded_view; /* @deprecated */
+function build_top_bar_buttons(view_env, opts = {}) {
+  const connections_settings = opts.connections_settings
+    ?? view_env.settings.smart_view_filter
+  ;
+  const expanded_view = connections_settings.expanded_view;
 
   const buttons = [
     { title: 'Refresh', icon: 'refresh-cw' },
@@ -25,7 +27,7 @@ function build_top_bar_buttons(view_env) {
 }
 
 export async function build_html(entity, opts = {}) {
-  const top_bar_buttons = build_top_bar_buttons.call(this, entity.env);
+  const top_bar_buttons = build_top_bar_buttons.call(this, entity.env, opts);
   return `<div><div class="sc-connections-view">
     <div class="sc-top-bar">
       <p class="sc-context" data-key="">Loading…</p>
@@ -52,7 +54,9 @@ export async function post_process(entity, container, opts = {}) {
   const list_el = container.querySelector('.sc-list');
   const header_ctx = container.querySelector('.sc-top-bar .sc-context');
   const footer_ctx = container.querySelector('.sc-bottom-bar .sc-context');
-  const filter_settings = entity.env.settings.smart_view_filter;
+  const connections_settings = opts.connections_settings
+    ?? entity.env.settings.smart_view_filter
+  ;
 
   const render_results = async () => {
     const exclude_keys = Object.keys(entity.data.hidden_connections || {});
@@ -99,11 +103,8 @@ export async function post_process(entity, container, opts = {}) {
 
   const toggle_btn = container.querySelector('[title="Fold all toggle"]');
   toggle_btn.addEventListener('click', () => {
-    const expanded =
-      entity.env.settings.smart_view_filter.expanded_view ??
-      entity.env.settings.expanded_view;
-
-    entity.env.settings.smart_view_filter.expanded_view = !expanded;
+    const expanded = connections_settings.expanded_view;
+    connections_settings.expanded_view = !expanded;
 
     list_el.querySelectorAll('.sc-result').forEach((elm) =>
       expanded ? elm.classList.add('sc-collapsed') : elm.classList.remove('sc-collapsed')
@@ -137,13 +138,19 @@ export async function post_process(entity, container, opts = {}) {
   );
 
   /* Settings */
-  container.querySelector('[title="Settings"]')?.addEventListener('click', async () => {
-    await app.setting.open();
-    await app.setting.openTabById('smart-connections');
+  const settings_btn = container.querySelector('[title="Settings"]');
+  settings_btn?.addEventListener('click', async () => {
+    if (opts.codeblock) {
+      const modal = new ConnectionsFilterModal(plugin.app, entity.env, opts.connections_settings);
+      modal.open();
+    } else {
+      await app.setting.open();
+      await app.setting.openTabById('smart-connections');
+    }
   });
 
   /* make plaintext vs markdown toggle persist */
-  if (!filter_settings.render_markdown) list_el.classList.add('sc-result-plaintext');
+  if (!connections_settings.render_markdown) list_el.classList.add('sc-result-plaintext');
 
 
   container.querySelectorAll(".sc-context").forEach(el => {

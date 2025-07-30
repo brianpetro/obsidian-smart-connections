@@ -13,7 +13,7 @@ flowchart TD
 
 | File | Description |
 | ---- | ----------- |
-| `connections.js` | Builds the Connections view wrapper and top‑bar buttons. |
+| `connections.js` | Builds the Connections view wrapper and top‑bar buttons. When `is_codeblock` option is passed, the settings button opens a modal to edit filter options stored in the codeblock. |
 | `connections_results.js` | Renders result lists by delegating each item to `connections_result.js`. |
 | `connections_result.js` | Handles single result expansion and context menus. |
 | `connections_v1.js` | Deprecated first version kept for early‑release compatibility. |

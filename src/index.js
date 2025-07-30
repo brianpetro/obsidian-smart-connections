@@ -29,13 +29,10 @@ import { ConnectionsModal } from "./views/connections_modal.js";
 
 import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
 
-import { register_bases_integration } from './bases/cos_sim.js';
-
 import { ReleaseNotesView }    from "./views/release_notes_view.js";
 
-import { open_url_externally } from "obsidian-smart-env/utils/open_url_externally.js";
-
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
+import { create_deep_proxy } from "./utils/create_deep_proxy.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
 
@@ -87,7 +84,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
     this.add_commands();
     this.register_code_blocks();
-    // register_bases_integration(this); // register bases integration if enabled
   }
   // async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
@@ -320,43 +316,18 @@ export default class SmartConnectionsPlugin extends Plugin {
     container.createEl('span', { text: 'Loading…' });
     await SmartEnv.wait_for({ loaded: true });
 
-    /* semantic query mode (original behaviour unchanged) */
-    const content_lines = []
-    const filter = {};
-    if (contents.trim().length) {
-      const lines = contents.split('\n').map(line => line.trim()).filter(line => line.length);
-      for (const line of lines) {
-        if(line.startsWith('include:')) {
-          const value = line.replace('include:', '').trim();
-          if(value) filter.key_includes_any = value.split(',').map(v => v.trim());
-          continue;
-        }
-        if(line.startsWith('does not end with:')) {
-          const value = line.replace('does not end with:', '').trim();
-          if(value) filter.exclude_key_ends_with_any = value.split(',').map(v => v.trim());
-          continue;
-        }
-        if(line.startsWith('limit:')) {
-          const value = line.replace('limit:', '').trim();
-          if(value) filter.limit = parseInt(value);
-          continue;
-        }
-        content_lines.push(line);
-      }
+    const connections_settings = JSON.parse(contents.trim() || '{}');
+    // this should be handled better downstream (reduce ambigous limit vs results_limit)
+    if(connections_settings?.results_limit && (!connections_settings?.limit || connections_settings?.limit !== connections_settings?.results_limit)) {
+      connections_settings.limit = connections_settings.results_limit;
     }
-    if (content_lines.length) {
-      contents = content_lines.join('\n');
-      const frag = await this.env.render_component(
-        'lookup',
-        this.env.smart_sources,
-        { attribution: this.attribution, query: contents, filter }
-      );
-      container.empty();
-      container.appendChild(frag);
-      return;
-    }
+    const observed_connections_settings = create_deep_proxy(connections_settings, (updated) => {
+      if (typeof ctx.replaceCode === 'function') ctx.replaceCode(JSON.stringify(connections_settings, null, 2));
+      const {text, lineStart: line_start, lineEnd: line_end} = ctx.getSectionInfo(container) ?? {};
+      contents = text.split('\n').slice(line_start + 1, line_end).join('\n');
+      this.render_code_block(contents, container, ctx);
+    });
 
-    /* connections mode – component now fetches its own results */
     const entity =
       this.env.smart_sources.get(ctx.sourcePath) ??
       this.env.smart_sources.init_file_path(ctx.sourcePath);
@@ -367,13 +338,18 @@ export default class SmartConnectionsPlugin extends Plugin {
       return;
     }
 
-    const frag = await this.env.render_component(
+    const connections_container = await this.env.render_component(
       'connections',
       entity,
-      { attribution: this.attribution, filter }
+      {
+        attribution: this.attribution,
+        filter: observed_connections_settings,
+        codeblock: true,
+        connections_settings: observed_connections_settings
+      }
     );
     container.empty();
-    container.appendChild(frag);
+    container.appendChild(connections_container);
   }
 
 

@@ -1,6 +1,8 @@
 import { Keymap, Menu, Notice } from 'obsidian';
 import { register_block_hover_popover } from 'obsidian-smart-env/utils/register_block_hover_popover.js';
 import { handle_drag_result } from '../utils/drag.js';
+import { get_block_display_name } from 'smart-blocks/utils/get_block_display_name.js';
+import { get_item_display_name } from 'smart-collections/utils/get_item_display_name.js';
 
 /**
  * Builds the HTML string for the result component.
@@ -12,6 +14,7 @@ import { handle_drag_result } from '../utils/drag.js';
 export async function build_html(result, opts = {}) {
   const item = result.item;
   const score = result.score; // Extract score from opts
+  const display_name = get_item_name(item, opts);
   
   return `<div class="temp-container">
     <div
@@ -26,7 +29,7 @@ export async function build_html(result, opts = {}) {
       <span class="header">
         ${this.get_icon_html('right-triangle')}
         <a class="sc-result-file-title" href="#" title="${item.path.replace(/"/g, '&quot;')}" draggable="true">
-          <small>${[score?.toFixed(2), item.name].join(' | ')}</small>
+          <small>${[score?.toFixed(2), display_name].join(' | ')}</small>
         </a>
       </span>
       <ul draggable="true">
@@ -59,9 +62,11 @@ export async function post_process(result_scope, frag, opts = {}) {
   const env = item.env;
   const plugin = env.smart_connections_plugin;
   const app = plugin.app;
-  const filter_settings = env.settings.smart_view_filter;
+  const connections_settings = opts.connections_settings
+    ?? env.settings.smart_view_filter
+  ;
   const result_elm = frag.querySelector('.sc-result');
-  if (!filter_settings.render_markdown) result_elm.classList.add('sc-result-plaintext');
+  if (!connections_settings.render_markdown) result_elm.classList.add('sc-result-plaintext');
 
   const render_result = async (_result_elm) => {
     if (!_result_elm.querySelector('li').innerHTML) {
@@ -71,7 +76,7 @@ export async function post_process(result_scope, frag, opts = {}) {
       if (should_render_embed(entity)) markdown = `${entity.embed_link}\n\n${await entity.read()}`;
       else markdown = process_for_rendering(await entity.read());
       let entity_frag;
-      if (filter_settings.render_markdown) entity_frag = await this.render_markdown(markdown, entity);
+      if (connections_settings.render_markdown) entity_frag = await this.render_markdown(markdown, entity);
       else entity_frag = this.create_doc_fragment(markdown);
       result_elm.querySelector('li').appendChild(entity_frag);
     }
@@ -160,7 +165,7 @@ export async function post_process(result_scope, frag, opts = {}) {
     const menu = new Menu(app);
     menu.addItem((menu_item) => {
       menu_item
-        .setTitle(`Hide ${item.name}`)
+        .setTitle(`Hide ${get_item_name(item, opts)}`)
         .setIcon('eye-off')
         .onClick(() => {
           try {
@@ -200,10 +205,7 @@ export async function post_process(result_scope, frag, opts = {}) {
     menu.showAtMouseEvent(event);
   });
 
-  const expanded_view = env.settings.smart_view_filter.expanded_view
-    ?? env.settings.expanded_view // @deprecated
-  ;
-  if (!expanded_view) return result_elm;
+  if (!connections_settings.expanded_view) return result_elm;
 
   // render if already expanded
   toggle_result(result_elm);
@@ -224,4 +226,15 @@ export function process_for_rendering(content) {
   // prevent link embedding
   if (content.includes('![[')) content = content.replace(/\!\[\[/g, '! [[');
   return content;
+}
+
+function get_item_name(item, opts) {
+  const get_display_name = item.key.includes('#')
+    ? get_block_display_name
+    : get_item_display_name
+  ;
+  const show_full_path = opts.connections_settings?.show_full_path
+    ?? item.env.settings.smart_view_filter.show_full_path
+  ;
+  return get_display_name(item.key, show_full_path);
 }
