@@ -18,6 +18,12 @@ async function build_html(scope_plugin) {
       </div>
 
       <div data-smart-settings="env"></div>
+      <h2>More Smart Plugins</h2>
+      <div class="sc-other-plugins">
+        <button class="sc-smart-context-button">Quickly copy notes many notes to clipboard</button>
+        <button class="sc-smart-chatgpt-button">Embed &amp; bookmark chat threads to notes</button>
+        <button class="sc-smart-templates-button">Smart note generation with context + templates</button>
+      </div>
     </div>
   `;
 }
@@ -113,6 +119,18 @@ export async function post_process(scope_plugin, frag) {
       scope_plugin,
       'https://github.com/brianpetro/obsidian-smart-connections/discussions/new?category=showcase'
     );
+  });
+
+  frag.querySelector('.sc-smart-context-button')?.addEventListener('click', () => {
+    open_url_externally(scope_plugin, 'https://obsidian.md/plugins?id=smart-context');
+  });
+
+  frag.querySelector('.sc-smart-chatgpt-button')?.addEventListener('click', () => {
+    open_url_externally(scope_plugin, 'https://obsidian.md/plugins?id=smart-chatgpt');
+  });
+
+  frag.querySelector('.sc-smart-templates-button')?.addEventListener('click', () => {
+    open_url_externally(scope_plugin, 'https://obsidian.md/plugins?id=smart-templates');
   });
 
   return frag;

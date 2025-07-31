@@ -845,3 +845,24 @@ div.workspace-leaf-content[data-type^="smart-"] {
   flex-direction: column;
   height: 100%;
 }
+
+.sc-other-plugins {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+
+  button {
+    padding: 10px;
+    border-radius: var(--radius-s);
+    background-color: var(--background-primary);
+    color: var(--text-normal);
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-small);
+
+    &:hover {
+      background-color: var(--background-primary-hover);
+    }
+  }
+}
