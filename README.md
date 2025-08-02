@@ -33,7 +33,8 @@ More time for what matters most<br>
 
 📁 Simple local data files
 
-📄 **PDFs support in Smart Chat** – drag research papers straight into the conversation  
+📄 **PDFs support in Smart Chat** – drag research papers straight into the conversation
+Supports PDFs *without needing a premium plan*, unlike some tools.
 
 📦 Ultra-lightweight bundle (~1 MB) with minimal/no third-party dependencies
 
@@ -129,6 +130,7 @@ As luck has it, I began jotting down lines of code for automations in my school 
 
 ### Smart Plugins
 I build Smart Plugins, like Smart Connections, to empower myself to explore new concepts, design better tools, and handle more complexity in my Obsidian. My goal is to make as many of these concepts and tools available to you.
+[Browse all Smart Plugins](https://smartconnections.app/smart-plugins/) →
 
 ### Smart Business Model
 The reality is that most valuable tools cannot exist without financial support. But that doesn't mean having to sell-out or shutdown. Obsidian has shown us that valuable software can be user-funded, and I believe now is a better time than ever to bring the vision of user-aligned software to reality.
@@ -245,3 +247,7 @@ Here's what some of them have to say:
 ### Syncthing (third-party syncing)
 *Official services, like Obsidian Sync, help keep Obsidian user-aligned. Smart Connections has built-in compatibility with Obsidian Sync.*
 However, if you must use a third-party sync service, be sure to **add the `.smart-env/` directory to "ignore patterns"** to prevent issues.
+
+### Windows dedicated GPU
+If embeddings default to the integrated GPU, set `ollama.exe` to **High performance** in your GPU control panel.
+See [issue #1028](https://github.com/brianpetro/obsidian-smart-connections/issues/1028#issuecomment-3070187288) for context.
