@@ -33,6 +33,7 @@ import { ReleaseNotesView }    from "./views/release_notes_view.js";
 
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 import { create_deep_proxy } from "./utils/create_deep_proxy.js";
+import { pick_random_connection } from "./utils/pick_random_connection.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
 
@@ -262,11 +263,9 @@ export default class SmartConnectionsPlugin extends Plugin {
         const entity = this.env.smart_sources.get(curr_file.path);
         const connections = await entity.find_connections({
             filter: {limit: 20},
-          })
-        ;
-        const rand = Math.floor(Math.random() * connections.length/2); // divide by 2 to limit to top half of results
-        const rand_entity = connections[rand]; // get random from nearest cache
-        this.open_note(rand_entity.item.path);
+          });
+        const rand_entity = pick_random_connection(connections);
+        if (rand_entity) this.open_note(rand_entity.item.path);
       }
     });
 
