@@ -17,6 +17,10 @@ async function build_html(scope_plugin) {
         <h2>Connections view</h2>
       </div>
 
+      <div data-ribbon-icons-settings>
+        <h2>Ribbon icons</h2>
+      </div>
+
       <div data-smart-settings="env"></div>
       <h2>More Smart Plugins</h2>
       <div class="sc-other-plugins">
@@ -74,6 +78,37 @@ export async function post_process(scope_plugin, frag) {
       { scope: { settings: scope_plugin.env.settings } }
     );
     connections_settings.appendChild(connections_settings_frag);
+  }
+
+  /* ribbon icon settings */
+  const ribbon_container = frag.querySelector('[data-ribbon-icons-settings]');
+  if (ribbon_container) {
+    if (!scope_plugin.env.settings.ribbon_icons) scope_plugin.env.settings.ribbon_icons = {};
+    const ribbon_frag = await this.render_settings(
+      {
+        connections: {
+          setting: 'connections',
+          name: 'Open connections view',
+          description: 'Show the &quot;Open connections view&quot; icon.',
+          type: 'toggle',
+          callback: 'toggle_ribbon_icon',
+        },
+        random_note: {
+          setting: 'random_note',
+          name: 'Open random connection',
+          description: 'Show the &quot;Open random connection&quot; icon.',
+          type: 'toggle',
+          callback: 'toggle_ribbon_icon',
+        },
+      },
+      {
+        scope: {
+          settings: scope_plugin.env.settings.ribbon_icons,
+          toggle_ribbon_icon: scope_plugin.toggle_ribbon_icon.bind(scope_plugin),
+        } 
+      }
+    );
+    ribbon_container.appendChild(ribbon_frag);
   }
 
   /* header external links */

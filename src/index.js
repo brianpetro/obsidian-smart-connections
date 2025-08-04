@@ -34,6 +34,7 @@ import { ReleaseNotesView }    from "./views/release_notes_view.js";
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 import { create_deep_proxy } from "./utils/create_deep_proxy.js";
 import { pick_random_connection } from "./utils/pick_random_connection.js";
+import { add_smart_dice_icon } from "./utils/add_icons.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
 
@@ -81,7 +82,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     SmartEnv.create(this); // IMPORTANT: works on mobile without this.smart_env_config as second arg
     this.register_views();
     SmartChatView.register_view(this);
-    this.addRibbonIcon("smart-connections", "Open: View Smart Connections", () => { this.open_connections_view(); });
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
     this.add_commands();
     this.register_code_blocks();
@@ -117,6 +117,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     await this.migrate_last_version_from_localStorage();
     await this.check_for_updates();
     this.new_user();
+    this.add_ribbon_icons();
     this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
     this.register(() => {
       console.log("removing smart-chat setting tab");
@@ -125,6 +126,42 @@ export default class SmartConnectionsPlugin extends Plugin {
     console.log("Smart Chat is registered");
   }
 
+  /**
+   * Initialize ribbon icons based on saved settings.
+   */
+  add_ribbon_icons() {
+    this.toggle_ribbon_icon('connections');
+    add_smart_dice_icon();
+    this.toggle_ribbon_icon('random_note');
+  }
+
+  ribbon_icons = {
+    connections: {
+      icon_name: "smart-connections",
+      description: "Smart Connections: Open connections view",
+      callback: () => { this.open_connections_view(); }
+    },
+    random_note: {
+      icon_name: "smart-dice",
+      description: "Smart Connections: Open random connection",
+      callback: () => { this.open_random_connection(); }
+    }
+  }
+
+  toggle_ribbon_icon(icon_name, show_icon) {
+    console.log("toggled_ribbon_icon", icon_name, show_icon);
+    const icon = this.ribbon_icons[icon_name];
+    console.log("icon", icon);
+    if(!this.env.settings.ribbon_icons) this.env.settings.ribbon_icons = {};
+    if (typeof show_icon === "undefined") show_icon = this.env.settings.ribbon_icons[icon_name];
+    else this.env.settings.ribbon_icons[icon_name] = show_icon;
+    if (show_icon) {
+      icon.elm = this.addRibbonIcon(icon.icon_name, icon.description, icon.callback);
+    } else {
+      icon.elm?.remove();
+      this.app.workspace.leftRibbon.removeRibbonAction("smart-connections:"+icon.description);
+    }
+  }
 
   register_code_blocks() {
     this.register_code_block("smart-connections", "render_code_block");
@@ -212,9 +249,59 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   add_commands() {
+    // Open connections view
+    this.addCommand({
+      id: "open-connections-view",
+      name: "Open connections view",
+      callback: async () => {
+        this.open_connections_view();
+        setTimeout(() => {
+          this.connections_view?.render_view();
+        }, 300);
+      }
+    });
+
+    this.addCommand({
+      id: "smart-connections-random",
+      name: "Open random note from connections",
+      callback: async () => {
+        await this.open_random_connection();
+      }
+    });
+
+    this.addCommand({
+      id: 'open-connections-modal',
+      name: 'Open connections modal',
+      checkCallback: (checking) => {
+        if(checking) return !!this.app.workspace.getActiveFile()?.path;
+        const modal = new ConnectionsModal(this);
+        modal.open();
+      }
+    });
+
+    // show release notes
+    this.addCommand({
+      id: 'show-release-notes',
+      name: 'Show release notes',
+      callback: () => ReleaseNotesView.open(this.app.workspace, this.manifest.version)
+    });
+
+    // show getting started
+    this.addCommand({
+      id: 'show-getting-started',
+      name: 'Show getting started slideshow',
+      callback: () => {
+        StoryModal.open(this, {
+          title: 'Getting Started With Smart Connections',
+          url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=sc-op-command',
+        });
+      }
+    });
+
+    // DEPRECATED
     this.addCommand({
       id: "sc-find-notes",
-      name: "Find: Make Smart Connections",
+      name: "Find: Make Smart Connections (Removing soon! Use 'Open connections view')",
       editorCallback: (editor) => {
         if(editor.somethingSelected()){
           if(!this.lookup_view) this.open_lookup_view();
@@ -231,10 +318,10 @@ export default class SmartConnectionsPlugin extends Plugin {
         }else this.connections_view.render_view();
       }
     });
-
+    // DEPRECATED
     this.addCommand({
       id: "sc-refresh-connections",
-      name: "Refresh & make connections",
+      name: "Refresh & make connections (Removing soon! Use 'Open connections view')",
       editorCallback: async (editor) => {
         const curr_file = this.app.workspace.getActiveFile();
         if(!curr_file?.path) return console.warn("No active file", curr_file);
@@ -254,49 +341,16 @@ export default class SmartConnectionsPlugin extends Plugin {
         }, 1000);
       }
     });
+  }
 
-    this.addCommand({
-      id: "smart-connections-random",
-      name: "Random note",
-      callback: async () => {
-        const curr_file = this.app.workspace.getActiveFile();
-        const entity = this.env.smart_sources.get(curr_file.path);
-        const connections = await entity.find_connections({
-            filter: {limit: 20},
-          });
-        const rand_entity = pick_random_connection(connections);
-        if (rand_entity) this.open_note(rand_entity.item.path);
-      }
+  async open_random_connection() {
+    const curr_file = this.app.workspace.getActiveFile();
+    const entity = this.env.smart_sources.get(curr_file.path);
+    const connections = await entity.find_connections({
+      filter: { limit: 20 },
     });
-
-    this.addCommand({
-      id: 'open-connections-modal',
-      name: 'Connections modal',
-      checkCallback: (checking) => {
-        if(checking) return !!this.app.workspace.getActiveFile()?.path;
-        const modal = new ConnectionsModal(this);
-        modal.open();
-      }
-    });
-
-    // show release notes
-    this.addCommand({
-      id: 'show-release-notes',
-      name: 'Show release notes',
-      callback: () => ReleaseNotesView.open(this.app.workspace, this.manifest.version)
-    });
-
-    // show getting started
-    this.addCommand({
-      id: 'show-getting-started',
-      name: 'Show getting started',
-      callback: () => {
-        StoryModal.open(this, {
-          title: 'Getting Started With Smart Connections',
-          url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=sc-op-command',
-        });
-      }
-    });
+    const rand_entity = pick_random_connection(connections);
+    if (rand_entity) this.open_note(rand_entity.item.path);
   }
 
   // We keep the old code

@@ -138,6 +138,10 @@ export const smart_env_config = {
         },
       },
     },
+    ribbon_icons: {
+      connections: true,
+      random_note: false,
+    },
     file_exclusions: 'Untitled',
     folder_exclusions: '',
     smart_view_filter: {
