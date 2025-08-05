@@ -35,6 +35,7 @@ import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 import { create_deep_proxy } from "./utils/create_deep_proxy.js";
 import { pick_random_connection } from "./utils/pick_random_connection.js";
 import { add_smart_dice_icon } from "./utils/add_icons.js";
+import { toggle_plugin_ribbon_icon } from "./utils/toggle_plugin_ribbon_icon.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
 
@@ -130,9 +131,9 @@ export default class SmartConnectionsPlugin extends Plugin {
    * Initialize ribbon icons based on saved settings.
    */
   add_ribbon_icons() {
-    this.toggle_ribbon_icon('connections');
     add_smart_dice_icon();
-    this.toggle_ribbon_icon('random_note');
+    toggle_plugin_ribbon_icon(this, 'connections');
+    toggle_plugin_ribbon_icon(this, 'random_note');
   }
 
   ribbon_icons = {
@@ -146,30 +147,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       description: "Smart Connections: Open random connection",
       callback: () => { this.open_random_connection(); }
     }
-  }
-
-  async toggle_ribbon_icon(icon_name, show_icon) {
-    const icon = this.ribbon_icons[icon_name];
-    icon.elm = this.addRibbonIcon(icon.icon_name, icon.description, icon.callback);
-    const ribbon_icon_id = "smart-connections:" + icon.description;
-    const ribbon_item = this.app.workspace.leftRibbon.items.find(i => i.id === ribbon_icon_id);
-    await SmartEnv.wait_for({ loaded: true });
-    if (!this.env.settings.ribbon_icons) this.env.settings.ribbon_icons = {};
-    if (typeof show_icon === "undefined"){
-      if (ribbon_item.hidden) {
-        this.env.settings.ribbon_icons[icon_name] = false;
-      }
-      show_icon = this.env.settings.ribbon_icons[icon_name];
-    } else {
-      this.env.settings.ribbon_icons[icon_name] = show_icon;
-    }
-    if (show_icon) {
-      ribbon_item.hidden = false;
-      this.app.workspace.leftRibbon.load(this.app.workspace.leftRibbon.ribbonItemsEl);
-    } else {
-      ribbon_item.hidden = true;
-    }
-    this.app.workspace.leftRibbon.load(this.app.workspace.leftRibbon.ribbonItemsEl);
   }
 
   register_code_blocks() {

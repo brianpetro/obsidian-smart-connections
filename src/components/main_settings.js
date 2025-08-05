@@ -1,5 +1,6 @@
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 import { open_url_externally } from 'obsidian-smart-env/utils/open_url_externally.js';
+import { toggle_plugin_ribbon_icon } from "../utils/toggle_plugin_ribbon_icon.js";
 
 async function build_html(scope_plugin) {
   return `
@@ -91,20 +92,22 @@ export async function post_process(scope_plugin, frag) {
           name: 'Open connections view',
           description: 'Show the &quot;Open connections view&quot; icon.',
           type: 'toggle',
-          callback: 'toggle_ribbon_icon',
+          callback: 'toggle_plugin_ribbon_icon',
         },
         random_note: {
           setting: 'random_note',
           name: 'Open random connection',
           description: 'Show the &quot;Open random connection&quot; icon.',
           type: 'toggle',
-          callback: 'toggle_ribbon_icon',
+          callback: 'toggle_plugin_ribbon_icon',
         },
       },
       {
         scope: {
           settings: scope_plugin.env.settings.ribbon_icons,
-          toggle_ribbon_icon: scope_plugin.toggle_ribbon_icon.bind(scope_plugin),
+          toggle_plugin_ribbon_icon: (setting_path, value) => {
+            toggle_plugin_ribbon_icon(scope_plugin, setting_path, value);
+          },
         } 
       }
     );
