@@ -3,13 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import 'dotenv/config';
 import { build_smart_env_config } from 'obsidian-smart-env/build_smart_env_config.js';
+import { create_banner } from './src/utils/banner.js';
 
-console.log('process.cwd()', process.cwd());
 const roots = [
   path.resolve(process.cwd(), 'src'),
   // path.resolve(process.cwd(), '..', 'smart-context-obsidian', 'src'),
 ];
-console.log('roots', roots);
 build_smart_env_config(process.cwd(), roots);
 
 /**
@@ -120,6 +119,7 @@ const markdown_plugin = {
   }
 };
 // Build the project
+const copyright_banner = create_banner(package_json);
 esbuild.build({
   entryPoints: [entry_point],
   outfile: 'dist/main.js',
@@ -144,6 +144,7 @@ esbuild.build({
     'process.env.DEFAULT_OPEN_ROUTER_API_KEY': JSON.stringify(process.env.DEFAULT_OPEN_ROUTER_API_KEY),
   },
   plugins: [css_with_plugin(), markdown_plugin],
+  banner: { js: copyright_banner },
 }).then(() => {
   console.log('Build complete');
   const release_file_paths = [manifest_path, styles_path, main_path];

@@ -21,7 +21,7 @@
     "Embeddings",
     "Notes"
   ],
-  "author": "WFH Brian (Brian Petro)",
+  "author": "🌴 Brian (Brian Petro)",
   "license": "SEE LICENSE IN LICENSE",
   "bugs": {
     "url": "https://github.com/brianpetro/obsidian-smart-connections/issues"
@@ -60,6 +60,7 @@
   },
   "ava": {
     "files": [
+      "*.test.js",
       "smart-chat/*.test.js",
       "src/*.test.js",
       "src/utils/*.test.js"
