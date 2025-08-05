@@ -85,6 +85,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
     this.add_commands();
     this.register_code_blocks();
+    this.add_ribbon_icons();
   }
   // async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
@@ -117,7 +118,6 @@ export default class SmartConnectionsPlugin extends Plugin {
     await this.migrate_last_version_from_localStorage();
     await this.check_for_updates();
     this.new_user();
-    this.add_ribbon_icons();
     this.addSettingTab(new SmartChatSettingTab(this.app, this)); // add settings tab
     this.register(() => {
       console.log("removing smart-chat setting tab");
@@ -148,19 +148,28 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
   }
 
-  toggle_ribbon_icon(icon_name, show_icon) {
-    console.log("toggled_ribbon_icon", icon_name, show_icon);
+  async toggle_ribbon_icon(icon_name, show_icon) {
     const icon = this.ribbon_icons[icon_name];
-    console.log("icon", icon);
-    if(!this.env.settings.ribbon_icons) this.env.settings.ribbon_icons = {};
-    if (typeof show_icon === "undefined") show_icon = this.env.settings.ribbon_icons[icon_name];
-    else this.env.settings.ribbon_icons[icon_name] = show_icon;
-    if (show_icon) {
-      icon.elm = this.addRibbonIcon(icon.icon_name, icon.description, icon.callback);
+    icon.elm = this.addRibbonIcon(icon.icon_name, icon.description, icon.callback);
+    const ribbon_icon_id = "smart-connections:" + icon.description;
+    const ribbon_item = this.app.workspace.leftRibbon.items.find(i => i.id === ribbon_icon_id);
+    await SmartEnv.wait_for({ loaded: true });
+    if (!this.env.settings.ribbon_icons) this.env.settings.ribbon_icons = {};
+    if (typeof show_icon === "undefined"){
+      if (ribbon_item.hidden) {
+        this.env.settings.ribbon_icons[icon_name] = false;
+      }
+      show_icon = this.env.settings.ribbon_icons[icon_name];
     } else {
-      icon.elm?.remove();
-      this.app.workspace.leftRibbon.removeRibbonAction("smart-connections:"+icon.description);
+      this.env.settings.ribbon_icons[icon_name] = show_icon;
     }
+    if (show_icon) {
+      ribbon_item.hidden = false;
+      this.app.workspace.leftRibbon.load(this.app.workspace.leftRibbon.ribbonItemsEl);
+    } else {
+      ribbon_item.hidden = true;
+    }
+    this.app.workspace.leftRibbon.load(this.app.workspace.leftRibbon.ribbonItemsEl);
   }
 
   register_code_blocks() {
@@ -346,6 +355,10 @@ export default class SmartConnectionsPlugin extends Plugin {
   async open_random_connection() {
     const curr_file = this.app.workspace.getActiveFile();
     const entity = this.env.smart_sources.get(curr_file.path);
+    if(!entity.should_embed) {
+      new Notice("Cannot open random connection for non-embedded source: " + curr_file.path);
+      return;
+    }
     const connections = await entity.find_connections({
       filter: { limit: 20 },
     });
