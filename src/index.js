@@ -36,6 +36,7 @@ import { create_deep_proxy } from "./utils/create_deep_proxy.js";
 import { pick_random_connection } from "./utils/pick_random_connection.js";
 import { add_smart_dice_icon } from "./utils/add_icons.js";
 import { toggle_plugin_ribbon_icon } from "./utils/toggle_plugin_ribbon_icon.js";
+import { determine_installed_at } from "./utils/determine_installed_at.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
 
@@ -418,6 +419,27 @@ export default class SmartConnectionsPlugin extends Plugin {
     }
     if (data && typeof data.installed_at !== 'undefined') {
       this._installed_at = data.installed_at;
+    }
+    const data_ctime = await this.get_data_json_created_at();
+    const resolved = determine_installed_at(this._installed_at, data_ctime);
+    if (resolved !== this._installed_at) {
+      await this.save_installed_at(resolved);
+    }
+  }
+
+  /**
+   * Get creation time of the plugin's data.json file.
+   *
+   * @returns {Promise<number|null>} timestamp in ms or null
+   */
+  async get_data_json_created_at() {
+    try {
+      const path = `${this.app.vault.configDir}/plugins/${this.manifest.id}/data.json`;
+      const stat = await this.app.vault.adapter.stat(path);
+      return stat?.ctime ?? null;
+    } catch (error) {
+      console.warn('failed to stat data.json', error);
+      return null;
     }
   }
 
