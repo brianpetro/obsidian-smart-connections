@@ -84,7 +84,7 @@ Smart Connections isn't an alternative. It's a catalyst for you and I to realize
 Find Smart Connections in the [Obsidian Community plugins](https://obsidian.md/plugins?id=smart-connections).  
 ![](./assets/SC-OP-install-and-enable-2025-05-20.png)
 #### Install & Enable, That's It!
-A [local model](https://www.perplexity.ai/search/what-are-local-ai-models-why-a-0TrSFXyaSZW3vOSpfQ8QHw) will immediately begin creating [AI embeddings](https://www.perplexity.ai/search/what-are-ai-embeddings-.MkBTzOISHiCj9MuYVqASw), no installing third-party software and no API key required!
+A [local model](https://www.perplexity.ai/search/what-are-local-ai-models-why-a-0TrSFXyaSZW3vOSpfQ8QHw) will immediately begin creating [AI embeddings](https://www.perplexity.ai/search/what-are-ai-embeddings-lX0tY9RoRJaTeUF5EG3hOw#0), no installing third-party software and no API key required!
 ![](./assets/SC-OP-notices-embedding-complete-2025-05-20.png)
 
 
