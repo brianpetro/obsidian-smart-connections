@@ -328,6 +328,14 @@ export default class SmartConnectionsPlugin extends Plugin {
         }, 1000);
       }
     });
+    // open smart connect GPT in browser
+    this.addCommand({
+      id: "smart-connections-gpt",
+      name: "Open: Smart Connect GPT ↗",
+      callback: () => {
+        window.open("https://chat.openai.com/g/g-9Xb1mRJYl-smart-connections-2");
+      }
+    });
   }
 
   async open_random_connection() {
