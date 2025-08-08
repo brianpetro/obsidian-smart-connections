@@ -5,13 +5,14 @@ test('returns null when no connections', t => {
   t.is(pick_random_connection([]), null);
 });
 
-test('selects from top half using provided rng', t => {
+test('weights selection by score using provided rng', t => {
   const connections = [
-    { item: { path: 'a' }, score: 0.9 },
-    { item: { path: 'b' }, score: 0.8 },
-    { item: { path: 'c' }, score: 0.1 }
+    { item: { path: 'a' }, score: 2 },
+    { item: { path: 'b' }, score: 1 }
   ];
-  const rng = () => 0.6;
-  const result = pick_random_connection(connections, rng);
-  t.is(result.item.path, 'b');
+  const rngA = () => 0.1; // threshold 0.3 -> selects 'a'
+  t.is(pick_random_connection(connections, rngA).item.path, 'a');
+
+  const rngB = () => 0.9; // threshold 2.7 -> selects 'b'
+  t.is(pick_random_connection(connections, rngB).item.path, 'b');
 });
