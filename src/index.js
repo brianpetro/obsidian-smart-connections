@@ -285,49 +285,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       }
     });
 
-    // DEPRECATED
-    this.addCommand({
-      id: "sc-find-notes",
-      name: "Find: Make Smart Connections (Removing soon! Use 'Open connections view')",
-      editorCallback: (editor) => {
-        if(editor.somethingSelected()){
-          if(!this.lookup_view) this.open_lookup_view();
-          this.lookup_view.render_view(editor.getSelection());
-          return;
-        }
-        if(!this.connections_view) this.open_connections_view();
-        if(editor.getCursor()?.line){
-          const line = editor.getCursor().line;
-          const source = this.env.smart_sources.current_note;
-          let item = source.get_block_by_line(line);
-          if(item?.vec) return this.connections_view.render_view(item);
-          else this.connections_view.render_view(source);
-        }else this.connections_view.render_view();
-      }
-    });
-    // DEPRECATED
-    this.addCommand({
-      id: "sc-refresh-connections",
-      name: "Refresh & make connections (Removing soon! Use 'Open connections view')",
-      editorCallback: async (editor) => {
-        const curr_file = this.app.workspace.getActiveFile();
-        if(!curr_file?.path) return console.warn("No active file", curr_file);
-        let source = this.env.smart_sources.get(curr_file.path);
-        if(source) {
-          source.data = {path: curr_file.path};
-          const source_data_path = source.collection.data_adapter.get_item_data_path(source.key);
-          await this.env.data_fs.remove(source_data_path);
-        }else{
-          source = this.env.smart_sources.init_file_path(curr_file.path);
-        }
-        if(!source) return this.notices.show("unable_to_init_source", {key: curr_file.path});
-        await source.import();
-        await this.env.smart_sources.process_embed_queue();
-        setTimeout(() => {
-          this.connections_view?.render_view?.();
-        }, 1000);
-      }
-    });
   }
 
   async open_random_connection() {
