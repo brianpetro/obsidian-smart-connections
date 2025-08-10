@@ -33,7 +33,7 @@ import { ReleaseNotesView }    from "./views/release_notes_view.js";
 
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 import { create_deep_proxy } from "./utils/create_deep_proxy.js";
-import { pick_random_connection } from "./utils/pick_random_connection.js";
+import { get_random_connection } from "./utils/get_random_connection.js";
 import { add_smart_dice_icon } from "./utils/add_icons.js";
 import { toggle_plugin_ribbon_icon } from "./utils/toggle_plugin_ribbon_icon.js";
 import { determine_installed_at } from "./utils/determine_installed_at.js";
@@ -289,16 +289,16 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   async open_random_connection() {
     const curr_file = this.app.workspace.getActiveFile();
-    const entity = this.env.smart_sources.get(curr_file.path);
-    if(!entity.should_embed) {
-      new Notice("Cannot open random connection for non-embedded source: " + curr_file.path);
+    if (!curr_file) {
+      new Notice('No active file to find connections for');
       return;
     }
-    const connections = await entity.find_connections({
-      filter: { limit: 20 },
-    });
-    const rand_entity = pick_random_connection(connections);
-    if (rand_entity) this.open_note(rand_entity.item.path);
+    const rand_entity = await get_random_connection(this.env, curr_file.path);
+    if (!rand_entity) {
+      new Notice('Cannot open random connection for non-embedded source: ' + curr_file.path);
+      return;
+    }
+    this.open_note(rand_entity.item.path);
   }
 
   // We keep the old code
