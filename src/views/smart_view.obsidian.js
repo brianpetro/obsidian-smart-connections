@@ -97,6 +97,11 @@ export class SmartObsidianView extends ItemView {
         workspace.rightSplit.toggle();
       }
     }
+
+    // trigger render
+    setTimeout(() => {
+      this.get_view(workspace)?.render_view();
+    }, 100);
   }
 
   static is_open(workspace) { return this.get_leaf(workspace)?.view instanceof this; }

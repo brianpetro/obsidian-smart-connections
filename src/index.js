@@ -236,21 +236,9 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   add_commands() {
-    // Open connections view
-    this.addCommand({
-      id: "open-connections-view",
-      name: "Open connections view",
-      callback: async () => {
-        this.open_connections_view();
-        setTimeout(() => {
-          this.connections_view?.render_view();
-        }, 300);
-      }
-    });
-
     this.addCommand({
       id: "smart-connections-random",
-      name: "Open random note from connections",
+      name: "Open: Random note from connections",
       callback: async () => {
         await this.open_random_connection();
       }
@@ -258,7 +246,7 @@ export default class SmartConnectionsPlugin extends Plugin {
 
     this.addCommand({
       id: 'open-connections-modal',
-      name: 'Open connections modal',
+      name: 'Open: Connections modal',
       checkCallback: (checking) => {
         if(checking) return !!this.app.workspace.getActiveFile()?.path;
         const modal = new ConnectionsModal(this);

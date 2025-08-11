@@ -3,7 +3,7 @@ import { Platform } from 'obsidian';
 
 export class ConnectionsView extends SmartObsidianView {
   static get view_type() { return 'smart-connections-view'; }
-  static get display_text() { return 'Smart Connections'; }
+  static get display_text() { return 'Connections'; }
   static get icon_name() { return 'smart-connections'; }
 
   register_plugin_events() {
