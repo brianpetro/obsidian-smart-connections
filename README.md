@@ -243,6 +243,7 @@ Here's what some of them have to say:
 
 [Even more love for Smart Connections 🥰](https://smartconnections.app/smart-connections-love/)
 
+
 ## FAQs & Troubleshooting
 ### Syncthing (third-party syncing)
 *Official services, like Obsidian Sync, help keep Obsidian user-aligned. Smart Connections has built-in compatibility with Obsidian Sync.*
