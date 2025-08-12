@@ -1,4 +1,20 @@
 /**
+ * Build parameters for lookup requests.
+ * @param {string} query - Hypothetical user query.
+ * @param {Object} settings - Environment settings.
+ * @param {Object} [filter] - Optional filter overrides.
+ * @returns {Object} Params for collection.lookup.
+ */
+export const get_lookup_params = (query, settings, filter) => {
+  const skip_blocks = settings.smart_view_filter?.exclude_blocks_from_source_connections;
+  return {
+    hypotheticals: [query],
+    filter,
+    ...(skip_blocks ? { skip_blocks: true } : {}),
+  };
+};
+
+/**
  * Builds the HTML string for the component.
  * @param {Object} collection - The scope object containing component data.
  * @param {Object} [opts={}] - Optional parameters for customizing the build process.
@@ -58,10 +74,7 @@ export async function post_process(collection, frag, opts = {}) {
   const query_input = frag.querySelector('#query');
   const results_container = frag.querySelector('.sc-list');
   const render_lookup = async (query, results_container) => {
-    const lookup_params = {
-      hypotheticals: [query],
-      filter: opts.filter,
-    };
+    const lookup_params = get_lookup_params(query, collection.env.settings, opts.filter);
     const results = await collection.lookup(lookup_params);
     this.empty(results_container); // Clear previous results
     const results_frag = await collection.env.render_component('connections_results', results, opts);
