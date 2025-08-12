@@ -107,7 +107,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     //     await this.handle_sc_op_oauth_callback(params);
     //   });
     // }
-    console.log("Smart Connections v2 loaded");
+    console.log("Smart Connections v3 loaded");
     if(this.is_new_user()) {
       setTimeout(() => {
         StoryModal.open(this, {

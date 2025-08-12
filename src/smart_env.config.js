@@ -15,12 +15,14 @@ import {
   SmartChatModelAzureAdapter,
   // SmartChatModelCohereAdapter,
   SmartChatModelCustomAdapter,
+  SmartChatModelGoogleAdapter,
   SmartChatModelGeminiAdapter,
   SmartChatModelGroqAdapter,
   SmartChatModelLmStudioAdapter,
   SmartChatModelOllamaAdapter,
   SmartChatModelOpenaiAdapter,
   SmartChatModelOpenRouterAdapter,
+  SmartChatModelDeepseekAdapter,
 } from "smart-chat-model/adapters.js";
 import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-request";
 import { requestUrl } from "obsidian";
@@ -79,12 +81,14 @@ export const smart_env_config = {
         azure: SmartChatModelAzureAdapter,
         // cohere: SmartChatModelCohereAdapter,
         custom: SmartChatModelCustomAdapter,
+        google: SmartChatModelGoogleAdapter,
         gemini: SmartChatModelGeminiAdapter,
         groq: SmartChatModelGroqAdapter,
         lm_studio: SmartChatModelLmStudioAdapter,
         ollama: SmartChatModelOllamaAdapter,
         open_router: SmartChatModelOpenRouterAdapter,
         openai: SmartChatModelOpenaiAdapter,
+        deepseek: SmartChatModelDeepseekAdapter,
       },
       http_adapter: new SmartHttpRequest({
         adapter: SmartHttpObsidianRequestAdapter,
