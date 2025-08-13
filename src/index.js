@@ -37,6 +37,7 @@ import { get_random_connection } from "./utils/get_random_connection.js";
 import { add_smart_dice_icon } from "./utils/add_icons.js";
 import { toggle_plugin_ribbon_icon } from "./utils/toggle_plugin_ribbon_icon.js";
 import { determine_installed_at } from "./utils/determine_installed_at.js";
+import { build_connections_codeblock } from "./utils/build_connections_codeblock.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
 
@@ -46,7 +47,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       ScLookupView,
       SmartChatsView,
       SmartChatGPTView,
-      SmartPrivateChatView,
+      // SmartPrivateChatView,
       ReleaseNotesView,
     };
   }
@@ -270,6 +271,14 @@ export default class SmartConnectionsPlugin extends Plugin {
           title: 'Getting Started With Smart Connections',
           url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=sc-op-command',
         });
+      }
+    });
+
+    this.addCommand({
+      id: 'insert-connections-codeblock',
+      name: 'Insert: Connections codeblock',
+      editorCallback: (editor) => {
+        editor.replaceSelection(build_connections_codeblock());
       }
     });
 
