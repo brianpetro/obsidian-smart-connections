@@ -278,7 +278,8 @@ export default class SmartConnectionsPlugin extends Plugin {
       id: 'insert-connections-codeblock',
       name: 'Insert: Connections codeblock',
       editorCallback: (editor) => {
-        editor.replaceSelection(build_connections_codeblock());
+        const default_settings = this.env.settings.smart_view_filter;
+        editor.replaceSelection(build_connections_codeblock(default_settings));
       }
     });
 
