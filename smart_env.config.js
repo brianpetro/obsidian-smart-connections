@@ -15,6 +15,9 @@ export const smart_env_config = {
   item_types: {
 
   },
+  items: {
+
+  },
   components: {
     connections: connections_component,
     connections_result: connections_result_component,
