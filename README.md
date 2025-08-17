@@ -100,6 +100,7 @@ Watch the [feature walkthrough slideshow](https://smartconnections.app/story/sma
 Watch this video to see Smart Connections and Smart Chat in action.
 [![](./assets/smart-connections-wanderloots.jpg)](https://youtu.be/7Rvl9Sl29Jk?si=16YKPZavyz8Ol7rx)
 [Watch on YouTube](https://youtu.be/7Rvl9Sl29Jk?si=16YKPZavyz8Ol7rx)
+test
 <a href="https://youtu.be/7Rvl9Sl29Jk?si=16YKPZavyz8Ol7rx" target="_external">Watch on YouTube</a>
 ---
 ## Built for You
