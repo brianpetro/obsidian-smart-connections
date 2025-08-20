@@ -107,26 +107,23 @@ export async function post_process(collection, frag, opts = {}) {
     }
   });
 
-  const fold_toggle = frag.querySelector('.sc-fold-toggle');
-  fold_toggle.addEventListener('click', async (event) => {
-    const container = event.target.closest('#sc-lookup-view');
-    const expanded = collection.env.settings.smart_view_filter?.expanded_view
-      ?? collection.env.settings.expanded_view // @deprecated
-    ;
-    const results = container.querySelectorAll(".sc-result");
-    
-    for (const elm of results) {
-      if (expanded) {
-        elm.classList.add("sc-collapsed");
-      } else {
-        elm.click();
-      }
-    }
-    if(!collection.settings.smart_view_filter) collection.settings.smart_view_filter = {};
-    collection.settings.smart_view_filter.expanded_view = !expanded;
-    const updated_expanded_view = collection.settings.smart_view_filter.expanded_view;
-    this.safe_inner_html(fold_toggle, this.get_icon_html(updated_expanded_view ? 'fold-vertical' : 'unfold-vertical'));
-    fold_toggle.setAttribute('aria-label', updated_expanded_view ? 'Fold all' : 'Unfold all');
+  const list_el = frag.querySelector('.sc-list');
+  const connections_settings = opts.connections_settings
+    ?? collection.env.settings.smart_view_filter
+  ;
+  const toggle_btn = frag.querySelector('.sc-fold-toggle');
+  toggle_btn.addEventListener('click', () => {
+    const expanded = connections_settings.expanded_view;
+    connections_settings.expanded_view = !expanded;
+
+    list_el.querySelectorAll('.sc-result').forEach((elm) =>
+      expanded ? elm.classList.add('sc-collapsed') : elm.classList.remove('sc-collapsed')
+    );
+
+    this.safe_inner_html(
+      toggle_btn,
+      this.get_icon_html(expanded ? 'unfold-vertical' : 'fold-vertical')
+    );
   });
 
   return frag;
