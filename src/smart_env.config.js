@@ -141,13 +141,14 @@ export const smart_env_config = {
           model_key: 'TaylorAI/bge-micro-v2',
         },
       },
+      excluded_headings: '',
+      file_exclusions: 'Untitled',
+      folder_exclusions: '',
     },
     ribbon_icons: {
       connections: true,
       random_note: false,
     },
-    file_exclusions: 'Untitled',
-    folder_exclusions: '',
     smart_view_filter: {
       render_markdown: true,
       show_full_path: false,
