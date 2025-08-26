@@ -141,7 +141,7 @@ esbuild.build({
     'url',
   ],
   define: {
-    'process.env.DEFAULT_OPEN_ROUTER_API_KEY': JSON.stringify(process.env.DEFAULT_OPEN_ROUTER_API_KEY),
+    'process.env.DEFAULT_OPEN_ROUTER_API_KEY': JSON.stringify(process.env.DEFAULT_OPEN_ROUTER_API_KEY || ''),
   },
   plugins: [css_with_plugin(), markdown_plugin],
   banner: { js: copyright_banner },

@@ -2,10 +2,19 @@ import { spawn } from 'child_process';
 
 // Safely import Notice from obsidian, fallback to console.log for testing
 let Notice;
-try {
-  const obsidian = await import('obsidian');
-  Notice = obsidian.Notice;
-} catch (error) {
+if (typeof require !== 'undefined') {
+  try {
+    const obsidian = require('obsidian');
+    Notice = obsidian.Notice;
+  } catch (error) {
+    // Fallback for testing environment
+    Notice = class {
+      constructor(message) {
+        console.log(`Notice: ${message}`);
+      }
+    };
+  }
+} else {
   // Fallback for testing environment
   Notice = class {
     constructor(message) {
