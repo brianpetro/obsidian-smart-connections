@@ -1,0 +1,194 @@
+import test from 'ava';
+
+// Wait for dynamic import to complete
+let ClaudeCodeCLIAdapter;
+test.before(async () => {
+  const module = await import('./claude_code_cli_adapter.js');
+  ClaudeCodeCLIAdapter = module.ClaudeCodeCLIAdapter;
+});
+
+// Mock environment for testing
+class MockSmartEnv {
+  constructor() {
+    this.smart_sources = {
+      search: async (query, options) => [
+        {
+          item: {
+            path: 'test/note.md',
+            content: 'This is test content that is relevant to the query.'
+          }
+        }
+      ]
+    };
+    
+    this.smart_view = {
+      active_note: {
+        basename: 'current-note.md',
+        content: 'This is the content of the currently active note.'
+      }
+    };
+  }
+}
+
+class MockSmartChatModel {
+  constructor() {
+    this.env = new MockSmartEnv();
+    this.config = {
+      timeout: 30000,
+      max_retries: 2,
+      base_delay: 500
+    };
+  }
+}
+
+test('ClaudeCodeCLIAdapter initialization', t => {
+  const mockModel = new MockSmartChatModel();
+  const adapter = new ClaudeCodeCLIAdapter(mockModel);
+  
+  t.truthy(adapter);
+  t.is(adapter.timeout, 60000);
+  t.is(adapter.max_retries, 3);
+  t.is(adapter.base_delay, 1000);
+  t.true(adapter.can_stream);
+});
+
+test('models property returns correct format', t => {
+  const mockModel = new MockSmartChatModel();
+  const adapter = new ClaudeCodeCLIAdapter(mockModel);
+  
+  const models = adapter.models;
+  t.true(Array.isArray(models));
+  t.is(models.length, 1);
+  t.is(models[0].id, 'claude-code-cli');
+  t.is(models[0].name, 'Claude Code CLI');
+  t.truthy(models[0].description);
+});
+
+test('gather_context extracts relevant information', async t => {
+  const mockModel = new MockSmartChatModel();
+  const adapter = new ClaudeCodeCLIAdapter(mockModel);
+  
+  const context = await adapter.gather_context('test query');
+  
+  t.truthy(context);
+  t.true(context.includes('current-note.md'));
+  t.true(context.includes('This is the content of the currently active note'));
+  t.true(context.includes('Related Content from Vault'));
+  t.true(context.includes('test/note.md'));
+});
+
+test('format_prompt creates proper structure', async t => {
+  const mockModel = new MockSmartChatModel();
+  const adapter = new ClaudeCodeCLIAdapter(mockModel);
+  
+  const messages = [
+    { role: 'user', content: 'Hello, how are you?' },
+    { role: 'assistant', content: 'I am doing well, thank you!' },
+    { role: 'user', content: 'What is the meaning of life?' }
+  ];
+  
+  const prompt = await adapter.format_prompt(messages);
+  
+  t.truthy(prompt);
+  t.true(prompt.includes('Obsidian vault'));
+  t.true(prompt.includes('Conversation History'));
+  t.true(prompt.includes('Human 1:')); // First user message
+  t.true(prompt.includes('Assistant 2:')); // First assistant message (index 1)
+  t.true(prompt.includes('Human 3:')); // Second user message (index 2)
+  t.true(prompt.includes('What is the meaning of life?'));
+  t.true(prompt.includes('I am doing well, thank you!'));
+});
+
+test('complete method handles missing CLI gracefully', async t => {
+  const mockModel = new MockSmartChatModel();
+  const adapter = new ClaudeCodeCLIAdapter(mockModel);
+  
+  // Override validate_connection to simulate CLI not available
+  adapter.validate_connection = async () => false;
+  
+  const request = {
+    messages: [{ role: 'user', content: 'Test message' }]
+  };
+  
+  const response = await adapter.complete(request);
+  
+  t.truthy(response.error);
+  t.true(response.content.includes('Claude Code CLI is not installed'));
+});
+
+test('stream method handles missing CLI gracefully', async t => {
+  const mockModel = new MockSmartChatModel();
+  const adapter = new ClaudeCodeCLIAdapter(mockModel);
+  
+  // Override validate_connection to simulate CLI not available
+  adapter.validate_connection = async () => false;
+  
+  const request = {
+    messages: [{ role: 'user', content: 'Test message' }]
+  };
+  
+  let errorCalled = false;
+  const handlers = {
+    error: (response) => {
+      errorCalled = true;
+      t.truthy(response.error);
+      t.true(response.content.includes('Claude Code CLI is not installed'));
+    },
+    chunk: () => {},
+    done: () => {}
+  };
+  
+  await adapter.stream(request, handlers);
+  
+  t.true(errorCalled);
+});
+
+test('cleanup method executes without error', t => {
+  const mockModel = new MockSmartChatModel();
+  const adapter = new ClaudeCodeCLIAdapter(mockModel);
+  
+  t.notThrows(() => {
+    adapter.cleanup();
+  });
+});
+
+test('validate_connection handles process errors', async t => {
+  const mockModel = new MockSmartChatModel();
+  const adapter = new ClaudeCodeCLIAdapter(mockModel);
+  
+  // This test will fail if claude CLI is not installed, which is expected in CI
+  const isAvailable = await adapter.validate_connection();
+  t.is(typeof isAvailable, 'boolean');
+});
+
+test('test_connection provides user feedback', async t => {
+  const mockModel = new MockSmartChatModel();
+  const adapter = new ClaudeCodeCLIAdapter(mockModel);
+  
+  // Override validate_connection to simulate CLI available
+  adapter.validate_connection = async () => true;
+  
+  const result = await adapter.test_connection();
+  t.true(result);
+});
+
+test('gather_context handles missing env gracefully', async t => {
+  const mockModel = new MockSmartChatModel();
+  mockModel.env = null; // Simulate missing environment
+  const adapter = new ClaudeCodeCLIAdapter(mockModel);
+  
+  const context = await adapter.gather_context('test query');
+  t.is(context, '');
+});
+
+test('format_prompt handles empty messages array', async t => {
+  const mockModel = new MockSmartChatModel();
+  const adapter = new ClaudeCodeCLIAdapter(mockModel);
+  
+  const prompt = await adapter.format_prompt([]);
+  
+  t.truthy(prompt);
+  t.true(prompt.includes('Obsidian vault'));
+  // Should not include conversation history section for empty array
+  t.false(prompt.includes('Human 1:'));
+});

@@ -1,0 +1,357 @@
+/* Claude Code CLI Setup Modal Styles */
+
+.setup-modal-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.setup-modal-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.setup-icon {
+  font-size: 32px;
+}
+
+.setup-modal-title h2 {
+  margin: 0;
+  color: var(--text-normal);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.setup-modal-subtitle {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Benefits Section */
+.setup-benefits-section {
+  margin-bottom: 30px;
+}
+
+.setup-benefits-section h3 {
+  margin-bottom: 16px;
+  color: var(--text-normal);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+}
+
+.benefit-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.benefit-content h4 {
+  margin: 0 0 4px 0;
+  color: var(--text-normal);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.benefit-content p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Instructions Section */
+.setup-instructions-section {
+  margin-bottom: 30px;
+}
+
+.setup-instructions-section h3 {
+  margin-bottom: 16px;
+  color: var(--text-normal);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.installation-steps {
+  background: var(--background-secondary);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.installation-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.installation-step:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.step-text {
+  color: var(--text-normal);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.step-text code {
+  background: var(--code-background);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--font-monospace);
+  font-size: 12px;
+}
+
+/* Troubleshooting Section */
+.troubleshooting-section {
+  margin-top: 16px;
+}
+
+.troubleshooting-section details {
+  background: var(--background-primary-alt);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.troubleshooting-section summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-normal);
+  margin-bottom: 8px;
+}
+
+.troubleshooting-content h4 {
+  margin: 12px 0 8px 0;
+  color: var(--text-normal);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.troubleshooting-content ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.troubleshooting-content li {
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.troubleshooting-content p {
+  margin: 8px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.external-link {
+  color: var(--interactive-accent);
+  text-decoration: none;
+}
+
+.external-link:hover {
+  text-decoration: underline;
+}
+
+/* Action Buttons */
+.setup-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.setup-primary-btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.setup-primary-btn:hover {
+  background: #45a049;
+}
+
+.setup-secondary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.setup-secondary-btn,
+.setup-skip-btn,
+.setup-close-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.setup-secondary-btn:hover,
+.setup-close-btn:hover {
+  background: var(--background-modifier-hover);
+}
+
+.setup-skip-btn {
+  color: var(--text-muted);
+}
+
+.setup-skip-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.setup-secondary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Test Error */
+.test-error {
+  padding: 8px 12px;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* External API Option */
+.external-api-option {
+  text-align: center;
+  padding: 20px;
+}
+
+.external-api-option h2 {
+  margin-bottom: 12px;
+  color: var(--text-normal);
+}
+
+.external-api-option p {
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  line-height: 1.4;
+}
+
+.api-providers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.provider-option {
+  padding: 16px;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  border: 2px solid var(--background-modifier-border);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.provider-option:hover {
+  border-color: var(--interactive-accent);
+}
+
+.provider-option h4 {
+  margin: 0 0 4px 0;
+  color: var(--text-normal);
+  font-weight: 600;
+}
+
+.provider-option p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.external-api-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .setup-secondary-actions {
+    flex-direction: column;
+  }
+  
+  .external-api-actions {
+    flex-direction: column;
+  }
+}
+
+/* Dark theme support */
+.theme-dark .benefit-item {
+  border-left-color: #66BB6A;
+}
+
+.theme-dark .step-number {
+  background: #66BB6A;
+}
+
+.theme-dark .setup-primary-btn {
+  background: #66BB6A;
+}
+
+.theme-dark .setup-primary-btn:hover {
+  background: #5CB860;
+}

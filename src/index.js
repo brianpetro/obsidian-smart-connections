@@ -38,6 +38,8 @@ import { add_smart_dice_icon } from "./utils/add_icons.js";
 import { toggle_plugin_ribbon_icon } from "./utils/toggle_plugin_ribbon_icon.js";
 import { determine_installed_at } from "./utils/determine_installed_at.js";
 import { build_connections_codeblock } from "./utils/build_connections_codeblock.js";
+import { FirstRunManager } from "./utils/first_run_manager.js";
+import { MigrationManager } from "./utils/migration_manager.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
 
@@ -118,6 +120,15 @@ export default class SmartConnectionsPlugin extends Plugin {
       }, 1000);
     }
     await SmartEnv.wait_for({ loaded: true });
+    
+    // Initialize first-run experience for Claude Code CLI
+    this.first_run_manager = new FirstRunManager(this);
+    await this.first_run_manager.initialize();
+    
+    // Initialize migration manager for API-to-local transitions
+    this.migration_manager = new MigrationManager(this);
+    await this.migration_manager.initialize();
+    
     await this.migrate_last_version_from_localStorage();
     await this.check_for_updates();
     this.new_user();

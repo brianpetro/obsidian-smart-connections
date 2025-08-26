@@ -97,6 +97,9 @@ export async function post_process(thread, frag, opts) {
     });
     chat_input.addEventListener('keyup', (e) => handle_chat_input_keyup.call(this, e, chat_input));
   }
+
+  // Claude Code CLI availability check
+  await check_claude_code_cli_availability.call(this, thread, frag);
   
   // Scroll to bottom of container if needed
   if (container.scrollHeight > container.clientHeight) {
@@ -123,19 +126,52 @@ export async function post_process(thread, frag, opts) {
     message.textContent = validation_result.message;
     notice.appendChild(message);
     notice.style.display = '';
-    // // Replace close button with open settings button
-    // const open_settings_button = document.createElement('button');
-    // open_settings_button.textContent = 'Open Settings';
-    // notice.appendChild(open_settings_button);
-    
-    // // Add click handler to open settings
-    // open_settings_button.addEventListener('click', () => {
-    //   settings_button.click();
-    // });
+
+    // Enhanced error handling for Claude Code CLI
+    if (thread.chat_model.adapter_name === 'claude_code_cli') {
+      const help_text = document.createElement('div');
+      help_text.innerHTML = `
+        <br><small>
+          <strong>Claude Code CLI Setup:</strong><br>
+          1. Install: <code>npm install -g @anthropic-ai/cli</code><br>
+          2. Login: <code>claude auth login</code><br>
+          3. Verify: <code>claude --version</code>
+        </small>
+      `;
+      help_text.style.marginTop = '8px';
+      help_text.style.fontSize = '12px';
+      help_text.style.color = 'var(--text-muted)';
+      notice.appendChild(help_text);
+
+      // Test connection button
+      const test_button = document.createElement('button');
+      test_button.textContent = 'Test Claude CLI';
+      test_button.style.marginRight = '8px';
+      test_button.style.marginTop = '8px';
+      notice.appendChild(test_button);
+      test_button.addEventListener('click', async () => {
+        test_button.disabled = true;
+        test_button.textContent = 'Testing...';
+        const adapter = thread.chat_model.adapter;
+        if (adapter && typeof adapter.test_connection === 'function') {
+          await adapter.test_connection();
+          // Revalidate after test
+          setTimeout(() => {
+            const new_validation = thread.chat_model.validate_config();
+            if (new_validation.valid) {
+              notice.style.display = 'none';
+            }
+            test_button.disabled = false;
+            test_button.textContent = 'Test Claude CLI';
+          }, 1000);
+        }
+      });
+    }
 
     // add hide button
     const hide_button = document.createElement('button');
     hide_button.textContent = 'Hide';
+    hide_button.style.marginTop = '8px';
     notice.appendChild(hide_button);
     hide_button.addEventListener('click', () => {
       notice.style.display = 'none';
@@ -156,9 +192,62 @@ export async function post_process(thread, frag, opts) {
 
 async function send_message(chat_input, thread) {
   const message = chat_input.value;
+  if (!message.trim()) return;
+  
   chat_input.value = '';
-  await thread.handle_message_from_user(message);
-  await thread.save();
+  chat_input.disabled = true;
+  
+  // Show Claude Code CLI specific loading state
+  const send_button = document.querySelector('#sc-send-button');
+  const abort_button = document.querySelector('#sc-abort-button');
+  const typing_indicator = document.querySelector('.sc-typing-indicator');
+  
+  if (send_button) send_button.style.display = 'none';
+  if (abort_button) abort_button.style.display = 'inline-block';
+  if (typing_indicator) {
+    typing_indicator.style.display = 'block';
+    // Add Claude Code CLI specific loading text
+    if (thread.chat_model.adapter_name === 'claude_code_cli') {
+      const loading_text = typing_indicator.querySelector('.claude-loading-text') || document.createElement('div');
+      if (!typing_indicator.querySelector('.claude-loading-text')) {
+        loading_text.className = 'claude-loading-text';
+        loading_text.style.fontSize = '12px';
+        loading_text.style.color = 'var(--text-muted)';
+        loading_text.style.marginTop = '4px';
+        typing_indicator.appendChild(loading_text);
+      }
+      loading_text.textContent = 'Processing with Claude Code CLI...';
+    }
+  }
+  
+  try {
+    await thread.handle_message_from_user(message);
+    await thread.save();
+  } catch (error) {
+    console.error('Error sending message:', error);
+    // Show error in UI
+    if (thread.chat_model.adapter_name === 'claude_code_cli') {
+      const notice = document.querySelector('.sc-config-error-notice');
+      if (notice) {
+        notice.innerHTML = `
+          <span>Claude Code CLI Error: ${error.message}</span>
+          <button onclick="this.parentElement.style.display='none'" style="margin-left: 8px;">Hide</button>
+        `;
+        notice.style.display = 'block';
+      }
+    }
+  } finally {
+    // Reset UI state
+    chat_input.disabled = false;
+    if (send_button) send_button.style.display = 'inline-block';
+    if (abort_button) abort_button.style.display = 'none';
+    if (typing_indicator) {
+      typing_indicator.style.display = 'none';
+      const loading_text = typing_indicator.querySelector('.claude-loading-text');
+      if (loading_text) loading_text.remove();
+    }
+    chat_input.focus();
+  }
 }
 
 /**
@@ -171,4 +260,83 @@ function handle_chat_input_keyup(e, chat_input) {
     chat_input.style.height = 'auto';
     chat_input.style.height = `${chat_input.scrollHeight}px`;
   }, 200);
+}
+
+/**
+ * Checks Claude Code CLI availability and shows appropriate UI feedback
+ * @private
+ * @async
+ * @param {SmartThread} thread - Thread instance
+ * @param {DocumentFragment} frag - Rendered fragment
+ */
+async function check_claude_code_cli_availability(thread, frag) {
+  // Only check for Claude Code CLI adapter
+  if (thread.chat_model.adapter_name !== 'claude_code_cli') return;
+  
+  const adapter = thread.chat_model.adapter;
+  if (!adapter || typeof adapter.validate_connection !== 'function') return;
+  
+  try {
+    const is_available = await adapter.validate_connection();
+    const status_indicator = create_claude_status_indicator(is_available);
+    
+    // Insert status indicator near the chat input
+    const chat_form = frag.querySelector('.sc-chat-form');
+    if (chat_form && status_indicator) {
+      chat_form.appendChild(status_indicator);
+    }
+    
+    // Update placeholder text based on availability
+    const chat_input = frag.querySelector('.sc-chat-input');
+    if (chat_input) {
+      if (is_available) {
+        chat_input.placeholder = 'Chat with Claude Code CLI. Use @ to add context from your vault.';
+      } else {
+        chat_input.placeholder = 'Claude Code CLI not available. Please install and configure the CLI.';
+        chat_input.disabled = true;
+      }
+    }
+  } catch (error) {
+    console.warn('Error checking Claude Code CLI availability:', error);
+  }
+}
+
+/**
+ * Creates a status indicator for Claude Code CLI
+ * @private
+ * @param {boolean} is_available - Whether CLI is available
+ * @returns {HTMLElement} Status indicator element
+ */
+function create_claude_status_indicator(is_available) {
+  const indicator = document.createElement('div');
+  indicator.className = 'claude-status-indicator';
+  indicator.style.cssText = `
+    display: flex;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--background-modifier-border);
+  `;
+  
+  const dot = document.createElement('span');
+  dot.style.cssText = `
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+    background: ${is_available ? '#4CAF50' : '#F44336'};
+  `;
+  
+  const text = document.createElement('span');
+  text.textContent = is_available 
+    ? 'Claude Code CLI Ready' 
+    : 'Claude Code CLI Unavailable';
+  
+  indicator.appendChild(dot);
+  indicator.appendChild(text);
+  
+  return indicator;
 }

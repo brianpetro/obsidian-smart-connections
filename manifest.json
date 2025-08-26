@@ -2,7 +2,7 @@
   "id": "smart-connections",
   "name": "Smart Connections",
   "author": "Brian Petro",
-  "description": "Chat with your notes & see links to related content with Local or Remote models.",
+  "description": "Private AI conversations with your notes using Claude Code CLI local processing. Find relevant connections automatically.",
   "minAppVersion": "1.1.0",
   "authorUrl": "https://wfhbrian.com",
   "isDesktopOnly": false,

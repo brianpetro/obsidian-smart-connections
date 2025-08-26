@@ -86,16 +86,20 @@ export class SmartThreads extends SmartSources {
    * @readonly
    * @returns {Object} settings - Default settings object containing:
    * @returns {Object} settings.chat_model - Chat model configuration
-   * @returns {string} settings.chat_model.adapter - Default adapter
-   * @returns {Object} settings.chat_model.openai - OpenAI-specific settings
+   * @returns {string} settings.chat_model.adapter - Default adapter (Claude Code CLI)
+   * @returns {Object} settings.chat_model.claude_code_cli - Claude Code CLI-specific settings
    * @returns {Object} settings.embed_model - Embedding model configuration
    */
   get default_settings() {
     return {
       chat_model: {
-        adapter: 'openai',
-        openai: {
-          model_key: 'gpt-4o',
+        adapter: 'claude_code_cli',
+        claude_code_cli: {
+          model_key: 'claude-code-cli',
+          timeout: 60000, // 60 seconds
+          max_retries: 3,
+          base_delay: 1000, // 1 second
+          context_limit: 5, // Number of semantic search results to include
         },
       },
       embed_model: {

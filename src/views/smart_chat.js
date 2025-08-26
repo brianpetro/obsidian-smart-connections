@@ -16,6 +16,11 @@ export function build_html(obsidian_view, opts = {}) {
     <div class="sc-chat-container">
       <div class="sc-top-bar-container">
         <input class="sc-chat-name-input" type="text" value="" placeholder="Add name to save this chat">
+        <div class="claude-model-indicator" id="claude-model-indicator">
+          <span class="status-dot"></span>
+          <span class="model-name">Claude CLI</span>
+          <span class="processing-type">Local</span>
+        </div>
         ${top_bar_buttons}
       </div>
       <div id="settings" class="smart-chat-overlay" style="display: none;">
@@ -81,6 +86,9 @@ export async function post_process(obsidian_view, frag, opts) {
   }
   chat_box.setAttribute('data-thread-key', thread.key);
   await thread.render(chat_box, opts);
+
+  // Update model indicator based on current adapter
+  update_model_indicator.call(this, frag, threads_collection.chat_model);
 
 
   const chat_input = frag.querySelector('.sc-chat-form textarea');
@@ -166,4 +174,101 @@ function setup_chat_name_input_handler(frag, thread) {
       name_input.blur(); // Trigger the blur event
     }
   });
+}
+
+/**
+ * Updates the model indicator in the top bar to show current adapter status
+ * Enhanced for local-first experience with clear processing type indication
+ * @private
+ * @param {DocumentFragment} frag - The rendered fragment
+ * @param {Object} chat_model - The chat model instance
+ */
+function update_model_indicator(frag, chat_model) {
+  const indicator = frag.querySelector('#claude-model-indicator');
+  if (!indicator) return;
+
+  const statusDot = indicator.querySelector('.status-dot');
+  const modelName = indicator.querySelector('.model-name');
+  const processingType = indicator.querySelector('.processing-type');
+  
+  // Helper function to determine if adapter is local
+  const isLocalAdapter = (adapterName) => {
+    return ['claude_code_cli', 'ollama', 'lm_studio', 'custom'].includes(adapterName);
+  };
+  
+  if (chat_model && chat_model.adapter_name) {
+    const adapter = chat_model.adapter;
+    const adapterName = chat_model.adapter_name;
+    const isLocal = isLocalAdapter(adapterName);
+    
+    // Adapter name mappings
+    const adapterDisplayNames = {
+      'claude_code_cli': 'Claude Code CLI',
+      'ollama': 'Ollama',
+      'lm_studio': 'LM Studio', 
+      'custom': 'Custom API',
+      'openai': 'OpenAI',
+      'anthropic': 'Anthropic',
+      'google': 'Google AI',
+      'groq': 'Groq'
+    };
+    
+    modelName.textContent = adapterDisplayNames[adapterName] || adapterName;
+    
+    // Set processing type and styling
+    if (isLocal) {
+      processingType.textContent = '🏠 Local';
+      processingType.className = 'processing-type local';
+      indicator.title = `${modelName.textContent} - Local processing (private, no API costs)`;
+      
+      // Special handling for Claude Code CLI
+      if (adapterName === 'claude_code_cli') {
+        // Check availability if adapter supports it
+        if (adapter && typeof adapter.validate_connection === 'function') {
+          adapter.validate_connection().then(isAvailable => {
+            if (isAvailable) {
+              indicator.classList.remove('unavailable');
+              statusDot.style.background = '#4CAF50'; // Green for available
+              indicator.title = `${modelName.textContent} - Ready (Local processing)`;
+            } else {
+              indicator.classList.add('unavailable');
+              statusDot.style.background = '#FF9800'; // Orange for unavailable local
+              indicator.title = `${modelName.textContent} - Not Available (click to install)`;
+              
+              // Add click handler to show installation guide
+              indicator.style.cursor = 'pointer';
+              indicator.addEventListener('click', () => {
+                const settingsButton = frag.querySelector('button[title="Chat Settings"]');
+                if (settingsButton) settingsButton.click();
+              });
+            }
+          }).catch(() => {
+            indicator.classList.add('unavailable');
+            statusDot.style.background = '#FF9800';
+            indicator.title = `${modelName.textContent} - Installation needed`;
+          });
+        } else {
+          // Assume available if no validation function
+          indicator.classList.remove('unavailable');
+          statusDot.style.background = '#4CAF50';
+        }
+      } else {
+        // Other local adapters
+        indicator.classList.remove('unavailable');
+        statusDot.style.background = '#4CAF50'; // Green for local
+      }
+    } else {
+      processingType.textContent = '🌐 External';
+      processingType.className = 'processing-type external';
+      indicator.title = `${modelName.textContent} - External API (requires internet & API key)`;
+      indicator.classList.remove('unavailable');
+      statusDot.style.background = '#2196F3'; // Blue for external APIs
+    }
+  } else {
+    modelName.textContent = 'No Model';
+    processingType.textContent = '';
+    indicator.classList.add('unavailable');
+    statusDot.style.background = '#F44336'; // Red for no model
+    indicator.title = 'No chat model configured';
+  }
 }

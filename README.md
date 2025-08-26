@@ -1,5 +1,5 @@
 <h2 align="center">
-More time for what matters most<br>
+     More time for what matters most<br>
 <a href="https://smartconnections.app/?utm_source=README-what-matters-most" target="_external"><img src="./assets/SC-OP-more-time-for.gif" alt="More time for what matters most" width="300"/></a>
 </h2>
 
@@ -20,6 +20,8 @@ More time for what matters most<br>
 
 > [!NOTE] Why do we make connections?
 > More links? Clear organization? A beautiful graph view? Survival? No! *We make connections to **empower ourselves** to see our ideas realized!*
+
+🏠 **Local AI Processing**: Claude Code CLI for private, cost-free conversations
 
 ✔️ Zero-setup: Local AI models for embeddings
 
@@ -46,6 +48,44 @@ Supports PDFs *without needing a premium plan*, unlike some tools.
 
 > [!SUCCESS] **What Success Looks Like**
 > With Smart Connections running, ideas resurface precisely when you need them, writing flows faster, and your note‑taking system finally feels like the trusted "second brain" you imagined.
+
+## Local AI Processing with Claude Code CLI
+
+> [!TIP] **Privacy-First AI by Default**
+> Smart Connections now defaults to **Claude Code CLI** for the ultimate privacy-first AI experience. Chat with Claude locally while maintaining complete control over your data - no API keys, no costs, no external servers.
+
+### Why Local AI Processing?
+
+- **🔒 Maximum Privacy**: All processing happens locally - no data leaves your machine
+- **💰 No Costs**: No API fees, subscription costs, or usage limits
+- **⚡ Intelligent Context**: Automatically includes relevant vault content in conversations
+- **🧠 Smart Connections**: Leverages semantic search to find related notes automatically
+- **🌐 Works Offline**: No internet dependency after initial setup
+- **💡 Familiar Interface**: Same Smart Chat experience you know and love
+
+### Quick Setup
+
+1. **Install Claude Code CLI** (if not already installed):
+   ```bash
+   # Install via npm
+   npm install -g @anthropic-ai/claude-code
+   
+   # Or download from https://claude.ai/code
+   ```
+
+2. **Enable in Smart Connections**:
+   - Open Smart Connections settings
+   - Go to Smart Chat → Models
+   - Select "Claude Code CLI" as your chat model
+   - Click "Test Connection" to verify setup
+
+3. **Start Chatting**:
+   - Open Smart Chat from the ribbon or command palette
+   - Your conversations now automatically include relevant vault context
+   - Claude processes everything locally for maximum privacy
+
+> [!INFO] **Troubleshooting**
+> If Claude Code CLI isn't detected, ensure it's installed and available in your PATH. See our [Claude Code Setup Guide](./docs/claude-code-guide.md) for detailed installation and troubleshooting steps.
 
 ## Mission-driven
 The Obsidian community opened my eyes to user-aligned software. That's why Smart Connections is [built on principles](https://smartconnections.app/smart-principles/) in an effort to create the most user-aligned Smart Tools available.
@@ -249,6 +289,17 @@ Here's what some of them have to say:
 
 
 ## FAQs & Troubleshooting
+
+### Claude Code Setup
+If you're having trouble with Claude Code CLI integration:
+
+1. **Verify Installation**: Run `claude --version` in your terminal
+2. **PATH Issues**: Ensure Claude Code CLI is in your system PATH
+3. **Permission Issues**: On macOS/Linux, you may need to make the CLI executable
+4. **Configuration**: Check Smart Connections settings → Smart Chat → Models
+
+For detailed setup and troubleshooting, see our [Claude Code Setup Guide](./docs/claude-code-guide.md).
+
 ### Syncthing (third-party syncing)
 *Official services, like Obsidian Sync, help keep Obsidian user-aligned. Smart Connections has built-in compatibility with Obsidian Sync.*
 However, if you must use a third-party sync service, be sure to **add the `.smart-env/` directory to "ignore patterns"** to prevent issues.

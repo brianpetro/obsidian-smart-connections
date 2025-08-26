@@ -6,7 +6,16 @@
   "scripts": {
     "build": "node esbuild.js",
     "release": "node release.js",
-    "test": "npx ava --verbose"
+    "test": "npx ava --verbose",
+    "test:claude": "npx ava src/adapters/claude_code_cli_adapter.test.js --verbose",
+    "test:claude-integration": "npx ava src/test/claude_code_integration.test.js --verbose",
+    "validate:claude": "node scripts/validate_claude_integration.js",
+    "validate:claude-cli-only": "node scripts/validate_claude_integration.js --check-cli-only",
+    "perf:claude": "node scripts/performance_test_claude.js",
+    "perf:claude-stress": "node scripts/performance_test_claude.js --stress-test --iterations 200 --concurrent 20",
+    "e2e:claude": "node scripts/e2e_claude_test.js",
+    "e2e:claude-real": "node scripts/e2e_claude_test.js --with-real-cli",
+    "e2e:claude-failures": "node scripts/e2e_claude_test.js --simulate-failures"
   },
   "repository": {
     "type": "git",
@@ -63,7 +72,9 @@
       "*.test.js",
       "smart-chat/*.test.js",
       "src/*.test.js",
-      "src/utils/*.test.js"
+      "src/utils/*.test.js",
+      "src/test/*.test.js",
+      "src/adapters/*.test.js"
     ],
     "require": []
   },

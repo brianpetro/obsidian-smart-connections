@@ -4,25 +4,34 @@ import { SmartFsObsidianAdapter } from 'smart-file-system/adapters/obsidian.js';
 import { SmartView } from 'smart-view/smart_view.js';
 import { SmartViewObsidianAdapter } from 'smart-view/adapters/obsidian.js';
 import { render as collection_settings_component } from 'smart-collections/components/settings.js';
-import { render as model_settings_component } from "smart-model/components/settings.js";
+// Use enhanced model settings component for local-first experience
+import { render as model_settings_component } from "./components/enhanced_model_settings.js";
 import { render as connections_component } from './components/connections.js';
 import { render as lookup_component } from './components/lookup.js';
 import { render as results_component } from './components/connections_results.js';
 import { render as smart_chat_component } from './views/smart_chat.js';
 import { SmartChatModel } from "smart-chat-model";
+// External API adapters - commented out to prioritize local Claude Code CLI
+// import {
+//   SmartChatModelAnthropicAdapter,
+//   SmartChatModelAzureAdapter,
+//   // SmartChatModelCohereAdapter,
+//   SmartChatModelCustomAdapter,
+//   SmartChatModelGoogleAdapter,
+//   SmartChatModelGeminiAdapter,
+//   SmartChatModelGroqAdapter,
+//   SmartChatModelLmStudioAdapter,
+//   SmartChatModelOllamaAdapter,
+//   SmartChatModelOpenaiAdapter,
+//   SmartChatModelOpenRouterAdapter,
+//   SmartChatModelDeepseekAdapter,
+// } from "smart-chat-model/adapters.js";
+
+// Keep local adapters available
 import {
-  SmartChatModelAnthropicAdapter,
-  SmartChatModelAzureAdapter,
-  // SmartChatModelCohereAdapter,
   SmartChatModelCustomAdapter,
-  SmartChatModelGoogleAdapter,
-  SmartChatModelGeminiAdapter,
-  SmartChatModelGroqAdapter,
   SmartChatModelLmStudioAdapter,
   SmartChatModelOllamaAdapter,
-  SmartChatModelOpenaiAdapter,
-  SmartChatModelOpenRouterAdapter,
-  SmartChatModelDeepseekAdapter,
 } from "smart-chat-model/adapters.js";
 import { SmartHttpRequest, SmartHttpObsidianRequestAdapter } from "smart-http-request";
 import { requestUrl } from "obsidian";
@@ -36,6 +45,9 @@ import { render as thread_component } from '../smart-chat-v0/components/thread.j
 import { EnvJsonThreadSourceAdapter } from "../smart-chat-v0/adapters/json.js";
 // import { SmartEmbedOllamaAdapter } from "smart-embed-model/adapters/ollama.js";
 import { render as source_inspector_component } from 'obsidian-smart-env/components/source_inspector.js';
+
+// Import Claude Code CLI adapter
+import { ClaudeCodeCLIAdapter } from './adapters/claude_code_cli_adapter.js';
 
 // actions architecture
 import smart_block from "smart-blocks/smart_block.js";
@@ -77,18 +89,24 @@ export const smart_env_config = {
       class: SmartChatModel,
       // DEPRECATED FORMAT: will be changed (requires SmartModel adapters getters update)
       adapters: {
-        anthropic: SmartChatModelAnthropicAdapter,
-        azure: SmartChatModelAzureAdapter,
-        // cohere: SmartChatModelCohereAdapter,
+        // Primary local adapter - no external API required
+        claude_code_cli: ClaudeCodeCLIAdapter,
+        
+        // Local adapters for alternative AI providers
         custom: SmartChatModelCustomAdapter,
-        google: SmartChatModelGoogleAdapter,
-        gemini: SmartChatModelGeminiAdapter,
-        groq: SmartChatModelGroqAdapter,
         lm_studio: SmartChatModelLmStudioAdapter,
         ollama: SmartChatModelOllamaAdapter,
-        open_router: SmartChatModelOpenRouterAdapter,
-        openai: SmartChatModelOpenaiAdapter,
-        deepseek: SmartChatModelDeepseekAdapter,
+        
+        // External API adapters - commented out to prioritize local solutions
+        // anthropic: SmartChatModelAnthropicAdapter,
+        // azure: SmartChatModelAzureAdapter,
+        // cohere: SmartChatModelCohereAdapter,
+        // google: SmartChatModelGoogleAdapter,
+        // gemini: SmartChatModelGeminiAdapter,
+        // groq: SmartChatModelGroqAdapter,
+        // open_router: SmartChatModelOpenRouterAdapter,
+        // openai: SmartChatModelOpenaiAdapter,
+        // deepseek: SmartChatModelDeepseekAdapter,
       },
       http_adapter: new SmartHttpRequest({
         adapter: SmartHttpObsidianRequestAdapter,
@@ -154,6 +172,38 @@ export const smart_env_config = {
       show_full_path: false,
       exclude_blocks_from_source_connections: false,
       exclude_frontmatter_blocks: true,
+    },
+    // Smart Chat Model settings with Claude Code CLI as primary
+    smart_chat_model: {
+      // Default to Claude Code CLI adapter
+      adapter: "claude_code_cli",
+      model_key: "claude-code-cli",
+      
+      // Claude Code CLI specific settings
+      claude_code_cli: {
+        timeout: 60000, // 60 seconds
+        max_retries: 3,
+        base_delay: 1000, // 1 second
+        context_limit: 5, // Number of semantic search results to include
+        model_key: "claude-code-cli",
+      },
+      
+      // Keep local alternatives available
+      ollama: {
+        adapter: "ollama",
+        model_key: "llama3.2",
+        api_url: "http://localhost:11434/api",
+      },
+      lm_studio: {
+        adapter: "lm_studio", 
+        model_key: "local-model",
+        api_url: "http://localhost:1234/v1",
+      },
+      custom: {
+        adapter: "custom",
+        model_key: "custom-model",
+        api_url: "",
+      },
     },
   },
 };

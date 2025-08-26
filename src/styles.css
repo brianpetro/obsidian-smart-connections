@@ -1,3 +1,9 @@
+/* Enhanced Model Settings for Local-First Experience */
+@import url('./styles/enhanced_model_settings.css');
+
+/* Claude CLI Setup Modal */
+@import url('./styles/claude_cli_setup_modal.css');
+
 /* deprecated positioning, use bottom bar instead */
 .view-content > .sc-brand {
   position: fixed;
@@ -864,5 +870,124 @@ div.workspace-leaf-content[data-type^="smart-"] {
     &:hover {
       background-color: var(--background-primary-hover);
     }
+  }
+}
+
+/* ---- Claude Code CLI UI Enhancements ---- */
+.claude-status-indicator {
+  display: flex !important;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--background-modifier-border);
+  border: 1px solid var(--background-modifier-border-hover);
+  transition: background-color 0.2s ease;
+}
+
+.claude-status-indicator:hover {
+  background: var(--background-modifier-border-hover);
+}
+
+.claude-loading-text {
+  font-size: 12px !important;
+  color: var(--text-muted) !important;
+  margin-top: 4px !important;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* Enhanced error notice for Claude CLI */
+.sc-config-error-notice {
+  background: var(--background-modifier-error);
+  border: 1px solid var(--background-modifier-error-hover);
+  border-radius: 6px;
+  padding: 12px;
+  margin: 8px 0;
+}
+
+.sc-config-error-notice code {
+  background: var(--code-background);
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-family: var(--font-monospace);
+  font-size: 11px;
+}
+
+.sc-config-error-notice button {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sc-config-error-notice button:hover {
+  background: var(--interactive-accent-hover);
+}
+
+.sc-config-error-notice button:disabled {
+  background: var(--background-modifier-border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* Chat input disabled state for Claude CLI unavailable */
+.sc-chat-input:disabled {
+  background: var(--background-modifier-border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Enhanced typing indicator for Claude CLI */
+.sc-typing-indicator .claude-loading-text {
+  display: block;
+  text-align: center;
+}
+
+/* Model selection indicator */
+.claude-model-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 2px 6px;
+  background: var(--background-secondary-alt);
+  border-radius: 3px;
+  margin-left: auto;
+}
+
+.claude-model-indicator .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4CAF50; /* Green for available */
+}
+
+.claude-model-indicator.unavailable .status-dot {
+  background: #F44336; /* Red for unavailable */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .claude-status-indicator {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+  
+  .sc-config-error-notice {
+    padding: 10px;
+    font-size: 12px;
+  }
+  
+  .sc-config-error-notice code {
+    font-size: 10px;
   }
 }

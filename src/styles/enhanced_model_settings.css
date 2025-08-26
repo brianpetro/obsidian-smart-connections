@@ -1,0 +1,287 @@
+/* Enhanced Model Settings Styles for Local-First Experience */
+
+.smart-chat-model-settings {
+  max-width: 600px;
+}
+
+/* Processing Status Indicator */
+.processing-status {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+}
+
+.local-processing-active {
+  background-color: #f0f9f0;
+  border-color: #4caf50;
+}
+
+.external-api-active {
+  background-color: #f5f5f5;
+  border-color: #2196f3;
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.status-icon {
+  font-size: 16px;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.local-processing-active .status-icon {
+  color: #2e7d32;
+}
+
+.external-api-active .status-icon {
+  color: #1565c0;
+}
+
+.status-description {
+  margin-bottom: 10px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.status-benefits {
+  margin-top: 8px;
+}
+
+.status-benefits ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.status-benefits li {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.local-processing-active .status-benefits li {
+  color: #2e7d32;
+}
+
+/* Settings Items */
+.setting-item {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.setting-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text-normal);
+}
+
+.setting-description {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.setting-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 14px;
+}
+
+.setting-input:focus {
+  outline: none;
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px var(--interactive-accent-hover);
+}
+
+/* Adapter Selection */
+.adapter-selection .setting-input {
+  font-weight: 500;
+}
+
+.adapter-selection option {
+  padding: 8px;
+}
+
+/* Claude Code CLI Settings */
+.claude-code-cli-settings {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  border-left: 4px solid #4caf50;
+}
+
+.claude-code-cli-settings h3 {
+  margin: 0 0 12px 0;
+  color: var(--text-normal);
+  font-size: 16px;
+}
+
+.setting-note {
+  background-color: var(--background-modifier-info);
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+
+.install-guide-link {
+  color: var(--interactive-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.install-guide-link:hover {
+  text-decoration: underline;
+}
+
+/* External API Settings (hidden for local adapters) */
+.external-api-settings {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.api-key-field input[type="password"] {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .smart-chat-model-settings {
+    max-width: 100%;
+  }
+  
+  .processing-status {
+    padding: 12px;
+  }
+  
+  .claude-code-cli-settings,
+  .external-api-settings {
+    padding: 12px;
+  }
+}
+
+/* Dark theme support */
+.theme-dark .local-processing-active {
+  background-color: #1b2a1b;
+  border-color: #4caf50;
+}
+
+.theme-dark .external-api-active {
+  background-color: #1b1b2a;
+  border-color: #2196f3;
+}
+
+/* Animation for status indicator */
+.processing-status {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced Model Indicator Styles for Chat View */
+.claude-model-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: var(--background-modifier-hover);
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid var(--background-modifier-border);
+  transition: all 0.2s ease;
+}
+
+.claude-model-indicator:hover {
+  background: var(--background-modifier-active);
+}
+
+.claude-model-indicator .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  transition: background 0.2s ease;
+}
+
+.claude-model-indicator .model-name {
+  color: var(--text-normal);
+  font-weight: 600;
+}
+
+.claude-model-indicator .processing-type {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.claude-model-indicator .processing-type.local {
+  background: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #c8e6c8;
+}
+
+.claude-model-indicator .processing-type.external {
+  background: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #bbdefb;
+}
+
+/* Dark theme support for model indicator */
+.theme-dark .claude-model-indicator .processing-type.local {
+  background: rgba(76, 175, 80, 0.2);
+  color: #81c784;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.theme-dark .claude-model-indicator .processing-type.external {
+  background: rgba(33, 150, 243, 0.2);
+  color: #64b5f6;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+/* Unavailable state */
+.claude-model-indicator.unavailable {
+  opacity: 0.7;
+}
+
+.claude-model-indicator.unavailable .model-name {
+  color: var(--text-muted);
+}
+
+/* Hover states */
+.claude-model-indicator[style*="cursor: pointer"]:hover {
+  background: var(--background-modifier-active);
+  transform: scale(1.02);
+}
