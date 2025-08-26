@@ -384,7 +384,7 @@ Once migration is complete, consider these optimizations:
 **Need Help?** Join our community:
 - **Discord**: [Smart Connections Community](https://discord.gg/smart-connections)
 - **GitHub**: [Migration Issues](https://github.com/brianpetro/obsidian-smart-connections/issues)
-- **Documentation**: [Full Setup Guide](./claude-code-guide.md)
+- **Documentation**: [Full Setup Guide](./claude-code-integration.md)
 
 ---
 
