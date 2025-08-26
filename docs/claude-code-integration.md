@@ -399,6 +399,266 @@ ps aux | grep claude       # View process details
 tcpdump -i any host api.anthropic.com  # Should show no traffic
 ```
 
+## Advanced Troubleshooting Guide
+
+### Comprehensive Issue Resolution
+
+#### Claude CLI Not Detected
+
+**Symptoms:**
+- Error: "Claude Code CLI not found"
+- Test connection fails
+- No response in chat
+
+**Diagnostic Steps:**
+```bash
+# 1. Check if Claude is installed
+which claude  # macOS/Linux
+where claude  # Windows
+
+# 2. Check version
+claude --version
+
+# 3. Check PATH environment
+echo $PATH | grep -o "[^:]*claude[^:]*"  # macOS/Linux
+echo %PATH% | findstr claude              # Windows
+
+# 4. Test CLI directly
+echo "test" | claude
+```
+
+**Solutions by Platform:**
+
+**Windows:**
+```powershell
+# Add to PATH manually
+[System.Environment]::SetEnvironmentVariable(
+    "Path",
+    $env:Path + ";C:\Program Files\Claude Code CLI",
+    [System.EnvironmentVariableTarget]::User
+)
+
+# Restart Obsidian after PATH update
+```
+
+**macOS:**
+```bash
+# Add to PATH in shell profile
+echo 'export PATH="$PATH:/usr/local/bin"' >> ~/.zshrc
+source ~/.zshrc
+
+# Fix permissions if needed
+sudo chmod +x /usr/local/bin/claude
+```
+
+**Linux:**
+```bash
+# Create symlink
+sudo ln -s /opt/claude-code/claude /usr/local/bin/claude
+
+# Fix permissions
+sudo chmod +x /usr/local/bin/claude
+```
+
+#### Process Timeout Issues
+
+**Symptoms:**
+- Chat responses cut off mid-sentence
+- "Process timeout" errors
+- Slow or hanging responses
+
+**Solutions:**
+```javascript
+// Increase timeout in settings
+Settings → Smart Chat → Advanced
+- Process Timeout: 60000 (increase from default 30000)
+- Max Retries: 3
+- Retry Delay: 2000ms
+```
+
+**For Large Vaults:**
+```javascript
+// Optimize context building
+Settings → Smart Chat → Context
+- Max Context Sources: 5 (reduce from 10)
+- Context Token Limit: 1000 (reduce from 2000)
+- Include System Prompt: false (reduce overhead)
+```
+
+#### Memory and Performance Issues
+
+**Symptoms:**
+- High memory usage
+- Obsidian becoming unresponsive
+- Slow chat responses
+
+**Solutions:**
+
+1. **Clear Process Cache:**
+```bash
+# Kill orphaned Claude processes
+pkill -f claude       # macOS/Linux
+taskkill /IM claude.exe /F  # Windows
+```
+
+2. **Optimize Smart Connections:**
+```javascript
+Settings → Smart Environment
+- Batch Size: 5 (reduce for lower memory)
+- Debounce Delay: 3000ms (reduce update frequency)
+- Background Processing: Enable
+```
+
+3. **Monitor Resource Usage:**
+```bash
+# Watch memory usage
+top -o MEM | grep -E "Obsidian|claude"  # macOS
+htop -s PERCENT_MEM                     # Linux
+```
+
+### Common Error Messages and Solutions
+
+| Error Message | Cause | Solution |
+|--------------|-------|----------|
+| "Claude CLI not found" | CLI not installed or not in PATH | Reinstall CLI, update PATH |
+| "Process spawn error" | Permission issues | Check file permissions, run as admin |
+| "Context too large" | Too many notes included | Reduce context settings |
+| "Timeout waiting for response" | Process hung or slow | Increase timeout, reduce context |
+| "Invalid response format" | CLI version mismatch | Update Claude CLI to latest |
+| "Memory allocation failed" | Out of memory | Close other apps, increase system RAM |
+
+## Performance Tuning for Large Vaults
+
+### Vault Size Categories and Recommendations
+
+#### Small Vaults (< 500 notes)
+```javascript
+// Default settings work well
+{
+  "max_context_sources": 10,
+  "context_token_limit": 2000,
+  "batch_size": 20,
+  "process_timeout": 30000
+}
+```
+
+#### Medium Vaults (500-2000 notes)
+```javascript
+// Balanced performance settings
+{
+  "max_context_sources": 7,
+  "context_token_limit": 1500,
+  "batch_size": 10,
+  "process_timeout": 45000,
+  "exclude_folders": ["Archive/", "Attachments/"]
+}
+```
+
+#### Large Vaults (2000-5000 notes)
+```javascript
+// Performance-optimized settings
+{
+  "max_context_sources": 5,
+  "context_token_limit": 1000,
+  "batch_size": 5,
+  "process_timeout": 60000,
+  "exclude_folders": ["Archive/", "Attachments/", "Daily/"],
+  "min_similarity_threshold": 0.7  // More selective
+}
+```
+
+#### Massive Vaults (> 5000 notes)
+```javascript
+// Aggressive optimization
+{
+  "max_context_sources": 3,
+  "context_token_limit": 750,
+  "batch_size": 3,
+  "process_timeout": 90000,
+  "exclude_patterns": ["*.pdf", "*.png", "*.jpg"],
+  "exclude_folders": ["Archive/", "Attachments/", "Daily/", "Templates/"],
+  "min_similarity_threshold": 0.8,  // Very selective
+  "use_cache": true,
+  "cache_duration": 3600  // 1 hour cache
+}
+```
+
+### Performance Monitoring
+
+#### Built-in Performance Metrics
+```javascript
+// Enable performance logging
+Settings → Developer → Performance Logging: Enable
+
+// View metrics in console
+Ctrl/Cmd+Shift+I → Console
+// Look for timing information
+```
+
+#### Custom Performance Testing
+```javascript
+// Add to console for testing
+async function testChatPerformance() {
+  const start = performance.now();
+  
+  // Send test message
+  await app.plugins.plugins['smart-connections']
+    .env.chat.send("Test message");
+  
+  const duration = performance.now() - start;
+  console.log(`Response time: ${duration}ms`);
+}
+```
+
+### Migration Examples
+
+#### Example 1: Migrating from OpenAI GPT-4
+```javascript
+// Before (OpenAI)
+{
+  "provider": "openai",
+  "model": "gpt-4",
+  "api_key": "sk-...",
+  "max_tokens": 2000
+}
+
+// After (Claude Code CLI)
+{
+  "provider": "claude-code-cli",
+  "model": "claude-3-opus",
+  "api_key": null,  // No key needed!
+  "max_tokens": 200000  // Much larger context
+}
+```
+
+#### Example 2: Migrating from Anthropic API
+```javascript
+// Before (Anthropic API)
+{
+  "provider": "anthropic",
+  "model": "claude-3-opus",
+  "api_key": "sk-ant-...",
+  "base_url": "https://api.anthropic.com"
+}
+
+// After (Claude Code CLI)
+{
+  "provider": "claude-code-cli",
+  "model": "claude-3-opus",
+  "api_key": null,
+  "base_url": null  // All local!
+}
+```
+
+#### Migration Verification Checklist
+- [ ] Claude CLI installed and accessible
+- [ ] Settings migrated to Claude Code CLI
+- [ ] Test message sent successfully
+- [ ] Context inclusion verified
+- [ ] No external API calls detected
+- [ ] Chat history preserved
+- [ ] Performance acceptable
+
 ## FAQ
 
 ### General Questions
@@ -417,19 +677,92 @@ A: After initial Claude Code CLI setup, there are no ongoing costs. No API fees,
 
 ### Technical Questions
 
-**Q: What happens if Claude Code CLI crashes?**
-A: Smart Connections includes retry logic and error handling. Failed requests are automatically retried up to 3 times.
+**Q: What models does Claude Code CLI support?**
+A: Claude Code CLI supports Claude 3 family models (Opus, Sonnet, Haiku) with local processing optimizations.
 
-**Q: Can I customize the prompts sent to Claude?**
-A: Currently, prompts are automatically generated based on context. Custom prompt templates may be added in future versions.
+**Q: How large can my vault be?**
+A: There's no hard limit. Performance depends on your system resources. Vaults with 10,000+ notes work well with proper configuration.
 
-**Q: Does this work with large vaults (10,000+ notes)?**
-A: Yes, but performance depends on your system. Smart Connections' semantic search efficiently finds relevant content without processing the entire vault.
+**Q: Can I use this with multiple vaults?**
+A: Yes! Each vault has its own Smart Connections instance and Claude Code integration.
 
-**Q: Can I use this on mobile?**
-A: Currently, Claude Code CLI is desktop-only. Mobile support depends on Anthropic's roadmap.
+**Q: Does this work with encrypted vaults?**
+A: Yes, as long as Obsidian can read the vault, Smart Connections can process it.
 
-### Privacy Questions
+**Q: Can I customize the Claude model behavior?**
+A: Yes, through system prompts and context configuration in Smart Chat settings.
+
+### Privacy & Security Questions
+
+**Q: Can Claude Code CLI access the internet?**
+A: No, the CLI runs in an isolated environment without network access during processing.
+
+**Q: Where is my data stored?**
+A: All data stays in your vault folder. Embeddings in `.smart-env/`, chat history in Obsidian data.
+
+**Q: Is my chat history encrypted?**
+A: Chat history is stored locally with the same security as your vault. Use vault encryption for additional security.
+
+**Q: Can I audit what data is being processed?**
+A: Yes, enable debug logging to see exactly what context is being sent to Claude.
+
+### Troubleshooting Questions
+
+**Q: Why is Claude Code not responding?**
+A: Check: 1) CLI installed correctly, 2) PATH configured, 3) Correct model selected in settings, 4) Test connection button works.
+
+**Q: Why are responses slow?**
+A: Large context or many sources can slow responses. Reduce context settings for faster responses.
+
+**Q: Can I run multiple Claude instances?**
+A: Smart Connections manages process lifecycle automatically. Multiple vaults can use Claude simultaneously.
+
+**Q: How do I update Claude Code CLI?**
+A: Run `npm update -g @anthropic-ai/claude-code` or download the latest version from claude.ai/code.
+
+## Quick Reference Card
+
+### Essential Commands
+```bash
+# Installation
+npm install -g @anthropic-ai/claude-code
+
+# Verify
+claude --version
+
+# Test
+echo "Hello" | claude
+
+# Update
+npm update -g @anthropic-ai/claude-code
+```
+
+### Key Settings Paths
+```
+Settings → Smart Connections → Smart Chat → Models → Claude Code CLI
+Settings → Smart Connections → Smart Chat → Context
+Settings → Smart Connections → Smart Environment → Exclusions
+```
+
+### Performance Quick Fixes
+| Issue | Quick Fix |
+|-------|-----------|
+| Slow responses | Reduce max_context_sources to 5 |
+| High memory | Reduce batch_size to 5 |
+| Timeouts | Increase process_timeout to 60000 |
+| Too much context | Increase min_similarity_threshold to 0.7 |
+
+## Additional Resources
+
+- [Installation Guide](./installation.md) - Complete setup instructions
+- [User Guide](./user-guide.md) - Using Smart Chat effectively  
+- [Migration Guide](./claude-code-migration.md) - Switching from APIs
+- [Architecture Overview](./architecture.md) - Technical deep dive
+- [Development Guide](./development.md) - Contributing and extending
+
+---
+
+*Last updated: 2025-08-26*
 
 **Q: Is my data really never sent online?**
 A: Correct. Claude Code processes everything locally. You can verify this by monitoring network activity.
@@ -462,4 +795,4 @@ A: Basic functionality works on older systems, but performance may be limited. S
 
 ---
 
-*Last updated: 2024-08-26 | Version: 3.0*
+*Last updated: 2025-08-26 | Enhanced Documentation v1.0*
