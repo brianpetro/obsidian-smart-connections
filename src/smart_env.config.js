@@ -3,7 +3,7 @@ import { SmartFs } from 'smart-file-system/smart_fs.js';
 import { SmartFsObsidianAdapter } from 'smart-file-system/adapters/obsidian.js';
 import { SmartView } from 'smart-view/smart_view.js';
 import { SmartViewObsidianAdapter } from 'smart-view/adapters/obsidian.js';
-import { render as collection_settings_component } from 'smart-collections/components/settings.js';
+import { render as collection_settings_component } from 'smart-view/components/settings.js';
 import { render as model_settings_component } from "smart-model/components/settings.js";
 import { render as connections_component } from './components/connections.js';
 import { render as lookup_component } from './components/lookup.js';
