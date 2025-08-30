@@ -90,7 +90,11 @@ export class ScConnectionsView extends SmartObsidianView {
     if(!entity && current_file){
       console.log("Creating entity for current file " + current_file.path);
       entity = this.env.smart_sources.init_file_path(current_file.path);
-      if(!entity) return this.plugin.notices.show("unable_to_init_source", {key: current_file.path});
+      if(!entity) {
+        this.env.events?.emit('source:init_failed', { key: current_file.path });
+        this.plugin.notices.show("unable_to_init_source", {key: current_file.path});
+        return;
+      }
       await entity.import();
       await entity.collection.process_embed_queue();
     }
@@ -104,7 +108,11 @@ export class ScConnectionsView extends SmartObsidianView {
       return;
     }
     
-    if(entity.excluded) return this.plugin.notices.show("item_excluded", {entity_key: entity.key});
+    if(entity.excluded) {
+      this.env.events?.emit('item:excluded', { entity_key: entity.key });
+      this.plugin.notices.show("item_excluded", {entity_key: entity.key});
+      return;
+    }
     if(!entity.vec && entity.should_embed) {
       entity.queue_embed();
       await entity.collection.process_embed_queue();

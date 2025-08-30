@@ -45,6 +45,7 @@ export class SmartChatGPTView extends SmartObsidianView {
         navigator.clipboard.writeText(current_url);
         // Optional: Show a notice that URL was copied
         if (this.plugin) {
+          this.plugin.env.events?.emit('chatgpt:url_copied', { url: current_url });
           this.plugin.notices.show("copied_chatgpt_url_to_clipboard");
         }
       }

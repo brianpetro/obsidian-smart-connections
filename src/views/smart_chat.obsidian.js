@@ -87,9 +87,11 @@ export class SmartChatsView extends SmartObsidianView {
   copy_message_to_clipboard(message) {
     const content = message.dataset.content;
     navigator.clipboard.writeText(content).then(() => {
+      this.env.events?.emit('clipboard:copied');
       this.plugin.notices.show("copied_to_clipboard", {content});
     }).catch(err => {
       console.error("Failed to copy message: ", err);
+      this.env.events?.emit('clipboard:copy_failed', { error: err.message });
       this.plugin.notices.show("copy_failed");
     });
   }
