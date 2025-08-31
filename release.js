@@ -6,6 +6,7 @@ import archiver from 'archiver';
 import axios from 'axios';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
+import { write_plugin_release_notes } from './releases/format_release_notes.js';
 
 /**
  * Compares two SemVer strings (major.minor.patch).
@@ -126,6 +127,12 @@ async function run_release() {
     }
     fs.writeFileSync(prior_file, version_notes);
   }
+  const target_file = fs.existsSync(release_file) ? release_file : latest_release_file(releases_dir, confirmed_version);
+  write_plugin_release_notes({
+    release_path: target_file,
+    output_path: './latest_release.md',
+    version: confirmed_version,
+  });
   rl.close();
 
   // re-run npm run build and wait for it to finish
