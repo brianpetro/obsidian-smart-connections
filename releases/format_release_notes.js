@@ -63,13 +63,13 @@ function format_release_notes_content(md, current_version) {
   if (previous.length) {
     lines.push('> [!NOTE]- Previous patches');
     previous.forEach((p) => {
-      lines.push(`> ### v${p.version}`);
+      lines.push(`> > [!NOTE]- v${p.version}`);
       if (p.body) {
-        p.body.split('\n').forEach((l) => lines.push(`> ${l}`));
+        p.body.split('\n').forEach((l) => lines.push(`> > ${l}`));
       }
       lines.push('> ');
     });
-    lines.push('');
+    lines.push('> ');
   }
   if (main) lines.push(main);
   return `${lines.join('\n').trim()}\n`;
