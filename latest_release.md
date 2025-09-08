@@ -1,0 +1,421 @@
+> [!NOTE] Patch v3.0.79
+> - Added: built-in local model: EmbeddingGemma-300M
+> - Added: Export data: Status bar context menu can export Smart Env data
+> - Added: Source inspector: toggle showing exact text used in embeddings (embed input)
+> - Fixed: Smart Chat: re-opening thread should not create additional completions (appearing as additional context components)
+
+> [!NOTE]- Previous patches
+> > [!NOTE]- v3.0.78
+> > - Fixed: Smart Chat: threads should save when renamed before the first message is sent
+> 
+> > [!NOTE]- v3.0.77
+> > - Improved: Reduced/removed embedding progress notifications during real-time processing
+> > 	- Only shows if more than 100 items were embedded
+> > - Fixed: Lookup view: toggle expand/collapse all should work to collapse all results
+> 
+> > [!NOTE]- v3.0.76
+> > - Fixed: Connections view: should update number of connections when setting is changed and refresh button is clicked
+> 
+> > [!NOTE]- v3.0.75
+> > - Fixed: Connections codeblock: Exclude filter should work as expected
+> 
+> > [!NOTE]- v3.0.74
+> > - Fix: Smart Chat: Ollama API endpoint
+> 
+> > [!NOTE]- v3.0.73
+> > - Fixed: Smart Chat: LM Studio model loading in settings
+> 
+> > [!NOTE]- v3.0.71
+> > - Added: Command: `Insert connections codeblock`
+> > - Added: Smart Chat: Ollama settings now includes host configuration
+> > - Added: Smart Chat: Deepseek API models
+> > - Added: Smart Chat: Enriched model data via models.dev
+> > - Improved: removed redundant command for opening connections views
+> >   - updated command names for clarity and adjust display text
+> > - Fixed: Lookup should include blocks in results when blocks are enabled
+> 
+> > [!NOTE]- v3.0.70
+> > - Improved: Random connection logic to better handle when no connections are available
+> > - Fixed: Lookup should work with Gemini embeddings
+> 
+> > [!NOTE]- v3.0.69
+> > - Improved: Smart Chat: Streaming UX should not prevent scrolling while streaming
+> > - Improved: Smart Random Note command weights selection by connection score
+> > - Improved: Simplified commands for connections view
+> 
+> > [!NOTE]- v3.0.68
+> > - Added: Context selector: Folder support
+> > 	- folders included in suggestions
+> > 	- select all files in a folder using `⌘/Ctrl + Click`
+> > 	- use `Enter` or `ArrowRight` scopes suggestions to files within a folder
+> > - Added: Context selector: Block-level scoping
+> > 	- allows selecting a specific block within a note
+> > 	- use `ArrowRight` to view blocks within a note
+> > - Added: Context selector: Tag support
+> > 	- tags included in suggestions
+> > 	- select all files with a tag using `⌘/Ctrl + Click`
+> > 	- use `Enter` or `ArrowRight` scopes suggestions to files within a tag
+> > - Added: Google Gemini API as embedding model
+> > - Added: Smart Chat: Anthropic Claude Opus 4.1 model now available
+> > - Added: control display of ribbon icons in the settings
+> > - Added: "Open random connection" ribbon icon
+> > - Added: "Open connections view" command to replace two deprecated commands
+> > 	- "Removing soon" label added to deprecated commands
+> > - Improved: Context selector: UX more predictable when using `Ctrl/⌘`
+> > 	- fixes some scenarios when `Ctrl/⌘` was not being detected correctly
+> > - Fixed: Random note command
+> 
+> > [!NOTE]- v3.0.67
+> > - Added: `smart-connections` codeblock: dedicated connections settings stored in codeblock
+> > - Smart Chat:
+> > 	- Improved: prevent redundant inclusion of context in subsequent completions
+> > 		- should only include a context once in the most recent completion
+> > 	- Fixed: Anthropic models failing after messages that utilize tool calling (context)
+> > 	- Fixed: user instruction should always be provided before and after compiled context
+> 
+> > [!NOTE]- v3.0.65
+> > - Added: Smart Chat: button to insert variables into user message
+> > - Patched: Smart Chat: should handle chats that were saved with new name prior to improved thread name handling ([commit 542e1706](https://github.com/brianpetro/smart-chat-obsidian/commit/542e17064f5e3ff0fce7d30583ba472e09bd0b43))
+> 
+> > [!NOTE]- v3.0.64
+> > - Added: Smart Chat: support for additional variables in messages
+> > 	- more details and UI coming soon
+> > - Fixed: Smart Chat: should not throw error when thread is missing
+> 
+> > [!NOTE]- v3.0.63
+> > - Added: Connections view: handle dragging blocks
+> > 	- creates link to most block types
+> > 		- some exceptions including frontmatter blocks and line-specific blocks
+> 
+> > [!NOTE]- v3.0.62
+> > - add option to exclude frontmatter blocks from source connections
+> > - move "Hide blocks from connections results" setting implementation into `find_connections` method instead of relying on passing parameters (respects setting across implementations)
+> > - fix: Ollama custom endpoint: should use custom endpoint when retrieving model-specific information ([commit 2a791aa](https://github.com/brianpetro/jsbrains/commit/2a791aa0df9bb8e130ac6246f8a583624c276b8a))
+> 
+> > [!NOTE]- v3.0.61
+> > - Added: Status bar: context menu
+> > 	- inspect source and blocks for current note
+> > 	- view Smart Environment stats
+> > - Added: Connections view setting: to only show sources (notes) in connections results
+> 
+> > [!NOTE]- v3.0.60
+> > - Smart Chat: bug fixes
+> > 	- improve chat thread name handling
+> > 	- prevent errors when chat is open onload
+> 
+> > [!NOTE]- v3.0.59
+> > - Added: Smart Chat: xAI Grok adapter
+> > 	- allows using xAI Grok models in Smart Chat
+> > 	- requires xAI Grok API key to be set in the settings
+> > - Added: Excalidraw source adapter
+> > 	- allows Excalidraw files to be used as sources in Smart Connections
+> > 	- supports Excalidraw files with `.excalidraw.md` extension
+> > - Added: Source inspector: source-level information
+> > 	- shows whether the source should be embedded based on the settings and current content
+> > 	- shows whether the source has been embedded (vectorized)
+> > 	- added button to show the full surce data object
+> > - Improved: Connections view: improved messaging when connections results cannot be returned
+> > 	- added more detailed error messages for different failure scenarios
+> 
+> > [!NOTE]- v3.0.58
+> > - Improved: Smart Connections dynamic codeblock:  filter options passed to connections and lookup components; adjust styles for better layout
+> > - Fixed: Smart Chat: should always have a `current_completion` instance (prevent failing to send subsequent messages)
+> 
+> > [!NOTE]- v3.0.57
+> > - Improved: Smart Chat: date format in default thread name
+> > - Fixed: Smart Chat: message copy button should copy message to the clipboard
+> 
+> > [!NOTE]- v3.0.56
+> > - Added: Smart Chat: Improved message link interactions
+> >   - hover-preview: hold cmd/ctrl while hovering to preview the link
+> > 	- drag: click and hold the link, dragging it to create a link in the active note, or dragging to the chat window to add as context
+> > 	- click: hold cmd/ctrl while clicking to open the link in a new tab, cmd/ctrl+alt click to open in split view
+> > - Fixed: Smart Chat: new threads should save after the first message
+> 
+> > [!NOTE]- v3.0.55
+> > - Fixed: Smart Chat `@` should open context selector modal on subsequent messages
+> 
+> > [!NOTE]- v3.0.54
+> > - Fixed: Smart Chat: Context selector: "Done" button should not cause crash
+> > - Added discussion template for Smart Connections workflows and button to open it
+> > 	- encourages users to share their workflows with the community
+> > 	- button opens the discussion template in a new tab
+> > 	- discussion template includes instructions for sharing workflows
+> 
+> > [!NOTE]- v3.0.53
+> > - Improved: Smart Chat: opening logic (prevent splitting sidebar)
+> > 	- now opens in new tab in main workspace by default
+> > 	- tab may still be dragged to the sidebar
+> > - Fixed: Smart Chat: Context selector should open when Smart Context plugin is not installed
+> > 	- should now open the context selector modal instead of throwing an error
+> 
+> > [!NOTE]- v3.0.52
+> > - Fixed: Initial import should not embed blocks where `should_embed` is false
+> >   - see #1077 for details
+> > 	- improves performance and decreases embedding time by reducing total number of blocks
+> > 	- may require "Clear sources data" and "Reload sources" to be run in the settings to take effect
+> 
+> > [!NOTE]- v3.0.51
+> > - Fixed: Connections view: Include/Exclude filters should allow multiple comma-separated values
+> 
+> > [!NOTE]- v3.0.50
+> > - Added: Smart Chat: Latest OpenAI chat models (removed incompatible models)
+> > 	- o3 and o4 class models now available in the settingsa
+> 
+> > [!NOTE]- v3.0.47
+> > - Added: Hide connections in connections view
+> > 	- Right-click on a connection result to open the new context menu
+> > 	- Select "Hide" to hide the connection result
+> > 	- Select "Unhide All" to unhide all hidden connections for the current item
+> > - Updated: Smart Contexts to use new ContextItem architecture
+> > 	- The new architecture allows for more flexibility and better performance
+> 
+> > [!NOTE]- v3.0.46
+> > - Added: Smart Chat: Include relevance score for item in context tree if retrieved from a lookup
+> > 	- allows users to see how relevant the item is to the current chat context
+> > - Added: Snowflake Arctic Embed models to the built-in embedding adapter (transformers)
+> > 	- Snowflake/snowflake-arctic-embed-xs
+> > 	- Snowflake/snowflake-arctic-embed-s
+> > 	- Snowflake/snowflake-arctic-embed-m
+> > - Added: Report a bug and Request a feature buttons to the settings
+> > - Fixed: Smart Context: Tree should not split paths with slashes or hashtags within wikilinks
+> > 	- ex. `[[some/path.md#subpath]]` should not be split into `some/path.md` and `subpath`
+> > - Improved: Smart Chat: Prevent trying to use folder scope in lookup when the folder provided by the AI does not exist
+> 
+> > [!NOTE]- v3.0.45
+> > - Added: Status element for indicating embedding queue for changed notes
+> > 	- click to begin embedding otherwise waits until `re_import_wait_time` has passed
+> > - Fixed: Smart Environment: only changed blocks should re-embed when the note is modified
+> > 	- Adds block has check to parse_blocks to prevent `queue_embed` from being called on blocks that haven't changed
+> > - Fixed: Release notes should open in a new tab instead of relpacing the current tab
+> > - Moved: Smart Plugins access to the obsidian-smart-env module
+> 
+> > [!NOTE]- v3.0.44
+> > - Improved: Settings descriptions for the Connections view
+> > - Changed: Moved "muted notices" settings to the obsidian-smart-env module
+> 
+> > [!NOTE]- v3.0.43
+> > - Fixed: Smart Chat: Context tree connections icon should show connections in the suggestions when clicked
+> 
+> > [!NOTE]- v3.0.42
+> > - Added: `re_import_wait_time` setting to Smart Environment settings
+> > 	- allows setting the time to wait before re-importing and embedding a note after it has been modified
+> > 	- WHY: improves real-time nature of the connections
+> > - Improved: Connections view: Handling when current note hasn't been imported
+> > 	- removed notification
+> > 	- added refresh instructions to the connections view
+> > - Improved: Connections view when no results are found
+> >  - added "No connections found" message
+> >  - added instructions for reloading sources from the settings
+> > - Reduced size of bundled plugin from ~6.5MB to ~1MB (>80% reduction)
+> >  - removed tokenizer that's only used by OpenAI embedding models
+> >  - removed sourcemap since it's removed by Obsidian anyway
+> >  - WHY: make the code easier to read (trust through transparency)
+> > - Fixed: Embeddings should update when file is changed
+> 
+> > [!NOTE]- v3.0.41
+> > - Fix: Bug in outlinks parsing was preventing embedding processing in some cases
+> 
+> > [!NOTE]- v3.0.40
+> > - Added: Smart Chat: Support for PDFs as context in compatible models
+> > 	- Currently works with Anthropic, Google Gemini, and OpenAI models
+> > 	- PDFs must be manually added to the chat context. The context lookup action will not surface the PDFs because they are not embedded.
+> > - Improved: Smart Chat: LM Studio settings
+> > 	- Added: Instructions for setting up LM Studio (CORS)
+> > 	- Removed: Unecessary API key setting
+> 
+> > [!NOTE]- v3.0.39
+> > - Improved: Release notes user experience to use the same as the native Obsidian release notes
+> > 	- Now uses new tab instead of modal to display the release notes
+> > - Fixed: Reduced vector length OpenAI embedding models should be selectable in the settings
+> 
+> > [!NOTE]- v3.0.38
+> > - Fixed: Smart Chat LM Studio models handling of `tool_choice` parameter
+> 
+> > [!NOTE]- v3.0.37
+> > - Fixed: Ollama `max_tokens` parameter should accurately reflect the model's max tokens
+> > - Fixed: Getting Started slideshow should only show automatically for new users
+> 
+> > [!NOTE]- v3.0.34
+> > - Added: Multi-modal support (images as context) using Ollama models
+> > 	- requires Ollama models that support multi-modal input like `gemma3:4b`
+> 
+> > [!NOTE]- v3.0.33
+> > - Improved: Context Tree styles improved by samhiatt (PR #1091)
+> > - Improved: Smart Chat message should be full width if container is less than 600px
+> > - Fixed: Smart Chat model selection should handle when Ollama is available but no models are installed
+> 
+> > [!NOTE]- v3.0.32
+> > - Added: Anthropic Claude Sonnet 4 & Opus 4 to Smart Chat
+> > - Improved: Smart Chat new note button no longer automatically addes open notes as context 
+> > 	- Added: "Add visible" and "Add open" notes options to Smart Context selector 
+> > 	- Added: "Add context" button above chat input on new chat for quick access to context selector
+> > - Fixed: Removing an item in the context selector updates the stats
+> > - Fixed: Smart Chat system message should render no more than once per turn
+> 
+> > [!NOTE]- v3.0.31
+> > - Added: Smart Chat: "Retrieve more" button in lookup results
+> > 	- allows retrieving more results from the lookup
+> > 	- includes retrieved context in subsequent lookup to provide more context to the model
+> > - Improved: Smart Chat: prior message handling in subsequent completions
+> 
+> > [!NOTE]- v3.0.30
+> > - Added: Drag multiple files into the Smart Chat window to add as context
+> > - Fixed: Smart Connections results remain stable when dragging connection from bottom of the list
+> 
+> > [!NOTE]- v3.0.29
+> > - Fixed: prevented regex special characters from throwing error when excluded file/folder contains them
+> > - Fixed: Smart Chat should return lookup context results when Smart Blocks are disabled
+> 
+> > [!NOTE]- v3.0.28
+> > Fixed: Getting Started slideshow UX on mobile.
+> 
+> > [!NOTE]- v3.0.27
+> > - Added: Smart Chat lookup now supports folder-based filtering
+> > 	- mention a folder when requesting a lookup using self-referential pronoun (no special folder syntax required)
+> > 		- ex. "Summarize my thoughts on this topic based on notes in my Content folder"
+> > - Added: Smart Chat system prompt now allows `{{folder_tree}}` variable
+> > 	- this variable will be replaced with the folder tree of the current vault
+> > 	- useful for providing context about the vault structure to the model
+> > - Improved: Smart Chat system message UI
+> > 	- now collapses when longer than 10 lines
+> 
+> > [!NOTE]- v3.0.26
+> > Temp disable bases integration since Obsidian changed how the integration works and there is currently no clear path to updating.
+> 
+> > [!NOTE]- v3.0.25
+> > Fixed connections view help button failing to open
+> 
+> > [!NOTE]- v3.0.24
+> > Fix Lookup tab not displaying.
+> 
+> > [!NOTE]- v3.0.23
+> > - Added Getting Started guide
+> > 	- opens automatically for new users
+> > 	- can be opened manually via command `Show getting started`
+> > 	- can be opened from the connections view "Help" icon
+> > 	- can be opened from the main settings "Open getting started guide" button
+> 
+> > [!NOTE]- v3.0.22
+> > - Improved connections view event handling
+> > 	- prevent throwing error when no view container is present on iOS
+> 
+> > [!NOTE]- v3.0.21
+> > - Implemented Smart Completions fallback to Smart Chat configuration
+> > 	- WHY: enables use via global `smart_env` instance without requiring `chat_model` parameters in every request
+> 
+> > [!NOTE]- v3.0.20
+> > - Fixed: Smart Environment settings tab should be visible during "loading" and "loaded" states
+> > - Fixed: Open URL externally should use window.open with "_external" if webviewer plugin is installed
+> 
+> > [!NOTE]- v3.0.19
+> > - Added: model info to Smart Chat view
+> > 	- shows before the first message and anytime the model changes since the last message
+> > - Fixed: ChatGPT sign-in with Google account
+> > 	- should now work as expected
+> > 	- will require re-signing in to ChatGPT after update
+> > - Fixed: Smart Chat thread adapter should better handle past completions to prevent unexpected behavior
+> > 	- prevented `build_request` from outputting certain request content unless the completion is the current completion
+> > 		- logic is specific to completion adapters (actions, actions_xml, thread)
+> 
+> > [!NOTE]- v3.0.18
+> > - Fixed: Smart Connections view rendering on mobile
+> > 	- should render when opening the view from the sidebar
+> > 	- should update the results to the currently active file
+> 
+> > [!NOTE]- v3.0.17
+> > - Improved embedding processing UX
+> > 	- show notification immediately to allow pausing sooner
+> > 	- show notification every 30 seconds in addition to every 100 embeddings
+> > - Fixed: Smart Environment settings tab should be visible during "loading" state
+> > 	- prevents "Loading Obsidian Smart Environment..." message from appearing indefinitely in instances where the environment fails to load from errors related to specific embedding models
+> 
+> > [!NOTE]- v3.0.16
+> > - Fixed: no models available in Ollama should no longer cause issues in the settings
+> 
+> > [!NOTE]- v3.0.15
+> > - Fixed: some Ollama embedding models triggering re-embedding every restart
+> 
+> > [!NOTE]- v3.0.14
+> > - Improved hover popover for blocks in connections results and context builder
+> > - Refactored `context_builder` component to extract `context_tree` component and prevent passing UI components
+> >   - these components are frequently re-used, the updated architecture should make it easier to maintain and extend
+> > - Fixed: should not embed blocks with size less than `min_chars`
+> > - Fixed: Smart Chat completion requests should have a properly ordered `messages` array
+> 
+> > [!NOTE]- v3.0.13
+> > - Prevents trying to process embed queue if embed model is not loaded
+> > 	- Particularly for Ollama which may not be turned on when Obsidian starts
+> > 	- Re-checks for Ollama server in intervals of a minute
+> > 	- Embed queue can be restarted by clicking "Reload sources" in the Smart Environment settings
+> 
+> > [!NOTE]- v3.0.12
+> > Fixes pasted text: should paste lines in correct order (no longer reversed)
+> 
+> > [!NOTE]- v3.0.11
+> > Fixes unexpected scroll issue when dragging file from connections view (issue #1073)
+> 
+> > [!NOTE]- v3.0.10
+> > Fixed Google Gemini integration in the new Smart Chat
+> 
+> > [!NOTE]- v3.0.9
+> > - Reworked the context builder UX in Smart Chat to prevent confusion
+> > 	- Context is now added to the chat regardless of how the context selector modal is closed
+> > 	- Removed "Back" button in favor of "Back" suggestion item
+> > - Fixed using `@` to open context selector in Smart Chat
+> > 	- "Done" button now appears in the context selector modal when it is opened from the keyboard
+> 
+> > [!NOTE]- v3.0.8
+> > - Improved bases integration UX
+> > 	- prevent throwing error on erroroneous input in `cos_sim` base function
+> > 	- gracefully handle when smart_env is not loaded yet
+> > - Reduced max size of markdown file that will be imported from 1MB to 300KB (prevent long initial import)
+> > 	- advanced configuration available via `smart_sources.obsidian_markdown_source_content_adapter.max_import_size` in `smart_env.json`
+> > - Removed deprecated Smart Search API registered to window since `smart_env` object is now globally accessible
+> > - Fixed bug causing expanded connections results to render twice
+> 
+> > [!NOTE]- v3.0.7
+> > Added "current/dynamic" option in bases connection score modal to add score based on current file. Fixed issue causing Ollama to seemingly embed at 0 tokens/sec. Fixed bases integration modal failing on new bases.
+> 
+> > [!NOTE]- v3.0.6
+> > Fixed release notes should only show once after update.
+> 
+> > [!NOTE]- v3.0.5
+> > Fixes Ollama Embedding model loading issue in the settings.
+> 
+> > [!NOTE]- v3.0.4
+> > Prevented frontmatter blocks from being included in connections results. Fixed toggle-fold-all logic.
+> 
+> > [!NOTE]- v3.0.3
+> > Fixed issue where connections results would not render if expand-all results was toggled on.
+> 
+> > [!NOTE]- v3.0.1
+> > Improved Mobile UX and cleaned up extraneous code.
+> 
+> 
+# Smart Connections `v3`
+## New Features
+
+### Smart Chat v1
+- Effectively utilizes the Smart Environment architecture to facilitate deeper integration and new features.
+#### Improved Smart Chat UI
+- New context builder
+	- makes managing conversation context easier
+- Drag images and notes into the chat window to add as context
+- Separate settings tab specifically for chat features
+#### *Improved Smart Chat compatibility with Local Models*
+- Note lookup (RAG) now compatible with models that don't support tool calling
+	- Disable tool calling in the settings
+### Ollama embedding adapter
+- use Ollama to create embeddings
+
+## Fixed
+- renders content in connections results when all result items are expanded by default
+## Housekeeping
+- Updated README
+	- Improved Getting Started section
+	- Removed extraneous details
+- Improved version release process
+- Smart Chat `v0` (legacy)
+	- Smart Chat `v0` will continue to be available for a short time and will be removed in `v3.1` unless unforeseen issues arise in which case it will be removed sooner.
+	- Smart Chat `v0` code was moved from `brianpetro/jsbrains` to the Smart Connections repo
