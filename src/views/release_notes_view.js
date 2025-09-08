@@ -25,7 +25,13 @@ export class ReleaseNotesView extends ItemView {
     this.render();
   }
   get container () {
-    return this.containerEl?.querySelector('.view-content');
+    const content = this.containerEl?.querySelector('.view-content');
+    let preview = content?.querySelector('.markdown-preview-view');
+    if(!preview) {
+      const main = content?.createDiv('cm-scroller is-readable-line-width');
+      preview = main?.createDiv('markdown-preview-view markdown-rendered');
+    }
+    return preview;
   }
   async render() {
     while (!this.container) {
