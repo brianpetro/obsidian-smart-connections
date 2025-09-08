@@ -1,11 +1,12 @@
-> [!NOTE] Patch v3.0.78
-> - Fixed: Smart Chat: threads should save when renamed before the first message is sent
+> [!NOTE] Patch v3.0.79
+> - Added: built-in local model: EmbeddingGemma-300M
+> - Added: Export data: Status bar context menu can export Smart Env data
+> - Added: Source inspector: toggle showing exact text used in embeddings (embed input)
+> - Fixed: Smart Chat: re-opening thread should not create additional completions (appearing as additional context components)
 
 > [!NOTE]- Previous patches
 > > [!NOTE]- v3.0.78
-> > - Added: Export data: Status bar context menu can export Smart Env data
-> > - Added: Source inspector: toggle showing exact text used in embeddings (embed input)
-> > - Fixed: Smart Chat: re-opening thread should not create additional completions (appearing as additional context components)
+> > - Fixed: Smart Chat: threads should save when renamed before the first message is sent
 > 
 > > [!NOTE]- v3.0.77
 > > - Improved: Reduced/removed embedding progress notifications during real-time processing
