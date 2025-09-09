@@ -135,6 +135,8 @@ async function run_release() {
   });
   rl.close();
 
+  await new Promise((res) => setTimeout(res, 500)); // wait for rl to close and plugin release notes to write
+
   // re-run npm run build and wait for it to finish
   await new Promise((resolve, reject) => {
     exec('npm run build', (err, stdout, stderr) => {
