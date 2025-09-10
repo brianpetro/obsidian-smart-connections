@@ -217,6 +217,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       });
       const latest_release = response.tag_name;
       if(latest_release !== this.manifest.version) {
+        this.env?.events?.emit('plugin:new_version_available', { version: latest_release });
         this.notices?.show('new_version_available', {version: latest_release});
         this.update_available = true;
       }
