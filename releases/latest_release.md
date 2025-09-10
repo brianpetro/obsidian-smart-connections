@@ -1,10 +1,18 @@
-> [!NOTE] Patch v3.0.79
-> - Added: built-in local model: EmbeddingGemma-300M
-> - Added: Export data: Status bar context menu can export Smart Env data
-> - Added: Source inspector: toggle showing exact text used in embeddings (embed input)
-> - Fixed: Smart Chat: re-opening thread should not create additional completions (appearing as additional context components)
+> [!NOTE] Patch v3.0.80
+> - Added: LM Studio embedding model adapter
+> 	- requires LM Studio to be running
+> 	- requires CORS to be enabled in LM Studio settings
+> - Fixed: Smart Chat: should work when experimental Smart Editor plugin is enabled
+> - Fixed: Smart Chat: Deepseek adapter model request should return models
+> - Fixed: Smart Chat: Prevented multiple instances of pasted text
 
 > [!NOTE]- Previous patches
+> > [!NOTE]- v3.0.79
+> > - Added: built-in local model: EmbeddingGemma-300M
+> > - Added: Export data: Status bar context menu can export Smart Env data
+> > - Added: Source inspector: toggle showing exact text used in embeddings (embed input)
+> > - Fixed: Smart Chat: re-opening thread should not create additional completions (appearing as additional context components)
+> 
 > > [!NOTE]- v3.0.78
 > > - Fixed: Smart Chat: threads should save when renamed before the first message is sent
 > 
