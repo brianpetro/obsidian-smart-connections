@@ -130,7 +130,7 @@ async function run_release() {
   const target_file = fs.existsSync(release_file) ? release_file : latest_release_file(releases_dir, confirmed_version);
   write_plugin_release_notes({
     release_path: target_file,
-    output_path: './latest_release.md',
+    output_path: './releases/latest_release.md',
     version: confirmed_version,
   });
   rl.close();
