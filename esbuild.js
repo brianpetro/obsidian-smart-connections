@@ -147,7 +147,15 @@ esbuild.build({
   banner: { js: copyright_banner },
 }).then(() => {
   console.log('Build complete');
+  // Include MCP certificate files if they exist
+  const mcp_cert_path = path.join(process.cwd(), 'src', 'mcp', 'cert.pem');
+  const mcp_key_path = path.join(process.cwd(), 'src', 'mcp', 'key.pem');
+
   const release_file_paths = [manifest_path, styles_path, main_path];
+
+  // Add certificate files if they exist
+  if (fs.existsSync(mcp_cert_path)) release_file_paths.push(mcp_cert_path);
+  if (fs.existsSync(mcp_key_path)) release_file_paths.push(mcp_key_path);
   for(let vault of destination_vaults) {
     const destDir = path.join(process.cwd(), '..', vault, '.obsidian', 'plugins', 'smart-connections');
     console.log(`Copying files to ${destDir}`);

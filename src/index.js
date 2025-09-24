@@ -31,6 +31,10 @@ import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
 
 import { ReleaseNotesView }    from "./views/release_notes_view.js";
 
+// MCP Server
+import { SmartConnectionsMCPServer } from "./mcp/server.js";
+import { findAvailablePortRandom } from "./utils/port_utils.js";
+
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 import { create_deep_proxy } from "./utils/create_deep_proxy.js";
 import { get_random_connection } from "./utils/get_random_connection.js";
@@ -127,6 +131,66 @@ export default class SmartConnectionsPlugin extends Plugin {
       this.app.setting.removeSettingTab('smart-chat');
     });
     console.log("Smart Chat is registered");
+
+    // Initialize MCP Server
+    await this.initializeMCPServer();
+  }
+
+  /**
+   * Initialize MCP Server if enabled in settings
+   */
+  async initializeMCPServer() {
+    try {
+      // Check if MCP server is enabled (default: true for proof of concept)
+      const mcpEnabled = this.settings?.mcp_server_enabled !== false;
+
+      if (!mcpEnabled) {
+        console.log('Smart Connections MCP Server disabled in settings');
+        return;
+      }
+
+      // Wait for SmartEnv to be fully loaded
+      if (!this.env) {
+        console.log('Waiting for Smart Connections environment before starting MCP server...');
+        // SmartEnv should be loaded by now, but just in case
+        return;
+      }
+
+      // Determine port to use
+      let port = this.settings?.mcp_server_port;
+
+      if (!port) {
+        // Find available port and save it to settings
+        console.log('Finding available port for MCP server...');
+        port = await findAvailablePortRandom(8000, 9999);
+
+        // Save the dynamically assigned port to settings
+        this.settings.mcp_server_port = port;
+        await this.saveData(this.settings);
+
+        console.log(`Assigned MCP server to port ${port}`);
+      }
+
+      // Create and start MCP server
+      this.mcp_server = new SmartConnectionsMCPServer(this, {
+        port: port
+      });
+
+      await this.mcp_server.start();
+
+      console.log(`Smart Connections MCP Server initialized successfully on port ${port}`);
+
+      // Register cleanup on plugin unload
+      this.register(() => {
+        if (this.mcp_server) {
+          this.mcp_server.stop();
+        }
+      });
+
+    } catch (error) {
+      console.error('Failed to initialize Smart Connections MCP Server:', error);
+      new Notice(`Smart Connections MCP Server failed to start: ${error.message}`);
+    }
   }
 
   /**

@@ -1,0 +1,32 @@
+{
+  "name": "smart-connections-mcp",
+  "version": "1.0.0",
+  "description": "Read-only MCP server for Smart Connections vector database querying",
+  "type": "module",
+  "main": "dist/server.js",
+  "bin": {
+    "smart-connections-mcp": "dist/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx src/server.ts",
+    "test": "tsx src/test.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "obsidian": "^1.8.7",
+    "obsidian-smart-env": "file:../../obsidian-smart-env",
+    "smart-collections": "file:../../jsbrains/smart-collections",
+    "smart-embed-model": "file:../../jsbrains/smart-embed-model",
+    "smart-utils": "file:../../jsbrains/smart-utils"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

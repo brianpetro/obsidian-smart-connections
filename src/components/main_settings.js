@@ -1,6 +1,8 @@
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 import { open_url_externally } from 'obsidian-smart-env/utils/open_url_externally.js';
 import { toggle_plugin_ribbon_icon } from "../utils/toggle_plugin_ribbon_icon.js";
+import { findAvailablePortRandom } from "../utils/port_utils.js";
+import { Notice } from 'obsidian';
 
 async function build_html(scope_plugin) {
   return `
@@ -16,6 +18,33 @@ async function build_html(scope_plugin) {
 
       <div data-connections-settings-container>
         <h2>Connections view</h2>
+      </div>
+
+      <div data-mcp-settings-container>
+        <h2>Claude Code Integration</h2>
+        <div class="sc-mcp-settings">
+          <div class="sc-mcp-status-row">
+            <div class="sc-mcp-status" data-mcp-status>MCP: Loading...</div>
+          </div>
+          <div class="sc-mcp-port-row">
+            <label class="sc-mcp-port-label">
+              <span>Port:</span>
+              <div class="sc-mcp-port-controls">
+                <input type="number" min="8000" max="9999" data-mcp-port-input />
+                <button class="sc-mcp-restart-button" data-mcp-restart>Restart Server</button>
+              </div>
+            </label>
+          </div>
+          <div class="sc-mcp-command-row">
+            <label class="sc-mcp-command-label">
+              <span>Add to Claude Code:</span>
+              <div class="sc-mcp-command-wrapper">
+                <input type="text" readonly class="sc-mcp-command" data-mcp-command />
+                <button class="sc-mcp-copy-button" data-mcp-copy>Copy</button>
+              </div>
+            </label>
+          </div>
+        </div>
       </div>
 
       <div data-ribbon-icons-settings>
@@ -79,6 +108,12 @@ export async function post_process(scope_plugin, frag) {
       { scope: { settings: scope_plugin.env.settings } }
     );
     connections_settings.appendChild(connections_settings_frag);
+  }
+
+  /* MCP settings */
+  const mcp_container = frag.querySelector('[data-mcp-settings-container]');
+  if (mcp_container) {
+    await setupMCPSettings(scope_plugin, mcp_container);
   }
 
   /* ribbon icon settings */
@@ -172,4 +207,116 @@ export async function post_process(scope_plugin, frag) {
   });
 
   return frag;
+}
+
+/**
+ * Setup MCP settings functionality
+ */
+async function setupMCPSettings(scope_plugin, container) {
+  const statusEl = container.querySelector('[data-mcp-status]');
+  const portInputEl = container.querySelector('[data-mcp-port-input]');
+  const commandEl = container.querySelector('[data-mcp-command]');
+  const copyButtonEl = container.querySelector('[data-mcp-copy]');
+  const restartButtonEl = container.querySelector('[data-mcp-restart]');
+
+  // Function to update UI with current MCP status
+  function updateMCPUI() {
+    const port = scope_plugin.settings?.mcp_server_port;
+    const isRunning = scope_plugin.mcp_server && scope_plugin.mcp_server.transport;
+
+    // Update status
+    if (isRunning && port) {
+      statusEl.textContent = `MCP: Running on port ${port}`;
+      statusEl.className = 'sc-mcp-status sc-mcp-status-running';
+    } else if (port) {
+      statusEl.textContent = `MCP: Stopped (port ${port})`;
+      statusEl.className = 'sc-mcp-status sc-mcp-status-stopped';
+    } else {
+      statusEl.textContent = 'MCP: Not configured';
+      statusEl.className = 'sc-mcp-status sc-mcp-status-error';
+    }
+
+    // Update port input
+    if (port) {
+      portInputEl.value = port;
+    }
+
+    // Update command
+    if (port) {
+      commandEl.value = `claude mcp add --transport http smart-connections http://localhost:${port}/mcp`;
+    } else {
+      commandEl.value = 'MCP server not configured';
+    }
+  }
+
+  // Function to restart MCP server
+  async function restartMCPServer(newPort) {
+    try {
+      restartButtonEl.textContent = 'Restarting...';
+      restartButtonEl.disabled = true;
+
+      // Stop existing server
+      if (scope_plugin.mcp_server) {
+        await scope_plugin.mcp_server.stop();
+      }
+
+      // Update settings if port changed
+      if (newPort && newPort !== scope_plugin.settings?.mcp_server_port) {
+        scope_plugin.settings.mcp_server_port = newPort;
+        await scope_plugin.saveData(scope_plugin.settings);
+      }
+
+      // Initialize new server
+      await scope_plugin.initializeMCPServer();
+
+      // Update UI
+      updateMCPUI();
+
+      new Notice('MCP server restarted successfully');
+    } catch (error) {
+      console.error('Failed to restart MCP server:', error);
+      new Notice(`Failed to restart MCP server: ${error.message}`);
+      statusEl.textContent = 'MCP: Error';
+      statusEl.className = 'sc-mcp-status sc-mcp-status-error';
+    } finally {
+      restartButtonEl.textContent = 'Restart Server';
+      restartButtonEl.disabled = false;
+    }
+  }
+
+  // Copy command to clipboard
+  copyButtonEl.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(commandEl.value);
+      copyButtonEl.textContent = 'Copied!';
+      setTimeout(() => {
+        copyButtonEl.textContent = 'Copy';
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+      new Notice('Failed to copy to clipboard');
+    }
+  });
+
+  // Handle port changes
+  portInputEl.addEventListener('change', async () => {
+    const newPort = parseInt(portInputEl.value);
+    if (newPort && newPort >= 8000 && newPort <= 9999) {
+      await restartMCPServer(newPort);
+    } else {
+      new Notice('Port must be between 8000 and 9999');
+      portInputEl.value = scope_plugin.settings?.mcp_server_port || '';
+    }
+  });
+
+  // Handle restart button
+  restartButtonEl.addEventListener('click', async () => {
+    await restartMCPServer();
+  });
+
+  // Initial UI update
+  updateMCPUI();
+
+  // Store reference to status element for server to update
+  scope_plugin.mcp_status_el = statusEl;
 }

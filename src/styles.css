@@ -866,3 +866,153 @@ div.workspace-leaf-content[data-type^="smart-"] {
     }
   }
 }
+
+/* MCP Settings */
+.sc-mcp-settings {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 0 10px;
+}
+
+.sc-mcp-status-row {
+  display: flex;
+  align-items: center;
+}
+
+.sc-mcp-status {
+  padding: 8px 12px;
+  border-radius: var(--radius-s);
+  font-size: var(--font-small);
+  font-weight: 500;
+  border: 1px solid var(--background-modifier-border);
+  background-color: var(--background-secondary);
+  color: var(--text-normal);
+
+  &.sc-mcp-status-running {
+    background-color: var(--color-green);
+    color: var(--color-white);
+    border-color: var(--color-green);
+  }
+
+  &.sc-mcp-status-error {
+    background-color: var(--color-red);
+    color: var(--color-white);
+    border-color: var(--color-red);
+  }
+
+  &.sc-mcp-status-stopped {
+    background-color: var(--color-orange);
+    color: var(--color-white);
+    border-color: var(--color-orange);
+  }
+}
+
+.sc-mcp-port-row,
+.sc-mcp-command-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sc-mcp-port-label,
+.sc-mcp-command-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: var(--font-small);
+
+  > span {
+    font-weight: 500;
+    color: var(--text-normal);
+  }
+}
+
+.sc-mcp-port-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  input[type="number"] {
+    padding: 6px 10px;
+    border-radius: var(--radius-s);
+    border: 1px solid var(--background-modifier-border);
+    background-color: var(--background-primary);
+    color: var(--text-normal);
+    font-size: var(--font-small);
+    width: 80px;
+
+    &:focus {
+      outline: none;
+      border-color: var(--interactive-accent);
+      box-shadow: 0 0 0 2px var(--interactive-accent-hover);
+    }
+  }
+}
+
+.sc-mcp-restart-button {
+  padding: 6px 12px;
+  border-radius: var(--radius-s);
+  background-color: var(--interactive-normal);
+  color: var(--text-normal);
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-small);
+  font-weight: 500;
+
+  &:hover:not(:disabled) {
+    background-color: var(--interactive-hover);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.sc-mcp-command-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+
+  .sc-mcp-command {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border-radius: var(--radius-s);
+    border: 1px solid var(--background-modifier-border);
+    background-color: var(--background-secondary);
+    color: var(--text-normal);
+    font-size: var(--font-small);
+    font-family: var(--font-monospace);
+    cursor: text;
+
+    &:focus {
+      outline: none;
+      border-color: var(--interactive-accent);
+      box-shadow: 0 0 0 2px var(--interactive-accent-hover);
+    }
+  }
+}
+
+.sc-mcp-copy-button {
+  padding: 6px 12px;
+  border-radius: var(--radius-s);
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-small);
+  font-weight: 500;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: var(--interactive-accent-hover);
+  }
+
+  &:active {
+    background-color: var(--interactive-accent);
+    transform: translateY(1px);
+  }
+}
