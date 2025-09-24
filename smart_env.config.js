@@ -8,6 +8,7 @@ import { render as connections_v1_component } from './src/components/connections
 import { render as lookup_component } from './src/components/lookup.js';
 import { render as main_settings_component } from './src/components/main_settings.js';
 
+
 export const smart_env_config = {
   collections: {
 
@@ -25,5 +26,8 @@ export const smart_env_config = {
     connections_v1: connections_v1_component,
     lookup: lookup_component,
     main_settings: main_settings_component
+  },
+  actions: {
+
   }
 };
