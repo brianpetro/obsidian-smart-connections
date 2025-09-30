@@ -124,10 +124,6 @@ export class SmartObsidianView extends ItemView {
   render_view() { throw new Error("render_view must be implemented in subclass"); }
   get container() { return this.containerEl.children[1]; }
   get env() { return this.plugin.env; }
-  get smart_view() {
-    if (!this._smart_view) this._smart_view = this.env.init_module('smart_view');
-    return this._smart_view;
-  }
   get attribution() {
     return `
       <div class="sc-brand">
@@ -143,6 +139,13 @@ export class SmartObsidianView extends ItemView {
         <p><a style="font-weight: 700;" href="https://smartconnections.app/">Smart Connections</a></p>
       </div>
     `;
+  }
+  /**
+   * @deprecated use env.smart_components instead
+   */
+  get smart_view() {
+    if (!this._smart_view) this._smart_view = this.env.init_module('smart_view');
+    return this._smart_view;
   }
 }
 

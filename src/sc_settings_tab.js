@@ -23,18 +23,9 @@ export class ScSettingsTab extends PluginSettingTab {
     this.render();
   }
 
-  get smart_view() {
-    if(!this._smart_view){
-      this._smart_view = new this.plugin.smart_env_config.modules.smart_view.class({
-        adapter: this.plugin.smart_env_config.modules.smart_view.adapter
-      });
-    }
-    return this._smart_view;
-  }
-
   async render() {
     await wait_for_env_to_load(this, { wait_for_states: ['loading', 'loaded'] });
-    this.smart_view.safe_inner_html(this.containerEl, '<div class="sc-loading">Loading main settings...</div>');
+    this.env.smart_view.safe_inner_html(this.containerEl, '<div class="sc-loading">Loading main settings...</div>');
     this.plugin.env.render_component('main_settings', this.plugin).then(frag => {
       this.containerEl.empty();
       this.containerEl.appendChild(frag);
