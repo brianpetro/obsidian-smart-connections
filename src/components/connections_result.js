@@ -232,11 +232,12 @@ function get_item_html(score, item, opts) {
   const show_full_path = opts.connections_settings?.show_full_path
     ?? item.env.settings.smart_view_filter.show_full_path
   ;
-  const [path, name, parts] = parse_item(item, show_full_path);
-  const separator = "<small class=\"sc-breadcrumb-separator\"> &gt; </small>"
+  const [path, name, parts] = parse_item(item);
+  const separator = "<small class=\"sc-breadcrumb-separator\"> &gt; </small>";
   return `
     <small class="sc-breadcrumb sc-score">${score?.toFixed(2)}</small>
-    <small class="sc-breadcrumb sc-title">${path + name}</small>
+    <small class="sc-breadcrumb sc-path">${show_full_path ? path : ''}</small>
+    <small class="sc-breadcrumb sc-title">${name}</small>
   `.trim() + (parts.length ? separator : '') + parts.map((p, i) =>
     `<small class="sc-breadcrumb">${p}</small>` + ( (i + 1 < parts.length) ? separator : '')
   ).join("");
@@ -248,13 +249,12 @@ function get_item_html(score, item, opts) {
  * parse_item('title.md')  // => ['', 'title', []]
  * parse_item('title.md#') // => ['', 'title', []]
  *
- * parse_item('folder/path/title.md')       // => ['',             'title', []]
- * parse_item('folder/path/title.md', true) // => ['folder/path/', 'title', []]
+ * parse_item('folder/path/title.md') // => ['folder/path/', 'title', []]
  *
  * parse_item('folder/path/title.md#Heading')       // => ['', 'title', ['Heading']]
  * parse_item('folder/path/title.md###Heading#{2}') // => ['', 'title', ['Heading', '{2}']]
  */
-function parse_item(item, show_full_path) {
+function parse_item(item) {
   let name = item.key.replace(/#+$/, '');
 
   let [path, parts] = name.split(".md#");
@@ -262,9 +262,7 @@ function parse_item(item, show_full_path) {
 
   [path, name] = parse_name(path);
 
-  if (show_full_path)
-    return [path, name, parts];
-  return ['', name, parts];
+  return [path, name, parts];
 }
 
 
@@ -274,9 +272,9 @@ function parse_item(item, show_full_path) {
  * parse_name('path/title.md') // => ['path/', 'title']
  */
 function parse_name(key) {
-  const path = key.split("/")
+  const path = key.split("/");
   const name = path.pop().replace(/\.md$/, "");
-  return [path.length ? path.join("/") + "/" : "", name]
+  return [path.length ? path.join("/") + "/" : "", name];
 }
 
 

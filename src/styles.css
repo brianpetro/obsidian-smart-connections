@@ -889,13 +889,18 @@ a.sc-result-file-title > .sc-score {
     border-radius: 6px;
 }
 
+a.sc-result-file-title > .sc-path {
+    margin-right: -3px;
+}
+
+a.sc-result-file-title > .sc-path,
 a.sc-result-file-title > .sc-title {
     font-weight: bold !important;
     text-decoration: underline;
 }
 
 
-a.sc-result-file-title > .sc-breadcrumb:not(.sc-title, .sc-score) {
+a.sc-result-file-title > .sc-breadcrumb:not(.sc-path, .sc-title, .sc-score) {
     font-style: italic;
 }
 
