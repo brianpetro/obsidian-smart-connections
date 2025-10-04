@@ -236,7 +236,7 @@ function get_item_html(score, item, opts) {
   const separator = "<small class=\"sc-breadcrumb-separator\"> &gt; </small>";
   return `
     <small class="sc-breadcrumb sc-score">${score?.toFixed(2)}</small>
-    <small class="sc-breadcrumb sc-path">${show_full_path ? path : ''}</small>
+    ${show_full_path ? `<small class="sc-breadcrumb sc-path">${path}</small>` : ''}
     <small class="sc-breadcrumb sc-title">${name}</small>
   `.trim() + (parts.length ? separator : '') + parts.map((p, i) =>
     `<small class="sc-breadcrumb">${p}</small>` + ( (i + 1 < parts.length) ? separator : '')
