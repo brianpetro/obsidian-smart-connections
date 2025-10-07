@@ -40,6 +40,7 @@ import { determine_installed_at } from "./utils/determine_installed_at.js";
 import { build_connections_codeblock } from "./utils/build_connections_codeblock.js";
 
 export default class SmartConnectionsPlugin extends Plugin {
+  ConnectionsSettingsTab = ScSettingsTab;
 
   get item_views() {
     return {
@@ -85,16 +86,16 @@ export default class SmartConnectionsPlugin extends Plugin {
     SmartEnv.create(this); // IMPORTANT: works on mobile without this.smart_env_config as second arg
     this.register_views();
     SmartChatView.register_view(this);
-    this.addSettingTab(new ScSettingsTab(this.app, this)); // add settings tab
+    this.addSettingTab(new this.ConnectionsSettingsTab(this.app, this)); // add settings tab
     this.add_commands();
     this.register_code_blocks();
     this.add_ribbon_icons();
   }
   // async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
   onunload() {
-    console.log("unloading plugin");
-    this.env?.unload_main?.(this);
+    console.log("Unloading Smart Connections plugin");
     this.notices?.unload();
+    this.env?.unload_main?.(this);
   }
 
   async initialize() {
@@ -177,17 +178,25 @@ export default class SmartConnectionsPlugin extends Plugin {
 
   register_views() {
     Object.values(this.item_views).forEach(View => {
-      this.registerView(View.view_type, (leaf) => (new View(leaf, this)));
+      this.registerView(View.view_type, leaf => new View(leaf, this));
       this.addCommand({
         id: View.view_type,
         name: "Open: " + View.display_text + " view",
-        callback: () => { View.open(this.app.workspace); }
+        callback: () => {
+          View.open(this.app.workspace);
+        }
       });
+
+      // Dynamic accessor and opener for each view
+      // e.g. this.smart_connections_view and this.open_smart_connections_view()
       const method_name = View.view_type
-        .replace('smart-', '')
-        .replace(/-/g, '_');
-      Object.defineProperty(this, method_name, { get: () => View.get_view(this.app.workspace) });
-      this['open_' + method_name] = () => View.open(this.app.workspace);
+        .replace("smart-", "")
+        .replace(/-/g, "_")
+      ;
+      Object.defineProperty(this, method_name, {
+        get: () => View.get_view(this.app.workspace)
+      });
+      this["open_" + method_name] = () => View.open(this.app.workspace);
     });
   }
 
