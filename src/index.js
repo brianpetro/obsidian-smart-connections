@@ -139,16 +139,18 @@ export default class SmartConnectionsPlugin extends Plugin {
     toggle_plugin_ribbon_icon(this, 'random_note');
   }
 
-  ribbon_icons = {
-    connections: {
-      icon_name: "smart-connections",
-      description: "Smart Connections: Open connections view",
-      callback: () => { this.open_connections_view(); }
-    },
-    random_note: {
-      icon_name: "smart-dice",
-      description: "Smart Connections: Open random connection",
-      callback: () => { this.open_random_connection(); }
+  get ribbon_icons () {
+    return {
+      connections: {
+        icon_name: "smart-connections",
+        description: "Smart Connections: Open connections view",
+        callback: () => { this.open_connections_view(); }
+      },
+      random_note: {
+        icon_name: "smart-dice",
+        description: "Smart Connections: Open random connection",
+        callback: () => { this.open_random_connection(); }
+      }
     }
   }
 
