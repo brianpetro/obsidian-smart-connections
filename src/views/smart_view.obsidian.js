@@ -3,6 +3,7 @@ import { wait_for_env_to_load } from "obsidian-smart-env/utils/wait_for_env_to_l
 
 /**
  * Represents a SmartObsidianView for extended functionality.
+ * @deprecated use obsidian-smart-env/view/smart_item_view.js instead
  * @extends ItemView
  */
 export class SmartObsidianView extends ItemView {
