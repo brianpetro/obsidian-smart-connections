@@ -70,22 +70,7 @@ export async function post_process(scope_plugin, frag) {
   if (ribbon_container) {
     if (!scope_plugin.env.settings.ribbon_icons) scope_plugin.env.settings.ribbon_icons = {};
     const ribbon_frag = await this.render_settings(
-      {
-        connections: {
-          setting: 'connections',
-          name: 'Open connections view',
-          description: 'Show the &quot;Open connections view&quot; icon.',
-          type: 'toggle',
-          callback: 'toggle_plugin_ribbon_icon',
-        },
-        random_note: {
-          setting: 'random_note',
-          name: 'Open random connection',
-          description: 'Show the &quot;Open random connection&quot; icon.',
-          type: 'toggle',
-          callback: 'toggle_plugin_ribbon_icon',
-        },
-      },
+      (scope_plugin.ribbon_icon_settings_config || {}),
       {
         scope: {
           settings: scope_plugin.env.settings.ribbon_icons,

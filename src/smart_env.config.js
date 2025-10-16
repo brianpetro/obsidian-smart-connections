@@ -148,6 +148,7 @@ export const smart_env_config = {
     ribbon_icons: {
       connections: true,
       random_note: false,
+      lookup: true,
     },
     smart_view_filter: {
       render_markdown: true,

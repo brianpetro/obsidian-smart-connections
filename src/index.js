@@ -152,6 +152,20 @@ export default class SmartConnectionsPlugin extends Plugin {
       }
     }
   }
+  get ribbon_icon_settings_config() {
+    return Object.fromEntries(
+      Object.entries(this.ribbon_icons).map(([key, val]) => [
+        key,
+        {
+          setting: key,
+          name: val.description,
+          description: `Show the &quot;${val.description}&quot; icon.`,
+          type: 'toggle',
+          callback: 'toggle_plugin_ribbon_icon',
+        }
+      ])
+    );
+  }
 
   register_code_blocks() {
     this.register_code_block("smart-connections", "render_code_block");
