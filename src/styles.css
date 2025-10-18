@@ -866,3 +866,44 @@ div.workspace-leaf-content[data-type^="smart-"] {
     }
   }
 }
+
+
+/* Connections results */
+a.sc-result-file-title {
+    text-decoration: none !important;
+}
+
+a.sc-result-file-title > .sc-score {
+    display: inline-block;
+
+    width: 4.5ch;
+    height: 1.7em;
+    line-height: 1.7em;
+    text-align: center;
+
+    font-weight: 600 !important;
+    font-size: .8em !important;
+
+    color: var(--nav-item-color) !important;
+    background: var(--background-modifier-hover);
+    border-radius: 6px;
+}
+
+a.sc-result-file-title > .sc-path {
+    margin-right: -3px;
+}
+
+a.sc-result-file-title > .sc-path,
+a.sc-result-file-title > .sc-title {
+    font-weight: bold !important;
+    text-decoration: underline;
+}
+
+
+a.sc-result-file-title > .sc-breadcrumb:not(.sc-path, .sc-title, .sc-score) {
+    font-style: italic;
+}
+
+a.sc-result-file-title > .sc-breadcrumb-separator {
+    color: color-mix(in srgb, var(--text-normal) 50%, transparent) !important;
+}
