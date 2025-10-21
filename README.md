@@ -9,6 +9,9 @@ More time for what matters most<br>
 > [!QUESTION] **Is this you?**
 > You're an Obsidian power‑user, researcher, writer, or lifelong learner with **hundreds or thousands of notes**. You capture ideas quickly, but later struggle to find and connect them when it matters most.
 
+> [!INFO] **Ready for inline decorators and footer panels?**
+> Community Supporters can jump into the [Connections Early getting started guide](https://smartconnections.app/smart-plugins/connections-early-getting-started/?utm_source=sc-op-readme) for a walkthrough of early features like inline decorators, footer connections, and Bases integrations.
+
 > [!WARNING] **The Problem**
 > Valuable insights disappear in a sea of unlinked notes, forcing endless scrolling, re‑reading, and duplicated work. Time you wanted for creativity leaks away into manual organization.
 
