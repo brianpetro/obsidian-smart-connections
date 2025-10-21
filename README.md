@@ -3,14 +3,12 @@ More time for what matters most<br>
 <a href="https://smartconnections.app/?utm_source=README-what-matters-most" target="_external"><img src="./assets/SC-OP-more-time-for.gif" alt="More time for what matters most" width="300"/></a>
 </h2>
 
-> I just stumbled across a forgotten 20-page Google Doc I poured my heart into months ago, and the rush of lost momentum hit me like a punch.  
+> I just stumbled across a forgotten 20-page Google Doc I poured my heart into months ago, and the rush of lost momentum hit me like a punch.
 > — Brian (December 2022)
 
 > [!QUESTION] **Is this you?**
 > You're an Obsidian power‑user, researcher, writer, or lifelong learner with **hundreds or thousands of notes**. You capture ideas quickly, but later struggle to find and connect them when it matters most.
 
-> [!INFO] **Ready for inline decorators and footer panels?**
-> Community Supporters can jump into the [Connections Early getting started guide](https://smartconnections.app/smart-plugins/connections-early-getting-started/?utm_source=sc-op-readme) for a walkthrough of early features like inline decorators, footer connections, and Bases integrations.
 
 > [!WARNING] **The Problem**
 > Valuable insights disappear in a sea of unlinked notes, forcing endless scrolling, re‑reading, and duplicated work. Time you wanted for creativity leaks away into manual organization.
@@ -50,6 +48,8 @@ Supports PDFs *without needing a premium plan*, unlike some tools.
 > [!SUCCESS] **What Success Looks Like**
 > With Smart Connections running, ideas resurface precisely when you need them, writing flows faster, and your note‑taking system finally feels like the trusted "second brain" you imagined.
 
+> [!INFO] **Want early features today?**
+> Community Supporters can follow the [Connections Early getting started guide](https://smartconnections.app/smart-plugins/connections-early-getting-started/?utm_source=sc-op-readme) for inline decorators, footer panel, and Bases workflows before they reach the stable release.
 ## Mission-driven
 The Obsidian community opened my eyes to user-aligned software. That's why Smart Connections is [built on principles](https://smartconnections.app/smart-principles/) in an effort to create the most user-aligned Smart Tools available.
 
