@@ -7,3 +7,5 @@ dist
 node_modules
 stylesheets
 ref
+
+*.sublime-*

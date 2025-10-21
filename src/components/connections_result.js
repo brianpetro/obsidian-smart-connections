@@ -14,7 +14,7 @@ import { get_item_display_name } from 'smart-collections/utils/get_item_display_
 export async function build_html(result, opts = {}) {
   const item = result.item;
   const score = result.score; // Extract score from opts
-  const display_name = get_item_name(item, opts);
+  const item_html = get_item_html(score, item, opts);
   
   return `<div class="temp-container">
     <div
@@ -29,7 +29,7 @@ export async function build_html(result, opts = {}) {
       <span class="header">
         ${this.get_icon_html('right-triangle')}
         <a class="sc-result-file-title" href="#" title="${item.path.replace(/"/g, '&quot;')}" draggable="true">
-          <small>${[score?.toFixed(2), display_name].join(' | ')}</small>
+          ${item_html}
         </a>
       </span>
       <ul draggable="true">
@@ -228,8 +228,58 @@ export function process_for_rendering(content) {
   return content;
 }
 
+function get_item_html(score, item, opts) {
+  const show_full_path = opts.connections_settings?.show_full_path
+    ?? item.env.settings.smart_view_filter.show_full_path
+  ;
+  const [path, name, parts] = parse_item(item);
+  const separator = "<small class=\"sc-breadcrumb-separator\"> &gt; </small>";
+  return `
+    <small class="sc-breadcrumb sc-score">${score?.toFixed(2)}</small>
+    ${show_full_path ? `<small class="sc-breadcrumb sc-path">${path}</small>` : ''}
+    <small class="sc-breadcrumb sc-title">${name}</small>
+  `.trim() + (parts.length ? separator : '') + parts.map((p, i) =>
+    `<small class="sc-breadcrumb">${p}</small>` + ( (i + 1 < parts.length) ? separator : '')
+  ).join("");
+}
+
+
+/**
+ * @example
+ * parse_item('title.md')  // => ['', 'title', []]
+ * parse_item('title.md#') // => ['', 'title', []]
+ *
+ * parse_item('folder/path/title.md') // => ['folder/path/', 'title', []]
+ *
+ * parse_item('folder/path/title.md#Heading')       // => ['', 'title', ['Heading']]
+ * parse_item('folder/path/title.md###Heading#{2}') // => ['', 'title', ['Heading', '{2}']]
+ */
+function parse_item(item) {
+  let name = item.key.replace(/#+$/, '');
+
+  let [path, parts] = name.split(".md#");
+  parts = (parts ?? '').split("#").filter(Boolean);
+
+  [path, name] = parse_name(path);
+
+  return [path, name, parts];
+}
+
+
+/**
+ * @example
+ * parse_name('title.md')      // => ['',      'title']
+ * parse_name('path/title.md') // => ['path/', 'title']
+ */
+function parse_name(key) {
+  const path = key.split("/");
+  const name = path.pop().replace(/\.md$/, "");
+  return [path.length ? path.join("/") + "/" : "", name];
+}
+
+
 function get_item_name(item, opts) {
-  const get_display_name = item.key.includes('#')
+  const get_display_name = (item.key.includes('#') && !item.key.endsWith('#'))
     ? get_block_display_name
     : get_item_display_name
   ;
