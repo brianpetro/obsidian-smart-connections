@@ -102,7 +102,7 @@
   .sc-result:not(.sc-result-plaintext) {
     cursor: pointer;
     padding: var(--nav-item-padding);
-    padding-left: 10px;
+    padding-left: 0;
     margin-bottom: 1px;
     align-items: baseline;
     border-radius: var(--radius-s);
