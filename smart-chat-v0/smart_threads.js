@@ -95,7 +95,6 @@ export class SmartThreads extends SmartSources {
       chat_model: {
         adapter: 'openai',
         openai: {
-          model_key: 'gpt-4o',
           // Allow users to set a custom OpenAI-compatible endpoint and API key
           endpoint_url: '',
           api_key: '',
