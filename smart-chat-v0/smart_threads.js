@@ -96,6 +96,14 @@ export class SmartThreads extends SmartSources {
         adapter: 'openai',
         openai: {
           model_key: 'gpt-4o',
+          // Allow users to set a custom OpenAI-compatible endpoint and API key
+          endpoint_url: '',
+          api_key: '',
+        },
+        // Allow users to configure Ollama host and key (for privately hosted Ollama/OpenAI-compatible servers)
+        ollama: {
+          endpoint_url: '',
+          api_key: '',
         },
       },
       embed_model: {
