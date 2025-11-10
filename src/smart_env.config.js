@@ -35,7 +35,7 @@ import { SmartThread } from "../smart-chat-v0/sc_thread.js";
 import { render as thread_component } from '../smart-chat-v0/components/thread.js';
 import { EnvJsonThreadSourceAdapter } from "../smart-chat-v0/adapters/json.js";
 // import { SmartEmbedOllamaAdapter } from "smart-embed-model/adapters/ollama.js";
-import { render as source_inspector_component } from 'obsidian-smart-env/components/source_inspector.js';
+import { render as source_inspector_component } from 'obsidian-smart-env/src/components/source_inspector.js';
 
 // actions architecture
 import smart_block from "smart-blocks/smart_block.js";
