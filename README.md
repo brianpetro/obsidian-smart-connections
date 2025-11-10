@@ -1,6 +1,6 @@
 <h2 align="center">
 More time for what matters most<br>
-<a href="https://smartconnections.app/?utm_source=README-what-matters-most" target="_external"><img src="./assets/SC-OP-more-time-for.gif" alt="More time for what matters most" width="300"/></a>
+<a href="https://smartconnections.app/?utm_source=README-what-matters-most" target="_external"><img src="/assets/SC-OP-more-time-for.gif" alt="More time for what matters most" width="300"/></a>
 </h2>
 
 > I just stumbled across a forgotten 20-page Google Doc I poured my heart into months ago, and the rush of lost momentum hit me like a punch.
@@ -88,7 +88,7 @@ Find Smart Connections in the [Obsidian Community plugins](https://obsidian.md/p
 ![](./assets/SC-OP-install-and-enable-2025-05-20.png)
 #### Install & Enable, That's It!
 A [local model](https://www.perplexity.ai/search/what-are-local-models-dE0ni8CVQSCS3NKxvV3iSg) will immediately begin creating [AI embeddings](https://www.perplexity.ai/search/what-are-ai-embeddings-lX0tY9RoRJaTeUF5EG3hOw#0), no installing third-party software and no API key required!
-![](./assets/SC-OP-notices-embedding-complete-2025-05-20.png)
+![](/assets/SC-OP-notices-embedding-complete-2025-05-20.png)
 
 
 > [!FAILURE] **The Cost of Doing Nothing**
@@ -96,12 +96,12 @@ A [local model](https://www.perplexity.ai/search/what-are-local-models-dE0ni8CVQ
 
 ### Feature walkthrough
 Access the Getting Started guide from the Smart Connections settings.
-[![Smart Context Getting Started](./assets/smart-connections-getting-started.gif)](https://smartconnections.app/story/smart-connections-getting-started/)
+[![Smart Context Getting Started](/assets/smart-connections-getting-started.gif)](https://smartconnections.app/story/smart-connections-getting-started/)
 Watch the [feature walkthrough slideshow](https://smartconnections.app/story/smart-connections-getting-started/) or read the [Getting Started guide](https://smartconnections.app/smart-connections-getting-started/) to learn how Smart Connections empowers your workflows.
 
 ### Walkthrough video
 Watch this video to see Smart Connections and Smart Chat in action.
-[![](./assets/smart-connections-wanderloots.jpg)](https://youtu.be/7Rvl9Sl29Jk?si=16YKPZavyz8Ol7rx)
+[![](/assets/smart-connections-wanderloots.jpg)](https://youtu.be/7Rvl9Sl29Jk?si=16YKPZavyz8Ol7rx)
 [Watch on YouTube](https://youtu.be/7Rvl9Sl29Jk?si=16YKPZavyz8Ol7rx)
 
 ---
