@@ -1,5 +1,5 @@
 import { Keymap, Menu, Notice } from 'obsidian';
-import { register_block_hover_popover } from 'obsidian-smart-env/utils/register_block_hover_popover.js';
+import { register_block_hover_popover } from 'obsidian-smart-env/src/utils/register_block_hover_popover.js';
 import { handle_drag_result } from '../utils/drag.js';
 import { get_block_display_name } from 'smart-blocks/utils/get_block_display_name.js';
 import { get_item_display_name } from 'smart-collections/utils/get_item_display_name.js';
