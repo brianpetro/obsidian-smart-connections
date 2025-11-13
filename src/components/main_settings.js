@@ -1,7 +1,5 @@
 import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 import { open_url_externally } from 'obsidian-smart-env/utils/open_url_externally.js';
-import { toggle_plugin_ribbon_icon } from "../utils/toggle_plugin_ribbon_icon.js";
-
 async function build_html(scope_plugin) {
   return `
     <div id="smart-connections-settings">
@@ -16,10 +14,6 @@ async function build_html(scope_plugin) {
 
       <div data-connections-settings-container>
         <h2>Connections view</h2>
-      </div>
-
-      <div data-ribbon-icons-settings>
-        <h2>Ribbon icons</h2>
       </div>
 
     </div>
@@ -65,23 +59,6 @@ export async function post_process(scope_plugin, frag) {
     connections_settings.appendChild(connections_settings_frag);
   }
 
-  /* ribbon icon settings */
-  const ribbon_container = frag.querySelector('[data-ribbon-icons-settings]');
-  if (ribbon_container) {
-    if (!scope_plugin.env.settings.ribbon_icons) scope_plugin.env.settings.ribbon_icons = {};
-    const ribbon_frag = await this.render_settings(
-      (scope_plugin.ribbon_icon_settings_config || {}),
-      {
-        scope: {
-          settings: scope_plugin.env.settings.ribbon_icons,
-          toggle_plugin_ribbon_icon: (setting_path, value) => {
-            toggle_plugin_ribbon_icon(scope_plugin, setting_path, value);
-          },
-        } 
-      }
-    );
-    ribbon_container.appendChild(ribbon_frag);
-  }
 
   /* header external links */
   const header_link = frag.querySelector('#header-callout a');

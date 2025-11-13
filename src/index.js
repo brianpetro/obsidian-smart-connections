@@ -34,7 +34,6 @@ import { StoryModal } from 'obsidian-smart-env/modals/story.js';
 import { create_deep_proxy } from "./utils/create_deep_proxy.js";
 import { get_random_connection } from "./utils/get_random_connection.js";
 import { add_smart_dice_icon } from "./utils/add_icons.js";
-import { toggle_plugin_ribbon_icon } from "./utils/toggle_plugin_ribbon_icon.js";
 import { determine_installed_at } from "./utils/determine_installed_at.js";
 import { build_connections_codeblock } from "./utils/build_connections_codeblock.js";
 
@@ -88,6 +87,7 @@ export default class SmartConnectionsPlugin extends Plugin {
     this.addSettingTab(new this.ConnectionsSettingsTab(this.app, this)); // add settings tab
     this.add_commands();
     this.register_code_blocks();
+    add_smart_dice_icon();
     this.add_ribbon_icons();
   }
   // async onload() { this.app.workspace.onLayoutReady(this.initialize.bind(this)); } // initialize when layout is ready
@@ -130,12 +130,16 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   /**
-   * Initialize ribbon icons based on saved settings.
+   * Initialize ribbon icons with default visibility.
    */
   add_ribbon_icons() {
-    add_smart_dice_icon();
-    toggle_plugin_ribbon_icon(this, 'connections');
-    toggle_plugin_ribbon_icon(this, 'random_note');
+    const icons = Object.values(this.ribbon_icons);
+    for(let i = 0; i < icons.length; i++) {
+      const ri = icons[i];
+      this.addRibbonIcon(ri.icon_name, ri.description, ri.callback);
+    }
+    // ensure_ribbon_icon_visible(this, 'connections');
+    // ensure_ribbon_icon_visible(this, 'random_note');
   }
 
   get ribbon_icons () {
@@ -152,21 +156,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       }
     }
   }
-  get ribbon_icon_settings_config() {
-    return Object.fromEntries(
-      Object.entries(this.ribbon_icons).map(([key, val]) => [
-        key,
-        {
-          setting: key,
-          name: val.description,
-          description: `Show the &quot;${val.description}&quot; icon.`,
-          type: 'toggle',
-          callback: 'toggle_plugin_ribbon_icon',
-        }
-      ])
-    );
-  }
-
   register_code_blocks() {
     this.register_code_block("smart-connections", "render_code_block");
   }
