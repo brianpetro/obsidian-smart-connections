@@ -58,11 +58,6 @@ export default class SmartConnectionsPlugin extends Plugin {
       merge_env_config(merged_env_config, smart_chat_env_config);
       this._smart_env_config = {
         ...merged_env_config,
-        env_path: '', // scope handled by Obsidian FS methods
-        // DEPRECATED schema
-        smart_env_settings: { // careful: overrides saved settings
-          is_obsidian_vault: true, // redundant with default_settings.is_obsidian_vault
-        },
         request_adapter: this.obsidian.requestUrl, // NEEDS BETTER HANDLING
       };
       // mobile enable/disable
