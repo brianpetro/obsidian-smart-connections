@@ -61,13 +61,7 @@ export class SmartThreads extends SmartSources {
    */
   get chat_model() {
     if (!this._chat_model) {
-      this._chat_model = this.env.init_module('smart_chat_model', {
-        model_config: {},
-        settings: this.chat_model_settings,
-        env: this.env,
-        reload_model: this.reload_chat_model.bind(this),
-        re_render_settings: this.re_render_settings.bind(this),
-      });
+      this._chat_model = this.env.chat_completion_models?.default?.instance;
     }
     return this._chat_model;
   }
