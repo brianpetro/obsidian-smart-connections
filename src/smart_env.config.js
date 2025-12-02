@@ -125,7 +125,6 @@ export const smart_env_config = {
       embed_model: {
         adapter: "transformers",
         transformers: {
-          legacy_transformers: false,
           model_key: 'TaylorAI/bge-micro-v2',
         },
       },

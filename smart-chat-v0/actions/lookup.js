@@ -31,7 +31,7 @@ export async function lookup(env, params={}) {
   if(hypothetical_2) hypotheticals.push(hypothetical_2);
   if(hypothetical_3) hypotheticals.push(hypothetical_3);
   if(!hypotheticals) return {error: "hypotheticals is required"};
-  const collection = env.smart_blocks?.smart_embed ? env.smart_blocks : env.smart_sources;
+  const collection = env.smart_blocks ? env.smart_blocks : env.smart_sources;
   return await collection.lookup({...(other_params || {}), hypotheticals});
 }
 
