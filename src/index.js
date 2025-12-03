@@ -198,7 +198,7 @@ export default class SmartConnectionsPlugin extends Plugin {
   }
 
   async check_for_updates() {
-    if (await this.should_show_release_notes(this.manifest.version)) {
+    if (await this.is_new_plugin_version(this.manifest.version)) {
       console.log("opening release notes modal");
       try {
         ReleaseNotesView.open(this.app.workspace, this.manifest.version);
@@ -471,7 +471,7 @@ export default class SmartConnectionsPlugin extends Plugin {
    * @param {string} current_version
    * @returns {Promise<boolean>}
    */
-  async should_show_release_notes(current_version) {
+  async is_new_plugin_version(current_version) {
     return (await this.get_last_known_version()) !== current_version;
   }
 
