@@ -44,7 +44,7 @@ export default class SmartConnectionsPlugin extends Plugin {
       ConnectionsView,
       ScLookupView,
       SmartChatsView,
-      SmartChatGPTView,
+      // SmartChatGPTView, //moved to Smart ChatGPT plugin
       // SmartPrivateChatView,
       ReleaseNotesView,
     };
