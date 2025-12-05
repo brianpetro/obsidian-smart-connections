@@ -1,7 +1,7 @@
 /**
  * @deprecated REMOVE AFTER UPDATING EARLY RELEASE ADVANCED CONNECTIONS VIEW (DEPENDENCY)
  */
-import { StoryModal } from 'obsidian-smart-env/modals/story.js';
+import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
 /**
  * Build the top bar button markup.
  * @param {Object} view

@@ -1,4 +1,4 @@
-import { StoryModal } from 'obsidian-smart-env/modals/story.js';
+import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
 import { SmartNoteInspectModal } from "obsidian-smart-env/views/source_inspector.js";
 import { ConnectionsFilterModal } from '../modals/connections_filter.js';
 

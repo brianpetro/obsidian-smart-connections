@@ -29,7 +29,7 @@ import { SmartChatSettingTab } from "smart-chat-obsidian/src/settings_tab.js";
 
 import { ReleaseNotesView }    from "./views/release_notes_view.js";
 
-import { StoryModal } from 'obsidian-smart-env/modals/story.js';
+import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
 import { create_deep_proxy } from "./utils/create_deep_proxy.js";
 import { get_random_connection } from "./utils/get_random_connection.js";
 import { add_smart_dice_icon } from "./utils/add_icons.js";
