@@ -1,8 +1,10 @@
+> [!NOTE] Patch v4.1.0
+
 # Smart Connections `v4`
 
 ## What's new in v4
 
-Smart Connections v4 focuses the core plugin on a simple promise: install, enable, and AI-powered connections just work. Advanced configuration and power-user workflows now live in Pro plugins. Read [Introducing Pro Plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme) to learn more.
+Smart Connections v4 focuses the core plugin on a simple promise: install, enable, and AI-powered connections just work. Advanced configuration and power-user workflows now live in Pro plugins. Read [Introducing Pro Plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-release-notes) to learn more.
 
 ### Pause connections
 
@@ -59,4 +61,4 @@ Examples of Pro features:
 - **Early release experiments**  
   New ideas launch in Early channels first so supporters can shape how they evolve.
 
-Connections Pro is part of the <a href="https://smartconnections.app/pro-plugins/?utm_source=connections-release-notes" target="_external">Pro plugins</a> family and is available to active project supporters. It is still built on the same open Smart Environment. Supporting Pro helps fund development of all Smart Plugins and the free core.
+Connections Pro is part of the [Pro plugins](https://smartconnections.app/pro-plugins/?utm_source=connections-release-notes) family and is available to active project supporters. It is still built on the same open Smart Environment. Supporting Pro helps fund development of all Smart Plugins and the free core.
