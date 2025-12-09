@@ -23,7 +23,7 @@ import { SmartNotices } from 'smart-notices/smart_notices.js';
 import { ScEarlySettingsTab } from "./views/settings_tab.js";
 // import { ConnectionsModal } from "./views/connections_modal.js";
 
-// import { ReleaseNotesView }    from "./views/release_notes_view.js";
+import { ReleaseNotesView }    from "./views/release_notes_view.js";
 
 import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
 // import { create_deep_proxy } from "./utils/create_deep_proxy.js";
@@ -55,7 +55,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
       // SmartChatsView,
       // SmartChatGPTView,
       // SmartPrivateChatView,
-      // ReleaseNotesView,
+      ReleaseNotesView,
     };
   }
 
@@ -130,12 +130,12 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
 
   async check_for_updates() {
     if (await this.is_new_plugin_version(this.manifest.version)) {
-      // console.log("opening release notes modal");
-      // try {
-      //   ReleaseNotesView.open(this.app.workspace, this.manifest.version);
-      // } catch (e) {
-      //   console.error('Failed to open ReleaseNotesView', e);
-      // }
+      console.log("opening release notes modal");
+      try {
+        ReleaseNotesView.open(this.app.workspace, this.manifest.version);
+      } catch (e) {
+        console.error('Failed to open ReleaseNotesView', e);
+      }
       await this.set_last_known_version(this.manifest.version);
     }
     setTimeout(this.check_for_update.bind(this), 3000);

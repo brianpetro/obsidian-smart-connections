@@ -1,7 +1,8 @@
 import { ItemView, MarkdownRenderer } from 'obsidian';
+import { SmartItemView } from 'obsidian-smart-env/views/smart_item_view.js';
 import release_notes_md from '../../releases/latest_release.md' with { type: 'markdown' };
 
-export class ReleaseNotesView extends ItemView {
+export class ReleaseNotesView extends SmartItemView {
   static get view_type()    { return 'smart-release-notes-view'; }
   static get display_text() { return 'Release Notes';           }
   static get icon_name()    { return 'file-text';               }
@@ -38,13 +39,18 @@ export class ReleaseNotesView extends ItemView {
       await new Promise(resolve => setTimeout(resolve, 100));
       console.warn('Waiting for containerEl to be ready...', this.container);
     }
-    MarkdownRenderer.render(
+    await MarkdownRenderer.render(
       this.app,
       release_notes_md,
       this.container,
       '',
       this,
     );
+
+    // add target="_external" to links in container
+    this.container.querySelectorAll('a').forEach(a => {
+      a.setAttribute('target', '_external');
+    });
 
     requestAnimationFrame(() => this.#scroll_to_version(this.container, this.version));
   }
