@@ -64,7 +64,7 @@ Surface relationships between notes with zero-setup.
 > 1. **Install and enable** Smart Connections from Obsidian Community plugins.  
 > 2. **Keep writing**. The built in local model automatically indexes your vault.  
 > 3. **Open the Connections view** to see relevant notes and drag links directly into what you are working on.
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Easy installation + zero-setup</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Easy installation + zero-setup</span></summary>
 
 Find Smart Connections in the [Obsidian Community plugins](https://obsidian.md/plugins?id=smart-connections).  
 ![](/assets/SC-OP-install-and-enable-2025-05-20.png)
@@ -73,9 +73,9 @@ Find Smart Connections in the [Obsidian Community plugins](https://obsidian.md/p
 
 A local model starts creating embeddings right away. No extra apps, no CLI tools, and no API key required.  
 ![](/assets/SC-OP-notices-embedding-complete-2025-05-20.png)
-</details>
+</details><br>
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Connections view</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Connections view</span></summary>
 The Connections view shows notes that are semantically related to your current note.
 
 Open it from the left ribbon (Connections icon) or from the command palette by running the `Open: Connection view` command.
@@ -114,9 +114,9 @@ Right click a result to hide it from the list:
 
 Right click any result and use **Unhide all** to bring hidden items back:  
 ![](/assets/SC-OP-Connections-view-right-click-to-unhide-2025-07-01.png)
-</details>
+</details><br>
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Lookup view (semantic search)</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Lookup view (semantic search)</span></summary>
 Use the Lookup view for ad hoc semantic search across your vault.
 
 Open it from the ribbon (Lookup icon) or from the command palette by running the `Open: Lookup view` command.
@@ -127,39 +127,39 @@ Open it from the ribbon (Lookup icon) or from the command palette by running the
 > Semantic queries do not work like regular search queries. For example, a note containing the exact query text may not be returned in the results.
 
 ![](https://smartconnections.app/assets/Lookup-item-view-annotated-with-query-2025-12-09.png)
-</details>
+</details><br>
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Random connection function</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Random connection function</span></summary>
 Jump to a random note that is strongly connected to your current one.
 
 - Click the random connection icon in the ribbon, or  
 - Run the `Open: Random note from connections` command from the command palette.  
 
 Note: the random connection command requires the Connections view to be active.
-</details>
+</details><br>
 
 
 ## What's new in v4?
 
 Smart Connections v4 focuses the core plugin on a simple promise: install, enable, and AI-powered connections just work. Advanced configuration and power-user workflows now live in Pro plugins. Read [Introducing Pro Plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme) to learn more.
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Pause connections</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Pause connections</span></summary>
 Use the new Connections "pause" button to freeze the connections results. This allows you to move through your vault while keeping the connections to a specific note visible while you work.
-</details>
+</details><br>
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Copy connections as list of links</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Copy connections as list of links</span></summary>
 Right-click the connections results to *copy all links* to clipboard.
-</details>
+</details><br>
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Copy all connections content (Context Engineering)</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Copy all connections content (Context Engineering)</span></summary>
 Click the connections view menu button and "Send to Smart Context" (briefcase icon) option. This allows you to quickly copy *all content from the connections* to clipboard for use as context with any AI chat! The Smart Context view also lets you add or remove items before copying all to the clipboard in one-click!
-</details>
+</details><br>
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Pinned connections</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Pinned connections</span></summary>
 In addition to "hiding" connections, you can now "Pin" connections. This ensures the pinned connections are always visible in the connections view. **Connections Pro:** *Hidden and pinned connections are used by new connections algorithms (available in Pro) to improve results!*
-</details>
+</details><br>
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Connections Pro</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Connections Pro</span></summary>
 Connections Pro builds on the core plugin and Smart Environment to give power users more control.
 
 ![](https://smartconnections.app/assets/connections-view-pro-notes.gif)
@@ -180,9 +180,9 @@ Examples of Pro features:
   New ideas launch in Early channels first so supporters can shape how they evolve.
 
 Connections Pro is part of the [Pro plugins](https://smartconnections.app/pro-plugins/?utm_source=connections-readme) family and is available to active project supporters. It is still built on the same open Smart Environment. Supporting Pro helps fund development of all Smart Plugins and the free core.
-</details>
+</details><br>
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Events and notifications</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Events and notifications</span></summary>
 Important events are now surfaced in a dedicated notifications modal:
 - On desktop, click the Smart Env item in the status bar to open the notifications modal.  
 - On mobile, a Smart Environment notice appears at the bottom of the Connections view; tap it to review events.
@@ -195,7 +195,7 @@ Examples of events you might see:
 Objectives of the new Events system:
 - make the environment inspectable and understandable
 - reduce the number of Obsidian native notifications
-</details>
+</details><br>
 
 ## Private by Design, Local-first by Default
 
@@ -227,9 +227,9 @@ Smart Connections exists so you can:
 
 It is not about features for their own sake. It is about empowerment.
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Built from scratch</span></summary>Building the Smart Environment, the core architecture behind Smart Connections, from scratch has empowered me with a deep understanding of the capabilities and limitations of AI. These insights contribute to why I believe the Smart Environment will outlast me.</details>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Built from scratch</span></summary>Building the Smart Environment, the core architecture behind Smart Connections, from scratch has empowered me with a deep understanding of the capabilities and limitations of AI. These insights contribute to why I believe the Smart Environment will outlast me.</details><br>
  
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Built on principles</span></summary>Building from scratch is also what makes the Smart Environment and Smart Plugins worth your trust. Nearly all of the code comes from a single (principle: minimal/no dependencies). That means you don't have to worry about waking up to learn about major supply chain attacks that target the most popular and most used dependencies.</details>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Built on principles</span></summary>Building from scratch is also what makes the Smart Environment and Smart Plugins worth your trust. Nearly all of the code comes from a single (principle: minimal/no dependencies). That means you don't have to worry about waking up to learn about major supply chain attacks that target the most popular and most used dependencies.</details><br>
  
 
 
@@ -329,32 +329,32 @@ Here's what some of them have to say:
 
 
 ## FAQs and troubleshooting
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Does it work on mobile?</span></summary>Yes, both the Core Smart Connections and Connections Pro are mobile friendly.</details>
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Syncthing and third party sync</span></summary>
-Smart Connections works best with Obsidian Sync. If you use a third party sync tool, add the `.smart-env/` directory to its ignore patterns to avoid conflicts.</details>
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">Where is Smart Chat?</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Does it work on mobile?</span></summary>Yes, both the Core Smart Connections and Connections Pro are mobile friendly.</details><br>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Syncthing and third party sync</span></summary>
+Smart Connections works best with Obsidian Sync. If you use a third party sync tool, add the `.smart-env/` directory to its ignore patterns to avoid conflicts.</details><br>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Where is Smart Chat?</span></summary>
 
 Smart Chat is no longer bundled inside Smart Connections, as planned in the last major release, it has been moved to its own dedicated plugin. You can now install **Smart Chat** directly from the [Obsidian Community plugins](https://obsidian.md/plugins?id=smart-chatgpt) or learn more [here](https://smartconnections.app/smart-chat/?utm_source=connections-readme).
 
 To keep the **Core Smart Connections plugin** simple and “just works,” all **API‑based model integrations (cloud and local)** have moved into **Smart Chat Pro**, the Pro version of the Smart Chat plugin. This lets advanced model routing and multi‑provider support be maintained sustainably, while the free Smart Plugins stay focused on essential core features that work with third-party interfaces like ChatGPT, Claude and Gemini.
 
 For more about Pro plugins, read [Introducing Pro Plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme).
-</details>
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">What is the Smart Ecosystem?</span></summary>
+</details><br>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">What is the Smart Ecosystem?</span></summary>
 
 Smart Connections is one piece of a larger ecosystem of local first, user aligned tools.
 I build Smart Plugins to explore new ideas, ship practical workflows, and keep complexity manageable inside Obsidian. Smart Connections is the piece that handles the space between notes (connections).
-</details>
+</details><br>
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">What are Pro plugins?</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">What are Pro plugins?</span></summary>
 
 Most AI features need continuous maintenance. As providers and APIs change, deeply configurable options require far more support, testing, and refactoring than simple defaults.
 
 [Introducing Pro plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme): how the project stays sustainable without compromising the open core. Core Smart Plugins remain free and open source. Pro plugins sit on top of that core, built on the same open Smart Environment. They do not remove the essentials from the free plugins; instead they collect advanced options in one place and fund the work needed to maintain them.
 Pro plugins (including Connections Pro) are available to all past project supporters. Not yet a supporter? [Get Pro plugins here](https://smartconnections.app/pro-plugins/?utm_source=connections-readme).
-</details>
+</details><br>
 
-<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font);">What is Smart Environment?</span></summary>
+<details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">What is Smart Environment?</span></summary>
 
 Smart Environment is the shared local core that powers Smart Connections, Smart Chat, and the rest of the Smart Ecosystem.
 
@@ -365,7 +365,7 @@ Smart Environment is the shared local core that powers Smart Connections, Smart 
 Smart Environment is undergoing major upgrades to better enable local-first AI tooling. If you have joined Community Lean Coffee sessions, you have already seen glimpses of what this future looks like.
 
 In short, Smart Environment aims to be your local-first core: a PKM inspired backend for your personal data that will eventually let you vibe code your own frontend components on top of your notes.
-</details>
+</details><br>
 
 ---
 
