@@ -1,0 +1,51 @@
+.connections-view-early {
+  .connections-top-bar {
+    display: flex;
+    gap: 0.5rem 1rem;
+
+    .connections-actions {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .sc-context {
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      gap: 0.1rem;
+      width: auto;
+      flex: 1 1 auto;
+
+      .sc-context-line {
+        line-height: 1.1;
+      }
+
+      .sc-context-line--parent {
+        color: var(--text-muted);
+        font-size: 0.85em;
+      }
+
+      .sc-context-line--focus {
+        color: var(--text-normal);
+        font-size: 1.05em;
+        font-weight: 600;
+      }
+    }
+  }
+  .connections-list {
+    padding-top: 0.85rem;
+
+    > .sc-collapsed ul {
+      display: none;
+    }
+    > .sc-collapsed span svg {
+      transform: rotate(-90deg);
+    }
+    > .sc-result-pinned {
+      box-shadow: 0 0 0 1px var(--interactive-accent);
+      border-radius: var(--radius-s);
+      background-color: var(--background-modifier-hover);
+    }
+  }
+}

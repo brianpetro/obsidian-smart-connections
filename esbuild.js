@@ -86,7 +86,7 @@ fs.copyFileSync(styles_path, path.join(process.cwd(), 'dist', 'styles.css'));
 const destination_vaults = process.env.DESTINATION_VAULTS?.split(',') || [];
 
 // get first argument as entry point
-const entry_point = process.argv[2] || 'src/index.js';
+const entry_point = process.argv[2] || 'src/main.js';
 
 // update release_notes.md with version
 const release_notes_path = path.join(process.cwd(), 'src', 'views', 'release_notes_view.js');

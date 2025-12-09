@@ -9,3 +9,5 @@ stylesheets
 ref
 
 *.sublime-*
+
+.git-dev

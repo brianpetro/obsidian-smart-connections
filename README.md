@@ -1,164 +1,217 @@
+***Save time* linking, tagging, and organizing:** Smart Connections finds relevant notes *so you don't have to!*
+
 <h2 align="center">
 More time for what matters most<br>
 <a href="https://smartconnections.app/?utm_source=README-what-matters-most" target="_external"><img src="/assets/SC-OP-more-time-for.gif" alt="More time for what matters most" width="300"/></a>
 </h2>
 
-> I just stumbled across a forgotten 20-page Google Doc I poured my heart into months ago, and the rush of lost momentum hit me like a punch.
+> I just stumbled across a forgotten 20-page Google Doc I poured my heart into months ago, and the rush of lost momentum hit me like a punch.  
 > — Brian (December 2022)
 
 > [!QUESTION] **Is this you?**
 > You're an Obsidian power‑user, researcher, writer, or lifelong learner with **hundreds or thousands of notes**. You capture ideas quickly, but later struggle to find and connect them when it matters most.
 
+> [!WARNING] **The Problem**  
+> Valuable insights disappear in a sea of unlinked notes, forcing endless scrolling, rereading, and duplicated work. Time you wanted for creativity leaks away into manual organization.
 
-> [!WARNING] **The Problem**
-> Valuable insights disappear in a sea of unlinked notes, forcing endless scrolling, re‑reading, and duplicated work. Time you wanted for creativity leaks away into manual organization.
+# Smart Connections v4
 
-<a href="https://smartconnections.app/?utm_source=README-what-matters-most" target="_external">**Install Smart Connections now →**</a>
+![](https://smartconnections.app/assets/connections-view-notes-2025-12-09.gif)
 
-# Smart Connections `v3.0`
 
-**Save time** *linking*, *tagging*, and *organizing!* **Smart Connections *finds relevant notes*** so you don't have to!
+> [!NOTE] What Smart Connections does  
+> Smart Connections uses local embeddings and your Smart Environment to surface notes that are semantically related to what you are working on right now.
 
-> [!NOTE] Why do we make connections?
-> More links? Clear organization? A beautiful graph view? Survival? No! *We make connections to **empower ourselves** to see our ideas realized!*
+✔️ Zero-setup: ships with a local embedding model that just works  
 
-✔️ Zero-setup: Local AI models for embeddings
+🔐 Private and offline by default  
 
-🔐 Private & offline by default
+📲 Works on mobile devices  
 
-📲 Works on mobile devices
-
-🤖 Supports 1000s of Local & API models
-
-🤖 Local models via Ollama, LM Studio & HuggingFace transformers.js
-
-📁 Simple local data files
-
-📄 **PDFs support in Smart Chat** – drag research papers straight into the conversation
-Supports PDFs *without needing a premium plan*, unlike some tools.
-
-📦 Ultra-lightweight bundle (~1 MB) with minimal/no third-party dependencies
+📦 Ultra-lightweight bundle with minimal third party dependencies  
 
 🔍 Streamlined codebase with minimal/no dependencies can be audited >3× faster than comparable AI plugins
 
-🌐 Open-source
+🌐 Open-source core, local-first data  
 
-⚔️ Mission-driven, user-aligned, community-supported
+⚔️ Mission driven, user aligned, community supported  
 
-> [!SUCCESS] **What Success Looks Like**
-> With Smart Connections running, ideas resurface precisely when you need them, writing flows faster, and your note‑taking system finally feels like the trusted "second brain" you imagined.
-
-> [!INFO] **Want early features today?**
-> Community Supporters can follow the [Connections Early getting started guide](https://smartconnections.app/smart-plugins/connections-early-getting-started/?utm_source=sc-op-readme) for inline decorators, footer panel, and Bases workflows before they reach the stable release.
-## Mission-driven
-The Obsidian community opened my eyes to user-aligned software. That's why Smart Connections is [built on principles](https://smartconnections.app/smart-principles/) in an effort to create the most user-aligned Smart Tools available.
-
-> [!INFO] **Your Guide**
-> Built by Brian, a fellow Obsidian user who felt the same pain, Smart Connections pairs hard‑won experience with open‑source AI expertise to lead you from overwhelm to insight.
-
-## Private by Design, Privacy by Default
-User-aligned means privacy, local-first decisions, are by design and implemented by default. Privacy shouldn't be an opt-in only or premium feature. Smart Connections default settings are designed to work with zero setup, using a local AI embedding model that works offline.
-
-
-> [!NOTE] Welcome to our Smart Community 😊
-> Hey there! I'm 🌴 Brian. I built Smart Connections to help solve my organization problems. My hope is that it can save you from the same chaos!
-> - How does it feel when you realize you forgot something that was important to you? Why capture more notes if the ideas get lost in oblivion?
-> - What if you didn't spend so much time organizing? What could you have done with all that lost time spent organizing?
-> 
-> These are the questions I'm trying to answer. Smart Connections is one piece, albeit a corner piece, representing an important first step in exploration of how AI can empower individuals like you and I.
-> 
-> *Smart Connections isn't a silver-bullet*. But, it is the a key Smart Tool that can **empower us to do more!**
-> 
-
-
-Smart Connections isn't an alternative. It's a catalyst for you and I to realize our most extraordinary visions for the future.
-
----
-
-## Getting Started
-
-> [!TLDR] **3‑Step Plan**
->
-> 1. **Install & Enable** Smart Connections from Obsidian's Community Plugins
-> 2. **Keep writing** – the built‑in local AI automatically indexes your vault
-> 3. **Watch** relevant notes, links, and chat answers appear as you work
-
-### Easy Installation
-Find Smart Connections in the [Obsidian Community plugins](https://obsidian.md/plugins?id=smart-connections).  
-![](./assets/SC-OP-install-and-enable-2025-05-20.png)
-#### Install & Enable, That's It!
-A [local model](https://www.perplexity.ai/search/what-are-local-models-dE0ni8CVQSCS3NKxvV3iSg) will immediately begin creating [AI embeddings](https://www.perplexity.ai/search/what-are-ai-embeddings-lX0tY9RoRJaTeUF5EG3hOw#0), no installing third-party software and no API key required!
-![](/assets/SC-OP-notices-embedding-complete-2025-05-20.png)
-
+> [!SUCCESS] **What success looks like**  
+> With Smart Connections running, ideas resurface when you need them, writing flows faster, and your note taking system finally feels like the trusted second brain you imagined.
 
 > [!FAILURE] **The Cost of Doing Nothing**
 > Stay stuck sifting through files, forgetting past research, and wasting precious creative energy on housekeeping instead of creation.
-
-### Feature walkthrough
-Access the Getting Started guide from the Smart Connections settings.
-[![Smart Context Getting Started](/assets/smart-connections-getting-started.gif)](https://smartconnections.app/story/smart-connections-getting-started/)
-Watch the [feature walkthrough slideshow](https://smartconnections.app/story/smart-connections-getting-started/) or read the [Getting Started guide](https://smartconnections.app/smart-connections-getting-started/) to learn how Smart Connections empowers your workflows.
+> Without help, your vault keeps growing into a maze. You keep redoing work you already did once, and important ideas stay buried.
 
 ### Walkthrough video
-Watch this video to see Smart Connections and Smart Chat in action.
-[![](/assets/smart-connections-wanderloots.jpg)](https://youtu.be/7Rvl9Sl29Jk?si=16YKPZavyz8Ol7rx)
+
+See Smart Connections (and how it pairs with Smart Chat) in action:  
+[![](/assets/smart-connections-wanderloots.jpg)](https://youtu.be/7Rvl9Sl29Jk?si=16YKPZavyz8Ol7rx)  
 [Watch on YouTube](https://youtu.be/7Rvl9Sl29Jk?si=16YKPZavyz8Ol7rx)
 
----
+### Feature walkthrough
+
+Access the Getting Started guide from Smart Connections settings.  
+[![Smart Connections Getting Started](/assets/smart-connections-getting-started.gif)](https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-readme)
+
+Watch the [feature walkthrough slideshow](https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-readme) or read the [Getting Started guide](https://smartconnections.app/smart-connections-getting-started/?utm_source=connections-readme) to see how Smart Connections fits into your workflow, including Connections view, Lookup view, inline Pro features, and Smart Environment settings.
+## Getting started
+### It "just works"
+Surface relationships between notes with zero-setup.
+
+
+> [!TLDR] 3 step plan  
+> 1. **Install and enable** Smart Connections from Obsidian Community plugins.  
+> 2. **Keep writing**. The built in local model automatically indexes your vault.  
+> 3. **Open the Connections view** to see relevant notes and drag links directly into what you are working on.
+<details><summary><h3>Easy installation + zero-setup</h3></summary>
+
+Find Smart Connections in the [Obsidian Community plugins](https://obsidian.md/plugins?id=smart-connections).  
+![](/assets/SC-OP-install-and-enable-2025-05-20.png)
+
+#### Install and enable, that is it
+
+A local model starts creating embeddings right away. No extra apps, no CLI tools, and no API key required.  
+![](/assets/SC-OP-notices-embedding-complete-2025-05-20.png)
+</details>
+
+<details><summary><h3>Connections view</h3></summary>
+The Connections view shows notes that are semantically related to your current note.
+
+Open it from the left ribbon (Connections icon) or from the command palette by running the `Open: Connection view` command.
+
+![](https://smartconnections.app/assets/connections-view-notes-2025-12-09.gif)
+
+#### Using the Connections view
+
+Connections view results update automatically when you change notes. The name of the current note appears at the bottom left of the Connections view.
+
+![](https://smartconnections.app/assets/Connections-item-view-info-overload-annotated-main-2025-12-09.png)
+
+- **Result score** (yellow underline)  
+  The score reflects semantic similarity between the result and the current note. Exact numbers depend on the embedding model.  
+- **Show or hide content** (magenta)  
+  Expand or collapse individual results. Use the top row button to expand or collapse all.  
+- **Play / pause updates** (orange)  
+  Control whether the Connections view automatically updates when you change notes.  
+- **Lookup query** (teal)  
+  Opens the Lookup view for a semantic search across your vault.
+
+> [!NOTE] Semantic search  
+> Semantic queries do not behave like plain text search. A note that contains the exact query text might not appear if it is not actually similar in meaning.
+
+#### Interacting with connection results
+
+- Drag a result into a note to create a link.  
+- Hold Cmd or Ctrl while hovering over a result to show Obsidian's Hover Preview.
+
+![](/assets/SC-OP-connections-view-mouse-annotations-2025-05-20.jpg)
+
+#### Hiding and unhiding connections
+
+Right click a result to hide it from the list:  
+![](/assets/SC-OP-Connections-view-right-click-to-hide-2025-07-01.png)
+
+Right click any result and use **Unhide all** to bring hidden items back:  
+![](/assets/SC-OP-Connections-view-right-click-to-unhide-2025-07-01.png)
+</details>
+<details><summary><h3>Lookup view (semantic search)</h3></summary>
+Use the Lookup view for ad hoc semantic search across your vault.
+
+Open it from the ribbon (Lookup icon) or from the command palette by running the `Open: Lookup view` command.
+
+![](https://smartconnections.app/assets/Lookup-item-view-annotated-new-2025-12-09.png)
+
+> [!NOTE] Semantic search  
+> Semantic queries do not work like regular search queries. For example, a note containing the exact query text may not be returned in the results.
+
+![](https://smartconnections.app/assets/Lookup-item-view-annotated-with-query-2025-12-09.png)
+</details>
+<details><summary><h3>Random connection function</h3></summary>
+Jump to a random note that is strongly connected to your current one.
+
+- Click the random connection icon in the ribbon, or  
+- Run the `Open: Random note from connections` command from the command palette.  
+
+Note: the random connection command requires the Connections view to be active.
+</details>
+## What's new in v4?
+
+Smart Connections v4 focuses the core plugin on a simple promise: install, enable, and AI-powered connections just work. Advanced configuration and power-user workflows now live in Pro plugins. Read [Introducing Pro Plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme) to learn more.
+
+<details><summary><h3>Connections Pro</h3></summary>
+![](https://smartconnections.app/assets/connections-view-pro-notes.gif)
+Connections Pro builds on the core plugin and Smart Environment to give power users more control.
+
+Examples of Pro features:
+
+- **Inline connections**  
+  Small badges in the editor that show how many strong matches a block has, with a pop-over of related blocks and notes.  
+- **Footer connections**  
+  A persistent panel that updates as you type so high value connections stay visible while you write.  
+- **Configurable scoring and ranking**  
+  Choose different algorithms for how results are scored and optionally add a rerank stage.  
+- **Connections in Bases**  
+  Use `score_connection` and `list_connections` in Obsidian Bases to show similarity columns and related note lists in tables.  
+- **Advanced filters and models**  
+  Extra Smart Environment controls for embeddings, collections, and include or exclude rules.  
+- **Early release experiments**  
+  New ideas launch in Early channels first so supporters can shape how they evolve.
+
+Connections Pro is part of the [Pro plugins](https://smartconnections.app/pro-plugins/?utm_source=connections-readme) family and is available to active project supporters. It is still built on the same open Smart Environment. Supporting Pro helps fund development of all Smart Plugins and the free core.
+</details>
+
+<details><summary><h3>Events and notifications</h3></summary>
+Important events are now surfaced in a dedicated notifications modal:
+- On desktop, click the Smart Env item in the status bar to open the notifications modal.  
+- On mobile, a Smart Environment notice appears at the bottom of the Connections view; tap it to review events.
+
+Examples of events you might see:
+- Initial indexing complete for your vault  
+- Sources reimported after model changes  
+- Warnings when exclusions block indexing on specific folders or files  
+
+Objectives of the new Events system:
+- make the environment inspectable and understandable
+- reduce the number of Obsidian native notifications
+</details>
+
+## Private by Design, Local-first by Default
+
+User-aligned means privacy and local first are design constraints, not optional checkboxes.
+
+- Embeddings are created locally by default.  
+- Your notes stay on your machine. 
+- Smart Environment gives you a single place to control common configurations that apply to all Smart Plugins.
+
+Privacy should not be a premium feature. *Smart Plugins are private by default!*
+
+## Mission-driven
+
+The Obsidian community opened my eyes to user-aligned software. Smart Connections is built on a set of principles designed to keep power in the hands of individuals, not platforms.
+
+> [!INFO] Your guide  
+> Built by Brian, a fellow Obsidian user who felt the same pain, Smart Connections pairs hard won experience with open-source AI expertise to lead you from overwhelm to insight.
+
 ## Built for You
 
-> [!NOTE] Smart Connections changed my life
-> Smart Connections started as a personal tool, like many others I built before it. But, this time was different.
-> 
-> This time, the Obsidian community became a part of the process. From the beginning, Smart Connections users empowered me to realize the potential of user-aligned tools for thought. 
-> 
-> The earliest adopters, like Sarah, gave me critical feedback that improved the software and provided financial support that enabled me to focus on the project full-time. 
-> 
-> Matthew joined the community and started our Community Lean Coffee meetings, which have become an invaluable resource and introduced me to many more people that have given their time and resources to support my work.
-> 
-> This experience made me realize how we can work together to empower each other with new ideas and user-aligned tools to thrive with AI.
-> 
-> Smart Connections helped me realize my core-value & purpose of empowerment. It empowered me to make the connection of synergy between my love for building and empowering ordinary people to achieve extraordinary results.
+> [!NOTE] Why Smart Connections  
+> Smart Connections started as a personal tool. The Obsidian community turned it into a shared project and helped refine it into something that can actually keep up with real workflows.
 
-### It's not about features, it's about empowerment
-I build tools that empower you (me) to bring your (my) ideas to reality. 
+Smart Connections exists so you can:
 
-### Built from scratch
-Building the Smart Environment, the core architecture behind Smart Connections, from scratch has empowered me with a deep understanding of the capabilities and limitations of AI. These insights are why I believe the Smart Ecosystem will outlast me.
+- Spend less time hunting through old notes.  
+- Spend more time writing, synthesizing, and shipping.  
+- Stop worrying that important research is lost somewhere in your vault.
 
-### Stronger together
-Smart Connections represents a threat to profit-driven enterprises that benefit from powerless individuals. User-aligned software means leveraging efficiencies that are out-of-reach for major corporations. I hope my journey inspires you to break-free from the belief that you are limited and that others are in control.
+It is not about features for their own sake. It is about empowerment.
 
-### Come for the tools, stay for the community
-Smart Connections users come for the tools, but they stay for the mission-driven community and our shared vision of empowering ourselves with Smart Tools and Workflows. Together, we are on a journey of exploration and empowerment!
+<details><summary><h3>Built from scratch</h3></summary>Building the Smart Environment, the core architecture behind Smart Connections, from scratch has empowered me with a deep understanding of the capabilities and limitations of AI. These insights contribute to why I believe the Smart Environment will outlast me.</details>
+ 
+<details><summary><h3>Built on principles</h3></summary>Building from scratch is also what makes the Smart Environment and Smart Plugins worth your trust. Nearly all of the code comes from a single (principle: minimal/no dependencies). That means you don't have to worry about waking up to learn about major supply chain attacks that target the most popular and most used dependencies.</details>
+ 
+## User testimonials
 
-## Smart Ecosystem
-As luck has it, I began jotting down lines of code for automations in my school notebooks. This grew into a skill for designing complex systems.
-
-### Smart Plugins
-I build Smart Plugins, like Smart Connections, to empower myself to explore new concepts, design better tools, and handle more complexity in my Obsidian. My goal is to make as many of these concepts and tools available to you.
-[Browse all Smart Plugins](https://smartconnections.app/smart-plugins/) →
-
-### Smart Business Model
-The reality is that most valuable tools cannot exist without financial support. But that doesn't mean having to sell-out or shutdown. Obsidian has shown us that valuable software can be user-funded, and I believe now is a better time than ever to bring the vision of user-aligned software to reality.
-#### Principle: Build local tools to maximize empowerment
-Software that runs locally can empower unlimited users with zero-marginal cost. 
-#### Principle: User-supported means user-aligned
-Early & experimental features are provided to supporters. This means more-reliable software with a valuable feedback loop from users invested in making the project better.
-
-### Official Smart Plugins
-- Smart Chat
-- Smart Context
-- Smart Editor
-### Community Smart Plugins
-These plugins are built and maintained by Smart Community members.
-
-- [Smart Connections Visualizer](https://obsidian.md/plugins?id=smart-connections-visualizer)
-	- Graph-view for connections to your current note.
-- [Smart Vault Visualizer](https://obsidian.md/plugins?id=smart-vault-visualizer)
-	- Graph-view for visualizing clusters across the entire vault.
-
-## User Testimonials
 Hearing from those who use Smart Connections brings to life the impact it has on individuals' workflows and creativity. 
 
 Here's what some of them have to say:
@@ -251,11 +304,61 @@ Here's what some of them have to say:
 [Even more love for Smart Connections 🥰](https://smartconnections.app/smart-connections-love/)
 
 
-## FAQs & Troubleshooting
-### Syncthing (third-party syncing)
-*Official services, like Obsidian Sync, help keep Obsidian user-aligned. Smart Connections has built-in compatibility with Obsidian Sync.*
-However, if you must use a third-party sync service, be sure to **add the `.smart-env/` directory to "ignore patterns"** to prevent issues.
 
-### Windows dedicated GPU
-If embeddings default to the integrated GPU, set `ollama.exe` to **High performance** in your GPU control panel.
-See [issue #1028](https://github.com/brianpetro/obsidian-smart-connections/issues/1028#issuecomment-3070187288) for context.
+## FAQs and troubleshooting
+<details><summary><h3>Does it work on mobile?</h3></summary>Yes, both the Core Smart Connections and Connections Pro are mobile friendly.</details>
+<details><summary><h3>Syncthing and third party sync</h3></summary>Smart Connections works best with Obsidian Sync. If you use a third party sync tool, add the `.smart-env/` directory to its ignore patterns to avoid conflicts.</details>
+<details><summary><h3>Where is Smart Chat?</h3></summary>
+Smart Chat is no longer bundled inside Smart Connections, as planned in the last major release, it has been moved to its own dedicated plugin. You can now install **Smart Chat** directly from the [Obsidian Community plugins](https://obsidian.md/plugins?id=smart-chatgpt) or learn more [here](https://smartconnections.app/smart-chat/?utm_source=connections-readme).
+To keep the **Core Smart Connections plugin** simple and “just works,” all **API‑based model integrations (cloud and local)** have moved into **Smart Chat Pro**, the Pro version of the Smart Chat plugin. This lets advanced model routing and multi‑provider support be maintained sustainably, while the free Smart Plugins stay focused on essential core features that work with third-party interfaces like ChatGPT, Claude and Gemini.
+For more about Pro plugins, read [Introducing Pro Plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme).
+</details>
+<details><summary><h3>What is the Smart Ecosystem?</h3></summary>
+Smart Connections is one piece of a larger ecosystem of local first, user aligned tools.
+I build Smart Plugins to explore new ideas, ship practical workflows, and keep complexity manageable inside Obsidian. Smart Connections is the piece that handles the space between notes (connections).
+</details>
+
+<details><summary><h3>What are Pro plugins?</h3></summary>
+
+Most AI features need continuous maintenance. As providers and APIs change, deeply configurable options require far more support, testing, and refactoring than simple defaults.
+
+[Introducing Pro plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme): how the project stays sustainable without compromising the open core. Core Smart Plugins remain free and open source. Pro plugins sit on top of that core, built on the same open Smart Environment. They do not remove the essentials from the free plugins; instead they collect advanced options in one place and fund the work needed to maintain them.
+Pro plugins (including Connections Pro) are available to all past project supporters. Not yet a supporter? [Get Pro plugins here](https://smartconnections.app/pro-plugins/?utm_source=connections-readme).
+</details>
+
+<details><summary><h3>What is Smart Environment?</h3></summary>
+Smart Environment is the shared local core that powers Smart Connections, Smart Chat, and the rest of the Smart Ecosystem.
+
+- It keeps an up to date index of your notes using embeddings.  
+- It listens for Obsidian events so indexing and stats stay in sync with your vault.  
+- It gives you one place to manage models, sources, and exclusions across all Smart Plugins.
+
+Smart Environment is undergoing major upgrades to better enable local-first AI tooling. If you have joined Community Lean Coffee sessions, you have already seen glimpses of what this future looks like.
+
+In short, Smart Environment aims to be your local-first core: a PKM inspired backend for your personal data that will eventually let you vibe code your own frontend components on top of your notes.
+</details>
+
+---
+
+## Connections Pro
+[![](https://smartconnections.app/assets/connections-view-pro-notes.gif)](https://smartconnections.app/smart-connections/?utm_source=connections-readme)
+
+[Learn more about Connections Pro](https://smartconnections.app/smart-connections/?utm_source=connections-readme).
+
+## More Smart Plugins
+Quickly assemble many notes into a single prompt or document using context selectors, links, and templates with **Smart Context**. Want to know how I manage thousands of ChatGPT threads from Obsidian? Start a new thread inside of a note and come back to it later with **Smart Chat!**
+
+[See the currently available Core Smart Plugins.](https://smartconnections.app/core-plugins/?utm_source=connections-readme)
+
+Together with Smart Environment, Smart Plugins are an experiment in how AI can empower individuals to do extraordinary work without sacrificing privacy to data hungry giants.
+
+> [!NOTE] Welcome to our Smart Community 😊
+> Hey there! I'm 🌴 Brian. I built Smart Connections to help solve my organization problems. My hope is that it can save you from the same chaos!
+> - How does it feel when you realize you forgot something that was important to you? Why capture more notes if the ideas get lost in oblivion?
+> - What if you didn't spend so much time organizing? What could you have done with all that lost time spent organizing?
+> 
+> These are the questions I'm trying to answer. Smart Connections is one piece, albeit a corner piece, representing an important first step in exploration of how AI can empower individuals like you and I.
+> 
+> *Smart Connections isn't a silver-bullet*. But, it is the a key Smart Tool that can **empower us to do more!**
+> 
+

@@ -1,0 +1,43 @@
+.lookup-item-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lookup-item-view .lookup-query-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lookup-item-view .lookup-query-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.lookup-item-view .lookup-query-input {
+  resize: vertical;
+  min-height: 5rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--background-modifier-border);
+  background-color: var(--background-secondary);
+  color: var(--text-normal);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.lookup-item-view .lookup-query-input:focus {
+  outline: none;
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 30%, transparent);
+}
+
+.lookup-item-view .lookup-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
