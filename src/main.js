@@ -8,33 +8,23 @@ const {
 
 import { SmartEnv } from 'obsidian-smart-env';
 import { smart_env_config } from "../smart_env.config.js";
-// import { smart_env_config as built_smart_env_config } from "../smart_env.config.js";
-
-// import { ConnectionsView } from "./views/connections_view.js";
-// import { ScLookupView } from "./views/sc_lookup.obsidian.js";
-// import { SmartChatsView } from "./views/smart_chat.obsidian.js";
-// import { SmartChatGPTView } from "./views/sc_chatgpt.obsidian.js";
-
-// import { ScSettingsTab } from "./sc_settings_tab.js";
 import { open_note } from "obsidian-smart-env/utils/open_note.js";
 
 import { SmartNotices } from 'smart-notices/smart_notices.js';
-// import { merge_env_config } from "obsidian-smart-env";
 import { ScEarlySettingsTab } from "./views/settings_tab.js";
-// import { ConnectionsModal } from "./views/connections_modal.js";
 
 import { ReleaseNotesView }    from "./views/release_notes_view.js";
 
 import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
-// import { create_deep_proxy } from "./utils/create_deep_proxy.js";
 import { get_random_connection } from "./utils/get_random_connection.js";
 import { add_smart_dice_icon } from "./utils/add_icons.js";
-// import { determine_installed_at } from "./utils/determine_installed_at.js";
 
 // v4
 import { SmartPlugin } from "obsidian-smart-env/smart_plugin.js";
 import { ConnectionsItemView } from "./views/connections_item_view.js";
 import { LookupItemView } from "./views/lookup_item_view.js";
+import { register_smart_connections_codeblock } from "./views/connections_codeblock.js";
+import { build_connections_codeblock } from "./utils/build_connections_codeblock.js";
 
 export default class SmartConnectionsPlugin extends SmartPlugin {
   SmartEnv = SmartEnv;
@@ -50,11 +40,6 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     return {
       ConnectionsItemView,
       LookupItemView,
-      // ConnectionsView,
-      // ScLookupView,
-      // SmartChatsView,
-      // SmartChatGPTView,
-      // SmartPrivateChatView,
       ReleaseNotesView,
     };
   }
@@ -99,6 +84,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
       this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env");
     });
     await SmartEnv.wait_for({ loaded: true });
+    register_smart_connections_codeblock(this);
     await this.check_for_updates();
   }
 
@@ -194,6 +180,13 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
           });
         }
       },
+      insert_connections_codeblock: {
+        id: 'insert-connections-codeblock',
+        name: 'Insert: Connections codeblock',
+        editorCallback: (editor) => {
+          editor.replaceSelection(build_connections_codeblock());
+        }
+      },
     };
   }
 
@@ -216,37 +209,6 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
   }
 
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
-
-  // DEPRECATED
-  // /**
-  //  * @deprecated use register_item_views from SmartPlugin and registration logic in ViewClass.register_item_view()
-  //  */
-  // register_views() {
-  //   Object.values(this.item_views).forEach(View => {
-  //     if (typeof View.register_item_view === "function") {
-  //       return; // handled in register_item_views()
-  //     }
-  //     this.registerView(View.view_type, leaf => new View(leaf, this));
-  //     this.addCommand({
-  //       id: View.view_type,
-  //       name: "Open: " + View.display_text + " view",
-  //       callback: () => {
-  //         View.open(this.app.workspace);
-  //       }
-  //     });
-
-  //     // Dynamic accessor and opener for each view
-  //     // e.g. this.smart_connections_view and this.open_smart_connections_view()
-  //     const method_name = View.view_type
-  //       .replace("smart-", "")
-  //       .replace(/-/g, "_")
-  //     ;
-  //     Object.defineProperty(this, method_name, {
-  //       get: () => View.get_view(this.app.workspace)
-  //     });
-  //     this["open_" + method_name] = () => View.open(this.app.workspace);
-  //   });
-  // }
 
   /**
    * @deprecated extract into utility

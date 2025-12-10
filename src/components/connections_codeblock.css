@@ -1,0 +1,33 @@
+.connections-codeblock {
+  .connections-top-bar {
+    display: flex;
+    gap: 0.5rem 1rem;
+
+    .connections-actions {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      span {
+        font-weight: 600;
+        justify-self: end;
+      }
+    }
+  }
+  .connections-list {
+    padding-top: 0.85rem;
+
+    > .sc-collapsed ul {
+      display: none;
+    }
+    > .sc-collapsed span svg {
+      transform: rotate(-90deg);
+    }
+    > .sc-result-pinned {
+      box-shadow: 0 0 0 1px var(--interactive-accent);
+      border-radius: var(--radius-s);
+      background-color: var(--background-modifier-hover);
+    }
+  }
+}
