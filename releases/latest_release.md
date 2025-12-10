@@ -1,4 +1,5 @@
-> [!NOTE] Patch v4.1.0
+> [!NOTE] Patch v4.1.1
+> - Connections codeblock view should render as expected without errors
 
 # Smart Connections `v4`
 
