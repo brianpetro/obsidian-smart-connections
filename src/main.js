@@ -76,14 +76,14 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
           url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=sc-op-new-user',
         });
       }, 1000);
-      await SmartEnv.wait_for({ loaded: true });
+      await this.SmartEnv.wait_for({ loaded: true });
       setTimeout(() => {
         this.open_connections_view();
         if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
       }, 1000);
       this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env");
     });
-    await SmartEnv.wait_for({ loaded: true });
+    await this.SmartEnv.wait_for({ loaded: true });
     register_smart_connections_codeblock(this);
     await this.check_for_updates();
   }
