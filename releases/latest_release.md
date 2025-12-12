@@ -1,6 +1,14 @@
-> [!NOTE] Patch v4.1.1
-> - Connections codeblock view should render as expected without errors
+> [!NOTE] Patch v4.1.2
+> - Improved model configuration UX
+>   - Added "Delete" functionality to better manage models
+> - Enhanced UI for settings and improved styling
+> - Pro: Updated score algorithm settings to clarify descriptions
 
+> [!NOTE]- Previous patches
+> > [!NOTE]- v4.1.1
+> > - Connections codeblock view should render as expected without errors
+> 
+> 
 # Smart Connections `v4`
 
 ## What's new in v4
