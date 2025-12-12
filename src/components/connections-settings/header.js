@@ -1,5 +1,4 @@
 import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
-import { open_url_externally } from 'obsidian-smart-env/utils/open_url_externally.js';
 async function build_html(scope_plugin) {
   return `
     <div>
@@ -38,7 +37,7 @@ export async function post_process(scope_plugin, frag) {
   if (header_link) {
     header_link.addEventListener('click', (e) => {
       e.preventDefault();
-      open_url_externally(scope_plugin, header_link.href);
+      window.open(header_link.href, '_external');
     });
   }
 
@@ -51,25 +50,54 @@ export async function post_process(scope_plugin, frag) {
   });
 
   frag.querySelector('.sc-report-bug-button')?.addEventListener('click', () => {
-    open_url_externally(
-      scope_plugin,
-      'https://github.com/brianpetro/obsidian-smart-connections/issues/new?template=bug_report.yml'
+    if (scope_plugin.env?.is_pro) {
+      new ScProSupportModal(scope_plugin.app).open();
+      return;
+    }
+    window.open(
+      'https://github.com/brianpetro/obsidian-smart-connections/issues/new?template=bug_report.yml',
+      '_external'
     );
   });
 
   frag.querySelector('.sc-request-feature-button')?.addEventListener('click', () => {
-    open_url_externally(
-      scope_plugin,
-      'https://github.com/brianpetro/obsidian-smart-connections/issues/new?template=feature_request.yml'
+    window.open(
+      'https://github.com/brianpetro/obsidian-smart-connections/issues/new?template=feature_request.yml',
+      '_external'
     );
   });
 
   frag.querySelector('.sc-share-workflow-button')?.addEventListener('click', () => {
-    open_url_externally(
-      scope_plugin,
-      'https://github.com/brianpetro/obsidian-smart-connections/discussions/new?category=showcase'
+    window.open(
+      'https://github.com/brianpetro/obsidian-smart-connections/discussions/new?category=showcase',
+      '_external'
     );
   });
 
   return frag;
+}
+
+import { Modal } from 'obsidian';
+// Obsidian Modal that says "Need help and support? Reply to your Pro welcome email for priority support."
+export class ScProSupportModal extends Modal {
+  open() {
+    super.open();
+    this.titleEl.setText('Need help and support?');
+    const content = this.contentEl.createDiv({ cls: 'sc-pro-support-modal' });
+    content.createEl('p', {
+      text: 'Reply to your Smart Environment Pro welcome email for priority support.',
+    });
+    // continue to report a bug button
+    const reportBugButton = content.createEl('button', { text: 'Report a bug', cls: 'mod-warning' });
+    reportBugButton.addEventListener('click', () => {
+      window.open(
+        'https://github.com/brianpetro/obsidian-smart-connections/issues/new?template=bug_report.yml',
+        '_external'
+      );
+    });
+    const closeButton = content.createEl('button', { text: 'Close' });
+    closeButton.addEventListener('click', () => {
+      this.close();
+    });
+  }
 }

@@ -1,4 +1,5 @@
 import { SmartPluginSettingsTab } from "obsidian-smart-env";
+import {render_settings_config} from "obsidian-smart-env/src/utils/render_settings_config.js";
 
 export class ScEarlySettingsTab extends SmartPluginSettingsTab {
   constructor(app, plugin) {
@@ -32,17 +33,30 @@ export class ScEarlySettingsTab extends SmartPluginSettingsTab {
     cl_container.createEl('h1', { text: 'Connections' });
     
     const connections_lists_settings_config = this.env.config.collections.connections_lists.settings_config;
-    const connections_lists_settings = await smart_view.render_settings(connections_lists_settings_config, { scope: this.env.connections_lists });
-    if (connections_lists_settings) cl_container.appendChild(connections_lists_settings);
+    // const connections_lists_settings = await smart_view.render_settings(connections_lists_settings_config, { scope: this.env.connections_lists });
+    // if (connections_lists_settings) cl_container.appendChild(connections_lists_settings);
+    const settings_group = render_settings_config(
+      connections_lists_settings_config,
+      this.env.connections_lists,
+      cl_container,
+      { default_group_name: 'Connections lists' }
+    );
 
     const ll_container = container.createDiv({
       cls: 'sc-settings-tab__section',
       attr: { 'data-section-key': 'lookup_lists' },
     });
-    ll_container.createEl('h1', { text: 'Lookup' });
+    // ll_container.createEl('h1', { text: 'Lookup' });
+
     const lookup_lists_settings_config = this.env.config.collections.lookup_lists.settings_config;
-    const lookup_lists_settings = await smart_view.render_settings(lookup_lists_settings_config, { scope: this.env.lookup_lists });
-    if (lookup_lists_settings) ll_container.appendChild(lookup_lists_settings);
+    // const lookup_lists_settings = await smart_view.render_settings(lookup_lists_settings_config, { scope: this.env.lookup_lists });
+    // if (lookup_lists_settings) ll_container.appendChild(lookup_lists_settings);
+    render_settings_config(
+      lookup_lists_settings_config,
+      this.env.lookup_lists,
+      ll_container,
+      { default_group_name: 'Lookup lists' }
+    );
 
     this.register_env_events();
   }
