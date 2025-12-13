@@ -1,10 +1,14 @@
-> [!NOTE] Patch v4.1.2
-> - Improved model configuration UX
->   - Added "Delete" functionality to better manage models
-> - Enhanced UI for settings and improved styling
-> - Pro: Updated score algorithm settings to clarify descriptions
+> [!NOTE] Patch v4.1.3
+> - Added link to documentation in settings for easier access
+> - Fixed highlight "Reset data" after embedding model change
 
 > [!NOTE]- Previous patches
+> > [!NOTE]- v4.1.2
+> > - Improved model configuration UX
+> >   - Added "Delete" functionality to better manage models
+> > - Enhanced UI for settings and improved styling
+> > - Pro: Updated score algorithm settings to clarify descriptions
+> 
 > > [!NOTE]- v4.1.1
 > > - Connections codeblock view should render as expected without errors
 > 
