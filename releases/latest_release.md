@@ -1,8 +1,11 @@
-> [!NOTE] Patch v4.1.3
-> - Added link to documentation in settings for easier access
-> - Fixed highlight "Reset data" after embedding model change
+> [!NOTE] Patch v4.1.4
+> - Added fallback for opening Pro login in case the button doesn't automatically open the browser as expected
 
 > [!NOTE]- Previous patches
+> > [!NOTE]- v4.1.3
+> > - Added link to documentation in settings for easier access
+> > - Fixed highlight "Reset data" after embedding model change
+> 
 > > [!NOTE]- v4.1.2
 > > - Improved model configuration UX
 > >   - Added "Delete" functionality to better manage models
