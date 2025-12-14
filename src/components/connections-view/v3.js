@@ -5,7 +5,7 @@ import { copy_to_clipboard } from 'obsidian-smart-env/utils/copy_to_clipboard.js
 import { get_context_lines } from '../../utils/context_lines.js';
 import { connections_view_refresh_handler } from '../../utils/connections_view_refresh_handler.js';
 import { format_connections_as_links } from '../../utils/format_connections_as_links.js';
-import { build_prefixed_connection_key } from '../../utils/connections_list_item_state.js';
+import { filter_hidden_results } from '../../utils/filter_hidden_results.js';
 
 /**
  * Build the main HTML structure for 'Smart Connections Pro' view.
@@ -109,7 +109,7 @@ export async function post_process(view, container, opts = {}) {
 
       const raw_results = Array.isArray(connections_list?.results) ? connections_list.results : [];
       const connections_state = connections_list?.item?.data?.connections || {};
-      const visible_results = filter_hidden_only_results(raw_results, connections_state);
+      const visible_results = filter_hidden_results(raw_results, connections_state);
 
       // Refresh
       menu.addItem((menu_item) => {
@@ -147,6 +147,7 @@ export async function post_process(view, container, opts = {}) {
           .onClick(async () => {
             if (!links_payload) return new Notice('No connection results to copy');
             await copy_to_clipboard(links_payload);
+            new Notice('Connections links copied to clipboard');
           })
         ;
       });
@@ -248,33 +249,3 @@ export async function post_process(view, container, opts = {}) {
 
   return container;
 }
-
-/**
- * Filter out "hidden-only" connections (hidden && !pinned) so menu actions
- * reflect what is currently visible without forcing a full re-score.
- *
- * @param {Array} results
- * @param {Record<string, Record<string, number>>} connections_state
- * @returns {Array}
- */
-function filter_hidden_only_results(results = [], connections_state = {}) {
-  if (!Array.isArray(results) || !results.length) return [];
-  if (!connections_state || typeof connections_state !== 'object') return results;
-
-  return results.filter((result) => {
-    const item = result?.item;
-    if (!item) return false;
-
-    const prefixed_key = build_prefixed_connection_key(item.collection_key, item.key);
-    const state = connections_state[prefixed_key];
-
-    if (!state || typeof state !== 'object') return true;
-
-    const hidden = state.hidden !== undefined && state.hidden !== null;
-    const pinned = state.pinned !== undefined && state.pinned !== null;
-
-    // Hidden-only should be excluded, but hidden+pinned should be included (treated as pinned).
-    return !(hidden && !pinned);
-  });
-}
-

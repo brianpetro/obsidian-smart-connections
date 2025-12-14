@@ -1,5 +1,3 @@
-import { get_item_display_name } from './get_item_display_name.js';
-
 /**
  * Formats connection results as a bullet list of links.
  * @param {Array} results
@@ -11,8 +9,15 @@ export function format_connections_as_links(results = []) {
   if (!Array.isArray(results) || !results.length) return '';
   return results
     .map(({ item }) => {
+      let lines;
+      if (item.key.endsWith('}')) {
+        lines = `Lines: ${item.lines.join('-')}`;
+      }
       const link = get_wikilink(item);
       if (!link) return '';
+      if (lines) {
+        return `${link.replace(/\#\{\d+\}/, '')} (${lines})`;
+      }
       return link;
     })
     .filter(Boolean)

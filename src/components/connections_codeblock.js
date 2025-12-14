@@ -1,8 +1,13 @@
 import styles from './connections_codeblock.css' assert { type: 'css' };
+import { Notice } from 'obsidian';
 import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
+import { copy_to_clipboard } from 'obsidian-smart-env/utils/copy_to_clipboard.js';
+
+import { format_connections_as_links } from '../utils/format_connections_as_links.js';
+import { filter_hidden_results } from '../utils/filter_hidden_results.js';
 
 /**
- * Build the main HTML structure for 'Smart Connections Pro' view.
+ * Build a Smart Connections codeblock view toolbar + list container.
  * @param {object} connections_list
  * @param {object} opts
  * @returns {Promise<string>}
@@ -28,6 +33,11 @@ export async function build_html(connections_list, opts = {}) {
       title: 'Send results to Smart Context',
       icon: 'briefcase',
       attrs: 'data-action="send-to-smart-context"'
+    },
+    {
+      title: 'Copy as list of links',
+      icon: 'copy',
+      attrs: 'data-action="copy-as-links"'
     },
     {
       title: 'Connections settings',
@@ -67,13 +77,12 @@ export async function render(connections_list, opts = {}) {
   const frag = this.create_doc_fragment(html);
   this.apply_style_sheet(styles);
   const container = frag.firstElementChild;
-  // Post-process UI elements
   post_process.call(this, connections_list, container, opts);
   return frag;
 }
 
 /**
- * Post-process DOM fragment for advanced overlays or shared behavior.
+ * Post-process DOM fragment for codeblock behavior.
  * @param {object} connections_list
  * @param {DocumentFragment|HTMLElement} container
  * @param {object} opts
@@ -83,20 +92,22 @@ export async function post_process(connections_list, container, opts = {}) {
   const list_container = container.querySelector('.connections-list-container');
   const env = connections_list.env;
   const app = env.plugin.app || window.app;
-  // Render results
+
   const render_list = async () => {
     console.log('Rendering connections list in codeblock view');
     const connections_list_component_key = opts.connections_list_component_key
       || connections_list.connections_list_component_key
       || 'connections_list_v3'
     ;
-    const list = await env.smart_components.render_component(connections_list_component_key, connections_list, opts);
+    const list = await env.smart_components.render_component(
+      connections_list_component_key,
+      connections_list,
+      opts
+    );
     this.empty(list_container);
     list_container.appendChild(list);
-  }
+  };
 
-  // register container-level listeners in render since post_process is called frequently
-  // (to refresh) while these listeners remain attached
   if (!container._has_listeners) {
     container._has_listeners = true;
 
@@ -129,11 +140,32 @@ export async function post_process(connections_list, container, opts = {}) {
 
     const context_button = container.querySelector('[data-action="send-to-smart-context"]');
     context_button?.addEventListener('click', async () => {
-      const results = Array.isArray(connections_list.results) ? connections_list.results : [];
-      if (!results.length) return new Notice('No connection results to send to Smart Context');
+      const raw_results = await get_results_fallback(connections_list, opts);
+      if (!raw_results.length) return new Notice('No connection results to send to Smart Context');
+
+      const connections_state = connections_list?.item?.data?.connections || {};
+      const visible_results = filter_hidden_results(raw_results, connections_state);
+
+      if (!visible_results.length) return new Notice('No visible connection results to send to Smart Context');
+
       const smart_context = env.smart_contexts.new_context();
-      smart_context.add_items(results.map((r) => ({ key: r.item.key, score: r.score })));
+      smart_context.add_items(visible_results.map((r) => ({ key: r.item.key, score: r.score })));
       smart_context.emit_event('context_selector:open');
+    });
+
+    const copy_links_button = container.querySelector('[data-action="copy-as-links"]');
+    copy_links_button?.addEventListener('click', async () => {
+      const raw_results = await get_results_fallback(connections_list, opts);
+      if (!raw_results.length) return new Notice('No connection results to copy');
+
+      const connections_state = connections_list?.item?.data?.connections || {};
+      const visible_results = filter_hidden_results(raw_results, connections_state);
+
+      const links_payload = format_connections_as_links(visible_results);
+      if (!links_payload) return new Notice('No visible connection results to copy');
+
+      await copy_to_clipboard(links_payload);
+      new Notice('Copied connections as list of links');
     });
 
     const settings_button = container.querySelector('[data-action="open-settings"]');
@@ -151,12 +183,23 @@ export async function post_process(connections_list, container, opts = {}) {
 
     const help_button = container.querySelector('[data-action="open-help"]');
     help_button?.addEventListener('click', open_help);
-
   }
 
-  // Initial
   render_list();
-
   return container;
 }
+
+async function get_results_fallback(connections_list, opts = {}) {
+  const cached = Array.isArray(connections_list?.results) ? connections_list.results : [];
+  if (cached.length) return cached;
+
+  try {
+    const results = await connections_list.get_results({ ...opts });
+    return Array.isArray(results) ? results : [];
+  } catch (err) {
+    console.error('Failed to fetch connections results', err);
+    return [];
+  }
+}
+
 

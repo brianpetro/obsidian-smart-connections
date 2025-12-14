@@ -224,6 +224,7 @@ export async function post_process(result_scope, container, opts = {}) {
           .setIcon('copy')
           .onClick(async () => {
             await copy_to_clipboard(links_payload);
+            new Notice('Connections links copied to clipboard');
           })
         ;
       });
