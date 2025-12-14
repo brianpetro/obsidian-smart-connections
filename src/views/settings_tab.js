@@ -45,43 +45,43 @@ export class ScEarlySettingsTab extends SmartPluginSettingsTab {
           'Connections lists': {
             heading_btn: {
               btn_icon: 'help-circle',
-              callback: () => window.open('https://smartconnections.app/connections-settings/#connections-lists', '_external'),
+              callback: () => window.open('https://smartconnections.app/smart-connections/settings/#connections-lists', '_external'),
             }
           },
           'Display': {
             heading_btn: {
               btn_icon: 'help-circle',
-              callback: () => window.open('https://smartconnections.app/connections-settings/#display', '_external'),
+              callback: () => window.open('https://smartconnections.app/smart-connections/settings/#display', '_external'),
             }
           },
           'Score algorithm': {
             heading_btn: {
               btn_icon: 'help-circle',
-              callback: () => window.open('https://smartconnections.app/connections-settings/#score-algorithm', '_external'),
+              callback: () => window.open('https://smartconnections.app/smart-connections/settings/#score-algorithm', '_external'),
             }
           },
           'Ranking algorithm': {
             heading_btn: {
               btn_icon: 'help-circle',
-              callback: () => window.open('https://smartconnections.app/connections-settings/#ranking-algorithm', '_external'),
+              callback: () => window.open('https://smartconnections.app/smart-connections/settings/#ranking-algorithm', '_external'),
             }
           },
           'Filters': {
             heading_btn: {
               btn_icon: 'help-circle',
-              callback: () => window.open('https://smartconnections.app/connections-settings/#filters', '_external'),
+              callback: () => window.open('https://smartconnections.app/smart-connections/settings/#filters', '_external'),
             }
           },
           'Inline connections': {
             heading_btn: {
               btn_icon: 'help-circle',
-              callback: () => window.open('https://smartconnections.app/connections-settings/#inline-connections', '_external'),
+              callback: () => window.open('https://smartconnections.app/smart-connections/settings/#inline-connections', '_external'),
             }
           },
           'Footer connections': {
             heading_btn: {
               btn_icon: 'help-circle',
-              callback: () => window.open('https://smartconnections.app/connections-settings/#footer-connections', '_external'),
+              callback: () => window.open('https://smartconnections.app/smart-connections/settings/#footer-connections', '_external'),
             }
           },
         }
@@ -107,7 +107,7 @@ export class ScEarlySettingsTab extends SmartPluginSettingsTab {
           'Lookup lists': {
             heading_btn: {
               btn_icon: 'help-circle',
-              callback: () => window.open('https://smartconnections.app/connections-settings/#lookup-lists', '_external'),
+              callback: () => window.open('https://smartconnections.app/smart-connections/settings/#lookup-lists', '_external'),
             }
           },
         }
