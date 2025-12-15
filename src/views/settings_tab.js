@@ -132,6 +132,7 @@ export class ScEarlySettingsTab extends SmartPluginSettingsTab {
                 callback: () => window.open('https://smartconnections.app/smart-connections/lookup/?utm_source=connections-settings-tab', '_external'),
               },
               {
+                label: 'Settings documentation for Lookup Lists',
                 btn_icon: 'help-circle',
                 callback: () => window.open('https://smartconnections.app/smart-connections/settings/?utm_source=connections-settings-tab#lookup-lists', '_external'),
               }
