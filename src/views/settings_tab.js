@@ -24,7 +24,6 @@ export class ScEarlySettingsTab extends SmartPluginSettingsTab {
     container.innerHTML = '<div class="sc-loading">Loading main settings...</div>';
 
     container.empty?.();
-    const smart_view = this.env?.smart_view;
 
     const cl_container = container.createDiv({
       cls: 'sc-settings-tab__section',
