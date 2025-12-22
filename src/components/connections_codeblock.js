@@ -151,6 +151,7 @@ export async function post_process(connections_list, container, opts = {}) {
       const smart_context = env.smart_contexts.new_context();
       smart_context.add_items(visible_results.map((r) => ({ key: r.item.key, score: r.score })));
       smart_context.emit_event('context_selector:open');
+      connections_list.emit_event('connections:sent_to_context');
     });
 
     const copy_links_button = container.querySelector('[data-action="copy-as-links"]');

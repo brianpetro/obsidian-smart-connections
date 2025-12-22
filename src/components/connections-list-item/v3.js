@@ -127,11 +127,13 @@ export async function post_process(result_scope, container, opts = {}) {
 
   const toggle_fold_elm = container.querySelector('.header .svg-icon.right-triangle');
   toggle_fold_elm.addEventListener('click', toggle_result);
-  register_item_drag(container, item);
-  register_item_hover_popover(container, item);
+  const event_key_domain = params.event_key_domain || 'connections';
+  const drag_event_key = `${event_key_domain}:drag_result`;
+  register_item_drag(container, item, { drag_event_key });
+  register_item_hover_popover(container, item, { event_key_domain });
   container.addEventListener('click', (event) => {
     open_source(item, event);
-    item.emit_event('connections:open_result', { event_source: 'connections-list-item-v3' });
+    item.emit_event(`${event_key_domain}:open_result`, { event_source: 'connections-list-item-v3' });
   });
 
   const observer = new MutationObserver((mutations) => {

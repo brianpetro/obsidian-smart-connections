@@ -22,7 +22,10 @@ export async function post_process(lookup_list, container, opts = {}) {
   // ;
   const result_frags = await Promise.all(results.map(result => {
     // return smart_components.render_component(`lookup_list_item.${list_item_component_key}`, result, {...opts});
-    return smart_components.render_component(`connections_list_item_v3`, result, {...opts});
+    return smart_components.render_component(`connections_list_item_v3`, result, {
+      event_key_domain: 'lookup',
+      ...opts
+    });
   }));
   result_frags.forEach(result_frag => container.appendChild(result_frag));
   // Add any necessary post-processing here
