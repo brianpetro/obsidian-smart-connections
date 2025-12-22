@@ -131,7 +131,7 @@ export async function post_process(result_scope, container, opts = {}) {
   register_item_hover_popover(container, item);
   container.addEventListener('click', (event) => {
     open_source(item, event);
-    item.emit_event('connections_result:clicked', { event_source: 'connections-list-item-v3' });
+    item.emit_event('connections:open_result', { event_source: 'connections-list-item-v3' });
   });
 
   const observer = new MutationObserver((mutations) => {
