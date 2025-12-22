@@ -167,6 +167,7 @@ export async function post_process(connections_list, container, opts = {}) {
 
       await copy_to_clipboard(links_payload);
       new Notice('Copied connections as list of links');
+      connections_list.emit_event('connections:copied_list');
     });
 
     const settings_button = container.querySelector('[data-action="open-settings"]');

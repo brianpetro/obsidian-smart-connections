@@ -25,6 +25,7 @@ export class ConnectionsItemView extends SmartItemView {
     container.empty();
     container.appendChild(frag);
     this.register_env_listeners();
+    this.env.events.emit('connections:opened')
   }
 
   async open_settings(){

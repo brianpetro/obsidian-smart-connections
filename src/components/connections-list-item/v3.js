@@ -25,14 +25,14 @@ import { open_source } from "obsidian-smart-env/src/utils/open_source.js";
  * Builds the HTML string for the result component.
  * .temp-container is used so listeners can be added to .sc-result (otherwise does not persist) 
  * @param {Object} result - The results a <Result> object 
- * @param {Object} [opts={}] - Optional parameters.
+ * @param {Object} [params={}] - Optional parameters.
  * @returns {Promise<string>} A promise that resolves to the HTML string.
  */
-export async function build_html(result, opts = {}) {
+export async function build_html(result, params = {}) {
   const item = result.item;
   const env = item.env;
   const score = result.score; // Extract score from opts
-  const connections_settings = opts.connections_settings
+  const connections_settings = params.connections_settings
     ?? env.connections_lists.settings
   ;
   const component_settings = connections_settings.components?.connections_list_item_v3 || {};
@@ -65,15 +65,15 @@ export async function build_html(result, opts = {}) {
 /**
  * Renders the result component by building the HTML and post-processing it.
  * @param {Object} result_scope - The result object containing component data.
- * @param {Object} [opts={}] - Optional parameters.
+ * @param {Object} [params={}] - Optional parameters.
  * @returns {Promise<DocumentFragment>} A promise that resolves to the processed document fragment.
  */
-export async function render(result_scope, opts = {}) {
+export async function render(result_scope, params = {}) {
   this.apply_style_sheet(styles_css);
-  let html = await build_html.call(this, result_scope, opts);
+  let html = await build_html.call(this, result_scope, params);
   const frag = this.create_doc_fragment(html);
   const container = frag.querySelector('.sc-result');
-  post_process.call(this, result_scope, container, opts);
+  post_process.call(this, result_scope, container, params);
   return container;
 }
 
@@ -82,15 +82,15 @@ export async function render(result_scope, opts = {}) {
  * @param {Object} result_scope - The result object containing component data.
  * @param {Source|Block} result_scope.item - The item data within the result object.
  * @param {DocumentFragment} container - The document fragment to be post-processed.
- * @param {Object} [opts={}] - Optional parameters.
+ * @param {Object} [params={}] - Optional parameters.
  * @returns {Promise<DocumentFragment>} A promise that resolves to the post-processed document fragment.
  */
-export async function post_process(result_scope, container, opts = {}) {
+export async function post_process(result_scope, container, params = {}) {
   const { item } = result_scope;
   const env = item.env;
   const plugin = env.smart_connections_plugin;
   const app = plugin.app;
-  const connections_settings = opts.connections_settings
+  const connections_settings = params.connections_settings
     ?? env.connections_lists.settings
   ;
   const component_settings = connections_settings.components?.connections_list_item_v3 || {};
@@ -227,6 +227,7 @@ export async function post_process(result_scope, container, opts = {}) {
           .onClick(async () => {
             await copy_to_clipboard(links_payload);
             new Notice('Connections links copied to clipboard');
+            result_scope.connections_list.emit_event('connections:copied_list');
           })
         ;
       });

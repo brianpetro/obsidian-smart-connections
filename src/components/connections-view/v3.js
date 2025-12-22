@@ -149,6 +149,7 @@ export async function post_process(view, container, opts = {}) {
             if (!links_payload) return new Notice('No connection results to copy');
             await copy_to_clipboard(links_payload);
             new Notice('Connections links copied to clipboard');
+            connections_list.emit_event('connections:copied_list');
           })
         ;
       });
