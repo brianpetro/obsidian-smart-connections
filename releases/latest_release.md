@@ -1,7 +1,14 @@
-> [!NOTE] Patch v4.1.4
-> - Added fallback for opening Pro login in case the button doesn't automatically open the browser as expected
+> [!NOTE] Patch v4.1.6
+> - Added: milestones feature with modal and checklist components
+> - Added: connections view menu option to copy results as links 
+> - Added: multilingual-e5-small embedding model support
+> - Improved: settings tab with added "learn more" and "help" buttons to settings groups
+> - Fixed: markdown parser should handle frontmatter correctly (prevent false-positive frontmatter detection)
 
 > [!NOTE]- Previous patches
+> > [!NOTE]- v4.1.4
+> > - Added fallback for opening Pro login in case the button doesn't automatically open the browser as expected
+> 
 > > [!NOTE]- v4.1.3
 > > - Added link to documentation in settings for easier access
 > > - Fixed highlight "Reset data" after embedding model change
