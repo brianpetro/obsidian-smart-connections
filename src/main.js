@@ -206,6 +206,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
       return;
     }
     this.open_note(rand_entity.item.path);
+    this.env?.events?.emit?.('connections:open_random');
   }
 
   async open_note(target_path, event=null) { await open_note(this, target_path, event); }
