@@ -3,6 +3,7 @@ import { Notice } from 'obsidian';
 import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
 import { copy_to_clipboard } from 'obsidian-smart-env/utils/copy_to_clipboard.js';
 
+import { build_connections_context_items } from '../utils/connections_context_items.js';
 import { format_connections_as_links } from '../utils/format_connections_as_links.js';
 import { filter_hidden_results } from '../utils/filter_hidden_results.js';
 
@@ -146,10 +147,15 @@ export async function post_process(connections_list, container, opts = {}) {
       const connections_state = connections_list?.item?.data?.connections || {};
       const visible_results = filter_hidden_results(raw_results, connections_state);
 
-      if (!visible_results.length) return new Notice('No visible connection results to send to Smart Context');
+      const context_items = build_connections_context_items({
+        source_item: connections_list?.item,
+        results: visible_results
+      });
+
+      if (!context_items.length) return new Notice('No visible connection results to send to Smart Context');
 
       const smart_context = env.smart_contexts.new_context();
-      smart_context.add_items(visible_results.map((r) => ({ key: r.item.key, score: r.score })));
+      smart_context.add_items(context_items);
       smart_context.emit_event('context_selector:open');
       connections_list.emit_event('connections:sent_to_context');
     });
