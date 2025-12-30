@@ -10,7 +10,6 @@ import { SmartEnv } from 'obsidian-smart-env';
 import { smart_env_config } from "../smart_env.config.js";
 import { open_note } from "obsidian-smart-env/utils/open_note.js";
 
-import { SmartNotices } from 'smart-notices/smart_notices.js';
 import { ScEarlySettingsTab } from "./views/settings_tab.js";
 
 import { ReleaseNotesView }    from "./views/release_notes_view.js";
@@ -221,14 +220,6 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
       await this.app.vault.adapter.append(".gitignore", `\n\n${message ? "# " + message + "\n" : ""}${ignore}`);
       console.log("Added to .gitignore: " + ignore);
     }
-  }
-  /**
-   * @deprecated use SmartEnv.notices instead
-   */
-  get notices() {
-    if(this.env?.notices) return this.env.notices;
-    if(!this._notices) this._notices = new SmartNotices(this.env, Notice);
-    return this._notices;
   }
 
 }
