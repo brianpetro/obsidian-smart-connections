@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { write_plugin_release_notes } from './format_release_notes.js';
+import { write_plugin_release_notes } from 'obsidian-smart-env/utils/release_notes.js';
 
 const __dirname = process.cwd();
 

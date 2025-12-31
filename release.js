@@ -6,71 +6,13 @@ import archiver from 'archiver';
 import axios from 'axios';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
-import { write_plugin_release_notes } from './releases/format_release_notes.js';
-
-/**
- * Compares two SemVer strings (major.minor.patch).
- * Returns positive when a > b, negative when a < b, zero when equal.
- * @param {string} a
- * @param {string} b
- * @returns {number}
- */
-function semver_compare(a, b) {
-  const pa = a.split('.').map(Number);
-  const pb = b.split('.').map(Number);
-  for (let i = 0; i < 3; i += 1) {
-    const diff = pa[i] - pb[i];
-    if (diff !== 0) return diff;
-  }
-  return 0;
-}
-
-/**
- * Returns absolute path to the most-recent release notes file
- * found in the provided directory or `null` when none exist.
- * @param {string} dir
- * @param {string} current_version
- * @returns {string|null}
- */
-function latest_release_file(dir, current_version) {
-  if (!fs.existsSync(dir)) return null;
-  const files = fs
-    .readdirSync(dir)
-    .filter((f) => /^\d+\.\d+\.\d+\.md$/.test(f) && f !== `${current_version}.md`);
-  if (files.length === 0) return null;
-  files.sort((a, b) => semver_compare(b.replace('.md', ''), a.replace('.md', '')));
-  return path.join(dir, files[0]);
-}
-
-/**
- * Merges an optional user description with previous release notes
- * under a new heading for the given version.
- * @param {string} current_version
- * @param {string} prior_notes
- * @param {string} user_desc
- * @returns {string}
- */
-function build_combined_notes(current_version, prior_notes, user_desc) {
-  const heading = `\n\n## patch \`v${current_version}\`\n\n`;
-  const desc_block = user_desc?.trim() ? `${user_desc.trim()}\n` : '';
-  return `${prior_notes ?? ''}${heading}${desc_block}`.trim();
-}
-
-/**
- * @typedef {Object} CliOptions
- * @property {boolean} draft
- */
-
-/**
- * Parses CLI flags.
- * @param {string[]} argv
- * @returns {CliOptions}
- */
-function parse_cli_options(argv) {
-  return {
-    draft: argv.includes('--draft'),
-  };
-}
+import {
+  build_combined_notes,
+  latest_release_file,
+  semver_compare,
+  parse_cli_options,
+  write_plugin_release_notes
+} from '../obsidian-smart-env/utils/release_notes.js';
 
 /* -------------------------------------------------------------------------- */
 /*  Runtime                                                                   */
