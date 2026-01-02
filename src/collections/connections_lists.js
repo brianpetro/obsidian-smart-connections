@@ -40,6 +40,7 @@ export class ConnectionsLists extends Collection {
       results_limit: 20,
       exclude_frontmatter_blocks: true,
       exclude_same_folder: false,
+      exclude_rootline: false,
       connections_list_item_component_key: 'connections_list_item_v3',
       components: {
         connections_list_item_v3: {
@@ -115,6 +116,12 @@ export function settings_config (scope) {
       name: "Exclude notes from same folder",
       type: "toggle",
       description: "When enabled, notes in the same folder as the current note will be excluded from connection results.",
+      group: "Filters",
+    },
+    "exclude_rootline": {
+      name: "Exclude notes from ancestor folders",
+      type: "toggle",
+      description: "When enabled, notes in any ancestor folder (parent, grandparent, etc.) of the current note will be excluded from connection results. More restrictive than 'Exclude same folder'.",
       group: "Filters",
     },
   };

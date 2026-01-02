@@ -207,6 +207,29 @@ export async function post_process(view, container, opts = {}) {
         ;
       });
 
+      // Exclude rootline toggle
+      menu.addItem((menu_item) => {
+        const connections_settings = opts.connections_settings
+          ?? connections_list?.settings
+        ;
+        const exclude_rootline = connections_settings?.exclude_rootline ?? false;
+        const title = exclude_rootline ? 'Show notes from ancestor folders' : 'Hide notes from ancestor folders';
+        const icon_name = exclude_rootline ? 'folder-tree' : 'folder-minus';
+        menu_item
+          .setTitle(title)
+          .setIcon(icon_name)
+          .onClick(() => {
+            const curr_settings = opts.connections_settings
+              ?? connections_list?.settings
+            ;
+            if (curr_settings) {
+              curr_settings.exclude_rootline = !exclude_rootline;
+              connections_view_refresh_handler.call(view, { target: container });
+            }
+          })
+        ;
+      });
+
       menu.addSeparator();
 
       // Settings
