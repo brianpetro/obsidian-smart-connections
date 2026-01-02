@@ -39,6 +39,7 @@ export class ConnectionsLists extends Collection {
       connections_post_process: 'none',
       results_limit: 20,
       exclude_frontmatter_blocks: true,
+      exclude_same_folder: false,
       connections_list_item_component_key: 'connections_list_item_v3',
       components: {
         connections_list_item_v3: {
@@ -109,6 +110,12 @@ export function settings_config (scope) {
       name: "Results limit",
       type: "number",
       description: "Adjust the number of connections displayed in the connections view (default 20).",
+    },
+    "exclude_same_folder": {
+      name: "Exclude notes from same folder",
+      type: "toggle",
+      description: "When enabled, notes in the same folder as the current note will be excluded from connection results.",
+      group: "Filters",
     },
   };
 

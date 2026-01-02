@@ -66,6 +66,24 @@ export function css_with_plugin() {
   };
 }
 
+/**
+ * Plugin to alias smart-plugins-obsidian/utils.js to our stub.
+ * This allows the build to complete without the private Pro plugin repository.
+ */
+export function smart_plugins_stub_plugin() {
+  return {
+    name: 'smart-plugins-stub',
+    setup(build) {
+      // Redirect smart-plugins-obsidian imports to our stub
+      build.onResolve({ filter: /^smart-plugins-obsidian/ }, (args) => {
+        return {
+          path: path.resolve(process.cwd(), '..', 'obsidian-smart-env', 'stubs', 'smart_plugins_utils_stub.js'),
+        };
+      });
+    },
+  };
+}
+
 // if directory doesn't exist, create it
 if(!fs.existsSync(path.join(process.cwd(), 'dist'))) {
   fs.mkdirSync(path.join(process.cwd(), 'dist'), { recursive: true });
@@ -131,7 +149,7 @@ esbuild.build({
   loader: {
     '.css': 'text',
   },
-  plugins: [css_with_plugin(), markdown_plugin],
+  plugins: [smart_plugins_stub_plugin(), css_with_plugin(), markdown_plugin],
   banner: { js: copyright_banner },
 }).then(() => {
   console.log('Build complete');

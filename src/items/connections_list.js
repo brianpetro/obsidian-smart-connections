@@ -3,6 +3,7 @@ import { results_acc } from 'smart-utils/results_acc.js';
 import { sort_by_score_descending } from 'smart-utils/sort_by_score.js';
 import { merge_pinned_results } from '../utils/merge_pinned_results.js';
 import { migrate_hidden_connections } from '../../migrations/migrate_hidden_connections.js';
+import { filter_same_folder_results } from '../utils/filter_same_folder_results.js';
 
 export class ConnectionsList extends CollectionItem {
   static key = 'connections_list';
@@ -60,8 +61,13 @@ export class ConnectionsList extends CollectionItem {
         return acc;
       }, { min: 0, results: new Set() })
     ;
-    const results = Array.from(raw_results).sort(sort_by_score_descending);
+    let results = Array.from(raw_results).sort(sort_by_score_descending);
     if(!results.length) return results;
+    
+    const exclude_same_folder = this.settings?.exclude_same_folder ?? false;
+    results = filter_same_folder_results(results, this.item, exclude_same_folder);
+    if(!results.length) return results;
+    
     while(!results.some(r => r.score > 0.5)) {
       results.forEach(r => r.score *= 2);
     }
