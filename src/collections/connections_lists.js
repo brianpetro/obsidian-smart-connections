@@ -41,6 +41,9 @@ export class ConnectionsLists extends Collection {
       exclude_frontmatter_blocks: true,
       exclude_same_folder: false,
       exclude_rootline: false,
+      same_folder_boost_multiplier: 1.5,
+      rootline_boost_multiplier: 2.0,
+      max_boost_multiplier: 10.0,
       connections_list_item_component_key: 'connections_list_item_v3',
       components: {
         connections_list_item_v3: {
@@ -122,6 +125,24 @@ export function settings_config (scope) {
       name: "Exclude notes from ancestor folders",
       type: "toggle",
       description: "When enabled, notes in any ancestor folder (parent, grandparent, etc.) of the current note will be excluded from connection results. More restrictive than 'Exclude same folder'.",
+      group: "Filters",
+    },
+    "same_folder_boost_multiplier": {
+      name: "Same folder filter boost multiplier",
+      type: "number",
+      description: "Multiplier for initial results limit when 'Exclude same folder' is active. Higher values fetch more results to compensate for filtering. Default: 1.5",
+      group: "Filters",
+    },
+    "rootline_boost_multiplier": {
+      name: "Rootline filter boost multiplier",
+      type: "number",
+      description: "Multiplier for initial results limit when 'Exclude rootline' is active. Higher values fetch more results to compensate for filtering. Default: 2.0",
+      group: "Filters",
+    },
+    "max_boost_multiplier": {
+      name: "Maximum boost multiplier",
+      type: "number",
+      description: "Maximum total multiplier for adaptive retry logic. When filters leave no results, the system will retry with increasingly higher limits up to this maximum. Default: 10.0",
       group: "Filters",
     },
   };
