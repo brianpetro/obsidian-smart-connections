@@ -230,6 +230,29 @@ export async function post_process(view, container, opts = {}) {
         ;
       });
 
+      // Show path and tags toggle
+      menu.addItem((menu_item) => {
+        const connections_settings = opts.connections_settings
+          ?? connections_list?.settings
+        ;
+        const show_path_and_tags = connections_settings?.show_path_and_tags ?? false;
+        const title = show_path_and_tags ? 'Hide path and tags' : 'Show path and tags';
+        const icon_name = show_path_and_tags ? 'eye-off' : 'eye';
+        menu_item
+          .setTitle(title)
+          .setIcon(icon_name)
+          .onClick(() => {
+            const curr_settings = opts.connections_settings
+              ?? connections_list?.settings
+            ;
+            if (curr_settings) {
+              curr_settings.show_path_and_tags = !show_path_and_tags;
+              connections_view_refresh_handler.call(view, { target: container });
+            }
+          })
+        ;
+      });
+
       menu.addSeparator();
 
       // Settings

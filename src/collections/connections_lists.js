@@ -44,6 +44,7 @@ export class ConnectionsLists extends Collection {
       same_folder_boost_multiplier: 1.5,
       rootline_boost_multiplier: 2.0,
       max_boost_multiplier: 10.0,
+      show_path_and_tags: false,
       connections_list_item_component_key: 'connections_list_item_v3',
       components: {
         connections_list_item_v3: {
@@ -144,6 +145,12 @@ export function settings_config (scope) {
       type: "number",
       description: "Maximum total multiplier for adaptive retry logic. When filters leave no results, the system will retry with increasingly higher limits up to this maximum. Default: 10.0",
       group: "Filters",
+    },
+    "show_path_and_tags": {
+      name: "Show path and tags in results",
+      type: "toggle",
+      description: "Display the file path and tags below each connection result.",
+      group: "Display",
     },
   };
 
