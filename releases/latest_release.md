@@ -1,11 +1,16 @@
-> [!NOTE] Patch v4.1.6
-> - Added: milestones feature with modal and checklist components
-> - Added: connections view menu option to copy results as links 
-> - Added: multilingual-e5-small embedding model support
-> - Improved: settings tab with added "learn more" and "help" buttons to settings groups
-> - Fixed: markdown parser should handle frontmatter correctly (prevent false-positive frontmatter detection)
+> [!NOTE] Patch v4.1.7
+> - Added: Links to docs from milestones
+> - Added: Include active source item in context created from the connections view
+> - Fixed: replaced model source for multilingual E5 Small embedding model to ensure quantized variations available
 
 > [!NOTE]- Previous patches
+> > [!NOTE]- v4.1.6
+> > - Added: milestones feature with modal and checklist components
+> > - Added: connections view menu option to copy results as links 
+> > - Added: multilingual-e5-small embedding model support
+> > - Improved: settings tab with added "learn more" and "help" buttons to settings groups
+> > - Fixed: markdown parser should handle frontmatter correctly (prevent false-positive frontmatter detection)
+> 
 > > [!NOTE]- v4.1.4
 > > - Added fallback for opening Pro login in case the button doesn't automatically open the browser as expected
 > 
