@@ -1,5 +1,5 @@
 > [!NOTE] Patch v4.1.7
-> - Added: Links to docs from milestones
+> - Added: Links to docs from [milestones](https://smartconnections.app/smart-environment/milestones/?utm_source=release-notes)
 > - Added: Include active source item in context created from the connections view
 > - Fixed: replaced model source for multilingual E5 Small embedding model to ensure quantized variations available
 
