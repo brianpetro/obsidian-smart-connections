@@ -1,6 +1,6 @@
 /**
  * Builds the display name for a connection item.
- * @param {object} item
+ * @param {import('smart-collections').CollectionItem} item
  * @param {object} settings
  * @returns {string}
  */

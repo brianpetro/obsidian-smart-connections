@@ -1,9 +1,9 @@
 /**
  * Build Smart Context items from a Connections source and visible results.
  * @param {object} params
- * @param {object} [params.source_item] - Current Connections entity representing the source note.
- * @param {Array<object>} [params.results] - Visible connection results with { item, score } shape.
- * @returns {Array<object>} Context payload including the source item when available.
+ * @param {import('smart-collections').CollectionItem} [params.source_item] - Current Connections entity representing the source note.
+ * @param {Array<{ item: import('smart-collections').CollectionItem, score: number }>} [params.results] - Visible connection results with { item, score } shape.
+ * @returns {Array<{ key: string, score: number }>} Context payload including the source item when available.
  */
 export function build_connections_context_items(params = {}) {
   const { source_item, results = [] } = params;
