@@ -294,7 +294,7 @@ function get_result_header_html(score, item, component_settings = {}) {
   const raw_parts = get_item_display_name(item, component_settings).split(' > ').filter(Boolean);
   const parts = format_item_parts(raw_parts, item?.lines);
   const name = parts.pop();
-  const formatted_score = typeof score === 'number' ? score.toFixed(2) : '';
+  const formatted_score = typeof score === 'number' ? score.toFixed(2) : score;
   const separator = '<small class="sc-breadcrumb-separator"> &gt; </small>';
   const parts_html = parts
     .map(part => (`<small class="sc-breadcrumb">${part}</small>`))

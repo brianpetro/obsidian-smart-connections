@@ -4,8 +4,9 @@ a.sc-result-file-title {
 
 a.sc-result-file-title > .sc-score {
   display: inline-block;
-  width: 4.5ch;
+  width: auto;
   height: 1.7em;
+  padding: 0 0.3em;
   line-height: 1.7em;
   text-align: center;
   font-weight: 600 !important;

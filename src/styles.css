@@ -874,19 +874,17 @@ a.sc-result-file-title {
 }
 
 a.sc-result-file-title > .sc-score {
-    display: inline-block;
-
-    width: 4.5ch;
-    height: 1.7em;
-    line-height: 1.7em;
-    text-align: center;
-
-    font-weight: 600 !important;
-    font-size: .8em !important;
-
-    color: var(--nav-item-color) !important;
-    background: var(--background-modifier-hover);
-    border-radius: 6px;
+  display: inline-block;
+  width: auto;
+  height: 1.7em;
+  padding: 0 0.3em;
+  line-height: 1.7em;
+  text-align: center;
+  font-weight: 600 !important;
+  font-size: 0.8em !important;
+  color: var(--nav-item-color) !important;
+  background: var(--background-modifier-hover);
+  border-radius: 6px;
 }
 
 a.sc-result-file-title > .sc-path {
