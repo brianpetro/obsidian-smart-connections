@@ -184,6 +184,7 @@ export async function post_process(result_scope, container, params = {}) {
             container.style.display = 'none'; // hide the result element
             container.dataset.hidden = 'true';
             source_item.collection.save();
+            source_item.emit_event('connections:hidden_item');
           } catch (err) {
             new Notice('Hide failed – check console');
             console.error(err);
@@ -206,6 +207,7 @@ export async function post_process(result_scope, container, params = {}) {
               apply_pinned_state(source_item.data.connections, prefixed_key, Date.now());
               container.classList.add('sc-result-pinned');
               container.dataset.pinned = 'true';
+              source_item.emit_event('connections:pinned_item');
             }
             source_item.queue_save();
             source_item.collection.save();
