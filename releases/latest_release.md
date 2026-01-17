@@ -1,9 +1,17 @@
-> [!NOTE] Patch v4.1.7
-> - Added: Links to docs from [milestones](https://smartconnections.app/smart-environment/milestones/?utm_source=release-notes)
-> - Added: Include active source item in context created from the connections view
-> - Fixed: replaced model source for multilingual E5 Small embedding model to ensure quantized variations available
+> [!NOTE] Patch v4.1.8
+> - Added: "Pin" and "Hide" events/milestones
+> 
+> All Smart Plugins:
+> - Fixed: verified Pro plugins login should work on mobile
+> - Fixed: settings groups now re-render when a dropdown changes (prevents stale dependent settings)
+> - Improved: notifications modal includes a "Load more" button (beyond the default 100)
 
 > [!NOTE]- Previous patches
+> > [!NOTE]- v4.1.7
+> > - Added: Links to docs from [milestones](https://smartconnections.app/smart-environment/milestones/?utm_source=release-notes)
+> > - Added: Include active source item in context created from the connections view
+> > - Fixed: replaced model source for multilingual E5 Small embedding model to ensure quantized variations available
+> 
 > > [!NOTE]- v4.1.6
 > > - Added: milestones feature with modal and checklist components
 > > - Added: connections view menu option to copy results as links 
