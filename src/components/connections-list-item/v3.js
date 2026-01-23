@@ -39,6 +39,9 @@ export async function build_html(result, params = {}) {
   const header_html = get_result_header_html(score, item, component_settings);
   const all_expanded = connections_settings.expanded_view;
   
+  const show_path_and_tags = connections_settings?.show_path_and_tags ?? false;
+  const metadata_html = show_path_and_tags ? get_metadata_html(item) : '';
+  
   return `<div class="temp-container">
     <div
       class="sc-result ${all_expanded ? '' : 'sc-collapsed'}"
@@ -55,6 +58,7 @@ export async function build_html(result, params = {}) {
           ${header_html}
         </a>
       </span>
+      ${metadata_html}
       <ul draggable="true">
         <li class="sc-result-file-title" title="${item.path.replace(/"/g, '&quot;')}" data-collection="${item.collection_key}" data-key="${item.key}"></li>
       </ul>
@@ -292,6 +296,54 @@ export async function post_process(result_scope, container, params = {}) {
   return container;
 }
 
+/**
+ * Builds the metadata HTML line (path + tags) for a result item.
+ * @param {Object} item - The item (Source or Block)
+ * @returns {string} HTML string for the metadata line
+ */
+function get_metadata_html(item) {
+  if (!item) return '';
+  
+  const parts = [];
+  
+  if (item.path) {
+    parts.push(`<span class="sc-meta-path" title="Path: ${item.path.replace(/"/g, '&quot;')}">${item.path}</span>`);
+  }
+  
+  const tags = get_item_tags(item);
+  if (tags.length > 0) {
+    const tags_html = tags
+      .map(tag => `<span class="sc-meta-tag">#${tag}</span>`)
+      .join(' ');
+    parts.push(`<span class="sc-meta-tags">${tags_html}</span>`);
+  }
+  
+  if (parts.length === 0) return '';
+  
+  return `<div class="sc-result-metadata">${parts.join(' • ')}</div>`;
+}
+
+/**
+ * Extracts tags from an item (Source or Block).
+ * @param {Object} item - The item
+ * @returns {string[]} Array of tag names (without #)
+ */
+function get_item_tags(item) {
+  if (!item) return [];
+  
+  const tags = item.tags 
+    || item.data?.tags
+    || item.data?.frontmatter?.tags
+    || [];
+  
+  if (!Array.isArray(tags)) return [];
+  
+  return tags.map(tag => {
+    if (typeof tag !== 'string') return String(tag);
+    return tag.startsWith('#') ? tag.substring(1) : tag;
+  });
+}
+
 function get_result_header_html(score, item, component_settings = {}) {
   const raw_parts = get_item_display_name(item, component_settings).split(' > ').filter(Boolean);
   const parts = format_item_parts(raw_parts, item?.lines);
@@ -355,5 +407,11 @@ export const settings_config = {
     type: "toggle",
     description: "Turn off to prevent rendering markdown and display connection results as plain text.",
     default: true,
+  },
+  "show_path_and_tags": {
+    name: "Show path and tags",
+    type: "toggle",
+    description: "Show the file path and tags below each connection result.",
+    default: false,
   },
 };

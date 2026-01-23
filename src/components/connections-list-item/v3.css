@@ -42,3 +42,31 @@ a.sc-result-file-title > .sc-breadcrumb-separator {
     0 0 0.5rem color-mix(in srgb, var(--interactive-accent) 45%, transparent);
   transition: outline 120ms ease, box-shadow 120ms ease;
 }
+
+.sc-result-metadata {
+  font-size: 0.5em;
+  color: var(--text-muted);
+  padding: 2px 0 4px 24px;
+  margin-top: -2px;
+  line-height: 1.4;
+}
+
+.sc-result-metadata .sc-meta-path {
+  font-family: var(--font-monospace);
+  opacity: 0.8;
+}
+
+.sc-result-metadata .sc-meta-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  margin: 0 2px;
+  background: var(--background-modifier-border);
+  border-radius: 3px;
+  font-size: 0.9em;
+  color: var(--text-accent);
+  font-weight: 500;
+}
+
+.sc-result-metadata .sc-meta-tags {
+  margin-left: 4px;
+}

@@ -184,6 +184,75 @@ export async function post_process(view, container, opts = {}) {
         ;
       });
 
+      // Exclude same folder toggle
+      menu.addItem((menu_item) => {
+        const connections_settings = opts.connections_settings
+          ?? connections_list?.settings
+        ;
+        const exclude_same_folder = connections_settings?.exclude_same_folder ?? false;
+        const title = exclude_same_folder ? 'Show notes from same folder' : 'Hide notes from same folder';
+        const icon_name = exclude_same_folder ? 'folder-check' : 'folder-x';
+        menu_item
+          .setTitle(title)
+          .setIcon(icon_name)
+          .onClick(() => {
+            const curr_settings = opts.connections_settings
+              ?? connections_list?.settings
+            ;
+            if (curr_settings) {
+              curr_settings.exclude_same_folder = !exclude_same_folder;
+              connections_view_refresh_handler.call(view, { target: container });
+            }
+          })
+        ;
+      });
+
+      // Exclude rootline toggle
+      menu.addItem((menu_item) => {
+        const connections_settings = opts.connections_settings
+          ?? connections_list?.settings
+        ;
+        const exclude_rootline = connections_settings?.exclude_rootline ?? false;
+        const title = exclude_rootline ? 'Show notes from ancestor folders' : 'Hide notes from ancestor folders';
+        const icon_name = exclude_rootline ? 'folder-tree' : 'folder-minus';
+        menu_item
+          .setTitle(title)
+          .setIcon(icon_name)
+          .onClick(() => {
+            const curr_settings = opts.connections_settings
+              ?? connections_list?.settings
+            ;
+            if (curr_settings) {
+              curr_settings.exclude_rootline = !exclude_rootline;
+              connections_view_refresh_handler.call(view, { target: container });
+            }
+          })
+        ;
+      });
+
+      // Show path and tags toggle
+      menu.addItem((menu_item) => {
+        const connections_settings = opts.connections_settings
+          ?? connections_list?.settings
+        ;
+        const show_path_and_tags = connections_settings?.show_path_and_tags ?? false;
+        const title = show_path_and_tags ? 'Hide path and tags' : 'Show path and tags';
+        const icon_name = show_path_and_tags ? 'eye-off' : 'eye';
+        menu_item
+          .setTitle(title)
+          .setIcon(icon_name)
+          .onClick(() => {
+            const curr_settings = opts.connections_settings
+              ?? connections_list?.settings
+            ;
+            if (curr_settings) {
+              curr_settings.show_path_and_tags = !show_path_and_tags;
+              connections_view_refresh_handler.call(view, { target: container });
+            }
+          })
+        ;
+      });
+
       menu.addSeparator();
 
       // Settings
