@@ -14,7 +14,7 @@ import {
   remove_all_pinned_states,
   remove_pinned_state,
 } from '../../utils/connections_list_item_state.js';
-import { get_item_display_name } from '../../utils/get_item_display_name.js';
+import { DISPLAY_SEPARATOR, get_item_display_name } from '../../utils/get_item_display_name.js';
 import { format_connections_as_links } from '../../utils/format_connections_as_links.js';
 import { register_item_hover_popover } from 'obsidian-smart-env/src/utils/register_item_hover_popover.js';
 import { register_item_drag } from 'obsidian-smart-env/src/utils/register_item_drag.js';
@@ -293,7 +293,7 @@ export async function post_process(result_scope, container, params = {}) {
 }
 
 function get_result_header_html(score, item, component_settings = {}) {
-  const raw_parts = get_item_display_name(item, component_settings).split(' > ').filter(Boolean);
+  const raw_parts = get_item_display_name(item, component_settings).split(DISPLAY_SEPARATOR).filter(Boolean);
   const parts = format_item_parts(raw_parts, item?.lines);
   const name = parts.pop();
   const formatted_score = typeof score === 'number' ? score.toFixed(2) : score;
