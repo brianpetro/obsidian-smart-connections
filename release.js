@@ -6,13 +6,14 @@ import archiver from 'archiver';
 import axios from 'axios';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
+import { remove_existing_release_and_tag } from '../obsidian-smart-env/build/github_release_utils.js';
 import {
   build_combined_notes,
   latest_release_file,
   semver_compare,
   parse_cli_options,
   write_plugin_release_notes
-} from '../obsidian-smart-env/utils/release_notes.js';
+} from '../obsidian-smart-env/build/release_notes.js';
 
 /* -------------------------------------------------------------------------- */
 /*  Runtime                                                                   */
@@ -98,6 +99,17 @@ async function run_release() {
   if (!github_token || !github_repo) {
     console.error('GH_TOKEN or GH_REPO missing from .env');
     process.exit(1);
+  }
+
+  if (cli_options.replace_existing) {
+    console.log(
+      `--replace-existing set; removing any existing release and tag for ${confirmed_version}`,
+    );
+    await remove_existing_release_and_tag({
+      github_repo,
+      github_token,
+      tag_name: confirmed_version,
+    });
   }
 
   // Create release via GH API
