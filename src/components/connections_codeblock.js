@@ -1,4 +1,4 @@
-import styles from './connections_codeblock.css' assert { type: 'css' };
+import styles from './connections_codeblock.css';
 import { Notice } from 'obsidian';
 import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
 import { copy_to_clipboard } from 'obsidian-smart-env/utils/copy_to_clipboard.js';

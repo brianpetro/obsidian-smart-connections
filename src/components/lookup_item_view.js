@@ -1,4 +1,4 @@
-import styles_css from './lookup_item_view.css' with { type: 'css' };
+import styles_css from './lookup_item_view.css';
 const DEFAULT_DEBOUNCE_MS = 300;
 const REQUIRED_MESSAGE = 'Enter a lookup query to continue.';
 const PLACEHOLDER = 'Describe the idea, topic, or question you want to explore…';

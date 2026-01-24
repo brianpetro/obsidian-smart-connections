@@ -1,6 +1,6 @@
 import { Menu, Notice } from 'obsidian';
 import { copy_to_clipboard } from 'obsidian-smart-env/utils/copy_to_clipboard.js';
-import styles_css from './v3.css' with { type: 'css' };
+import styles_css from './v3.css';
 
 import {
   apply_hidden_state,
