@@ -32,7 +32,7 @@ More time for what matters most<br>
 
 🔍 Streamlined codebase with minimal/no dependencies can be audited >3× faster than comparable AI plugins
 
-🌐 Open-source core, local-first data  
+🌐 Source available core, local-first data
 
 ⚔️ Mission driven, user aligned, community supported  
 
@@ -89,13 +89,13 @@ Connections view results update automatically when you change notes. The name of
 ![](https://smartconnections.app/assets/Connections-item-view-info-overload-annotated-main-2025-12-09.png)
 
 - **Result score** (yellow underline)  
-  The score reflects semantic similarity between the result and the current note. Exact numbers depend on the embedding model.  
+	The score reflects semantic similarity between the result and the current note. Exact numbers depend on the embedding model.  
 - **Show or hide content** (magenta)  
-  Expand or collapse individual results. Use the top row button to expand or collapse all.  
+	Expand or collapse individual results. Use the top row button to expand or collapse all.  
 - **Play / pause updates** (orange)  
-  Control whether the Connections view automatically updates when you change notes.  
+	Control whether the Connections view automatically updates when you change notes.  
 - **Lookup query** (teal)  
-  Opens the Lookup view for a semantic search across your vault.
+	Opens the Lookup view for a semantic search across your vault.
 
 > [!NOTE] Semantic search  
 > Semantic queries do not behave like plain text search. A note that contains the exact query text might not appear if it is not actually similar in meaning.
@@ -167,17 +167,17 @@ Connections Pro builds on the core plugin and Smart Environment to give power us
 Examples of Pro features:
 
 - **Inline connections**  
-  Small badges in the editor that show how many strong matches a block has, with a pop-over of related blocks and notes.  
+	Small badges in the editor that show how many strong matches a block has, with a pop-over of related blocks and notes.  
 - **Footer connections**  
-  A persistent panel that updates as you type so high value connections stay visible while you write.  
+	A persistent panel that updates as you type so high value connections stay visible while you write.  
 - **Configurable scoring and ranking**  
-  Choose different algorithms for how results are scored and optionally add a rerank stage.  
+	Choose different algorithms for how results are scored and optionally add a rerank stage.  
 - **Connections in Bases**  
-  Use `score_connection` and `list_connections` in Obsidian Bases to show similarity columns and related note lists in tables.  
+	Use `score_connection` and `list_connections` in Obsidian Bases to show similarity columns and related note lists in tables.  
 - **Advanced filters and models**  
-  Extra Smart Environment controls for embeddings, collections, and include or exclude rules.  
+	Extra Smart Environment controls for embeddings, collections, and include or exclude rules.  
 - **Early release experiments**  
-  New ideas launch in Early channels first so supporters can shape how they evolve.
+	New ideas launch in Early channels first so supporters can shape how they evolve.
 
 Connections Pro is part of the [Pro plugins](https://smartconnections.app/pro-plugins/?utm_source=connections-readme) family and is available to active project supporters. It is still built on the same open Smart Environment. Supporting Pro helps fund development of all Smart Plugins and the free core.
 </details><br>
@@ -212,7 +212,7 @@ Privacy should not be a premium feature. *Smart Plugins are private by default!*
 The Obsidian community opened my eyes to user-aligned software. Smart Connections is built on a set of principles designed to keep power in the hands of individuals, not platforms.
 
 > [!INFO] Your guide  
-> Built by Brian, a fellow Obsidian user who felt the same pain, Smart Connections pairs hard won experience with open-source AI expertise to lead you from overwhelm to insight.
+> Built by Brian, a fellow Obsidian user who felt the same pain, Smart Connections pairs hard won experience with source available AI expertise to lead you from overwhelm to insight.
 
 ## Built for You
 
@@ -350,7 +350,7 @@ I build Smart Plugins to explore new ideas, ship practical workflows, and keep c
 
 Most AI features need continuous maintenance. As providers and APIs change, deeply configurable options require far more support, testing, and refactoring than simple defaults.
 
-[Introducing Pro plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme): how the project stays sustainable without compromising the open core. Core Smart Plugins remain free and open source. Pro plugins sit on top of that core, built on the same open Smart Environment. They do not remove the essentials from the free plugins; instead they collect advanced options in one place and fund the work needed to maintain them.
+[Introducing Pro plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme): how the project stays sustainable without compromising the open core. Core Smart Plugins remain free and source available. Pro plugins sit on top of that core, built on the same open Smart Environment. They do not remove the essentials from the free plugins; instead they collect advanced options in one place and fund the work needed to maintain them.
 Pro plugins (including Connections Pro) are available to all past project supporters. Not yet a supporter? [Get Pro plugins here](https://smartconnections.app/pro-plugins/?utm_source=connections-readme).
 </details><br>
 
@@ -391,4 +391,3 @@ Together with Smart Environment, Smart Plugins are an experiment in how AI can e
 > 
 > *Smart Connections isn't a silver-bullet*. But, it is the a key Smart Tool that can **empower us to do more!**
 > 
-
