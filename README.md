@@ -55,6 +55,18 @@ Access the Getting Started guide from Smart Connections settings.
 [![Smart Connections Getting Started](/assets/smart-connections-getting-started.gif)](https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-readme)
 
 Watch the [feature walkthrough slideshow](https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-readme) or read the [Getting Started guide](https://smartconnections.app/smart-connections/getting-started/?utm_source=connections-readme) to see how Smart Connections fits into your workflow, including Connections view, Lookup view, inline Pro features, and Smart Environment settings.
+#### Learn more
+
+- [Smart Connections overview](https://smartconnections.app/smart-connections/?utm_source=connections-readme)
+- [Getting Started](https://smartconnections.app/smart-connections/getting-started/?utm_source=connections-readme)
+- [Connections list feature](https://smartconnections.app/smart-connections/list-feature/?utm_source=connections-readme)
+- [Lookup view](https://smartconnections.app/smart-connections/lookup/?utm_source=connections-readme)
+- [Settings guide](https://smartconnections.app/smart-connections/settings/?utm_source=connections-readme)
+- [Inline connections (Pro)](https://smartconnections.app/smart-connections/inline/?utm_source=connections-readme)
+- [Bases integration (Pro)](https://smartconnections.app/smart-connections/bases/?utm_source=connections-readme)
+- [Pro plugins overview](https://smartconnections.app/pro-plugins/?utm_source=connections-readme)
+- [Introducing Pro plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme)
+
 ## Getting started
 ### It "just works"
 Surface relationships between notes with zero-setup.
@@ -391,3 +403,4 @@ Together with Smart Environment, Smart Plugins are an experiment in how AI can e
 > 
 > *Smart Connections isn't a silver-bullet*. But, it is the a key Smart Tool that can **empower us to do more!**
 > 
+
