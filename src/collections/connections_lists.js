@@ -38,6 +38,7 @@ export class ConnectionsLists extends Collection {
       score_algo_key: 'similarity',
       connections_post_process: 'none',
       results_limit: 20,
+      connections_view_location: 'right',
       exclude_frontmatter_blocks: true,
       connections_list_item_component_key: 'connections_list_item_v3',
       components: {
@@ -93,8 +94,8 @@ export function settings_config (scope) {
       name: "Connection results type",
       type: "dropdown",
       description: "Choose whether results should be sources or blocks.",
-      option_1: 'smart_sources|Sources',
-      option_2: 'smart_blocks|Blocks',
+      option_1: 'smart_sources|Sources', // DEPRECATED
+      option_2: 'smart_blocks|Blocks', // DEPRECATED
       options_callback: () => {
         const options = [
           { value: 'smart_sources', name: 'Sources' },
@@ -109,6 +110,20 @@ export function settings_config (scope) {
       name: "Results limit",
       type: "number",
       description: "Adjust the number of connections displayed in the connections view (default 20).",
+    },
+    "connections_view_location": {
+      group: "Display",
+      name: "Connections sidebar location",
+      type: "dropdown",
+      description: "Choose which sidebar opens when showing the Connections view.",
+      option_1: "right|Right sidebar", // DEPRECATED
+      option_2: "left|Left sidebar", // DEPRECATED
+      options_callback: () => {
+        return [
+          { value: 'right', name: 'Right sidebar' },
+          { value: 'left', name: 'Left sidebar' },
+        ];
+      }
     },
   };
 
@@ -129,6 +144,5 @@ export default {
   item_type: ConnectionsList,
   settings_config,
 };
-
 
 

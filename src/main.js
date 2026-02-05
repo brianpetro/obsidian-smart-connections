@@ -77,12 +77,14 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
       }, 1000);
       await this.SmartEnv.wait_for({ loaded: true });
       setTimeout(() => {
+        this.apply_connections_view_location();
         this.open_connections_view();
-        if(this.app.workspace.rightSplit.collapsed) this.app.workspace.rightSplit.toggle();
       }, 1000);
       this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env");
     });
     await this.SmartEnv.wait_for({ loaded: true });
+    this.apply_connections_view_location();
+    this.register_connections_view_location_listener();
     register_smart_connections_codeblock(this);
     await this.check_for_updates();
   }
@@ -112,6 +114,23 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
   }
 
   get settings() { return this.env?.settings || {}; }
+
+  /**
+   * Sync connections view location with settings.
+   * @returns {void}
+   */
+  apply_connections_view_location() {
+    const connections_view_location = this.env?.connections_lists?.settings?.connections_view_location ?? 'right';
+    ConnectionsItemView.default_open_location = connections_view_location === 'left' ? 'left' : 'right';
+  }
+
+  register_connections_view_location_listener() {
+    if (this.connections_view_location_listener || !this.env?.events) return;
+    this.connections_view_location_listener = this.env.events.on('settings:changed', (event) => {
+      if (!event?.path?.includes?.('connections_view_location')) return;
+      this.apply_connections_view_location();
+    });
+  }
 
   async check_for_updates() {
     if (await this.is_new_plugin_version(this.manifest.version)) {
