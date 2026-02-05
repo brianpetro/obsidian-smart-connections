@@ -27,6 +27,7 @@ import { build_connections_codeblock } from "./utils/build_connections_codeblock
 
 export default class SmartConnectionsPlugin extends SmartPlugin {
   SmartEnv = SmartEnv;
+  ReleaseNotesView = ReleaseNotesView;
   get smart_env_config() {
     if(!this._smart_env_config){
       this._smart_env_config = smart_env_config;
@@ -39,7 +40,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     return {
       ConnectionsItemView,
       LookupItemView,
-      ReleaseNotesView,
+      ReleaseNotesView: this.ReleaseNotesView,
     };
   }
 
@@ -136,7 +137,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     if (await this.is_new_plugin_version(this.manifest.version)) {
       console.log("opening release notes modal");
       try {
-        ReleaseNotesView.open(this.app.workspace, this.manifest.version);
+        this.ReleaseNotesView.open(this.app.workspace, this.manifest.version);
       } catch (e) {
         console.error('Failed to open ReleaseNotesView', e);
       }
@@ -209,7 +210,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
   }
 
   show_release_notes() {
-    return ReleaseNotesView.open(this.app.workspace, this.manifest.version);
+    return this.ReleaseNotesView.open(this.app.workspace, this.manifest.version);
   }
 
   async open_random_connection() {
