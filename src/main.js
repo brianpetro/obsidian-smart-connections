@@ -17,6 +17,7 @@ import { ReleaseNotesView }    from "./views/release_notes_view.js";
 import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
 import { get_random_connection } from "./utils/get_random_connection.js";
 import { add_smart_dice_icon } from "./utils/add_icons.js";
+import { should_relocate_leaf } from "./utils/view_leaf_location.js";
 
 // v4
 import { SmartPlugin } from "obsidian-smart-env/smart_plugin.js";
@@ -84,6 +85,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
       this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env");
     });
     await this.SmartEnv.wait_for({ loaded: true });
+    this.wrap_connections_view_open();
     this.apply_connections_view_location();
     this.register_connections_view_location_listener();
     register_smart_connections_codeblock(this);
@@ -123,6 +125,31 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
   apply_connections_view_location() {
     const connections_view_location = this.env?.connections_lists?.settings?.connections_view_location ?? 'right';
     ConnectionsItemView.default_open_location = connections_view_location === 'left' ? 'left' : 'right';
+    this.ensure_connections_view_leaf_location();
+  }
+
+  wrap_connections_view_open() {
+    if (this._open_connections_view_base || typeof this.open_connections_view !== 'function') {
+      return;
+    }
+    this._open_connections_view_base = this.open_connections_view.bind(this); // added on register by SmartItemView
+    this.open_connections_view = (...args) => {
+      this.ensure_connections_view_leaf_location();
+      return this._open_connections_view_base(...args);
+    };
+  }
+
+  ensure_connections_view_leaf_location() {
+    const workspace = this.app?.workspace;
+    if (!workspace) {
+      return;
+    }
+    const desired_location = ConnectionsItemView.default_open_location;
+    const connections_leaf = ConnectionsItemView.get_leaf(workspace);
+    if (!should_relocate_leaf({ workspace, leaf: connections_leaf, desired_location })) {
+      return;
+    }
+    connections_leaf.detach();
   }
 
   register_connections_view_location_listener() {
