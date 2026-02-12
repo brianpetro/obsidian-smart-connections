@@ -76,7 +76,7 @@ export class ScEarlySettingsTab extends SmartPluginSettingsTab {
               callback: () => window.open('https://smartconnections.app/smart-connections/settings/?utm_source=connections-settings-tab#ranking-algorithm', '_external'),
             }
           },
-          'Filters': {
+          'Connections filters': {
             heading_btn: {
               label: 'Settings documentation for Filters',
               btn_icon: 'help-circle',

@@ -32,7 +32,11 @@ function build_connections_list({ connections_state = {}, results_collection_key
   return {
     item,
     env,
-    collection,
+    collection: {
+      ...collection,
+      frontmatter_inclusions: [],
+      frontmatter_exclusions: [],
+    },
     settings: { results_limit: 5 },
     apply_style_sheet: () => {},
   };
@@ -71,4 +75,16 @@ test('treats hidden and pinned entries as pinned for scoring', (t) => {
   t.deepEqual(params.pinned_keys, ['dual']);
   t.deepEqual(params.hidden_keys, []);
   t.deepEqual(params.filter.exclude_keys, ['center', 'dual']);
+});
+
+test('injects parsed frontmatter include/exclude filters from collection', (t) => {
+  const connections_list = build_connections_list();
+  connections_list.collection.frontmatter_inclusions = [{ key: 'status', value: 'open' }];
+  connections_list.collection.frontmatter_exclusions = [{ key: 'type', value: 'draft' }];
+  const params = { filter: {} };
+
+  pre_process.call(connections_list, params);
+
+  t.deepEqual(params.filter.frontmatter.include, [{ key: 'status', value: 'open' }]);
+  t.deepEqual(params.filter.frontmatter.exclude, [{ key: 'type', value: 'draft' }]);
 });

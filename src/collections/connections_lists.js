@@ -1,8 +1,7 @@
 import { Collection } from 'smart-collections';
+import { parse_frontmatter_filter_lines } from 'smart-entities/utils/frontmatter_filter.js';
 import { ConnectionsList } from '../items/connections_list.js';
 import { migrate_connections_lists_settings } from '../../migrations/migrate_connections_lists_settings.js';
-import { insert_settings_after } from '../utils/insert_settings_after.js';
-import { create_settings_section_heading } from 'obsidian-smart-env/src/utils/create_settings_section_heading.js';
 
 /**
  * Configuration for filtering connections results.
@@ -41,6 +40,8 @@ export class ConnectionsLists extends Collection {
       connections_view_location: 'right',
       exclude_frontmatter_blocks: true,
       connections_list_item_component_key: 'connections_list_item_v3',
+      frontmatter_filter_include: '',
+      frontmatter_filter_exclude: '',
       components: {
         connections_list_item_v3: {
           render_markdown: true,
@@ -86,6 +87,14 @@ export class ConnectionsLists extends Collection {
     if(this.env[stored_key]) return stored_key;
     return 'smart_sources';
   }
+
+  get frontmatter_inclusions() {
+    return parse_frontmatter_filter_lines(this.settings.frontmatter_filter_include);
+  }
+
+  get frontmatter_exclusions() {
+    return parse_frontmatter_filter_lines(this.settings.frontmatter_filter_exclude);
+  }
 }
 
 export function settings_config (scope) {
@@ -125,12 +134,85 @@ export function settings_config (scope) {
         ];
       }
     },
+    "inline_connections": {
+      group: 'Inline connections',
+      name: "Show inline connections",
+      type: "toggle",
+      scope_class: 'pro-setting',
+      description: "Shows connections for each block within the note. Hover connections icon to see list of connections.",
+    },
+    "footer_connections": {
+      group: 'Footer connections',
+      name: "Show footer connections",
+      type: "toggle",
+      scope_class: 'pro-setting',
+      description: "Show connections at the bottom of each note.",
+    },
+    filters_helper: {
+      group: 'Connections filters',
+      type: 'html',
+      value: [
+        '<p class="setting-item-description"><strong>Filter tips:</strong> Use comma-separated folder or file path fragments such as <code>Projects/Clients</code>. Values are trimmed automatically and compared using case-sensitive substring matches.</p>',
+        '<p class="setting-item-description"><strong>Result vs ingestion:</strong> Connections filters only hide results after Smart Environment builds its dataset. To stop notes from being indexed, adjust Smart Environment include/exclude settings in the Environment window or plugin settings.</p>',
+        '<p class="setting-item-description"><strong>Precedence:</strong> Entries in the exclude filter always win when they match, even if the same path fragment appears in the include filter.</p>'
+      ].join('')
+    },
+    "exclude_inlinks": {
+      group: 'Connections filters',
+      name: "Exclude inlinks (backlinks)",
+      type: "toggle",
+      scope_class: 'pro-setting',
+      description: "Exclude notes that already link to the current note from the connections results.",
+    },
+    "exclude_outlinks": {
+      group: 'Connections filters',
+      name: "Exclude outlinks",
+      type: "toggle",
+      scope_class: 'pro-setting',
+      description: "Exclude notes that are already linked from within the current note from appearing in the connections results.",
+    },
+    "include_filter": {
+      group: 'Connections filters',
+      name: "Include filter",
+      type: "text",
+      scope_class: 'pro-setting',
+      description: "Comma-separated path fragments that must appear in the note path. Matches use case-sensitive substring checks; trim spaces or wrap folder names like `Daily/`. This only affects the results list; Smart Environment still embeds matching notes unless excluded there.",
+    },
+    "exclude_filter": {
+      group: 'Connections filters',
+      name: "Exclude filter",
+      type: "text",
+      scope_class: 'pro-setting',
+      description: "Comma-separated path fragments to omit from results. Exclusions run before includes, so any matching fragment removes the note even if it also appears in `Include filter`. Use Smart Environment include/exclude settings to stop notes from being embedded altogether.",
+    },
+    "frontmatter_filter_include": {
+      group: 'Connections filters',
+      name: 'Frontmatter include filter',
+      type: 'text',
+      scope_class: 'pro-setting',
+      description: 'Newline-delimited frontmatter matchers (ex. status or status:open). Case-insensitive key and value matching.',
+    },
+    "frontmatter_filter_exclude": {
+      group: 'Connections filters',
+      name: 'Frontmatter exclude filter',
+      type: 'text',
+      scope_class: 'pro-setting',
+      description: 'Newline-delimited frontmatter matchers removed from results. Exclude entries take precedence over include entries.',
+    },
+    // hide frontmatter blocks from connections results
+    "exclude_frontmatter_blocks": {
+      group: 'Connections filters',
+      name: "Hide frontmatter blocks in results",
+      type: "toggle",
+      scope_class: 'pro-setting',
+      description: "Show only sources in the connections results (no frontmatter blocks).",
+    },
   };
 
   if (!scope.env.smart_blocks.settings.embed_blocks) {
     config.results_collection_key = {
       type: 'html',
-      value: create_settings_section_heading('Connection results type', 'Enable "Embed blocks" in Smart Blocks settings to use block connections.'),
+      value: '<p>Enable "Embed blocks" in Smart Blocks settings to use block connections.</p>',
       name: 'Connection results type',
     };
   }
@@ -144,5 +226,4 @@ export default {
   item_type: ConnectionsList,
   settings_config,
 };
-
 

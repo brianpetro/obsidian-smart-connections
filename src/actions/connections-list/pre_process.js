@@ -15,6 +15,14 @@ export function pre_process(params) {
     params.filter.exclude_key_starts_with_any = [];
   }
 
+  if (!params.filter.frontmatter) params.filter.frontmatter = {};
+  if (!params.filter.frontmatter.include) {
+    params.filter.frontmatter.include = this.collection.frontmatter_inclusions;
+  }
+  if (!params.filter.frontmatter.exclude) {
+    params.filter.frontmatter.exclude = this.collection.frontmatter_exclusions;
+  }
+
   get_connections_feedback_items(this, params);
 
   // Exclusions
