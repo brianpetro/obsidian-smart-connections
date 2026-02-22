@@ -348,12 +348,14 @@ export const settings_config = {
     name: "Show full path",
     type: "toggle",
     description: "Turning on will include the folder path in the connections results.",
-    default: true,
+    // default: true,
+    group: "Connections list item"
   },
   "render_markdown": {
     name: "Render markdown",
     type: "toggle",
     description: "Turn off to prevent rendering markdown and display connection results as plain text.",
-    default: true,
+    // default: true,
+    group: "Connections list item"
   },
 };

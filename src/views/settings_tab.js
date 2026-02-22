@@ -53,35 +53,48 @@ export class ScEarlySettingsTab extends SmartPluginSettingsTab {
                 btn_icon: 'help-circle',
                 callback: () => window.open('https://smartconnections.app/smart-connections/settings/?utm_source=connections-settings-tab#connections-lists', '_external'),
               },
-            ]
+            ],
+            order: 1,
           },
           'Display': {
             heading_btn: {
               label: 'Settings documentation for Display',
               btn_icon: 'help-circle',
               callback: () => window.open('https://smartconnections.app/smart-connections/settings/?utm_source=connections-settings-tab#display', '_external'),
-            }
+            },
+            order: 2,
+          },
+          'Connections list item': {
+            heading_btn: {
+              label: 'Settings documentation for Connections List Items',
+              btn_icon: 'help-circle',
+              callback: () => window.open('https://smartconnections.app/smart-connections/settings/?utm_source=connections-settings-tab#connections-list-item', '_external'),
+            },
+            order: 3,
           },
           'Score algorithm': {
             heading_btn: {
               label: 'Settings documentation for Score Algorithms',
               btn_icon: 'help-circle',
               callback: () => window.open('https://smartconnections.app/smart-connections/settings/?utm_source=connections-settings-tab#score-algorithm', '_external'),
-            }
+            },
+            order: 4,
           },
           'Ranking algorithm': {
             heading_btn: {
               label: 'Settings documentation for Ranking Algorithms',
               btn_icon: 'help-circle',
               callback: () => window.open('https://smartconnections.app/smart-connections/settings/?utm_source=connections-settings-tab#ranking-algorithm', '_external'),
-            }
+            },
+            order: 5,
           },
           'Connections filters': {
             heading_btn: {
               label: 'Settings documentation for Filters',
               btn_icon: 'help-circle',
               callback: () => window.open('https://smartconnections.app/smart-connections/settings/?utm_source=connections-settings-tab#filters', '_external'),
-            }
+            },
+            order: 6,
           },
           'Inline connections': {
             heading_btn: [
@@ -95,14 +108,16 @@ export class ScEarlySettingsTab extends SmartPluginSettingsTab {
                 btn_icon: 'help-circle',
                 callback: () => window.open('https://smartconnections.app/smart-connections/settings/?utm_source=connections-settings-tab#inline-connections', '_external'),
               },
-            ]
+            ],
+            order: 7,
           },
           'Footer connections': {
             heading_btn: {
               label: 'Settings documentation for Footer Connections',
               btn_icon: 'help-circle',
               callback: () => window.open('https://smartconnections.app/smart-connections/settings/?utm_source=connections-settings-tab#footer-connections', '_external'),
-            }
+            },
+            order: 8,
           },
         }
       }
