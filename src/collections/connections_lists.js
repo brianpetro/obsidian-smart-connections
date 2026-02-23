@@ -103,7 +103,7 @@ export class ConnectionsLists extends Collection {
 
   get connections_list_component_settings_config() {
     // TEMP 2026-02-23 (migrating towards dynamic component settings)
-    if(!this.settings?.connections_list_component_key || ['none', 'connections_list_v4_2'].includes(this.settings.connections_list_component_key)) {
+    if(!this.settings?.connections_list_component_key || (!this.env.is_pro && ['none', 'connections_list_v4_2'].includes(this.settings.connections_list_component_key))) {
       this.settings.connections_list_component_key = 'connections_list_v4';
     }
     if(!this.settings?.components?.connections_list_v4) {

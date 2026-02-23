@@ -86,7 +86,7 @@ function find_result_element(list_container, detail = {}) {
   }) || null;
 }
 
-export const display_name = 'PRO: Graph + List';
+export const display_name = 'Version 4.0 (Graph + List)';
 
 export const settings_config = {
   "show_graph": {
