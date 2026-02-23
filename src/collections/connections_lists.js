@@ -2,6 +2,7 @@ import { Collection } from 'smart-collections';
 import { parse_frontmatter_filter_lines } from 'smart-entities/utils/frontmatter_filter.js';
 import { ConnectionsList } from '../items/connections_list.js';
 import { migrate_connections_lists_settings } from '../../migrations/migrate_connections_lists_settings.js';
+import { insert_settings_after } from '../utils/insert_settings_after.js';
 
 /**
  * Configuration for filtering connections results.
@@ -39,6 +40,7 @@ export class ConnectionsLists extends Collection {
       results_limit: 20,
       connections_view_location: 'right',
       exclude_frontmatter_blocks: true,
+      connections_list_component_key: 'connections_list_v4',
       connections_list_item_component_key: 'connections_list_item_v3',
       frontmatter_filter_include: '',
       frontmatter_filter_exclude: '',
@@ -98,10 +100,37 @@ export class ConnectionsLists extends Collection {
   get frontmatter_exclusions() {
     return parse_frontmatter_filter_lines(this.settings.frontmatter_filter_exclude);
   }
+
+  get connections_list_component_settings_config() {
+    // TEMP 2026-02-23 (migrating towards dynamic component settings)
+    if(!this.settings?.connections_list_component_key || ['none', 'connections_list_v4_2'].includes(this.settings.connections_list_component_key)) {
+      this.settings.connections_list_component_key = 'connections_list_v4';
+    }
+    if(!this.settings?.components?.connections_list_v4) {
+      if(!this.settings.components) this.settings.components = {};
+      this.settings.components.connections_list_v4 = { ...this.constructor.default_settings.components.connections_list_v4 };
+    }
+    // END TEMP
+    const component_key = this.settings.connections_list_component_key;
+    if(!component_key || component_key === 'none') return null;
+    const component_module = this.env.config.components?.[component_key];
+    const config = typeof component_module?.settings_config === 'function'
+      ? component_module.settings_config(this)
+      : component_module?.settings_config
+    ;
+    if (!config) return null;
+    // prepend `components.${key}.` to each config key
+    return Object.fromEntries(
+      Object.entries(config)
+        .map(([k, v]) => {
+          return [`components.${component_key}.${k}`, v]
+        })
+    );
+  }
 }
 
 export function settings_config (scope) {
-  const config = {
+  let config = {
     "results_collection_key": {
       name: "Connection results type",
       type: "dropdown",
@@ -218,6 +247,10 @@ export function settings_config (scope) {
       value: '<p>Enable "Embed blocks" in Smart Blocks settings to use block connections.</p>',
       name: 'Connection results type',
     };
+  }
+
+  if(scope.connections_list_component_settings_config){
+    config = insert_settings_after('results_limit', config, scope.connections_list_component_settings_config);
   }
 
   return config;
