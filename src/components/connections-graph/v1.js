@@ -1,5 +1,5 @@
 import styles_css from './v1.css';
-import { get_item_display_name } from 'smart-connections-obsidian/src/utils/get_item_display_name.js';
+import { get_item_display_name } from '../../utils/get_item_display_name.js';
 import { cos_sim } from 'smart-utils/cos_sim.js';
 import { register_item_drag } from 'obsidian-smart-env/src/utils/register_item_drag.js';
 import { register_item_hover_popover } from 'obsidian-smart-env/src/utils/register_item_hover_popover.js';
@@ -7,7 +7,7 @@ import {
   build_prefixed_connection_key,
   is_connection_hidden,
   is_connection_pinned,
-} from 'smart-connections-obsidian/src/utils/connections_list_item_state.js';
+} from '../../utils/connections_list_item_state.js';
 import {
   hash_to_unit,
   seeded_angle,

@@ -3,8 +3,10 @@ import connections_lists from './src/collections/connections_lists.js';
 import { ConnectionsList } from './src/items/connections_list.js';
 
 import { render as connections_codeblock_component } from './src/components/connections_codeblock.js';
+import { render as connections_graph_v1_component } from './src/components/connections-graph/v1.js';
 import { render as connections_list_item_v3_component, settings_config as connections_list_item_v3_component_settings_config } from './src/components/connections-list-item/v3.js';
 import { render as connections_list_v3_component, display_name as connections_list_v3_component_display_name } from './src/components/connections-list/v3.js';
+import { render as connections_list_v4_component, settings_config as connections_list_v4_component_settings_config, display_name as connections_list_v4_component_display_name } from './src/components/connections-list/v4.js';
 import { render as connections_settings_header_component } from './src/components/connections-settings/header.js';
 import { render as connections_view_v3_component } from './src/components/connections-view/v3.js';
 import { render as lookup_item_view_component } from './src/components/lookup_item_view.js';
@@ -26,8 +28,10 @@ export const smart_env_config = {
   },
   components: {
     connections_codeblock: { render: connections_codeblock_component },
+    connections_graph_v1: { render: connections_graph_v1_component },
     connections_list_item_v3: { render: connections_list_item_v3_component, settings_config: connections_list_item_v3_component_settings_config },
     connections_list_v3: { render: connections_list_v3_component, display_name: connections_list_v3_component_display_name },
+    connections_list_v4: { render: connections_list_v4_component, settings_config: connections_list_v4_component_settings_config, display_name: connections_list_v4_component_display_name },
     connections_settings_header: { render: connections_settings_header_component },
     connections_view_v3: { render: connections_view_v3_component },
     lookup_item_view: { render: lookup_item_view_component },
