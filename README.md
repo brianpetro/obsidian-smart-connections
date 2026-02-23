@@ -404,3 +404,8 @@ Together with Smart Environment, Smart Plugins are an experiment in how AI can e
 > *Smart Connections isn't a silver-bullet*. But, it is the a key Smart Tool that can **empower us to do more!**
 > 
 
+## License
+
+Smart Connections license (Smart Plugins License): https://smartconnections.app/legal/license/
+
+This repository is source available. You may use, modify, and redistribute the code, with a restriction on general-purpose competing Obsidian offerings. See the license page above for a plain-English summary, scenarios, FAQ, and full text.
