@@ -43,6 +43,9 @@ export class ConnectionsLists extends Collection {
       frontmatter_filter_include: '',
       frontmatter_filter_exclude: '',
       components: {
+        connections_list_v4: {
+          show_graph: true,
+        },
         connections_list_item_v3: {
           render_markdown: true,
           show_full_path: false,
