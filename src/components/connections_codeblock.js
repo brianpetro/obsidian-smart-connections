@@ -98,7 +98,7 @@ export async function post_process(connections_list, container, opts = {}) {
     console.log('Rendering connections list in codeblock view');
     const connections_list_component_key = opts.connections_list_component_key
       || connections_list.connections_list_component_key
-      || 'connections_list_v3'
+      || 'connections_list_v4'
     ;
     const list = await env.smart_components.render_component(
       connections_list_component_key,

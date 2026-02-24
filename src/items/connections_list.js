@@ -97,7 +97,7 @@ export class ConnectionsList extends CollectionItem {
       || this.settings?.connections_list_component_key
     ;
     if(this.env.config.components[stored_key]) return stored_key;
-    return 'connections_list_v3'; // TEMP default
+    return 'connections_list_v4'; // TEMP default
   }
 
 }

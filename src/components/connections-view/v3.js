@@ -213,7 +213,7 @@ export async function post_process(view, container, opts = {}) {
   // Render results
   const connections_list_component_key = opts.connections_list_component_key
     || connections_list.connections_list_component_key
-    || 'connections_list_v3'
+    || 'connections_list_v4'
   ;
   // console.log('connections_list_component_key:', connections_list_component_key);
   const list = await env.smart_components.render_component(connections_list_component_key, connections_list, opts);
