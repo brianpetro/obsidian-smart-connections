@@ -27,11 +27,11 @@ export async function post_process(connections_list, container, opts = {}) {
   const list_container = container.querySelector('.connections-list.sc-list');
   container.dataset.key = connections_list.item.key;
   const results = await connections_list.get_results(opts);
-  const connections_settings = opts.connections_settings
+  const connections_settings = opts.connections_settings // use opts.connections_settings for passing codeblock or footer-specific settings
     ?? env.connections_lists.settings
   ;
   const component_settings = connections_settings.components?.connections_list_v4 || {};
-  const show_graph = component_settings.show_graph;
+  const show_graph = opts.show_graph ?? component_settings.show_graph;
   if(show_graph) {
     try {
       const graph = await env.smart_components.render_component('connections_graph_v1', connections_list, opts);
