@@ -1,3 +1,4 @@
+// 2026-02-24 Should be safe to remove, leaving temporarily
 /**
  * @returns {Promise<string>} A promise that resolves to the .sc-list HTML string.
  */
