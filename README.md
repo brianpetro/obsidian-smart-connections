@@ -57,15 +57,22 @@ Access the Getting Started guide from Smart Connections settings.
 Watch the [feature walkthrough slideshow](https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-readme) or read the [Getting Started guide](https://smartconnections.app/smart-connections/getting-started/?utm_source=connections-readme) to see how Smart Connections fits into your workflow, including Connections view, Lookup view, inline Pro features, and Smart Environment settings.
 #### Learn more
 
-- [Smart Connections overview](https://smartconnections.app/smart-connections/?utm_source=connections-readme)
-- [Getting Started](https://smartconnections.app/smart-connections/getting-started/?utm_source=connections-readme)
-- [Connections list feature](https://smartconnections.app/smart-connections/list-feature/?utm_source=connections-readme)
-- [Lookup view](https://smartconnections.app/smart-connections/lookup/?utm_source=connections-readme)
-- [Settings guide](https://smartconnections.app/smart-connections/settings/?utm_source=connections-readme)
-- [Inline connections (Pro)](https://smartconnections.app/smart-connections/inline/?utm_source=connections-readme)
-- [Bases integration (Pro)](https://smartconnections.app/smart-connections/bases/?utm_source=connections-readme)
-- [Pro plugins overview](https://smartconnections.app/pro-plugins/?utm_source=connections-readme)
-- [Introducing Pro plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme)
+| Path | Use it for |
+| --- | --- |
+| [Smart Connections overview](https://smartconnections.app/smart-connections/?utm_source=connections-readme) | Understand what Smart Connections does end-to-end. |
+| [Getting Started](https://smartconnections.app/smart-connections/getting-started/?utm_source=connections-readme) | Install and reach your first successful workflow fast. |
+| [Connections list feature](https://smartconnections.app/smart-connections/list-feature/?utm_source=connections-readme) | See how related note suggestions are ranked and rendered. |
+| [Lookup view](https://smartconnections.app/smart-connections/lookup/?utm_source=connections-readme) | Run semantic searches across your vault on demand. |
+| [Settings guide](https://smartconnections.app/smart-connections/settings/?utm_source=connections-readme) | Configure indexing, model behavior, and UI defaults. |
+
+**Pro surfaces**
+
+| Path                                                                                                             | Use it for                                            |
+| ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| [Inline connections (Pro)](https://smartconnections.app/smart-connections/inline/?utm_source=connections-readme) | Trigger note suggestions while writing in the editor. |
+| [Bases integration (Pro)](https://smartconnections.app/smart-connections/bases/?utm_source=connections-readme)   | Blend semantic context with Obsidian Bases workflows. |
+| [Pro plugins overview](https://smartconnections.app/pro-plugins/?utm_source=connections-readme)                  | Compare active Pro plugin capabilities and plans.     |
+
 
 ## Getting started
 ### It "just works"
