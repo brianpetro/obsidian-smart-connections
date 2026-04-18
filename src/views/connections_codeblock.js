@@ -8,7 +8,14 @@ export async function register_smart_connections_codeblock(plugin) {
     async (cb_content, container, mpp_ctx) => {
       container.empty();
       container.createEl('span', { text: 'Loading…' });
-      const cb_config = JSON.parse(cb_content.trim() || '{}');
+      let cb_config = {};
+      try {
+        cb_config = JSON.parse(cb_content.trim() || '{}');
+      } catch (e) {
+        container.empty();
+        container.createEl('p', { text: 'Invalid JSON in smart-connections block: ' + e.message });
+        return;
+      }
       const env = plugin.env;
       const entity =
         env.smart_sources.get(mpp_ctx.sourcePath) ??
