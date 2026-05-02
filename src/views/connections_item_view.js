@@ -64,8 +64,12 @@ export class ConnectionsItemView extends SmartItemView {
         }
       }
     });
-    register_env_event_listener(this, 'item:embedded', (event) => {
-      if(event.item_key === this.current?.key && is_visible(this.container)){
+    register_env_event_listener(this, 'items:embedded', (event = {}) => {
+      if(
+        event.collection_key === this.current?.collection_key
+        && event.keys?.includes(this.current?.key)
+        && is_visible(this.container)
+      ){
         this.render_view({connections_item: this.current});
       }
     });
