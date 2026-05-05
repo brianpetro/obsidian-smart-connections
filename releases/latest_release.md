@@ -1,23 +1,16 @@
-[Also in this release: suite-wide Smart Environment improvements for every Smart Plugin. Read the Substrate Update.](https://smartconnections.app/smart-plugins/substrate-update/)
+# Smart Connections `v4.5`
+## Connections Footer is now a Core feature!
+Footer connections are now included in Smart Connections Core, bringing the most mobile-friendly and no-panel writing surface to every install. Connections Pro continues to add inline discovery, Bases workflows, and advanced ranking control.
+- Place your connections list in the footer of every note.
+- Toggle footer connections from the command palette (hotkey), ribbon icon, or settings.
 
-# Smart Connections Core `v4.3`
-
-Smart Connections Core v4.3 makes discovery easier to see and easier to place in your workspace. This release adds a graph view for connections lists, gives you control over where the Connections view opens, and improves recovery when embedding work was interrupted.
-
-## Highlights
-
-### See relationships from more than one angle
-
+## Recent highlights
 - Connections lists can now open with a graph view.
-- A new setting lets you choose whether that graph appears in connections lists by default.
-- This makes it easier to move from ranked results to visual exploration when you want a wider view of your note landscape.
+- [Substrate Update.](https://smartconnections.app/smart-plugins/substrate-update/)
 
-### Put Connections where it fits your workflow
+## Additional notes
 
-- Connections view open location is now configurable.
-- Keep related notes where they help most: beside your writing, in a side workspace, or wherever you prefer to review signal.
+- Fixed: transformers embedding model should fallback to non-GPU v4 usage and subsequently v3 if that still fails
+- Fixed: should only calculate connections results once (improves performance)
 
-### More dependable daily use
-
-- Block embedding can now resume more predictably after a restart if earlier processing was interrupted.
-- The result is a steadier day-to-day Connections experience as your vault keeps changing.
+[More details about the latest releases](https://smartconnections.app/smart-connections/releases/4-5/)
