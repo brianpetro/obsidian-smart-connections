@@ -34,27 +34,28 @@
     "axios": "^1.6.7",
     "dotenv": "^16.3.1",
     "esbuild": "^0.25.9",
+    "eslint": "^10.3.0",
     "swagger-jsdoc": "^6.2.8"
   },
   "dependencies": {
     "js-tiktoken": "^1.0.19",
     "obsidian": "latest",
+    "obsidian-smart-env": "file:../obsidian-smart-env",
     "smart-blocks": "file:../jsbrains/smart-blocks",
     "smart-chat-model": "file:../jsbrains/smart-chat-model",
     "smart-collections": "file:../jsbrains/smart-collections",
+    "smart-context-obsidian": "file:../smart-context-obsidian",
     "smart-embed-model": "file:../jsbrains/smart-embed-model",
     "smart-entities": "file:../jsbrains/smart-entities",
-    "obsidian-smart-env": "file:../obsidian-smart-env",
     "smart-file-system": "file:../jsbrains/smart-fs",
     "smart-http-request": "file:../jsbrains/smart-http-request",
+    "smart-lookup-obsidian": "file:../smart-lookup-obsidian",
     "smart-model": "file:../jsbrains/smart-model",
     "smart-notices": "file:../jsbrains/smart-notices",
     "smart-settings": "file:../jsbrains/smart-settings",
     "smart-sources": "file:../jsbrains/smart-sources",
     "smart-utils": "file:../jsbrains/smart-utils",
-    "smart-view": "file:../jsbrains/smart-view",
-    "smart-context-obsidian": "file:../smart-context-obsidian",
-    "smart-lookup-obsidian": "file:../smart-lookup-obsidian"
+    "smart-view": "file:../jsbrains/smart-view"
   },
   "ava": {
     "files": [
