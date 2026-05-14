@@ -2,6 +2,7 @@
 import styles from './connections_footer_view.css';
 
 const FOOTER_FOLDED_STORAGE_KEY = 'sc_footer_connections_folded';
+const FOOTER_LIST_COLLAPSED_CLASS = 'sc-footer-list-collapsed';
 
 function get_footer_connections_folded() {
   if (typeof localStorage === 'undefined') return false;
@@ -15,15 +16,14 @@ function set_footer_connections_folded(folded) {
 
 function apply_footer_fold_state(header_container, list_container, folded) {
   if (!header_container || !list_container) return;
+  list_container.classList.toggle(FOOTER_LIST_COLLAPSED_CLASS, Boolean(folded));
   if (folded) {
     header_container.setAttribute('aria-label', 'Click to expand');
     header_container.classList.add('is-collapsed');
-    list_container.style.display = 'none';
     return;
   }
   header_container.setAttribute('aria-label', 'Click to collapse');
   header_container.classList.remove('is-collapsed');
-  list_container.style.display = 'block';
 }
 
 /**
@@ -36,7 +36,7 @@ export async function build_html(view, opts = {}) {
   // Previous footer wrapper kept the legacy "connections-view-early" class:
   // <div class="connections-view connections-footer-view sc-connections-view connections-view-early">
   const html = `<div class="embedded-backlinks">
-    <div class="backlink-pane" style="position: relative;">
+    <div class="backlink-pane sc-footer-backlink-pane">
       <div class="tree-item-self is-clickable" aria-label="Click to collapse">
         <div class="tree-item-inner">Smart Connections</div>
       </div>
@@ -105,3 +105,4 @@ export async function post_process(view, container, opts = {}) {
   list_container.appendChild(list);
   return container;
 }
+

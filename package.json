@@ -5,6 +5,7 @@
   "description": "Link and chat with your notes using ChatGPT and embedding artificial intelligence from OpenAI.",
   "scripts": {
     "build": "node esbuild.js",
+    "build-dev": "node --env-file=.env esbuild.js",
     "release": "node release.js",
     "prepare-release": "node --env-file=.env releases/run_format_release_notes.js",
     "test": "npx ava --verbose"

@@ -20,6 +20,7 @@ import { register_item_hover_popover } from 'obsidian-smart-env/src/utils/regist
 import { register_item_drag } from 'obsidian-smart-env/src/utils/register_item_drag.js';
 import { open_source } from "obsidian-smart-env/src/utils/open_source.js";
 
+const SC_RESULT_HIDDEN_CLASS = 'sc-result-hidden-by-feedback';
 
 /**
  * Builds the HTML string for the result component.
@@ -102,7 +103,7 @@ export async function post_process(result_scope, container, params = {}) {
   container.dataset.prefixedKey = prefixed_key;
   const connection_state = source_item?.data?.connections;
   if (is_connection_hidden(connection_state, prefixed_key)) {
-    container.style.display = 'none';
+    container.classList.add(SC_RESULT_HIDDEN_CLASS);
     container.dataset.hidden = 'true';
   }
   if (is_connection_pinned(connection_state, prefixed_key)) {
@@ -181,7 +182,7 @@ export async function post_process(result_scope, container, params = {}) {
               if (!Object.keys(source_item.data.hidden_connections).length) delete source_item.data.hidden_connections;
             }
             source_item.queue_save();
-            container.style.display = 'none'; // hide the result element
+            container.classList.add(SC_RESULT_HIDDEN_CLASS);
             container.dataset.hidden = 'true';
             source_item.collection.save();
             source_item.emit_event('connections:hidden_item');

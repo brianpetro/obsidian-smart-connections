@@ -34,6 +34,10 @@ a.sc-result-file-title > .sc-breadcrumb-separator {
   color: color-mix(in srgb, var(--text-normal) 50%, transparent) !important;
 }
 
+.sc-result.sc-result-hidden-by-feedback {
+  display: none;
+}
+
 .sc-result.sc-result-graph-focus {
   outline: 2px solid color-mix(in srgb, var(--interactive-accent) 70%, transparent);
   border-radius: var(--radius-s);
@@ -42,3 +46,4 @@ a.sc-result-file-title > .sc-breadcrumb-separator {
     0 0 0.5rem color-mix(in srgb, var(--interactive-accent) 45%, transparent);
   transition: outline 120ms ease, box-shadow 120ms ease;
 }
+

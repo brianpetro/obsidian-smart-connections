@@ -1,4 +1,16 @@
+.sc-connections-footer-hidden {
+  display: none;
+}
+
+.sc-footer-backlink-pane {
+  position: relative;
+}
+
 .connections-footer-view-shell {
+  .connections-list-container.sc-footer-list-collapsed {
+    display: none;
+  }
+
   .connections-list {
     padding-top: 0.85rem;
 
@@ -15,3 +27,4 @@
     }
   }
 }
+

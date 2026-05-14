@@ -3,6 +3,8 @@ import { StateEffect } from '@codemirror/state';
 
 export const set_connections_footer_dom_effect = StateEffect.define();
 
+const FOOTER_HIDDEN_CLASS = 'sc-connections-footer-hidden';
+
 /* ------------------------------------------------------------------ plugin */
 export const connections_footer_plugin = ViewPlugin.fromClass(
   class {
@@ -25,7 +27,7 @@ export const connections_footer_plugin = ViewPlugin.fromClass(
         for (const ef of tr.effects) {
           if (ef.is(set_connections_footer_dom_effect)) {
             if (ef.value === null) {
-              if (this.container_el) this.container_el.style.display = 'none';
+              this.#set_footer_visibility(false);
             } else {
               this.render_footer(ef.value);
             }
@@ -44,7 +46,12 @@ export const connections_footer_plugin = ViewPlugin.fromClass(
         this.#ensure_dom_inserted();
       }
       if (!this.container_el) return;
-      this.container_el.style.display = this.connections_footer_frag ? 'block' : 'none';
+      this.#set_footer_visibility(Boolean(this.connections_footer_frag));
+    }
+
+    #set_footer_visibility(visible) {
+      if (!this.container_el) return;
+      this.container_el.classList.toggle(FOOTER_HIDDEN_CLASS, !visible);
     }
 
     #ensure_dom_inserted() {
@@ -59,3 +66,4 @@ export const connections_footer_plugin = ViewPlugin.fromClass(
 );
 
 export default connections_footer_plugin;
+
