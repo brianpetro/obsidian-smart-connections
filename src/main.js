@@ -187,7 +187,6 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
       await this.set_last_known_version(this.manifest.version);
     }
     setTimeout(this.check_for_update.bind(this), 3000);
-    setInterval(this.check_for_update.bind(this), 10800000);
   }
 
   async check_for_update() {
