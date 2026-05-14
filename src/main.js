@@ -13,6 +13,9 @@ import { ScEarlySettingsTab } from "./views/settings_tab.js";
 
 import { ReleaseNotesView } from "./views/release_notes_view.js";
 
+// DEPRECATED 2026-05-14: Smart Lookup fallback disabled because Smart Lookup is available in plugin index.
+// import { ConnectionsLookupItemView } from './views/lookup_item_view.js';
+
 import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
 import { get_random_connection } from "./utils/get_random_connection.js";
 import { add_smart_dice_icon } from "./utils/add_icons.js";
@@ -20,7 +23,6 @@ import { should_relocate_leaf } from "./utils/view_leaf_location.js";
 
 import { SmartPlugin } from "obsidian-smart-env/smart_plugin.js";
 import { ConnectionsItemView } from "./views/connections_item_view.js";
-import { ConnectionsLookupItemView } from './views/lookup_item_view.js';
 import { connections_footer_plugin } from './views/connections_footer_deco.js';
 import { ConnectionsFooterView } from './views/connections_footer_view.js';
 import { register_smart_connections_codeblock } from "./views/connections_codeblock.js";
@@ -43,8 +45,9 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     return {
       ConnectionsItemView,
       ReleaseNotesView: this.ReleaseNotesView,
-      // TEMP during transition to Lookup as standalone plugin (conditionally include ConnectionsLookupItemView if Smart Lookup is not enabled to avoid conflicts)
-      ...(!this.app.plugins.enabledPlugins.has('smart-lookup') ? {ConnectionsLookupItemView} : {}),
+      // DEPRECATED 2026-05-14: Smart Lookup is a standalone plugin available in plugin index.
+      // Keep the legacy Connections-hosted Lookup view disabled to avoid importing smart-lookup-obsidian here.
+      // ...(!this.app.plugins.enabledPlugins.has('smart-lookup') ? { ConnectionsLookupItemView } : {}),
     };
   }
 
@@ -118,17 +121,18 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
         description: "Smart Connections: Open random connection",
         callback: () => { this.open_random_connection(); }
       },
-      // TEMP during transition to Lookup as standalone plugin (conditionally include ribbon icon if Smart Lookup is not enabled to avoid conflicts)
-      ...(app.plugins.enabledPlugins.has('smart-lookup')
-        ? {}
-        : {
-          lookup: {
-            icon_name: "smart-lookup",
-            description: "Smart Lookup: Open lookup view",
-            callback: () => { this.open_lookup_view_connections(); }
-          },
-        }
-      ),
+      // DEPRECATED 2026-05-14: Smart Lookup is a standalone plugin available in plugin index.
+      // The legacy Smart Connections Lookup ribbon icon depended on ConnectionsLookupItemView.
+      // ...(app.plugins.enabledPlugins.has('smart-lookup')
+      //   ? {}
+      //   : {
+      //     lookup: {
+      //       icon_name: "smart-lookup",
+      //       description: "Smart Lookup: Open lookup view",
+      //       callback: () => { this.open_lookup_view_connections(); }
+      //     },
+      //   }
+      // ),
     };
   }
 

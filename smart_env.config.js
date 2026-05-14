@@ -13,9 +13,6 @@ import { render as connections_list_v4_component, settings_config as connections
 import { render as connections_settings_header_component } from './src/components/connections-settings/header.js';
 import { render as connections_settings_lookup_callout_component } from './src/components/connections-settings/lookup_callout.js';
 import { render as connections_view_v3_component } from './src/components/connections-view/v3.js';
-import { render as lookup_item_view_component, version as lookup_item_view_component_version } from './src/components/lookup/item_view.js';
-import { render as lookup_v3_list_component, version as lookup_v3_list_component_version } from './src/components/lookup/v3/list.js';
-import { render as lookup_v3_list_item_component, version as lookup_v3_list_item_component_version } from './src/components/lookup/v3/list_item.js';
 
 import { pre_process as connections_list_pre_process_action, pre_process as connections_list_pre_process_action_pre_process } from './src/actions/connections-list/pre_process.js';
 
@@ -39,10 +36,7 @@ export const smart_env_config = {
     connections_list_v4: { render: connections_list_v4_component, settings_config: connections_list_v4_component_settings_config, display_name: connections_list_v4_component_display_name, version: "2.4.5" },
     connections_settings_header: { render: connections_settings_header_component, version: "2.4.5" },
     connections_settings_lookup_callout: { render: connections_settings_lookup_callout_component, version: "2.4.5" },
-    connections_view_v3: { render: connections_view_v3_component, version: "2.4.5" },
-    lookup_item_view: { render: lookup_item_view_component, version: lookup_item_view_component_version },
-    lookup_v3_list: { render: lookup_v3_list_component, version: lookup_v3_list_component_version },
-    lookup_v3_list_item: { render: lookup_v3_list_item_component, version: lookup_v3_list_item_component_version }
+    connections_view_v3: { render: connections_view_v3_component, version: "2.4.5" }
   },
   actions: {
     connections_list_pre_process: { action: connections_list_pre_process_action, pre_process: connections_list_pre_process_action_pre_process, version: "2.4.5" }
