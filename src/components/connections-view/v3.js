@@ -127,14 +127,14 @@ export async function post_process(view, container, opts = {}) {
           results: visible_results
         });
         menu_item
-          .setTitle('Send results to Smart Context')
+          .setTitle('Send results to context')
           .setIcon('briefcase')
           .setDisabled(!context_items.length)
           .onClick(async () => {
             if (!context_items.length) {
               env.events.emit('connections:send_to_context_empty', {
                 level: 'warning',
-                message: 'No connection results to send to Smart Context.',
+                message: 'No connection results to send to context.',
                 event_source: 'connections_view_menu',
               });
               return;

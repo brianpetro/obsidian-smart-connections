@@ -25,26 +25,26 @@ export const smart_env_config = {
     connections_lists
   },
   items: {
-    connections_list: { class: ConnectionsList, version: "2.4.4" }
+    connections_list: { class: ConnectionsList, version: "2.4.5" }
   },
   modules: {
 
   },
   components: {
-    connections_codeblock: { render: connections_codeblock_component, version: "2.4.4" },
-    connections_footer_view: { render: connections_footer_view_component, version: "2.4.4" },
-    connections_graph_v1: { render: connections_graph_v1_component, version: "2.4.4" },
-    connections_list_item_v3: { render: connections_list_item_v3_component, settings_config: connections_list_item_v3_component_settings_config, version: "2.4.4" },
-    connections_list_v3: { render: connections_list_v3_component, display_name: connections_list_v3_component_display_name, version: "2.4.4" },
-    connections_list_v4: { render: connections_list_v4_component, settings_config: connections_list_v4_component_settings_config, display_name: connections_list_v4_component_display_name, version: "2.4.4" },
-    connections_settings_header: { render: connections_settings_header_component, version: "2.4.4" },
-    connections_settings_lookup_callout: { render: connections_settings_lookup_callout_component, version: "2.4.4" },
-    connections_view_v3: { render: connections_view_v3_component, version: "2.4.4" },
+    connections_codeblock: { render: connections_codeblock_component, version: "2.4.5" },
+    connections_footer_view: { render: connections_footer_view_component, version: "2.4.5" },
+    connections_graph_v1: { render: connections_graph_v1_component, version: "2.4.5" },
+    connections_list_item_v3: { render: connections_list_item_v3_component, settings_config: connections_list_item_v3_component_settings_config, version: "2.4.5" },
+    connections_list_v3: { render: connections_list_v3_component, display_name: connections_list_v3_component_display_name, version: "2.4.5" },
+    connections_list_v4: { render: connections_list_v4_component, settings_config: connections_list_v4_component_settings_config, display_name: connections_list_v4_component_display_name, version: "2.4.5" },
+    connections_settings_header: { render: connections_settings_header_component, version: "2.4.5" },
+    connections_settings_lookup_callout: { render: connections_settings_lookup_callout_component, version: "2.4.5" },
+    connections_view_v3: { render: connections_view_v3_component, version: "2.4.5" },
     lookup_item_view: { render: lookup_item_view_component, version: lookup_item_view_component_version },
     lookup_v3_list: { render: lookup_v3_list_component, version: lookup_v3_list_component_version },
     lookup_v3_list_item: { render: lookup_v3_list_item_component, version: lookup_v3_list_item_component_version }
   },
   actions: {
-    connections_list_pre_process: { action: connections_list_pre_process_action, pre_process: connections_list_pre_process_action_pre_process, version: "2.4.4" }
+    connections_list_pre_process: { action: connections_list_pre_process_action, pre_process: connections_list_pre_process_action_pre_process, version: "2.4.5" }
   }
 };

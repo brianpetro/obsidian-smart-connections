@@ -1,0 +1,40 @@
+name: Release Smart Plugin Core
+
+on:
+  workflow_dispatch:
+    inputs:
+      obsidian_smart_env_ref:
+        description: Full commit SHA for brianpetro/obsidian-smart-env.
+        required: true
+        type: string
+      jsbrains_ref:
+        description: Full commit SHA for brianpetro/jsbrains.
+        required: true
+        type: string
+      release_flags:
+        description: Optional release.js flags, such as --draft or --replace-existing. Do not include --use-existing-release-notes; the reusable workflow adds it.
+        required: false
+        default: ''
+        type: string
+      attest_release_assets:
+        description: Generate artifact attestations for built release assets.
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  release:
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+
+    uses: brianpetro/obsidian-smart-env/.github/workflows/release-smart-plugin.yml@efe85abc6195a6a867fe4144b2d75d69e88c8a93
+    with:
+      obsidian_smart_env_ref: ${{ inputs.obsidian_smart_env_ref }}
+      jsbrains_ref: ${{ inputs.jsbrains_ref }}
+      release_flags: ${{ inputs.release_flags }}
+      attest_release_assets: ${{ inputs.attest_release_assets }}
+      dependency_owner: brianpetro
+    secrets: inherit

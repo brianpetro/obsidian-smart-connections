@@ -21,7 +21,7 @@ export class ScEarlySettingsTab extends SmartPluginSettingsTab {
   async render_plugin_settings(container) {
     if (!container) return;
     container.empty?.();
-    container.innerHTML = '<div class="sc-loading">Loading main settings...</div>';
+    container.createDiv({ text: 'Loading main settings...', cls: 'sc-loading' });
 
     container.empty?.();
 

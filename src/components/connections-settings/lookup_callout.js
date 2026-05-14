@@ -32,14 +32,14 @@ function post_process(plugin, container) {
   const callout_text = content_container.querySelector('p');
   const callout_btn = content_container.querySelector('button');
   if (has_lookup) {
-    callout_text.textContent = 'Smart Lookup now has its own settings tab.';
+    callout_text.textContent = 'Lookup now has its own settings tab.';
     callout_btn.textContent = 'Open lookup settings';
     callout_btn.addEventListener('click', () => {
       plugin.app.setting.openTabById('smart-lookup');
     });
   } else {
-    callout_text.textContent = 'Smart Lookup is moving to a dedicated plugin. Please install Smart Lookup to continue using lookup features and access Lookup settings.';
-    callout_btn.textContent = 'Install Smart Lookup';
+    callout_text.textContent = 'Lookup is moving to a dedicated plugin. Please install "Smart Lookup" to continue using lookup features and access lookup settings.';
+    callout_btn.textContent = 'Install "Smart Lookup"';
     callout_btn.addEventListener('click', () => install_smart_lookup(plugin));
   }
 }

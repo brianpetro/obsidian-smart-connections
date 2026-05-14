@@ -38,7 +38,7 @@ export async function post_process(connections_list, container, opts = {}) {
       this.empty(graph_container);
       graph_container.appendChild(graph);
       register_graph_events(graph, list_container);
-    } catch (_err) {
+    } catch () {
       this.empty(graph_container);
     }
   }
@@ -73,8 +73,7 @@ function focus_result_from_graph(list_container, detail = {}) {
   if (target.classList.contains('sc-collapsed')) target.classList.remove('sc-collapsed');
   target.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
   target.classList.add(GRAPH_FOCUS_CLASS);
-  const schedule = typeof window !== 'undefined' ? window.setTimeout : setTimeout;
-  schedule?.(() => target.classList.remove(GRAPH_FOCUS_CLASS), GRAPH_FOCUS_TIMEOUT_MS);
+  window.setTimeout?.(() => target.classList.remove(GRAPH_FOCUS_CLASS), GRAPH_FOCUS_TIMEOUT_MS);
 }
 
 function find_result_element(list_container, detail = {}) {

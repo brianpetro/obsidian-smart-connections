@@ -112,7 +112,7 @@ function parse_prefixed_key(prefixed_key) {
 const D3_CDN_URL = 'https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js';
 const D3_EXPECTED_MAJOR = '7.';
 const D3_INTEGRITY_SHA256 =
-  (typeof globalThis !== 'undefined' && globalThis.SC_D3_INTEGRITY_SHA256) ||
+  (typeof activeWindow !== 'undefined' && activeWindow.SC_D3_INTEGRITY_SHA256) ||
   '';
 
 /**
@@ -135,7 +135,7 @@ function validate_d3_instance(d3) {
  * @returns {Promise<typeof import('d3')>}
  */
 async function load_d3() {
-  const g = typeof globalThis !== 'undefined' ? globalThis : window;
+  const g = typeof activeWindow !== 'undefined' ? activeWindow : window;
 
   if (g.d3) {
     validate_d3_instance(g.d3);
@@ -144,7 +144,7 @@ async function load_d3() {
 
   const existing =
     typeof document !== 'undefined'
-      ? document.querySelector('script[data-sc-d3]')
+      ? activeDocument.querySelector('script[data-sc-d3]')
       : null;
   if (existing && g.d3) {
     validate_d3_instance(g.d3);
@@ -152,12 +152,12 @@ async function load_d3() {
   }
 
   const d3 = await new Promise((resolve, reject) => {
-    if (typeof document === 'undefined' || !document.head) {
-      reject(new Error('D3 loader: document.head not available'));
+    if (typeof document === 'undefined' || !activeDocument.head) {
+      reject(new Error('D3 loader: activeDocument.head not available'));
       return;
     }
 
-    const script = document.createElement('script');
+    const script = activeDocument.createElement('script');
     script.src = D3_CDN_URL;
     script.async = true;
     script.setAttribute('data-sc-d3', 'true');
@@ -180,7 +180,7 @@ async function load_d3() {
       reject(new Error('D3 loader: failed to load d3 from CDN'));
     };
 
-    document.head.appendChild(script);
+    activeDocument.head.appendChild(script);
   });
 
   validate_d3_instance(d3);
@@ -239,7 +239,6 @@ async function post_process(connections_list, container, params = {}) {
     if (!to_item) throw new Error('connections_graph: could not resolve center item.');
 
     const env = to_item.env;
-    const connections_settings = params.connections_settings ?? env.connections_lists.settings;
     const connection_state = to_item?.data?.connections || {};
     const event_key_domain = params.event_key_domain || 'connections';
     const drag_event_key = `${event_key_domain}:drag_result`;
@@ -581,7 +580,7 @@ async function post_process(connections_list, container, params = {}) {
 
   } catch (err) {
     console.error('[connections_graph] post_process error:', err);
-    const fallback = document.createElement('p');
+    const fallback = activeDocument.createElement('p');
     fallback.className = 'sc-no-results';
     fallback.textContent = 'Unable to render graph. See console for details.';
     container.appendChild(fallback);

@@ -40,11 +40,11 @@ const is_last_line_visible = (editor_view) => {
 };
 
 const schedule_next_frame = (callback) => {
-  if (typeof requestAnimationFrame === 'function') {
-    requestAnimationFrame(callback);
+  if (typeof window.requestAnimationFrame === 'function') {
+    window.requestAnimationFrame(callback);
     return;
   }
-  setTimeout(callback, 0);
+  window.setTimeout(callback, 0);
 };
 
 export class ConnectionsFooterView {
@@ -175,8 +175,8 @@ export class ConnectionsFooterView {
   register_env_listeners() {
     let handle_current_source_debounce;
     this.register_env_listener('sources:opened', () => {
-      if (handle_current_source_debounce) clearTimeout(handle_current_source_debounce);
-      handle_current_source_debounce = setTimeout(() => {
+      if (handle_current_source_debounce) window.clearTimeout(handle_current_source_debounce);
+      handle_current_source_debounce = window.setTimeout(() => {
         this.render_view();
       }, 250);
     });

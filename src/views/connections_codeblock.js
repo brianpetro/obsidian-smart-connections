@@ -25,7 +25,7 @@ export async function register_smart_connections_codeblock(plugin) {
         const connections_list = entity.connections;
         if(!connections_list?.env) {
           container.empty();
-          container.createEl('p', { text: 'Smart Environment / Connections loading…' });
+          container.createEl('p', { text: 'Loading connections environment...' });
           // retry button
           const retry_button = container.createEl('button', { text: 'Retry' });
           retry_button.addEventListener('click', () => {
@@ -47,7 +47,7 @@ export async function register_smart_connections_codeblock(plugin) {
         container._has_listeners = true;
         const disposers = [];
         disposers.push(env.events.on('settings:changed', (event) => {
-          console.log('connections codeblock view detected settings change', event);
+          // console.log('connections codeblock view detected settings change', event);
           if(event.path?.includes('connections_lists')){
             render_codeblock();
           }

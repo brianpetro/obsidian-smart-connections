@@ -72,14 +72,14 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     this.smart_connections_view = null;
     this.is_new_user().then(async (is_new) => {
       if (!is_new) return;
-      setTimeout(() => {
+      window.setTimeout(() => {
         StoryModal.open(this, {
           title: 'Getting Started With Smart Connections',
           url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=sc-op-new-user',
         });
       }, 1000);
       await this.SmartEnv.wait_for({ loaded: true });
-      setTimeout(() => {
+      window.setTimeout(() => {
         this.apply_connections_view_location();
         this.open_connections_view();
       }, 1000);
@@ -186,7 +186,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
       }
       await this.set_last_known_version(this.manifest.version);
     }
-    setTimeout(this.check_for_update.bind(this), 3000);
+    window.setTimeout(this.check_for_update.bind(this), 3000);
   }
 
   async check_for_update() {

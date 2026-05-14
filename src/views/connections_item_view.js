@@ -41,8 +41,8 @@ export class ConnectionsItemView extends SmartItemView {
       if (!is_visible(this.container)) return;
       const connections_item = this.env[event.collection_key || 'smart_sources']?.get(event.item_key || event.key);
       if (connections_item.key === this.current?.key) return;
-      if (handle_current_source_debounce) clearTimeout(handle_current_source_debounce);
-      handle_current_source_debounce = setTimeout(() => {
+      if (handle_current_source_debounce) window.clearTimeout(handle_current_source_debounce);
+      handle_current_source_debounce = window.setTimeout(() => {
         this.render_view({connections_item});
       }, 250); // debounce interval (ms)
     });
@@ -53,11 +53,11 @@ export class ConnectionsItemView extends SmartItemView {
       }
     });
     register_env_event_listener(this, 'connections:show', (event) => {
-      console.log('connections:show event received', {event});
+      // console.log('connections:show event received', {event});
       if(event.collection_key && event.item_key){
         const collection = this.env[event.collection_key];
         const item = collection.get(event.item_key);
-        console.log({collection, item});
+        // console.log({collection, item});
         if(item){
           this.set_connections_paused(true);
           this.render_view({connections_item: item});
@@ -111,7 +111,7 @@ function is_visible(container) {
     return false;
   }
   if(typeof container.checkVisibility === 'function' && container.checkVisibility() === false) {
-    console.log('Connections container is not visible');
+    // console.log('Connections container is not visible');
     return false;
   }
   return true;

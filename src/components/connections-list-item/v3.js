@@ -167,7 +167,7 @@ export async function post_process(result_scope, container, params = {}) {
     const pinned_count = count_pinned_connections(source_item.data.connections);
     const results = result_scope.connections_list?.results || [];
     const target_name = get_item_display_name(item, component_settings) || item.key;
-    console.log({target_name, item});
+    // console.log({target_name, item});
     const menu = new Menu(app);
     menu.addItem((menu_item) => {
       menu_item
