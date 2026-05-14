@@ -94,7 +94,7 @@ export async function post_process(connections_list, container, opts = {}) {
   const app = env.plugin.app || window.app;
 
   const render_list = async () => {
-    console.log('Rendering connections list in codeblock view');
+    // console.log('Rendering connections list in codeblock view');
     const connections_list_component_key = opts.connections_list_component_key
       || connections_list.connections_list_component_key
       || 'connections_list_v4'

@@ -56,7 +56,7 @@ export class ConnectionsList extends CollectionItem {
     let results = this.filter_and_score(params);
     if (this.env.log_perf) {
       this.end_ms = Date.now();
-      console.log(`filter_and_score(${params.score_algo_key}) took ${this.end_ms - this.start_ms} ms (Date.now)`);
+      // console.log(`filter_and_score(${params.score_algo_key}) took ${this.end_ms - this.start_ms} ms (Date.now)`);
     }
     // Post-process if needed
     results = await this.post_process(results, params);

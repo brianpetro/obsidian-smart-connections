@@ -143,7 +143,7 @@ async function load_d3() {
   }
 
   const existing =
-    typeof document !== 'undefined'
+    typeof activeDocument !== 'undefined'
       ? activeDocument.querySelector('script[data-sc-d3]')
       : null;
   if (existing && g.d3) {
@@ -152,7 +152,7 @@ async function load_d3() {
   }
 
   const d3 = await new Promise((resolve, reject) => {
-    if (typeof document === 'undefined' || !activeDocument.head) {
+    if (typeof activeDocument === 'undefined' || !activeDocument.head) {
       reject(new Error('D3 loader: activeDocument.head not available'));
       return;
     }
