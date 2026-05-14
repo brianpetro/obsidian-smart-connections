@@ -218,16 +218,6 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     }
   }
 
-  async restart_plugin() {
-    this.env?.unload_main?.(this);
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    window.restart_plugin = async (id) => {
-      await window.app.plugins.disablePlugin(id);
-      await window.app.plugins.enablePlugin(id);
-    };
-    await window.restart_plugin(this.manifest.id);
-  }
-
   get commands() {
     return {
       ...super.commands,
