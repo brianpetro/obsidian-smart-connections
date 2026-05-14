@@ -1,5 +1,4 @@
 import fs from 'fs';
-import 'dotenv/config';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { compile_latest_release, parse_cli_options } from 'obsidian-smart-env/build/compile_latest_release.js';
