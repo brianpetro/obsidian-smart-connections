@@ -96,7 +96,7 @@ export class ScProSupportModal extends Modal {
     this.titleEl.setText('Need help and support?');
     const content = this.contentEl.createDiv({ cls: 'sc-pro-support-modal' });
     content.createEl('p', {
-      text: 'Reply to your pro plugins welcome email for priority support.',
+      text: 'Reply to your Pro plugins welcome email for priority support.',
     });
     // continue to report a bug button
     const reportBugButton = content.createEl('button', { text: 'Report a bug', cls: 'mod-warning' });

@@ -1,6 +1,5 @@
 import esbuild from 'esbuild';
 import path from 'path';
-import 'dotenv/config';
 import { build_plugin } from 'obsidian-smart-env/build/build_plugin.js';
 import { build_smart_env_config } from 'obsidian-smart-env/build/build_env_config.js';
 import { create_banner } from './src/utils/banner.js';
