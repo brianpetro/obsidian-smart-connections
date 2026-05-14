@@ -12,9 +12,6 @@ const roots = [
 build_plugin({
   esbuild,
   build_banner: create_banner,
-  define: {
-    'process.env.DEFAULT_OPEN_ROUTER_API_KEY': JSON.stringify(process.env.DEFAULT_OPEN_ROUTER_API_KEY),
-  },
   entry_point: 'src/main.js',
   entry_point_from_argv: true,
   env_config_builder: build_smart_env_config,
