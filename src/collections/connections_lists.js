@@ -28,7 +28,7 @@ export class ConnectionsLists extends Collection {
   process_load_queue() {} // no persisting data (for now)
 
   constructor(env, opts = {}) {
-    migrate_connections_lists_settings(env);
+    migrate_connections_lists_settings(env); // probably should be removed soon
     super(env, opts);
   }
 
