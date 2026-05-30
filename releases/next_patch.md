@@ -1,0 +1,1 @@
+- Updated Smart Environment to `v2.4.6` for handling Obsidian API changes
