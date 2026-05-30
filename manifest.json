@@ -2,7 +2,7 @@
   "id": "smart-connections",
   "name": "Smart Connections",
   "author": "Brian Petro",
-  "description": "Chat with your notes & see links to related content with Local or Remote models.",
+  "description": "AI link discovery copilot. See related notes as you write. Lookup using semantic (vector) search across your vault. Zero-setup local model for embeddings, no API keys, private.",
   "minAppVersion": "1.1.0",
   "authorUrl": "https://smartconnections.app",
   "isDesktopOnly": false,
