@@ -1,37 +1,33 @@
-a.sc-result-file-title {
-  text-decoration: none !important;
+.sc-result a.sc-result-file-title {
+  text-decoration: none;
 }
 
-a.sc-result-file-title > .sc-score {
+.sc-result a.sc-result-file-title > small.sc-score {
   display: inline-block;
   width: auto;
   height: 1.7em;
   padding: 0 0.3em;
   line-height: 1.7em;
   text-align: center;
-  font-weight: 600 !important;
-  font-size: 0.8em !important;
-  color: var(--nav-item-color) !important;
+  font-weight: 600;
+  font-size: var(--font-smallest);
+  color: var(--nav-item-color);
   background: var(--background-modifier-hover);
   border-radius: 6px;
+  margin-right: 0.2em;
 }
 
-a.sc-result-file-title > .sc-path {
-  margin-right: -3px;
-}
-
-a.sc-result-file-title > .sc-path,
-a.sc-result-file-title > .sc-title {
-  font-weight: bold !important;
+a.sc-result-file-title > small.sc-title {
+  font-weight: 500;
   text-decoration: underline;
 }
 
-a.sc-result-file-title > .sc-breadcrumb:not(.sc-path, .sc-title, .sc-score) {
+a.sc-result-file-title > .sc-breadcrumb:not(.sc-title, .sc-score) {
   font-style: italic;
 }
 
-a.sc-result-file-title > .sc-breadcrumb-separator {
-  color: color-mix(in srgb, var(--text-normal) 50%, transparent) !important;
+a.sc-result-file-title > small.sc-breadcrumb-separator {
+  color: color-mix(in srgb, var(--text-normal) 50%, transparent);
 }
 
 .sc-result.sc-result-hidden-by-feedback {
@@ -47,3 +43,10 @@ a.sc-result-file-title > .sc-breadcrumb-separator {
   transition: outline 120ms ease, box-shadow 120ms ease;
 }
 
+
+/* hide separator if immediately preceded by score */
+.sc-result {
+  small.sc-score + .sc-breadcrumb-separator {
+    display: none;
+  }
+}

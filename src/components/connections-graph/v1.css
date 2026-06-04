@@ -74,8 +74,8 @@
 }
 
 /* Explicitly hide any label rendered for the center (defense-in-depth) */
-.connections-graph .sc-graph-node-center .sc-node-label {
-  display: none !important;
+.connections-list-container .connections-graph-container .connections-graph .sc-graph-node-center .sc-node-label {
+  display: none;
 }
 
 /* Pinned state */
