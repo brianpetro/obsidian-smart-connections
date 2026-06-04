@@ -106,14 +106,19 @@ function parse_prefixed_key(prefixed_key) {
 
 /**
  * CDN settings for D3 used by the graph component.
- * D3_INTEGRITY_SHA256 is intentionally left empty by default so builds or
- * plugin code can inject the correct SHA for the chosen d3.min.js asset.
+ * Uses D3's CDN-hosted ESM bundle so the loader does not create a script element.
  */
-const D3_CDN_URL = 'https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js';
+const D3_CDN_URL = 'https://cdn.jsdelivr.net/npm/d3@7/+esm';
 const D3_EXPECTED_MAJOR = '7.';
-const D3_INTEGRITY_SHA256 =
-  (typeof activeWindow !== 'undefined' && activeWindow.SC_D3_INTEGRITY_SHA256) ||
-  '';
+let d3_import_promise = null;
+
+/**
+ * Resolve the D3 CDN URL as runtime data so the bundler preserves the import expression.
+ * @returns {string}
+ */
+function get_d3_cdn_url() {
+  return D3_CDN_URL;
+}
 
 /**
  * Validate a candidate d3 instance and log if it looks unexpected.
@@ -130,61 +135,37 @@ function validate_d3_instance(d3) {
 }
 
 /**
- * Lazy-loads D3 from CDN once with optional SRI validation.
+ * Lazy-loads D3 from the CDN ESM bundle once without creating a script element.
  * If a global d3 already exists it is reused.
  * @returns {Promise<typeof import('d3')>}
  */
 async function load_d3() {
-  const g = typeof activeWindow !== 'undefined' ? activeWindow : window;
+  const g = typeof activeWindow !== 'undefined'
+    ? activeWindow
+    : (typeof globalThis !== 'undefined'
+      ? globalThis
+      : (typeof window !== 'undefined' ? window : {}));
 
   if (g.d3) {
     validate_d3_instance(g.d3);
     return g.d3;
   }
 
-  const existing =
-    typeof activeDocument !== 'undefined'
-      ? activeDocument.querySelector('script[data-sc-d3]')
-      : null;
-  if (existing && g.d3) {
-    validate_d3_instance(g.d3);
-    return g.d3;
+  if (!d3_import_promise) {
+    const d3_cdn_url = get_d3_cdn_url();
+    d3_import_promise = import(d3_cdn_url)
+      .then((d3) => {
+        validate_d3_instance(d3);
+        if (!g.d3) g.d3 = d3;
+        return d3;
+      })
+      .catch((err) => {
+        d3_import_promise = null;
+        throw err;
+      });
   }
 
-  const d3 = await new Promise((resolve, reject) => {
-    if (typeof activeDocument === 'undefined' || !activeDocument.head) {
-      reject(new Error('D3 loader: activeDocument.head not available'));
-      return;
-    }
-
-    const script = activeDocument.createElement('script');
-    script.src = D3_CDN_URL;
-    script.async = true;
-    script.setAttribute('data-sc-d3', 'true');
-
-    const integrity = String(D3_INTEGRITY_SHA256 || '').trim();
-    if (integrity) {
-      script.integrity = integrity;
-      script.crossOrigin = 'anonymous';
-    }
-
-    script.onload = () => {
-      if (!g.d3) {
-        reject(new Error('D3 loader: script loaded but window.d3 is missing'));
-        return;
-      }
-      resolve(g.d3);
-    };
-
-    script.onerror = () => {
-      reject(new Error('D3 loader: failed to load d3 from CDN'));
-    };
-
-    activeDocument.head.appendChild(script);
-  });
-
-  validate_d3_instance(d3);
-  return d3;
+  return d3_import_promise;
 }
 
 /**
