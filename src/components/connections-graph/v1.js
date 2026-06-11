@@ -315,6 +315,12 @@ async function post_process(connections_list, container, params = {}) {
         const v = non_center_vecs[i];
         const cluster_vec = centers[cluster] || null;
         const node_to_cluster_sim = (v && cluster_vec) ? Math.max(0, Math.min(1, cos_sim(v, cluster_vec))) : 0;
+        const score = Number.isFinite(res?.score)
+          ? +res.score
+          : Number.isFinite(res?.og_score)
+            ? +res.og_score
+            : (center_vec && v ? cos_sim(center_vec, v) : null)
+        ;
 
         const prefixed_key = prefixed_key_for_item(r_item);
         const isPinned = prefixed_key ? is_connection_pinned(connection_state, prefixed_key) : false;
@@ -323,7 +329,7 @@ async function post_process(connections_list, container, params = {}) {
         return {
           id: r_item.key,
           item: r_item,
-          score: Number.isFinite(res?.score) ? +res.score : (center_vec && v ? cos_sim(center_vec, v) : null), // display only
+          score, // display only
           ring_r: rr,
           angle,
           radius: NODE_R,
@@ -600,3 +606,4 @@ function build_result_detail(node, center_item) {
     center_key: center_item?.key,
   };
 }
+

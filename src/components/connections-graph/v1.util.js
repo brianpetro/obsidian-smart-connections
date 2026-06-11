@@ -41,7 +41,9 @@ export function score_to_radius(t, min_r, max_r) {
   return Math.round(min_r + (1 - tt) * (max_r - min_r));
 }
 
-export function is_vec(v) { return Array.isArray(v) && v.length > 0; }
+export function is_vec(v) {
+  return (Array.isArray(v) || ArrayBuffer.isView(v)) && v.length > 0;
+}
 export function norm(a = []) {
   let s = 0;
   for (let i = 0; i < a.length; i++) { const x = a[i] || 0; s += x * x; }
