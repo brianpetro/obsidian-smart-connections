@@ -33,11 +33,12 @@ export async function build_html(result, params = {}) {
   const item = result.item;
   const env = item.env;
   const score = result.score; // Extract score from opts
+  const score_display = result.score_display ?? score;
   const connections_settings = params.connections_settings
     ?? env.connections_lists.settings
   ;
   const component_settings = connections_settings.components?.connections_list_item_v3 || {};
-  const header_html = get_result_header_html(score, item, component_settings);
+  const header_html = get_result_header_html(score_display, item, component_settings);
   const all_expanded = connections_settings.expanded_view;
   
   return `<div class="temp-container">
