@@ -104,7 +104,7 @@ export class ConnectionsFooterView {
     }
   }
 
-  async render_view() {
+  async render_view(params = {}) {
     if (!this.env.connections_lists?.settings?.footer_connections) return this.remove();
     const editor_view = this.plugin.get_editor_view();
     if (!editor_view) return;
@@ -126,6 +126,11 @@ export class ConnectionsFooterView {
     if (!entity) {
       editor_view.dispatch({ effects: [set_connections_footer_dom_effect.of(null)] });
       return;
+    }
+
+    if (params.force && this.container_map[entity.key] instanceof HTMLElement) {
+      this.container_map[entity.key].remove();
+      delete this.container_map[entity.key];
     }
 
     if (this.container_map[entity.key]?.isConnected) {
@@ -182,7 +187,7 @@ export class ConnectionsFooterView {
     });
     this.register_env_listener('settings:changed', (event) => {
       if(event.path?.includes('connections_lists')) {
-        this.render_view();
+        this.render_view({ force: true });
       }
     });
   }

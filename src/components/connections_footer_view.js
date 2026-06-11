@@ -99,7 +99,11 @@ export async function post_process(view, container, opts = {}) {
   }
 
   const connections_list = connections_item.connections || env.connections_lists.new_item(connections_item);
-  const list = await env.smart_components.render_component('connections_list_v4', connections_list, { ...opts });
+  const connections_list_component_key = opts.connections_list_component_key
+    || connections_list.connections_list_component_key
+    || 'connections_list_v4'
+  ;
+  const list = await env.smart_components.render_component(connections_list_component_key, connections_list, { ...opts });
 
   this.empty(list_container);
   list_container.appendChild(list);
