@@ -14,7 +14,12 @@ import { render as connections_settings_header_component } from './src/component
 import { render as connections_settings_lookup_callout_component } from './src/components/connections-settings/lookup_callout.js';
 import { render as connections_view_v3_component } from './src/components/connections-view/v3.js';
 
+import { connections_list_copy_as_links as connections_list_copy_as_links_action, menus as connections_list_copy_as_links_action_menus } from './src/actions/connections-list/copy_as_links.js';
 import { pre_process as connections_list_pre_process_action, pre_process as connections_list_pre_process_action_pre_process } from './src/actions/connections-list/pre_process.js';
+import { connections_list_refresh as connections_list_refresh_action, menus as connections_list_refresh_action_menus } from './src/actions/connections-list/refresh.js';
+import { connections_list_send_to_context as connections_list_send_to_context_action, menus as connections_list_send_to_context_action_menus } from './src/actions/connections-list/send_to_context.js';
+import { connections_list_send_to_smart_graph as connections_list_send_to_smart_graph_action, menus as connections_list_send_to_smart_graph_action_menus } from './src/actions/connections-list/send_to_smart_graph.js';
+import { connections_list_toggle_expanded as connections_list_toggle_expanded_action, menus as connections_list_toggle_expanded_action_menus } from './src/actions/connections-list/toggle_expanded.js';
 
 
 export const smart_env_config = {
@@ -39,6 +44,11 @@ export const smart_env_config = {
     connections_view_v3: { render: connections_view_v3_component, version: "2.4.6" }
   },
   actions: {
-    connections_list_pre_process: { action: connections_list_pre_process_action, pre_process: connections_list_pre_process_action_pre_process, version: "2.4.6" }
+    connections_list_copy_as_links: { action: connections_list_copy_as_links_action, menus: connections_list_copy_as_links_action_menus, version: "2.4.6" },
+    connections_list_pre_process: { action: connections_list_pre_process_action, pre_process: connections_list_pre_process_action_pre_process, version: "2.4.6" },
+    connections_list_refresh: { action: connections_list_refresh_action, menus: connections_list_refresh_action_menus, version: "2.4.6" },
+    connections_list_send_to_context: { action: connections_list_send_to_context_action, menus: connections_list_send_to_context_action_menus, version: "2.4.6" },
+    connections_list_send_to_smart_graph: { action: connections_list_send_to_smart_graph_action, menus: connections_list_send_to_smart_graph_action_menus, version: "2.4.6" },
+    connections_list_toggle_expanded: { action: connections_list_toggle_expanded_action, menus: connections_list_toggle_expanded_action_menus, version: "2.4.6" }
   }
 };

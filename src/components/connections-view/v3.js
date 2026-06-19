@@ -1,11 +1,7 @@
 import styles from './v3.css';
 import { Menu } from 'obsidian';
 import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
-import { copy_to_clipboard } from 'obsidian-smart-env/src/utils/copy_to_clipboard.js';
-import { build_connections_context_items } from '../../utils/connections_context_items.js';
 import { get_context_lines } from '../../utils/context_lines.js';
-import { connections_view_refresh_handler } from '../../utils/connections_view_refresh_handler.js';
-import { format_connections_as_links } from '../../utils/format_connections_as_links.js';
 import { filter_hidden_results } from '../../utils/filter_hidden_results.js';
 
 /**
@@ -110,88 +106,21 @@ export async function post_process(view, container, opts = {}) {
       const raw_results = Array.isArray(connections_list?.results) ? connections_list.results : [];
       const connections_state = connections_list?.item?.data?.connections || {};
       const visible_results = filter_hidden_results(raw_results, connections_state);
+      const connections_settings = opts.connections_settings
+        ?? connections_list?.settings
+      ;
 
-      menu.addItem((menu_item) => {
-        menu_item
-          .setTitle('Refresh connections')
-          .setIcon('refresh-cw')
-          .onClick(() => {
-            connections_view_refresh_handler.call(view, { target: container });
-          })
-        ;
+      env.build_menu?.('connections:list_menu', menu, connections_list, {
+        view,
+        container,
+        connections_item,
+        connections_list,
+        connections_settings,
+        raw_results,
+        visible_results,
       });
 
-      menu.addItem((menu_item) => {
-        const context_items = build_connections_context_items({
-          source_item: connections_item,
-          results: visible_results
-        });
-        menu_item
-          .setTitle('Send results to context')
-          .setIcon('briefcase')
-          .setDisabled(!context_items.length)
-          .onClick(async () => {
-            if (!context_items.length) {
-              env.events.emit('connections:send_to_context_empty', {
-                level: 'warning',
-                message: 'No connection results to send to context.',
-                event_source: 'connections_view_menu',
-              });
-              return;
-            }
-            const smart_context = env.smart_contexts.new_context();
-            smart_context.add_items(context_items);
-            smart_context.emit_event('context_selector:open');
-            connections_list.emit_event('connections:sent_to_context');
-          })
-        ;
-      });
-
-      menu.addItem((menu_item) => {
-        const links_payload = format_connections_as_links(visible_results);
-        menu_item
-          .setTitle('Copy as list of links')
-          .setIcon('copy')
-          .setDisabled(!links_payload)
-          .onClick(async () => {
-            if (!links_payload) {
-              env.events.emit('connections:copy_list_empty', {
-                level: 'warning',
-                message: 'No connection results to copy.',
-                event_source: 'connections_view_menu',
-              });
-              return;
-            }
-            await copy_to_clipboard(links_payload);
-            connections_list.emit_event('connections:copied_list');
-          })
-        ;
-      });
-
-      menu.addItem((menu_item) => {
-        const connections_settings = opts.connections_settings
-          ?? connections_list?.settings
-        ;
-        const expanded = connections_settings?.expanded_view;
-        const title = expanded ? 'Collapse all results' : 'Expand all results';
-        const icon_name = expanded ? 'fold-vertical' : 'unfold-vertical';
-        menu_item
-          .setTitle(title)
-          .setIcon(icon_name)
-          .onClick(() => {
-            const curr_settings = opts.connections_settings
-              ?? connections_list?.settings
-            ;
-            const curr_expanded = curr_settings?.expanded_view;
-            if (curr_settings) curr_settings.expanded_view = !curr_expanded;
-
-            container.querySelectorAll('.sc-result').forEach((element) => {
-              curr_expanded ? element.classList.add('sc-collapsed') : element.classList.remove('sc-collapsed');
-            });
-          })
-        ;
-      });
-
+      // TEMP: Backward-compatible extension point for existing plugin-registered items (remove after migration)
       env.build_menu?.('connections_list', menu, connections_list);
 
       menu.addSeparator();
