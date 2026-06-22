@@ -52,3 +52,4 @@ export const smart_env_config = {
     connections_list_toggle_expanded: { action: connections_list_toggle_expanded_action, menus: connections_list_toggle_expanded_action_menus, version: "2.4.6" }
   }
 };
+

@@ -1,16 +1,20 @@
-import { connections_view_refresh_handler } from '../../utils/connections_view_refresh_handler.js';
-
 /**
- * Refresh the active Connections view.
+ * Refresh the current Connections source and rerender the active view.
  *
  * @this {import('../../items/connections_list.js').ConnectionsList}
  * @param {object} [params={}]
  * @param {object} [params.view]
- * @param {HTMLElement} [params.container]
- * @returns {*}
+ * @returns {Promise<boolean>}
  */
-export function connections_list_refresh(params = {}) {
-  return connections_view_refresh_handler.call(params.view, { target: params.container });
+export async function connections_list_refresh(params = {}) {
+  const refresh_entity = this.item;
+  if (!refresh_entity) return false;
+
+  await refresh_entity.read();
+  refresh_entity.queue_import();
+  await refresh_entity.collection.process_source_import_queue?.();
+  await params.view?.render_view?.({ connections_item: refresh_entity });
+  return true;
 }
 
 export const menus = {

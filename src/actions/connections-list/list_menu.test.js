@@ -1,4 +1,5 @@
 import test from 'ava';
+import { connections_list_refresh } from './refresh.js';
 import {
   connections_list_send_to_context,
   menus as send_to_context_menus,
@@ -68,6 +69,38 @@ function build_class_el() {
     },
   };
 }
+
+test('connections_list_refresh refreshes its scoped source and rerenders the view', async (t) => {
+  const calls = [];
+  const refresh_entity = {
+    async read() {
+      calls.push('read');
+    },
+    queue_import() {
+      calls.push('queue_import');
+    },
+    collection: {
+      async process_source_import_queue() {
+        calls.push('process_source_import_queue');
+      },
+    },
+  };
+  const view = {
+    async render_view(params) {
+      calls.push({ render_view: params });
+    },
+  };
+
+  const refreshed = await connections_list_refresh.call({ item: refresh_entity }, { view });
+
+  t.true(refreshed);
+  t.deepEqual(calls, [
+    'read',
+    'queue_import',
+    'process_source_import_queue',
+    { render_view: { connections_item: refresh_entity } },
+  ]);
+});
 
 test('connections_list_send_to_context creates a Smart Context from visible results', (t) => {
   const { connections_list, emitted, added_items } = build_connections_list();
