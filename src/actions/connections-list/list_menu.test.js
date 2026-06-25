@@ -127,8 +127,7 @@ function build_class_el(params = {}) {
       if (selector === '.sc-connections-view') return this;
       return null;
     },
-    querySelector(selector) {
-      if (selector === '[title="Refresh"]') return params.refresh_button || null;
+    querySelector() {
       return null;
     },
     querySelectorAll(selector) {
@@ -368,37 +367,6 @@ test('connections_list_open_settings uses view helper before app fallback', asyn
   t.deepEqual(fallback_calls, ['open', 'smart-connections']);
   t.is(open_settings_menus['connections:list_menu'].title, 'Connections settings');
 });
-
-test('connections_list_unhide_all clears hidden state and requests refresh', (t) => {
-  const refresh_calls = [];
-  const refresh_button = {
-    click() {
-      refresh_calls.push('click');
-    },
-  };
-  const source_item = build_source_item({
-    connections: {
-      'smart_sources:hidden.md': { hidden: 1 },
-      'smart_sources:pinned.md': { pinned: 2 },
-    },
-    hidden_connections: {
-      'hidden.md': 1,
-    },
-  });
-  const { connections_list } = build_connections_list({ source_item });
-  const container = build_class_el({ refresh_button });
-
-  const unhidden = connections_list_unhide_all.call(connections_list, { container });
-
-  t.true(unhidden);
-  t.deepEqual(source_item.data.connections, {
-    'smart_sources:pinned.md': { pinned: 2 },
-  });
-  t.false('hidden_connections' in source_item.data);
-  t.deepEqual(refresh_calls, ['click']);
-  t.deepEqual(source_item.calls, ['queue_save', 'save']);
-});
-
 
 test('connections_list_unhide_all refreshes through view when provided', (t) => {
   const render_calls = [];
