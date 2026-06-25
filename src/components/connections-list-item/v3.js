@@ -1,24 +1,16 @@
 import { Menu } from 'obsidian';
-import { copy_to_clipboard } from 'obsidian-smart-env/src/utils/copy_to_clipboard.js';
 import styles_css from './v3.css';
 
 import {
-  apply_hidden_state,
-  apply_pinned_state,
   build_prefixed_connection_key,
-  count_hidden_connections,
-  count_pinned_connections,
   is_connection_hidden,
   is_connection_pinned,
-  remove_all_hidden_states,
-  remove_all_pinned_states,
-  remove_pinned_state,
 } from '../../utils/connections_list_item_state.js';
 import { DISPLAY_SEPARATOR, get_item_display_name } from 'obsidian-smart-env/src/utils/get_item_display_name.js';
-import { format_connections_as_links } from '../../utils/format_connections_as_links.js';
 import { register_item_hover_popover } from 'obsidian-smart-env/src/utils/register_item_hover_popover.js';
 import { register_item_drag } from 'obsidian-smart-env/src/utils/register_item_drag.js';
 import { open_source } from "obsidian-smart-env/src/utils/open_source.js";
+import { filter_hidden_results } from '../../utils/filter_hidden_results.js';
 
 const SC_RESULT_HIDDEN_CLASS = 'sc-result-hidden-by-feedback';
 
@@ -160,155 +152,37 @@ export async function post_process(result_scope, container, params = {}) {
     event.stopPropagation();
     if(!source_item) return;
     source_item.data.connections ||= {};
-    const prefixed_key = build_prefixed_connection_key(
-      item.collection_key,
-      item.key
-    );
-    const pinned = is_connection_pinned(source_item.data.connections, prefixed_key);
-    const hidden_count = count_hidden_connections(source_item.data.connections);
-    const pinned_count = count_pinned_connections(source_item.data.connections);
-    const results = result_scope.connections_list?.results || [];
+
+    const connections_list = result_scope.connections_list;
+    const raw_results = Array.isArray(connections_list?.results) ? connections_list.results : [];
+    const visible_results = filter_hidden_results(raw_results, source_item.data.connections);
+    const list_container = container.closest('.connections-list') || container;
     const target_name = get_item_display_name(item, component_settings) || item.key;
-    // console.log({target_name, item});
+    const pinned = is_connection_pinned(source_item.data.connections, prefixed_key);
     const menu = new Menu(app);
-    menu.addItem((menu_item) => {
-      menu_item
-        .setTitle(`Hide ${target_name}`)
-        .setIcon('eye-off')
-        .onClick(() => {
-          try {
-            apply_hidden_state(source_item.data.connections, prefixed_key, Date.now());
-            if (source_item.data.hidden_connections) {
-              delete source_item.data.hidden_connections[item.key];
-              if (!Object.keys(source_item.data.hidden_connections).length) delete source_item.data.hidden_connections;
-            }
-            source_item.queue_save();
-            container.classList.add(SC_RESULT_HIDDEN_CLASS);
-            container.dataset.hidden = 'true';
-            source_item.collection.save();
-            source_item.emit_event('connections:hidden_item');
-          } catch (err) {
-            env?.events?.emit?.('connections:hide_failed', {
-              level: 'error',
-              message: 'Hide failed – check console',
-              details: err?.message || '',
-              event_source: 'connections_list_item.contextmenu',
-            });
-            console.error(err);
-          }
-        })
-      ;
+
+    env.build_menu?.('connections:list_item_menu', menu, connections_list, {
+      connections_list,
+      container,
+      prefixed_key,
+      source_item,
+      target_item: item,
+      target_name,
+      pinned,
+      view: params.view,
     });
-    menu.addItem((menu_item) => {
-      const title_prefix = pinned ? 'Unpin' : 'Pin';
-      menu_item
-        .setTitle(`${title_prefix} ${target_name}`)
-        .setIcon(pinned ? 'pin-off' : 'pin')
-        .onClick(() => {
-          try {
-            if (pinned) {
-              remove_pinned_state(source_item.data.connections, prefixed_key);
-              container.classList.remove('sc-result-pinned');
-              container.removeAttribute('data-pinned');
-            } else {
-              apply_pinned_state(source_item.data.connections, prefixed_key, Date.now());
-              container.classList.add('sc-result-pinned');
-              container.dataset.pinned = 'true';
-              source_item.emit_event('connections:pinned_item');
-            }
-            source_item.queue_save();
-            source_item.collection.save();
-          } catch (err) {
-            env?.events?.emit?.('connections:pin_toggle_failed', {
-              level: 'error',
-              message: `${title_prefix} failed – check console`,
-              details: err?.message || '',
-              event_source: 'connections_list_item.contextmenu',
-            });
-            console.error(err);
-          }
-        })
-      ;
-    });
-    // separator
+
     menu.addSeparator();
-    const links_payload = format_connections_as_links(results);
-    if (links_payload) {
-      menu.addItem((menu_item) => {
-        menu_item
-          .setTitle('Copy as list of links')
-          .setIcon('copy')
-          .onClick(async () => {
-            await copy_to_clipboard(links_payload, {
-              env,
-              event_source: 'connections_list_item.copy_as_links',
-              success_event_key: 'connections:list_copied',
-              error_event_key: 'connections:list_copy_failed',
-              unavailable_event_key: 'connections:list_copy_unavailable',
-            });
-            result_scope.connections_list.emit_event('connections:copied_list');
-          })
-        ;
-      });
-    }
-    menu.addSeparator();
-    // unhide-all
-    menu.addItem((menu_item) => {
-      menu_item
-        .setTitle(`Unhide All (${hidden_count})`)
-        .setIcon('eye')
-        .setDisabled(!hidden_count)
-        .onClick(() => {
-          try {
-            if(!source_item.data.connections) return;
-            const changed = remove_all_hidden_states(source_item.data.connections);
-            if (!changed) return;
-            if (source_item.data.hidden_connections) delete source_item.data.hidden_connections;
-            source_item.queue_save();
-            container.closest('.sc-connections-view')?.querySelector('[title="Refresh"]')?.click(); // refresh the results
-            source_item.collection.save();
-          } catch (err) {
-            env?.events?.emit?.('connections:unhide_failed', {
-              level: 'error',
-              message: 'Unhide failed – check console',
-              details: err?.message || '',
-              event_source: 'connections_list_item.contextmenu',
-            });
-            console.error(err);
-          }
-        })
-      ;
+
+    env.build_menu?.('connections:list_menu', menu, connections_list, {
+      container: list_container,
+      connections_item: source_item,
+      connections_settings,
+      raw_results,
+      visible_results,
+      view: params.view,
     });
-    menu.addItem((menu_item) => {
-      menu_item
-        .setTitle(`Unpin All (${pinned_count})`)
-        .setIcon('pin-off')
-        .setDisabled(!pinned_count)
-        .onClick(() => {
-          try {
-            if(!source_item.data.connections) return;
-            const changed = remove_all_pinned_states(source_item.data.connections);
-            if (!changed) return;
-            const list_root = container.closest('.connections-list');
-            list_root?.querySelectorAll('.sc-result[data-pinned]')
-              .forEach((result_el) => {
-                result_el.classList.remove('sc-result-pinned');
-                result_el.removeAttribute('data-pinned');
-              });
-            source_item.queue_save();
-            source_item.collection.save();
-          } catch (err) {
-            env?.events?.emit?.('connections:unpin_failed', {
-              level: 'error',
-              message: 'Unpin failed – check console',
-              details: err?.message || '',
-              event_source: 'connections_list_item.contextmenu',
-            });
-            console.error(err);
-          }
-        })
-      ;
-    });
+
     menu.showAtMouseEvent(event);
   });
 

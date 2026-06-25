@@ -1,6 +1,5 @@
 import styles from './v3.css';
 import { Menu } from 'obsidian';
-import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
 import { get_context_lines } from '../../utils/context_lines.js';
 import { filter_hidden_results } from '../../utils/filter_hidden_results.js';
 
@@ -92,13 +91,6 @@ export async function post_process(view, container, opts = {}) {
       view.toggle_connections_paused();
     });
 
-    const open_help = () => {
-      StoryModal.open(view.plugin, {
-        title: 'Getting Started With Smart Connections',
-        url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-view-help#page=understanding-connections-1'
-      });
-    };
-
     const menu_button = container.querySelector('[data-action="open-menu"]');
     menu_button?.addEventListener('click', (event) => {
       const menu = new Menu(view.plugin.app);
@@ -123,26 +115,6 @@ export async function post_process(view, container, opts = {}) {
       // TEMP: Backward-compatible extension point for existing plugin-registered items (remove after migration)
       env.build_menu?.('connections_list', menu, connections_list);
 
-      menu.addSeparator();
-
-      menu.addItem((menu_item) => {
-        menu_item
-          .setTitle('Connections settings')
-          .setIcon('settings')
-          .onClick(() => {
-            view.open_settings();
-          })
-        ;
-      });
-
-      menu.addItem((menu_item) => {
-        menu_item
-          .setTitle('Help & getting started')
-          .setIcon('help-circle')
-          .onClick(open_help)
-        ;
-      });
-
       menu.showAtMouseEvent(event);
     });
   }
@@ -151,7 +123,11 @@ export async function post_process(view, container, opts = {}) {
     || connections_list.connections_list_component_key
     || 'connections_list_v4'
   ;
-  const list = await env.smart_components.render_component(connections_list_component_key, connections_list, opts);
+  const list = await env.smart_components.render_component(connections_list_component_key, connections_list, {
+    ...opts,
+    view,
+    container,
+  });
   this.empty(list_container);
   list_container.appendChild(list);
 

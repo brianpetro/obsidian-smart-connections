@@ -8,3 +8,6 @@ improved: enhance score calculation logic and update is_vec function to support 
 
 
 improved: Connections list menu now handled using Smart Environment menu actions pattern to enable deeper integration and extendability
+
+
+improved: Connections list item menu now handled using Smart Environment menu actions pattern to enable deeper integration and extendability

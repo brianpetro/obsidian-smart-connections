@@ -6,9 +6,15 @@ import { build_connections_context_items } from '../../utils/connections_context
  * @returns {Array<object>}
  */
 function get_context_items(connections_list, params = {}) {
+  const results = Array.isArray(params.visible_results)
+    ? params.visible_results
+    : connections_list?.results || []
+  ;
+  if (!results.length) return [];
+
   return build_connections_context_items({
     source_item: params.connections_item || connections_list?.item,
-    results: params.visible_results || [],
+    results,
   });
 }
 

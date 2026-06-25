@@ -15,11 +15,17 @@ import { render as connections_settings_lookup_callout_component } from './src/c
 import { render as connections_view_v3_component } from './src/components/connections-view/v3.js';
 
 import { connections_list_copy_as_links as connections_list_copy_as_links_action, menus as connections_list_copy_as_links_action_menus } from './src/actions/connections-list/copy_as_links.js';
+import { connections_list_item_hide as connections_list_item_hide_action, menus as connections_list_item_hide_action_menus } from './src/actions/connections-list-item/hide.js';
+import { connections_list_item_toggle_pinned as connections_list_item_toggle_pinned_action, menus as connections_list_item_toggle_pinned_action_menus } from './src/actions/connections-list-item/toggle_pinned.js';
+import { connections_list_open_help as connections_list_open_help_action, menus as connections_list_open_help_action_menus } from './src/actions/connections-list/open_help.js';
+import { connections_list_open_settings as connections_list_open_settings_action, menus as connections_list_open_settings_action_menus } from './src/actions/connections-list/open_settings.js';
 import { pre_process as connections_list_pre_process_action, pre_process as connections_list_pre_process_action_pre_process } from './src/actions/connections-list/pre_process.js';
 import { connections_list_refresh as connections_list_refresh_action, menus as connections_list_refresh_action_menus } from './src/actions/connections-list/refresh.js';
 import { connections_list_send_to_context as connections_list_send_to_context_action, menus as connections_list_send_to_context_action_menus } from './src/actions/connections-list/send_to_context.js';
 import { connections_list_send_to_smart_graph as connections_list_send_to_smart_graph_action, menus as connections_list_send_to_smart_graph_action_menus } from './src/actions/connections-list/send_to_smart_graph.js';
 import { connections_list_toggle_expanded as connections_list_toggle_expanded_action, menus as connections_list_toggle_expanded_action_menus } from './src/actions/connections-list/toggle_expanded.js';
+import { connections_list_unhide_all as connections_list_unhide_all_action, menus as connections_list_unhide_all_action_menus } from './src/actions/connections-list/unhide_all.js';
+import { connections_list_unpin_all as connections_list_unpin_all_action, menus as connections_list_unpin_all_action_menus } from './src/actions/connections-list/unpin_all.js';
 
 
 export const smart_env_config = {
@@ -45,10 +51,16 @@ export const smart_env_config = {
   },
   actions: {
     connections_list_copy_as_links: { action: connections_list_copy_as_links_action, menus: connections_list_copy_as_links_action_menus, version: "2.4.6" },
+    connections_list_item_hide: { action: connections_list_item_hide_action, menus: connections_list_item_hide_action_menus, version: "2.4.6" },
+    connections_list_item_toggle_pinned: { action: connections_list_item_toggle_pinned_action, menus: connections_list_item_toggle_pinned_action_menus, version: "2.4.6" },
+    connections_list_open_help: { action: connections_list_open_help_action, menus: connections_list_open_help_action_menus, version: "2.4.6" },
+    connections_list_open_settings: { action: connections_list_open_settings_action, menus: connections_list_open_settings_action_menus, version: "2.4.6" },
     connections_list_pre_process: { action: connections_list_pre_process_action, pre_process: connections_list_pre_process_action_pre_process, version: "2.4.6" },
     connections_list_refresh: { action: connections_list_refresh_action, menus: connections_list_refresh_action_menus, version: "2.4.6" },
     connections_list_send_to_context: { action: connections_list_send_to_context_action, menus: connections_list_send_to_context_action_menus, version: "2.4.6" },
     connections_list_send_to_smart_graph: { action: connections_list_send_to_smart_graph_action, menus: connections_list_send_to_smart_graph_action_menus, version: "2.4.6" },
-    connections_list_toggle_expanded: { action: connections_list_toggle_expanded_action, menus: connections_list_toggle_expanded_action_menus, version: "2.4.6" }
+    connections_list_toggle_expanded: { action: connections_list_toggle_expanded_action, menus: connections_list_toggle_expanded_action_menus, version: "2.4.6" },
+    connections_list_unhide_all: { action: connections_list_unhide_all_action, menus: connections_list_unhide_all_action_menus, version: "2.4.6" },
+    connections_list_unpin_all: { action: connections_list_unpin_all_action, menus: connections_list_unpin_all_action_menus, version: "2.4.6" }
   }
 };

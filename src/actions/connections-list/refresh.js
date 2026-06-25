@@ -13,7 +13,10 @@ export async function connections_list_refresh(params = {}) {
   await refresh_entity.read();
   refresh_entity.queue_import();
   await refresh_entity.collection.process_source_import_queue?.();
-  await params.view?.render_view?.({ connections_item: refresh_entity });
+  await params.view?.render_view?.({
+    connections_item: refresh_entity,
+    force: true // required for footer view
+  });
   return true;
 }
 
