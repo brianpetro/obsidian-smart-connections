@@ -8,7 +8,6 @@ import {
  *
  * @this {import('../../items/connections_list.js').ConnectionsList}
  * @param {object} [params={}]
- * @param {HTMLElement} [params.container]
  * @param {object} [params.view]
  * @returns {boolean}
  */
