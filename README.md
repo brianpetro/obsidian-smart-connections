@@ -97,7 +97,7 @@ Surface relationships between notes with zero-setup.
 > 3. **Open the Connections view** to see relevant notes and drag links directly into what you are working on.
 <details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Easy installation + zero-setup</span></summary>
 
-Find Smart Connections in the [Obsidian Community plugins](https://obsidian.md/plugins?id=smart-connections).  
+Find Smart Connections in the [Obsidian Community plugins](https://community.obsidian.md/plugins/smart-connections).  
 ![](/assets/SC-OP-install-and-enable-2025-05-20.png)
 
 #### Install and enable, that is it
