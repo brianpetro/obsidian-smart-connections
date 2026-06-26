@@ -35,3 +35,5 @@ export const menus = {
     },
   },
 };
+
+export const version = '0.0.1'; // minimal so that Smart Graph can override this action with its own version
