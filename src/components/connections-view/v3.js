@@ -108,10 +108,6 @@ export async function post_process(view, container, opts = {}) {
         connections_settings,
         visible_results,
       });
-
-      // TEMP: Backward-compatible extension point for existing plugin-registered items (remove after migration)
-      env.build_menu?.('connections_list', menu, connections_list);
-
       menu.showAtMouseEvent(event);
     });
   }
