@@ -13,7 +13,7 @@ function get_context_items(connections_list, params = {}) {
   if (!results.length) return [];
 
   return build_connections_context_items({
-    source_item: params.connections_item || connections_list?.item,
+    source_item: connections_list?.item,
     results,
   });
 }
@@ -24,7 +24,6 @@ function get_context_items(connections_list, params = {}) {
  * @this {import('../../items/connections_list.js').ConnectionsList}
  * @param {object} [params={}]
  * @param {Array<object>} [params.visible_results]
- * @param {object} [params.connections_item]
  * @returns {boolean}
  */
 export function connections_list_send_to_context(params = {}) {

@@ -10,14 +10,13 @@ const SC_RESULT_HIDDEN_CLASS = 'sc-result-hidden-by-feedback';
  *
  * @this {import('../../items/connections_list.js').ConnectionsList}
  * @param {object} [params={}]
- * @param {object} [params.source_item]
  * @param {object} [params.target_item]
  * @param {string} [params.prefixed_key]
  * @param {HTMLElement} [params.container]
  * @returns {boolean}
  */
 export function connections_list_item_hide(params = {}) {
-  const source_item = params.source_item || this?.item;
+  const source_item = this?.item;
   const target_item = params.target_item;
   const prefixed_key = params.prefixed_key
     || build_prefixed_connection_key(target_item?.collection_key, target_item?.key)

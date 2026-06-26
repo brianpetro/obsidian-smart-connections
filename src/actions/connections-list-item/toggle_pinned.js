@@ -6,8 +6,7 @@ import {
 } from '../../utils/connections_list_item_state.js';
 
 function get_menu_pinned_state(menu_ctx) {
-  if (typeof menu_ctx.params.pinned === 'boolean') return menu_ctx.params.pinned;
-  const source_item = menu_ctx.params.source_item || menu_ctx.scope?.item;
+  const source_item = menu_ctx.scope?.item;
   const target_item = menu_ctx.params.target_item;
   const prefixed_key = menu_ctx.params.prefixed_key
     || build_prefixed_connection_key(target_item?.collection_key, target_item?.key)
@@ -20,14 +19,13 @@ function get_menu_pinned_state(menu_ctx) {
  *
  * @this {import('../../items/connections_list.js').ConnectionsList}
  * @param {object} [params={}]
- * @param {object} [params.source_item]
  * @param {object} [params.target_item]
  * @param {string} [params.prefixed_key]
  * @param {HTMLElement} [params.container]
  * @returns {boolean}
  */
 export function connections_list_item_toggle_pinned(params = {}) {
-  const source_item = params.source_item || this?.item;
+  const source_item = this?.item;
   const target_item = params.target_item;
   const prefixed_key = params.prefixed_key
     || build_prefixed_connection_key(target_item?.collection_key, target_item?.key)
@@ -55,7 +53,7 @@ export function connections_list_item_toggle_pinned(params = {}) {
     source_item.collection.save();
     return true;
   } catch (err) {
-    const title_prefix = params.pinned ? 'Unpin' : 'Pin';
+    const title_prefix = is_connection_pinned(source_item?.data?.connections, prefixed_key) ? 'Unpin' : 'Pin';
     env?.events?.emit?.('connections:pin_toggle_failed', {
       level: 'error',
       message: `${title_prefix} failed - check console`,

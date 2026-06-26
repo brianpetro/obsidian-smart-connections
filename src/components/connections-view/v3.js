@@ -105,10 +105,7 @@ export async function post_process(view, container, opts = {}) {
       env.build_menu?.('connections:list_menu', menu, connections_list, {
         view,
         container,
-        connections_item,
-        connections_list,
         connections_settings,
-        raw_results,
         visible_results,
       });
 

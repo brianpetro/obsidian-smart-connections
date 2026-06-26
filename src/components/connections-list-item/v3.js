@@ -158,17 +158,13 @@ export async function post_process(result_scope, container, params = {}) {
     const visible_results = filter_hidden_results(raw_results, source_item.data.connections);
     const list_container = container.closest('.connections-list') || container;
     const target_name = get_item_display_name(item, component_settings) || item.key;
-    const pinned = is_connection_pinned(source_item.data.connections, prefixed_key);
     const menu = new Menu(app);
 
     env.build_menu?.('connections:list_item_menu', menu, connections_list, {
-      connections_list,
       container,
       prefixed_key,
-      source_item,
       target_item: item,
       target_name,
-      pinned,
       view: params.view,
     });
 
@@ -176,9 +172,7 @@ export async function post_process(result_scope, container, params = {}) {
 
     env.build_menu?.('connections:list_menu', menu, connections_list, {
       container: list_container,
-      connections_item: source_item,
       connections_settings,
-      raw_results,
       visible_results,
       view: params.view,
     });
