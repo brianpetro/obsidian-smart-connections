@@ -23,9 +23,12 @@ import { pre_process as connections_list_pre_process_action, pre_process as conn
 import { connections_list_refresh as connections_list_refresh_action, menus as connections_list_refresh_action_menus } from './src/actions/connections-list/refresh.js';
 import { connections_list_send_to_context as connections_list_send_to_context_action, menus as connections_list_send_to_context_action_menus } from './src/actions/connections-list/send_to_context.js';
 import { connections_list_send_to_smart_graph as connections_list_send_to_smart_graph_action, menus as connections_list_send_to_smart_graph_action_menus, version as connections_list_send_to_smart_graph_action_version } from './src/actions/connections-list/send_to_smart_graph.js';
+import { connections_list_target_menu as connections_list_target_menu_action, menus as connections_list_target_menu_action_menus } from './src/actions/connections-list/target_menu.js';
 import { connections_list_toggle_expanded as connections_list_toggle_expanded_action, menus as connections_list_toggle_expanded_action_menus } from './src/actions/connections-list/toggle_expanded.js';
 import { connections_list_unhide_all as connections_list_unhide_all_action, menus as connections_list_unhide_all_action_menus } from './src/actions/connections-list/unhide_all.js';
 import { connections_list_unpin_all as connections_list_unpin_all_action, menus as connections_list_unpin_all_action_menus } from './src/actions/connections-list/unpin_all.js';
+import { connections_target_blocks as connections_target_blocks_action, menus as connections_target_blocks_action_menus } from './src/actions/connections-target/blocks.js';
+import { connections_target_history as connections_target_history_action, menus as connections_target_history_action_menus } from './src/actions/connections-target/history.js';
 
 
 export const smart_env_config = {
@@ -59,8 +62,11 @@ export const smart_env_config = {
     connections_list_refresh: { action: connections_list_refresh_action, menus: connections_list_refresh_action_menus, version: "2.4.6" },
     connections_list_send_to_context: { action: connections_list_send_to_context_action, menus: connections_list_send_to_context_action_menus, version: "2.4.6" },
     connections_list_send_to_smart_graph: { action: connections_list_send_to_smart_graph_action, menus: connections_list_send_to_smart_graph_action_menus, version: connections_list_send_to_smart_graph_action_version },
+    connections_list_target_menu: { action: connections_list_target_menu_action, menus: connections_list_target_menu_action_menus, version: "2.4.6" },
     connections_list_toggle_expanded: { action: connections_list_toggle_expanded_action, menus: connections_list_toggle_expanded_action_menus, version: "2.4.6" },
     connections_list_unhide_all: { action: connections_list_unhide_all_action, menus: connections_list_unhide_all_action_menus, version: "2.4.6" },
-    connections_list_unpin_all: { action: connections_list_unpin_all_action, menus: connections_list_unpin_all_action_menus, version: "2.4.6" }
+    connections_list_unpin_all: { action: connections_list_unpin_all_action, menus: connections_list_unpin_all_action_menus, version: "2.4.6" },
+    connections_target_blocks: { action: connections_target_blocks_action, menus: connections_target_blocks_action_menus, version: "2.4.6" },
+    connections_target_history: { action: connections_target_history_action, menus: connections_target_history_action_menus, version: "2.4.6" }
   }
 };
