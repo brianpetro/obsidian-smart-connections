@@ -14,3 +14,7 @@ improved: Connections list item menu now handled using Smart Environment menu ac
 
 
 Added: control connections anchor/target note from menu actions. Select new target from recent connections history and blocks inside the current note.
+
+
+Improved: random and pause connections features migrated to actions pattern.
+Added: view connections action for source menus.
