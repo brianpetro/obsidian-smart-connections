@@ -17,7 +17,6 @@ import { ReleaseNotesView } from "./views/release_notes_view.js";
 // import { ConnectionsLookupItemView } from './views/lookup_item_view.js';
 
 import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
-import { get_random_connection } from "./utils/get_random_connection.js";
 import { add_smart_dice_icon } from "./utils/add_icons.js";
 import { should_relocate_leaf } from "./utils/view_leaf_location.js";
 
@@ -27,6 +26,10 @@ import { connections_footer_plugin } from './views/connections_footer_deco.js';
 import { ConnectionsFooterView } from './views/connections_footer_view.js';
 import { register_smart_connections_codeblock } from "./views/connections_codeblock.js";
 import { build_connections_codeblock } from "./utils/build_connections_codeblock.js";
+import {
+  connections_list_open_random_connection,
+  open_random_connection_command,
+} from './actions/connections-list/open_random_connection.js';
 
 export default class SmartConnectionsPlugin extends SmartPlugin {
   SmartEnv = SmartEnv;
@@ -225,10 +228,10 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     return {
       ...super.commands,
       random_connection: {
-        id: "smart-connections-random",
-        name: "Open: Random note from connections",
+        id: open_random_connection_command.id,
+        name: open_random_connection_command.name,
         callback: async () => {
-          await this.open_random_connection();
+          await open_random_connection_command.callback(this);
         }
       },
       getting_started: {
@@ -260,26 +263,10 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
   }
 
   async open_random_connection() {
-    const curr_file = this.app.workspace.getActiveFile();
-    if (!curr_file) {
-      this.env?.events?.emit('connections:open_random_unavailable', {
-        level: 'warning',
-        message: 'No active file to find connections for.',
-        event_source: 'open_random_connection',
-      });
-      return;
-    }
-    const rand_entity = await get_random_connection(this.env, curr_file.path);
-    if (!rand_entity) {
-      this.env?.events?.emit('connections:open_random_unavailable', {
-        level: 'warning',
-        message: `Cannot open random connection for non-embedded source: ${curr_file.path}`,
-        event_source: 'open_random_connection',
-      });
-      return;
-    }
-    this.open_note(rand_entity.item.path);
-    this.env?.events?.emit?.('connections:open_random');
+    return await connections_list_open_random_connection.call(this.env?.connections_lists, {
+      plugin: this,
+      event_source: 'open_random_connection',
+    });
   }
 
   /**
@@ -323,3 +310,4 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     }
   }
 }
+

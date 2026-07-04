@@ -107,8 +107,12 @@ export async function post_process(view, container, opts = {}) {
     container._has_listeners = true;
 
     const pause_button = container.querySelector('[data-action="toggle-pause"]');
-    pause_button?.addEventListener('click', () => {
-      view.toggle_connections_paused();
+    pause_button?.addEventListener('click', async () => {
+      const state = container._connections_menu_state;
+      const action = state?.connections_list?.actions?.connections_list_toggle_paused;
+      if (typeof action === 'function') {
+        await action(get_connections_menu_params(state));
+      }
     });
 
     const menu_button = container.querySelector('[data-action="open-menu"]');
@@ -234,3 +238,4 @@ function show_menu(menu, event, anchor_el) {
     clientY: rect.bottom,
   }));
 }
+

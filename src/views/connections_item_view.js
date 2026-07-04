@@ -1,5 +1,4 @@
 import { SmartItemView } from 'obsidian-smart-env/views/smart_item_view.js';
-import { apply_pause_state, toggle_pause_state } from '../utils/pause_controls.js';
 export class ConnectionsItemView extends SmartItemView {
   static get view_type() { return 'smart-connections-view'; }
   static get display_text() { return 'Connections'; }
@@ -59,7 +58,8 @@ export class ConnectionsItemView extends SmartItemView {
         const item = collection.get(event.item_key);
         // console.log({collection, item});
         if(item){
-          this.set_connections_paused(true);
+          this.paused = true;
+          this.pause_controls?.update?.(true);
           this.render_view({connections_item: item});
         }
       }
@@ -82,23 +82,6 @@ export class ConnectionsItemView extends SmartItemView {
   register_pause_controls(controls) {
     this.pause_controls = controls;
     this.pause_controls?.update(this.paused);
-  }
-
-  /**
-   * Set the paused state and sync UI controls.
-   * @param {boolean} paused
-   * @returns {boolean}
-   */
-  set_connections_paused(paused) {
-    return apply_pause_state(this, paused);
-  }
-
-  /**
-   * Toggle the paused state and sync UI controls.
-   * @returns {boolean}
-   */
-  toggle_connections_paused() {
-    return toggle_pause_state(this);
   }
 }
 

@@ -13,7 +13,17 @@ export async function get_random_connection(env, file_path, { rng = Math.random 
   const source = env.smart_sources.get(file_path);
   if (!source?.should_embed) return null;
 
-  const connections = await source.connections.get_results({ limit: DEFAULT_RESULTS_LIMIT });
+  const connections_list = source.connections || env.connections_lists?.new_item?.(source);
+  if (typeof connections_list?.get_results !== 'function') return null;
+
+  let connections = [];
+  try {
+    connections = await connections_list.get_results({ limit: DEFAULT_RESULTS_LIMIT });
+  } catch (err) {
+    console.error('get_random_connection: failed to get connections', err);
+    return null;
+  }
+
   if (!Array.isArray(connections) || connections.length === 0) return null;
 
   return pick_weighted_connection(connections, { rng });
