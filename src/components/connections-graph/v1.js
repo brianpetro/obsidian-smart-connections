@@ -1,4 +1,6 @@
 import styles_css from './v1.css';
+import { select } from 'd3-selection';
+import { forceCollide, forceManyBody, forceRadial, forceSimulation } from 'd3-force';
 import { get_item_display_name } from 'obsidian-smart-env/src/utils/get_item_display_name.js';
 import { cos_sim } from 'smart-utils/cos_sim.js';
 import { register_item_drag } from 'obsidian-smart-env/src/utils/register_item_drag.js';
@@ -105,67 +107,20 @@ function parse_prefixed_key(prefixed_key) {
 
 
 /**
- * CDN settings for D3 used by the graph component.
- * Uses D3's CDN-hosted ESM bundle so the loader does not create a script element.
+ * D3 primitives used by the connections graph, bundled at build time
+ * (see the d3-selection / d3-force dependencies in package.json).
+ * Bundling avoids fetching and executing remote code at runtime, per
+ * Obsidian's developer policy prohibiting loading code from a CDN.
  */
-const D3_CDN_URL = 'https://cdn.jsdelivr.net/npm/d3@7/+esm';
-const D3_EXPECTED_MAJOR = '7.';
-let d3_import_promise = null;
+const d3_lib = { select, forceCollide, forceManyBody, forceRadial, forceSimulation };
 
 /**
- * Resolve the D3 CDN URL as runtime data so the bundler preserves the import expression.
- * @returns {string}
- */
-function get_d3_cdn_url() {
-  return D3_CDN_URL;
-}
-
-/**
- * Validate a candidate d3 instance and log if it looks unexpected.
- * @param {any} d3
- */
-function validate_d3_instance(d3) {
-  if (!d3) return;
-  const version = String(d3.version || '');
-  if (version && !version.startsWith(D3_EXPECTED_MAJOR)) {
-    console.warn(
-      `[connections_graph] Loaded d3 version "${version}" but expected v${D3_EXPECTED_MAJOR}x`
-    );
-  }
-}
-
-/**
- * Lazy-loads D3 from the CDN ESM bundle once without creating a script element.
- * If a global d3 already exists it is reused.
- * @returns {Promise<typeof import('d3')>}
+ * Returns the bundled d3 primitives.
+ * Kept async so existing `await load_d3()` call sites remain unchanged.
+ * @returns {Promise<typeof d3_lib>}
  */
 async function load_d3() {
-  const g = typeof activeWindow !== 'undefined'
-    ? activeWindow
-    : (typeof globalThis !== 'undefined'
-      ? globalThis
-      : (typeof window !== 'undefined' ? window : {}));
-
-  if (g.d3) {
-    validate_d3_instance(g.d3);
-    return g.d3;
-  }
-
-  if (!d3_import_promise) {
-    const d3_cdn_url = get_d3_cdn_url();
-    d3_import_promise = import(d3_cdn_url)
-      .then((d3) => {
-        validate_d3_instance(d3);
-        if (!g.d3) g.d3 = d3;
-        return d3;
-      })
-      .catch((err) => {
-        d3_import_promise = null;
-        throw err;
-      });
-  }
-
-  return d3_import_promise;
+  return d3_lib;
 }
 
 /**
