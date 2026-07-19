@@ -36,6 +36,8 @@
     "swagger-jsdoc": "^6.2.8"
   },
   "dependencies": {
+    "d3-force": "^3.0.0",
+    "d3-selection": "^3.0.0",
     "js-tiktoken": "^1.0.19",
     "obsidian": "latest",
     "obsidian-smart-env": "file:../obsidian-smart-env",
