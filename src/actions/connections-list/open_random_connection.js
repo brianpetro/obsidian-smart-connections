@@ -7,17 +7,6 @@ const NATIVE_RANDOM_NOTE_COMMAND_IDS = [
   'random-note',
 ];
 
-export const open_random_connection_command = {
-  id: 'smart-connections-random',
-  name: 'Open: Random note from connections',
-  callback: async (plugin) => {
-    return await connections_list_open_random_connection.call(plugin?.env?.connections_lists, {
-      plugin,
-      event_source: 'command_palette',
-    });
-  },
-};
-
 /**
  * Open a weighted random connection for the current Connections target or active note.
  * Falls back to Obsidian's native random note command when no note is active.
@@ -124,10 +113,9 @@ function get_native_random_note_command_id(app) {
   return match?.[0] || '';
 }
 
-export const ribbon_icons = {
-  random_note: {
-    icon_name: 'smart-dice',
-    description: 'Smart Connections: Open random connection',
+export const commands = {
+  'smart-connections-random': {
+    name: 'Open: Random note from connections',
 
     register_when({ plugin }) {
       return plugin.manifest.id === 'smart-connections';
@@ -135,6 +123,21 @@ export const ribbon_icons = {
 
     params({ plugin }) {
       return { plugin };
+    },
+
+    get_scope({ env }) {
+      return env.connections_lists;
+    },
+  },
+};
+
+export const ribbon_icons = {
+  random_note: {
+    icon_name: 'smart-dice',
+    description: 'Smart Connections: Open random connection',
+
+    register_when({ plugin }) {
+      return plugin.manifest.id === 'smart-connections';
     },
 
     get_scope({ env }) {

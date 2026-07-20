@@ -3,6 +3,7 @@ export class ConnectionsItemView extends SmartItemView {
   static get view_type() { return 'smart-connections-view'; }
   static get display_text() { return 'Connections'; }
   static get icon_name() { return 'smart-connections'; }
+  static get register_open_command() { return false; }
 
   constructor(leaf, plugin) {
     super(leaf, plugin);

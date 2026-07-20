@@ -1,8 +1,6 @@
 import Obsidian from "obsidian";
 const {
-  Plugin,
   requestUrl,
-  Platform,
 } = Obsidian;
 
 import { SmartEnv } from 'obsidian-smart-env';
@@ -25,10 +23,8 @@ import { ConnectionsItemView } from "./views/connections_item_view.js";
 import { connections_footer_plugin } from './views/connections_footer_deco.js';
 import { ConnectionsFooterView } from './views/connections_footer_view.js';
 import { register_smart_connections_codeblock } from "./views/connections_codeblock.js";
-import { build_connections_codeblock } from "./utils/build_connections_codeblock.js";
 import {
   connections_list_open_random_connection,
-  open_random_connection_command,
 } from './actions/connections-list/open_random_connection.js';
 
 export default class SmartConnectionsPlugin extends SmartPlugin {
@@ -62,8 +58,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     this.SmartEnv.create(this, this.smart_env_config);
     this.addSettingTab(new this.ConnectionsSettingsTab(this.app, this));
     add_smart_dice_icon();
-    this.register_commands();
-    this.register_item_views();
+    this.register_item_views({skip_command_registration: true});
   }
 
   onunload() {
@@ -92,6 +87,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
       this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env");
     });
     await this.SmartEnv.wait_for({ loaded: true });
+    this.register_command_actions();
     this.wrap_connections_view_open();
     this.apply_connections_view_location();
     this.register_connections_view_location_listener();
@@ -187,44 +183,6 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  get commands() {
-    return {
-      ...super.commands,
-      random_connection: {
-        id: open_random_connection_command.id,
-        name: open_random_connection_command.name,
-        callback: async () => {
-          await open_random_connection_command.callback(this);
-        }
-      },
-      getting_started: {
-        id: "smart-connections-getting-started",
-        name: "Show: Getting started slideshow",
-        callback: () => {
-          StoryModal.open(this, {
-            title: 'Getting Started With Smart Connections',
-            url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=sc-op-command',
-          });
-        }
-      },
-      insert_connections_codeblock: {
-        id: 'insert-connections-codeblock',
-        name: 'Insert: Connections codeblock',
-        editorCallback: (editor) => {
-          editor.replaceSelection(build_connections_codeblock());
-        }
-      },
-      toggle_footer_connections: {
-        id: 'toggle-footer-connections',
-        name: 'Toggle: Footer connections',
-        callback: () => {
-          const settings = this.env.connections_lists.settings;
-          settings.footer_connections = !settings.footer_connections;
-        }
-      },
-    };
   }
 
   async open_random_connection() {

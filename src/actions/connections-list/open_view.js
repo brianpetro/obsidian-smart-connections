@@ -31,3 +31,17 @@ export const ribbon_icons = {
     },
   },
 };
+
+export const commands = {
+  'smart-connections-view': {
+    name: 'Open: Connections view',
+
+    register_when({ plugin }) {
+      return plugin.manifest.id === 'smart-connections';
+    },
+
+    params({ plugin }) {
+      return { plugin };
+    },
+  },
+};
