@@ -64,7 +64,6 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     add_smart_dice_icon();
     this.register_commands();
     this.register_item_views();
-    this.register_ribbon_icons();
   }
 
   onunload() {
@@ -75,6 +74,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
   }
 
   async initialize() {
+    this.register_ribbon_actions();
     this.smart_connections_view = null;
     this.is_new_user().then(async (is_new) => {
       if (!is_new) return;
@@ -102,41 +102,6 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     }
     this.toggled_footer_connections();
     await this.check_for_updates();
-  }
-
-  get ribbon_icons() {
-    return {
-      connections: {
-        icon_name: "smart-connections",
-        description: "Smart Connections: Open connections view",
-        callback: () => { this.open_connections_view(); }
-      },
-      footer_connections: {
-        description: 'Toggle Footer Connections',
-        icon_name: 'smart-footer-connections',
-        callback: () => {
-          const settings = this.env.connections_lists.settings;
-          settings.footer_connections = !settings.footer_connections;
-        }
-      },
-      random_note: {
-        icon_name: "smart-dice",
-        description: "Smart Connections: Open random connection",
-        callback: () => { this.open_random_connection(); }
-      },
-      // DEPRECATED 2026-05-14: Smart Lookup is a standalone plugin available in plugin index.
-      // The legacy Smart Connections Lookup ribbon icon depended on ConnectionsLookupItemView.
-      // ...(app.plugins.enabledPlugins.has('smart-lookup')
-      //   ? {}
-      //   : {
-      //     lookup: {
-      //       icon_name: "smart-lookup",
-      //       description: "Smart Lookup: Open lookup view",
-      //       callback: () => { this.open_lookup_view_connections(); }
-      //     },
-      //   }
-      // ),
-    };
   }
 
   get settings() { return this.env?.settings || {}; }

@@ -124,6 +124,25 @@ function get_native_random_note_command_id(app) {
   return match?.[0] || '';
 }
 
+export const ribbon_icons = {
+  random_note: {
+    icon_name: 'smart-dice',
+    description: 'Smart Connections: Open random connection',
+
+    register_when({ plugin }) {
+      return plugin.manifest.id === 'smart-connections';
+    },
+
+    params({ plugin }) {
+      return { plugin };
+    },
+
+    get_scope({ env }) {
+      return env.connections_lists;
+    },
+  },
+};
+
 export const menus = {
   'connections:list_menu': {
     title: 'Open random connection',
