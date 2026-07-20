@@ -21,3 +21,6 @@ Added: view connections action for source menus.
 
 
 migrated: ribbon icons to actions architecture
+
+
+Migrated commands to actions command architecture
