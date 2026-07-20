@@ -18,3 +18,6 @@ Added: control connections anchor/target note from menu actions. Select new targ
 
 Improved: random and pause connections features migrated to actions pattern.
 Added: view connections action for source menus.
+
+
+migrated: ribbon icons to actions architecture
