@@ -23,9 +23,6 @@ import { ConnectionsItemView } from "./views/connections_item_view.js";
 import { connections_footer_plugin } from './views/connections_footer_deco.js';
 import { ConnectionsFooterView } from './views/connections_footer_view.js';
 import { register_smart_connections_codeblock } from "./views/connections_codeblock.js";
-import {
-  connections_list_open_random_connection,
-} from './actions/connections-list/open_random_connection.js';
 
 export default class SmartConnectionsPlugin extends SmartPlugin {
   SmartEnv = SmartEnv;
@@ -183,13 +180,6 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  async open_random_connection() {
-    return await connections_list_open_random_connection.call(this.env?.connections_lists, {
-      plugin: this,
-      event_source: 'open_random_connection',
-    });
   }
 
   /**

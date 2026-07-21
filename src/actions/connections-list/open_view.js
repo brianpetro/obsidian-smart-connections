@@ -6,7 +6,7 @@
  * @returns {Promise<boolean>}
  */
 export async function connections_list_open_view(params = {}) {
-  const plugin = params.plugin || this?.env?.main;
+  const plugin = params.plugin || this?.env?.smart_connections_plugin;
   if (typeof plugin?.open_connections_view !== 'function') return false;
 
   await plugin.open_connections_view();
@@ -42,6 +42,10 @@ export const commands = {
 
     params({ plugin }) {
       return { plugin };
+    },
+
+    get_scope({ env }) {
+      return env.connections_lists;
     },
   },
 };
