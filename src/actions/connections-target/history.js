@@ -1,12 +1,27 @@
 const HISTORY_LIMIT = 10;
 
 /**
- * Menu-only action for recent Connections targets.
+ * Return selectable recent Connections targets.
  *
- * @returns {boolean}
+ * This synchronous query keeps one target-provider module independently
+ * includable while child selection delegates to the shared semantic action.
+ *
+ * @this {import('../../items/connections_list.js').ConnectionsList}
+ * @param {object} [params={}]
+ * @param {object} [params.view]
+ * @returns {Array<object>}
  */
-export function connections_target_history() {
-  return false;
+export function connections_target_history(params = {}) {
+  const history = Array.isArray(params.view?.connections_target_history)
+    ? params.view.connections_target_history
+    : []
+  ;
+
+  return history
+    .slice(0, HISTORY_LIMIT)
+    .map((key) => this.env.smart_sources?.get?.(key) || this.env.smart_sources?.items?.[key])
+    .filter(Boolean)
+  ;
 }
 
 export const menus = {
@@ -15,7 +30,7 @@ export const menus = {
     icon: 'history',
     order: 10,
     build() {
-      const sources = get_history_sources(this);
+      const sources = resolve_target_candidates(this);
 
       this.menu.addItem((item) => {
         item
@@ -32,7 +47,7 @@ export const menus = {
               .setTitle(source.key)
               .setIcon('file-text')
               .onClick(async () => {
-                await select_connections_target(this, source, 'connections_target_history');
+                return await run_select_target(this, source);
               })
             ;
           });
@@ -42,28 +57,21 @@ export const menus = {
   },
 };
 
-function get_history_sources(menu_ctx) {
-  const history = Array.isArray(menu_ctx.params?.view?.connections_target_history)
-    ? menu_ctx.params.view.connections_target_history
-    : []
-  ;
+function resolve_target_candidates(menu_ctx) {
+  const action = menu_ctx.resolve_action?.();
+  if (typeof action !== 'function') return [];
 
-  return history
-    .slice(0, HISTORY_LIMIT)
-    .map((key) => menu_ctx.env.smart_sources?.get?.(key) || menu_ctx.env.smart_sources?.items?.[key])
-    .filter(Boolean)
-  ;
+  const candidates = action(menu_ctx.params);
+  return Array.isArray(candidates) ? candidates : [];
 }
 
-async function select_connections_target(menu_ctx, target_item, event_source) {
-  const view = menu_ctx.params?.view;
-  if (!target_item || typeof view?.render_view !== 'function') return false;
+async function run_select_target(menu_ctx, target_item) {
+  const action = menu_ctx.scope?.actions?.connections_list_select_target;
+  if (typeof action !== 'function') return false;
 
-  view.paused = true;
-  await view.render_view({
-    connections_item: target_item,
-    event_source,
-    force: true,
+  return await action({
+    target_item,
+    view: menu_ctx.params?.view,
+    event_source: menu_ctx.event_source,
   });
-  return true;
 }

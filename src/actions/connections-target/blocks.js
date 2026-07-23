@@ -1,12 +1,28 @@
 import { get_block_display_name } from 'obsidian-smart-env/src/utils/get_block_display_name.js';
 
 /**
- * Menu-only action for blocks in the current Connections source.
+ * Return selectable blocks from the current Connections source.
  *
- * @returns {boolean}
+ * This synchronous query keeps one target-provider module independently
+ * includable while child selection delegates to the shared semantic action.
+ *
+ * @this {import('../../items/connections_list.js').ConnectionsList}
+ * @returns {Array<object>}
  */
 export function connections_target_blocks() {
-  return false;
+  const current_key = this.item?.key || '';
+  const source_key = current_key.split('#')[0];
+  const source = this.env.smart_sources?.get?.(source_key)
+    || this.env.smart_sources?.items?.[source_key]
+  ;
+  const blocks = Array.isArray(source?.blocks) ? [...source.blocks] : [];
+
+  return blocks.sort((left, right) => {
+    const left_line = get_block_first_line(left);
+    const right_line = get_block_first_line(right);
+    if (left_line !== right_line) return left_line - right_line;
+    return String(left?.key || '').localeCompare(String(right?.key || ''));
+  });
 }
 
 export const menus = {
@@ -15,7 +31,7 @@ export const menus = {
     icon: 'blocks',
     order: 20,
     build() {
-      const blocks = get_current_source_blocks(this);
+      const blocks = resolve_target_candidates(this);
 
       this.menu.addItem((item) => {
         item
@@ -32,7 +48,7 @@ export const menus = {
               .setTitle(get_block_title(block))
               .setDisabled(!block?.vec)
               .onClick(async () => {
-                await select_connections_target(this, block, 'connections_target_blocks');
+                return await run_select_target(this, block);
               })
             ;
           });
@@ -42,20 +58,12 @@ export const menus = {
   },
 };
 
-function get_current_source_blocks(menu_ctx) {
-  const current_key = menu_ctx.scope?.item?.key || '';
-  const source_key = current_key.split('#')[0];
-  const source = menu_ctx.env.smart_sources?.get?.(source_key)
-    || menu_ctx.env.smart_sources?.items?.[source_key]
-  ;
-  const blocks = Array.isArray(source?.blocks) ? [...source.blocks] : [];
+function resolve_target_candidates(menu_ctx) {
+  const action = menu_ctx.resolve_action?.();
+  if (typeof action !== 'function') return [];
 
-  return blocks.sort((left, right) => {
-    const left_line = get_block_first_line(left);
-    const right_line = get_block_first_line(right);
-    if (left_line !== right_line) return left_line - right_line;
-    return String(left?.key || '').localeCompare(String(right?.key || ''));
-  });
+  const candidates = action(menu_ctx.params);
+  return Array.isArray(candidates) ? candidates : [];
 }
 
 function get_block_first_line(block) {
@@ -72,15 +80,13 @@ function get_block_title(block) {
   ;
 }
 
-async function select_connections_target(menu_ctx, target_item, event_source) {
-  const view = menu_ctx.params?.view;
-  if (!target_item || typeof view?.render_view !== 'function') return false;
+async function run_select_target(menu_ctx, target_item) {
+  const action = menu_ctx.scope?.actions?.connections_list_select_target;
+  if (typeof action !== 'function') return false;
 
-  view.paused = true;
-  await view.render_view({
-    connections_item: target_item,
-    event_source,
-    force: true,
+  return await action({
+    target_item,
+    view: menu_ctx.params?.view,
+    event_source: menu_ctx.event_source,
   });
-  return true;
 }
