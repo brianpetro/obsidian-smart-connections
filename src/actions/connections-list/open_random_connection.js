@@ -151,6 +151,9 @@ export const menus = {
     title: 'Open random connection',
     icon: 'smart-dice',
     order: 40,
+    params(_menu_ctx, event) {
+      return { event };
+    },
   },
 };
 
