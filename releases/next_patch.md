@@ -24,3 +24,6 @@ migrated: ribbon icons to actions architecture
 
 
 Migrated commands to actions command architecture
+
+
+Added: drag-and-drop functionality for connections to update connections target from dropped file
