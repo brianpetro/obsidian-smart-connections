@@ -1,7 +1,8 @@
 import styles from './v3.css';
-import { Menu } from 'obsidian';
+import { Menu, Notice } from 'obsidian';
 import { get_context_lines } from '../../utils/context_lines.js';
 import { filter_hidden_results } from '../../utils/filter_hidden_results.js';
+import { resolve_dropped_connections_targets } from '../../utils/resolve_dropped_connections_targets.js';
 
 const CONNECTIONS_TARGET_HISTORY_LIMIT = 10;
 
@@ -141,6 +142,53 @@ export async function post_process(view, container, opts = {}) {
       if (event.key !== 'Enter' && event.key !== ' ') return;
       open_target_menu(event);
     });
+
+    const set_target_drag_over = (active) => {
+      container.classList.toggle('is-drag-over', Boolean(active));
+    };
+    const on_target_dragenter = (event) => {
+      event.preventDefault();
+      set_target_drag_over(true);
+    };
+    const on_target_dragover = (event) => {
+      event.preventDefault();
+      set_target_drag_over(true);
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+    };
+    const on_target_dragleave = (event) => {
+      if (event.relatedTarget && container.contains(event.relatedTarget)) return;
+      set_target_drag_over(false);
+    };
+    const on_target_drop = async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      set_target_drag_over(false);
+
+      const targets = resolve_dropped_connections_targets(env, event.dataTransfer);
+      if (!targets.length) {
+        new Notice('Drop one indexed note or block into Connections.');
+        return;
+      }
+      if (targets.length > 1) {
+        new Notice('Drop one Connections target at a time.');
+        return;
+      }
+
+      const state = container._connections_menu_state;
+      const action = state?.connections_list?.actions?.connections_list_select_target;
+      if (typeof action !== 'function') return;
+
+      await action({
+        target_item: targets[0],
+        view: state.view,
+        event_source: 'connections_view.drop_target',
+      });
+    };
+
+    container.addEventListener('dragenter', on_target_dragenter);
+    container.addEventListener('dragover', on_target_dragover);
+    container.addEventListener('dragleave', on_target_dragleave);
+    container.addEventListener('drop', on_target_drop);
   }
 
   const connections_list_component_key = opts.connections_list_component_key

@@ -1,4 +1,10 @@
 .connections-view-early {
+  &.is-drag-over {
+    border-radius: var(--radius-s);
+    background: color-mix(in srgb, var(--interactive-accent) 6%, transparent);
+    box-shadow: inset 0 0 0 2px var(--interactive-accent);
+  }
+
   .connections-top-bar {
     display: flex;
     gap: 0.5rem 1rem;
@@ -32,6 +38,7 @@
         font-size: 1.05em;
         font-weight: 600;
       }
+
     }
   }
   .connections-list {
