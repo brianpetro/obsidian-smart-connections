@@ -27,3 +27,6 @@ Migrated commands to actions command architecture
 
 
 Added: drag-and-drop functionality for connections to update connections target from dropped file
+
+
+Enhance performance logging in get_results method and emit event with elapsed time
