@@ -51,11 +51,13 @@ export class ConnectionsList extends CollectionItem {
     await this.pre_process(params);
     
     // Main filtering and scoring
-    // log performance of filter_and_score
-    if (this.env.log_perf) this.start_ms = Date.now();
+    // Measure only filter_and_score so WASM and JS retrieval paths are comparable.
+    const start_ms = Date.now();
+    if (this.env.log_perf) this.start_ms = start_ms;
     let results = this.filter_and_score(params);
+    const end_ms = Date.now();
     if (this.env.log_perf) {
-      this.end_ms = Date.now();
+      this.end_ms = end_ms;
       // console.log(`filter_and_score(${params.score_algo_key}) took ${this.end_ms - this.start_ms} ms (Date.now)`);
     }
     // Post-process if needed
@@ -64,6 +66,9 @@ export class ConnectionsList extends CollectionItem {
 
     results = results.map(r => Object.assign(r, {connections_list: this}));
     this.results = results; // cache for access via this downstream
+    this.emit_event('connections:get_results', {
+      elapsed_ms: end_ms - start_ms,
+    });
     return results;
   }
 
