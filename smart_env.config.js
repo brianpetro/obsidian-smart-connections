@@ -15,6 +15,7 @@ import { render as connections_settings_lookup_callout_component } from './src/c
 import { render as connections_view_v3_component } from './src/components/connections-view/v3.js';
 
 import { connections_list_copy_as_links as connections_list_copy_as_links_action, menus as connections_list_copy_as_links_action_menus } from './src/actions/connections-list/copy_as_links.js';
+import { connections_list_get_results as connections_list_get_results_action, display_name as connections_list_get_results_action_display_name, display_description as connections_list_get_results_action_display_description, action_scope as connections_list_get_results_action_action_scope, tool as connections_list_get_results_action_tool, input_schema as connections_list_get_results_action_input_schema, output_schema as connections_list_get_results_action_output_schema } from './src/actions/connections-list/get_results.js';
 import { connections_list_item_hide as connections_list_item_hide_action, menus as connections_list_item_hide_action_menus } from './src/actions/connections-list-item/hide.js';
 import { connections_list_item_toggle_pinned as connections_list_item_toggle_pinned_action, menus as connections_list_item_toggle_pinned_action_menus } from './src/actions/connections-list-item/toggle_pinned.js';
 import { connections_list_open_help as connections_list_open_help_action, commands as connections_list_open_help_action_commands, menus as connections_list_open_help_action_menus } from './src/actions/connections-list/open_help.js';
@@ -60,6 +61,7 @@ export const smart_env_config = {
   },
   actions: {
     connections_list_copy_as_links: { action: connections_list_copy_as_links_action, menus: connections_list_copy_as_links_action_menus, version: "2.4.6" },
+    connections_list_get_results: { action: connections_list_get_results_action, display_name: connections_list_get_results_action_display_name, display_description: connections_list_get_results_action_display_description, action_scope: connections_list_get_results_action_action_scope, tool: connections_list_get_results_action_tool, input_schema: connections_list_get_results_action_input_schema, output_schema: connections_list_get_results_action_output_schema, version: "2.4.6" },
     connections_list_item_hide: { action: connections_list_item_hide_action, menus: connections_list_item_hide_action_menus, version: "2.4.6" },
     connections_list_item_toggle_pinned: { action: connections_list_item_toggle_pinned_action, menus: connections_list_item_toggle_pinned_action_menus, version: "2.4.6" },
     connections_list_open_help: { action: connections_list_open_help_action, commands: connections_list_open_help_action_commands, menus: connections_list_open_help_action_menus, version: "2.4.6" },
