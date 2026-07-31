@@ -26,7 +26,7 @@ export async function build_html(connections_list, opts = {}) {
     },
     {
       title: 'Send results to Smart Context',
-      icon: 'briefcase',
+      icon: 'smart-context-builder',
       attrs: 'data-action="send-to-smart-context"'
     },
     {
