@@ -1,4 +1,4 @@
-// 2026-02-24 Should be safe to remove, leaving temporarily
+// List-only component used by configurable Connections surfaces.
 /**
  * @returns {Promise<string>} A promise that resolves to the .sc-list HTML string.
  */

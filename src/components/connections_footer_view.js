@@ -100,8 +100,8 @@ export async function post_process(view, container, opts = {}) {
 
   const connections_list = connections_item.connections || env.connections_lists.new_item(connections_item);
   const connections_list_component_key = opts.connections_list_component_key
-    || connections_list.connections_list_component_key
-    || 'connections_list_v4'
+    || env.connections_lists.settings.footer_connections_list_component_key
+    || 'connections_list_v3'
   ;
   const list = await env.smart_components.render_component(connections_list_component_key, connections_list, { ...opts, view });
 

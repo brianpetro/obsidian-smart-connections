@@ -27,22 +27,15 @@ export async function post_process(connections_list, container, opts = {}) {
   const list_container = container.querySelector('.connections-list.sc-list');
   container.dataset.key = connections_list.item.key;
   const results = await connections_list.get_results(opts);
-  const connections_settings = opts.connections_settings // use opts.connections_settings for passing codeblock or footer-specific settings
-    ?? env.connections_lists.settings
-  ;
-  const component_settings = connections_settings.components?.connections_list_v4 || {};
-  const show_graph = opts.show_graph ?? component_settings.show_graph;
-  if(show_graph) {
-    try {
-      const graph = await env.smart_components.render_component('connections_graph_v1', connections_list, { ...opts, results });
-      this.empty(graph_container);
-      graph_container.appendChild(graph);
-      register_graph_events(graph, list_container);
-    } catch (_err) {
-      this.empty(graph_container);
-      const error_message = this.create_doc_fragment(`<p class="sc-graph-error">Unable to load graph visualization: ${typeof _err?.message === 'string' ? _err.message : 'Unknown error'}</p>`);
-      graph_container.appendChild(error_message);
-    }
+  try {
+    const graph = await env.smart_components.render_component('connections_graph_v1', connections_list, { ...opts, results });
+    this.empty(graph_container);
+    graph_container.appendChild(graph);
+    register_graph_events(graph, list_container);
+  } catch (_err) {
+    this.empty(graph_container);
+    const error_message = this.create_doc_fragment(`<p class="sc-graph-error">Unable to load graph visualization: ${typeof _err?.message === 'string' ? _err.message : 'Unknown error'}</p>`);
+    graph_container.appendChild(error_message);
   }
 
   if (!results || !Array.isArray(results) || results.length === 0) {
@@ -89,12 +82,4 @@ function find_result_element(list_container, detail = {}) {
 
 export const display_name = 'Version 4.0 (Graph + List)';
 
-export const settings_config = {
-  "show_graph": {
-    name: "Show graph",
-    type: "toggle",
-    description: "Show a graph visualization of the connections above the list.",
-    // default: true,
-    group: "Connections lists"
-  },
-};
+export const settings_config = {};
