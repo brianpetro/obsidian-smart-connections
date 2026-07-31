@@ -6,11 +6,11 @@ import { get_block_display_name } from 'obsidian-smart-env/src/utils/get_block_d
  * This synchronous query keeps one target-provider module independently
  * includable while child selection delegates to the shared semantic action.
  *
- * @this {import('../../items/connections_list.js').ConnectionsList}
+ * @this {import('../../views/connections_item_view.js').ConnectionsItemView}
  * @returns {Array<object>}
  */
 export function connections_target_blocks() {
-  const current_key = this.item?.key || '';
+  const current_key = this.current?.key || '';
   const source_key = current_key.split('#')[0];
   const source = this.env.smart_sources?.get?.(source_key)
     || this.env.smart_sources?.items?.[source_key]
@@ -81,12 +81,12 @@ function get_block_title(block) {
 }
 
 async function run_select_target(menu_ctx, target_item) {
-  const action = menu_ctx.scope?.actions?.connections_list_select_target;
+  const action = menu_ctx.env.config.actions
+    ?.connections_list_select_target?.action;
   if (typeof action !== 'function') return false;
 
-  return await action({
+  return await action.call(menu_ctx.scope, {
     target_item,
-    view: menu_ctx.params?.view,
     event_source: menu_ctx.event_source,
   });
 }

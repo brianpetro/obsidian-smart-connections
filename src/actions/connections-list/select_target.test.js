@@ -48,30 +48,31 @@ const create_menu = () => {
   };
 };
 
-test('select-target action pauses and renders the requested target', async t => {
-  const rendered = [];
+test('select-target action uses the item view as its scope', async t => {
+  const selected = [];
   const target_item = { key: 'Target.md' };
   const view = {
     paused: false,
-    async render_view(params) {
-      rendered.push(params);
+    async select_target(next_target, params) {
+      selected.push({ next_target, params });
+      return true;
     },
   };
 
-  t.true(await connections_list_select_target.call({}, {
+  t.true(await connections_list_select_target.call(view, {
     target_item,
-    view,
     event_source: 'test:target',
   }));
-  t.true(view.paused);
-  t.deepEqual(rendered, [{
-    connections_item: target_item,
-    event_source: 'test:target',
-    force: true,
+  t.false(view.paused);
+  t.deepEqual(selected, [{
+    next_target: target_item,
+    params: {
+      event_source: 'test:target',
+    },
   }]);
 });
 
-test('target placement modules route history and block selections through the semantic action', async t => {
+test('target placement modules use the same item view scope', async t => {
   const source = {
     key: 'Current.md',
     blocks: [
@@ -80,10 +81,15 @@ test('target placement modules route history and block selections through the se
     ],
   };
   const history_source = { key: 'History.md' };
-  const view = {
-    connections_target_history: ['History.md'],
-  };
+  const selected = [];
   const env = {
+    config: {
+      actions: {
+        connections_list_select_target: {
+          action: connections_list_select_target,
+        },
+      },
+    },
     smart_sources: {
       get(key) {
         return {
@@ -93,15 +99,13 @@ test('target placement modules route history and block selections through the se
       },
     },
   };
-  const runs = [];
-  const scope = {
+  const view = {
     env,
-    item: source,
-    actions: {
-      connections_list_select_target(params) {
-        runs.push(params);
-        return Promise.resolve(true);
-      },
+    current: source,
+    connections_target_history: ['History.md'],
+    async select_target(target_item, params) {
+      selected.push({ target_item, params, scope: this });
+      return true;
     },
   };
   const menu = create_menu();
@@ -110,21 +114,21 @@ test('target placement modules route history and block selections through the se
     env,
     event_source: 'menu:connections:target_menu:connections_target_history',
     menu,
-    params: { view },
+    params: {},
     resolve_action() {
-      return connections_target_history.bind(scope);
+      return connections_target_history.bind(view);
     },
-    scope,
+    scope: view,
   });
   block_menus['connections:target_menu'].build.call({
     env,
     event_source: 'menu:connections:target_menu:connections_target_blocks',
     menu,
-    params: { view },
+    params: {},
     resolve_action() {
-      return connections_target_blocks.bind(scope);
+      return connections_target_blocks.bind(view);
     },
-    scope,
+    scope: view,
   });
 
   t.deepEqual(menu.items.map(item => item.title), ['History', 'Blocks']);
@@ -136,16 +140,24 @@ test('target placement modules route history and block selections through the se
   await menu.items[0].submenu.items[0].on_click();
   await menu.items[1].submenu.items[0].on_click();
 
-  t.deepEqual(runs, [
+  t.is(selected.length, 2);
+  t.is(selected[0].scope, view);
+  t.is(selected[1].scope, view);
+  t.deepEqual(selected.map(({ target_item, params }) => ({
+    target_item,
+    params,
+  })), [
     {
       target_item: history_source,
-      view,
-      event_source: 'menu:connections:target_menu:connections_target_history',
+      params: {
+        event_source: 'menu:connections:target_menu:connections_target_history',
+      },
     },
     {
       target_item: source.blocks[1],
-      view,
-      event_source: 'menu:connections:target_menu:connections_target_blocks',
+      params: {
+        event_source: 'menu:connections:target_menu:connections_target_blocks',
+      },
     },
   ]);
 });

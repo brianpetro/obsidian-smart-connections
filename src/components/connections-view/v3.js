@@ -110,9 +110,10 @@ export async function post_process(view, container, opts = {}) {
     const pause_button = container.querySelector('[data-action="toggle-pause"]');
     pause_button?.addEventListener('click', async () => {
       const state = container._connections_menu_state;
-      const action = state?.connections_list?.actions?.connections_list_toggle_paused;
+      const action = state?.view?.env?.config?.actions
+        ?.connections_list_toggle_paused?.action;
       if (typeof action === 'function') {
-        await action(get_connections_menu_params(state));
+        await action.call(state.view, {});
       }
     });
 
@@ -121,7 +122,18 @@ export async function post_process(view, container, opts = {}) {
       const menu = new Menu(view.plugin.app);
       const state = container._connections_menu_state;
 
-      env.build_menu?.('connections:list_menu', menu, state.connections_list, get_connections_menu_params(state));
+      env.build_menu?.(
+        'connections:item_view_list_menu',
+        menu,
+        state.view,
+      );
+      if (menu.items?.length) menu.addSeparator();
+      env.build_menu?.(
+        'connections:list_menu',
+        menu,
+        state.connections_list,
+        get_connections_menu_params(state),
+      );
       menu.showAtMouseEvent(event);
     });
 
@@ -131,7 +143,7 @@ export async function post_process(view, container, opts = {}) {
 
       const state = container._connections_menu_state;
       const menu = new Menu(view.plugin.app);
-      env.build_menu?.('connections:target_menu', menu, state.connections_list, get_connections_menu_params(state));
+      env.build_menu?.('connections:target_menu', menu, state.view);
       if (!(menu.items?.length > 0)) return;
 
       show_menu(menu, event, sc_top_bar_context);
@@ -175,12 +187,12 @@ export async function post_process(view, container, opts = {}) {
       }
 
       const state = container._connections_menu_state;
-      const action = state?.connections_list?.actions?.connections_list_select_target;
+      const action = state?.view?.env?.config?.actions
+        ?.connections_list_select_target?.action;
       if (typeof action !== 'function') return;
 
-      await action({
+      await action.call(state.view, {
         target_item: targets[0],
-        view: state.view,
         event_source: 'connections_view.drop_target',
       });
     };

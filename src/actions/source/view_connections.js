@@ -83,11 +83,7 @@ function expand_leaf_ancestors(leaf) {
 }
 
 async function render_connections_view(view, source_item, params = {}) {
-  view.paused = true;
-  view.pause_controls?.update?.(true);
-  await view.render_view?.({
-    connections_item: source_item,
-    force: true,
+  await view.select_target(source_item, {
     event_source: params.event_source || 'source_view_connections',
   });
 }

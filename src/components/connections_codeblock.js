@@ -116,12 +116,10 @@ export async function post_process(connections_list, container, opts = {}) {
 
     const refresh_button = container.querySelector('[data-action="refresh-connections"]');
     refresh_button?.addEventListener('click', async () => {
-      await run_action('connections_list_refresh', {
-        view: {
-          render_view: render_list,
-        },
+      const refreshed = await run_action('connections_list_refresh', {
         event_source: 'connections_codeblock.refresh_connections',
       });
+      if (refreshed) await render_list();
     });
 
     const expand_all_button = container.querySelector('[data-action="expand-all"]');
