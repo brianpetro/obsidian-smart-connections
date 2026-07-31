@@ -20,22 +20,24 @@ function get_links_payload(connections_list, params = {}) {
  * @this {import('../../items/connections_list.js').ConnectionsList}
  * @param {object} [params={}]
  * @param {Array<object>} [params.visible_results]
+ * @param {string} [params.event_source]
  * @returns {Promise<boolean>}
  */
 export async function connections_list_copy_as_links(params = {}) {
+  const event_source = params.event_source || 'connections_list.copy_as_links';
   const links_payload = get_links_payload(this, params);
   if (!links_payload) {
     this.env.events.emit('connections:copy_list_empty', {
       level: 'warning',
       message: 'No connection results to copy.',
-      event_source: 'connections_list.copy_as_links',
+      event_source,
     });
     return false;
   }
 
   const copied = await copy_to_clipboard(links_payload, {
     env: this.env,
-    event_source: 'connections_list.copy_as_links',
+    event_source,
     success_event_key: 'connections:list_copied',
     error_event_key: 'connections:list_copy_failed',
     unavailable_event_key: 'connections:list_copy_unavailable',

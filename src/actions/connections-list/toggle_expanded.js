@@ -5,16 +5,24 @@
  * @param {object} [params={}]
  * @param {object} [params.connections_settings]
  * @param {HTMLElement} [params.container]
+ * @param {boolean} [params.expanded]
  * @returns {boolean}
  */
 export function connections_list_toggle_expanded(params = {}) {
   const connections_settings = params.connections_settings ?? this?.settings;
-  const expanded = connections_settings?.expanded_view;
+  const current_expanded = Boolean(connections_settings?.expanded_view);
+  const expanded = typeof params.expanded === 'boolean'
+    ? params.expanded
+    : !current_expanded
+  ;
 
-  if (connections_settings) connections_settings.expanded_view = !expanded;
+  if (connections_settings) connections_settings.expanded_view = expanded;
 
   params.container?.querySelectorAll('.sc-result').forEach((element) => {
-    expanded ? element.classList.add('sc-collapsed') : element.classList.remove('sc-collapsed');
+    expanded
+      ? element.classList.remove('sc-collapsed')
+      : element.classList.add('sc-collapsed')
+    ;
   });
 
   return true;

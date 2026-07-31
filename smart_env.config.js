@@ -25,7 +25,7 @@ import { connections_list_open_view as connections_list_open_view_action, comman
 import { pre_process as connections_list_pre_process_action, pre_process as connections_list_pre_process_action_pre_process } from './src/actions/connections-list/pre_process.js';
 import { connections_list_refresh as connections_list_refresh_action, menus as connections_list_refresh_action_menus } from './src/actions/connections-list/refresh.js';
 import { connections_list_select_target as connections_list_select_target_action, display_name as connections_list_select_target_action_display_name, menus as connections_list_select_target_action_menus } from './src/actions/connections-list/select_target.js';
-import { connections_list_send_to_context as connections_list_send_to_context_action, menus as connections_list_send_to_context_action_menus } from './src/actions/connections-list/send_to_context.js';
+import { connections_list_send_to_context as connections_list_send_to_context_action, menus as connections_list_send_to_context_action_menus, version as connections_list_send_to_context_action_version } from './src/actions/connections-list/send_to_context.js';
 import { connections_list_send_to_smart_graph as connections_list_send_to_smart_graph_action, menus as connections_list_send_to_smart_graph_action_menus, version as connections_list_send_to_smart_graph_action_version } from './src/actions/connections-list/send_to_smart_graph.js';
 import { connections_list_toggle_expanded as connections_list_toggle_expanded_action, menus as connections_list_toggle_expanded_action_menus } from './src/actions/connections-list/toggle_expanded.js';
 import { connections_list_toggle_footer_connections as connections_list_toggle_footer_connections_action, commands as connections_list_toggle_footer_connections_action_commands, ribbon_icons as connections_list_toggle_footer_connections_action_ribbon_icons } from './src/actions/connections-list/toggle_footer_connections.js';
@@ -71,7 +71,7 @@ export const smart_env_config = {
     connections_list_pre_process: { action: connections_list_pre_process_action, pre_process: connections_list_pre_process_action_pre_process, version: "2.4.6" },
     connections_list_refresh: { action: connections_list_refresh_action, menus: connections_list_refresh_action_menus, version: "2.4.6" },
     connections_list_select_target: { action: connections_list_select_target_action, display_name: connections_list_select_target_action_display_name, menus: connections_list_select_target_action_menus, version: "2.4.6" },
-    connections_list_send_to_context: { action: connections_list_send_to_context_action, menus: connections_list_send_to_context_action_menus, version: "2.4.6" },
+    connections_list_send_to_context: { action: connections_list_send_to_context_action, menus: connections_list_send_to_context_action_menus, version: connections_list_send_to_context_action_version },
     connections_list_send_to_smart_graph: { action: connections_list_send_to_smart_graph_action, menus: connections_list_send_to_smart_graph_action_menus, version: connections_list_send_to_smart_graph_action_version },
     connections_list_toggle_expanded: { action: connections_list_toggle_expanded_action, menus: connections_list_toggle_expanded_action_menus, version: "2.4.6" },
     connections_list_toggle_footer_connections: { action: connections_list_toggle_footer_connections_action, commands: connections_list_toggle_footer_connections_action_commands, ribbon_icons: connections_list_toggle_footer_connections_action_ribbon_icons, version: "2.4.6" },

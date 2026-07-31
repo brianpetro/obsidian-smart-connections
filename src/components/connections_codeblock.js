@@ -1,9 +1,4 @@
 import styles from './connections_codeblock.css';
-import { StoryModal } from 'obsidian-smart-env/src/modals/story.js';
-import { copy_to_clipboard } from 'obsidian-smart-env/src/utils/copy_to_clipboard.js';
-
-import { build_connections_context_items } from '../utils/connections_context_items.js';
-import { format_connections_as_links } from '../utils/format_connections_as_links.js';
 import { filter_hidden_results } from '../utils/filter_hidden_results.js';
 
 /**
@@ -91,7 +86,6 @@ export async function render(connections_list, opts = {}) {
 export async function post_process(connections_list, container, opts = {}) {
   const list_container = container.querySelector('.connections-list-container');
   const env = connections_list.env;
-  const app = env.plugin.app || window.app;
 
   const render_list = async () => {
     // console.log('Rendering connections list in codeblock view');
@@ -108,125 +102,89 @@ export async function post_process(connections_list, container, opts = {}) {
     list_container.appendChild(list);
   };
 
+  const run_action = (action_key, params = {}) => {
+    const action = connections_list.actions?.[action_key];
+    if (typeof action !== 'function') {
+      console.warn(`Connections action unavailable: ${action_key}`);
+      return false;
+    }
+    return action(params);
+  };
+
   if (!container._has_listeners) {
     container._has_listeners = true;
 
     const refresh_button = container.querySelector('[data-action="refresh-connections"]');
     refresh_button?.addEventListener('click', async () => {
-      const refresh_entity = connections_list.item;
-      if (refresh_entity) {
-        await refresh_entity.read();
-        refresh_entity.queue_import();
-        await refresh_entity.collection.process_source_import_queue?.();
-        render_list();
-      } else {
-        console.warn('No entity found for refresh');
-      }
+      await run_action('connections_list_refresh', {
+        view: {
+          render_view: render_list,
+        },
+        event_source: 'connections_codeblock.refresh_connections',
+      });
     });
 
     const expand_all_button = container.querySelector('[data-action="expand-all"]');
-    expand_all_button?.addEventListener('click', () => {
-      container.querySelectorAll('.sc-result').forEach((elm) => {
-        elm.classList.remove('sc-collapsed');
+    expand_all_button?.addEventListener('click', async () => {
+      await run_action('connections_list_toggle_expanded', {
+        connections_settings: connections_list.settings,
+        container,
+        expanded: true,
+        event_source: 'connections_codeblock.expand_all',
       });
     });
 
     const collapse_all_button = container.querySelector('[data-action="collapse-all"]');
-    collapse_all_button?.addEventListener('click', () => {
-      container.querySelectorAll('.sc-result').forEach((elm) => {
-        elm.classList.add('sc-collapsed');
+    collapse_all_button?.addEventListener('click', async () => {
+      await run_action('connections_list_toggle_expanded', {
+        connections_settings: connections_list.settings,
+        container,
+        expanded: false,
+        event_source: 'connections_codeblock.collapse_all',
       });
     });
 
     const context_button = container.querySelector('[data-action="send-to-smart-context"]');
     context_button?.addEventListener('click', async () => {
-      const raw_results = await get_results_fallback(connections_list, opts);
-      if (!raw_results.length) {
-        env?.events?.emit?.('connections:send_to_context_empty', {
-          level: 'warning',
-          message: 'No connection results to send to Smart Context',
-          event_source: 'connections_codeblock.send_to_smart_context',
-        });
-        return;
-      }
-
-      const connections_state = connections_list?.item?.data?.connections || {};
-      const visible_results = filter_hidden_results(raw_results, connections_state);
-
-      const context_items = build_connections_context_items({
-        source_item: connections_list?.item,
-        results: visible_results
+      const visible_results = await get_visible_results_fallback(connections_list, opts);
+      await run_action('connections_list_send_to_context', {
+        visible_results,
+        event_source: 'connections_codeblock.send_to_smart_context',
       });
-
-      if (!context_items.length) {
-        env?.events?.emit?.('connections:send_to_context_empty', {
-          level: 'warning',
-          message: 'No visible connection results to send to Smart Context',
-          event_source: 'connections_codeblock.send_to_smart_context',
-        });
-        return;
-      }
-
-      const smart_context = env.smart_contexts.new_context();
-      smart_context.add_items(context_items);
-      smart_context.emit_event('context_selector:open');
-      connections_list.emit_event('connections:sent_to_context');
     });
 
     const copy_links_button = container.querySelector('[data-action="copy-as-links"]');
     copy_links_button?.addEventListener('click', async () => {
-      const raw_results = await get_results_fallback(connections_list, opts);
-      if (!raw_results.length) {
-        env?.events?.emit?.('connections:copy_list_empty', {
-          level: 'warning',
-          message: 'No connection results to copy',
-          event_source: 'connections_codeblock.copy_as_links',
-        });
-        return;
-      }
-
-      const connections_state = connections_list?.item?.data?.connections || {};
-      const visible_results = filter_hidden_results(raw_results, connections_state);
-
-      const links_payload = format_connections_as_links(visible_results);
-      if (!links_payload) {
-        env?.events?.emit?.('connections:copy_list_empty', {
-          level: 'warning',
-          message: 'No visible connection results to copy',
-          event_source: 'connections_codeblock.copy_as_links',
-        });
-        return;
-      }
-
-      await copy_to_clipboard(links_payload, {
-        env,
+      const visible_results = await get_visible_results_fallback(connections_list, opts);
+      await run_action('connections_list_copy_as_links', {
+        visible_results,
         event_source: 'connections_codeblock.copy_as_links',
-        success_event_key: 'connections:list_copied',
-        error_event_key: 'connections:list_copy_failed',
-        unavailable_event_key: 'connections:list_copy_unavailable',
       });
-      connections_list.emit_event('connections:copied_list');
     });
 
     const settings_button = container.querySelector('[data-action="open-settings"]');
-    settings_button?.addEventListener('click', () => {
-      app.setting.open();
-      app.setting.openTabById('smart-connections');
+    settings_button?.addEventListener('click', async () => {
+      await run_action('connections_list_open_settings', {
+        event_source: 'connections_codeblock.open_settings',
+      });
     });
 
-    const open_help = () => {
-      StoryModal.open(env.plugin, {
-        title: 'Getting Started With Smart Connections',
-        url: 'https://smartconnections.app/story/smart-connections-getting-started/?utm_source=connections-view-help#page=understanding-connections-1'
-      });
-    };
-
     const help_button = container.querySelector('[data-action="open-help"]');
-    help_button?.addEventListener('click', open_help);
+    help_button?.addEventListener('click', async () => {
+      await run_action('connections_list_open_help', {
+        event_source: 'connections_codeblock.open_help',
+      });
+    });
   }
 
   render_list();
   return container;
+}
+
+async function get_visible_results_fallback(connections_list, opts = {}) {
+  const raw_results = await get_results_fallback(connections_list, opts);
+  const connections_state = connections_list?.item?.data?.connections || {};
+  return filter_hidden_results(raw_results, connections_state);
 }
 
 async function get_results_fallback(connections_list, opts = {}) {
@@ -241,4 +199,3 @@ async function get_results_fallback(connections_list, opts = {}) {
     return [];
   }
 }
-

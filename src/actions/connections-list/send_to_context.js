@@ -1,46 +1,42 @@
-import { build_connections_context_items } from '../../utils/connections_context_items.js';
+export const SMART_CONTEXT_URL = 'https://smartconnections.app/smart-context/';
 
 /**
- * @param {import('../../items/connections_list.js').ConnectionsList} connections_list
- * @param {object} [params={}]
- * @returns {Array<object>}
- */
-function get_context_items(connections_list, params = {}) {
-  const results = Array.isArray(params.visible_results)
-    ? params.visible_results
-    : connections_list?.results || []
-  ;
-  if (!results.length) return [];
-
-  return build_connections_context_items({
-    source_item: connections_list?.item,
-    results,
-  });
-}
-
-/**
- * Send visible Connections results to a new Smart Context.
+ * Open Smart Context information when Smart Context is not installed.
+ *
+ * Smart Context replaces this placeholder with the working integration action.
  *
  * @this {import('../../items/connections_list.js').ConnectionsList}
  * @param {object} [params={}]
- * @param {Array<object>} [params.visible_results]
+ * @param {string} [params.event_source]
  * @returns {boolean}
  */
 export function connections_list_send_to_context(params = {}) {
-  const context_items = get_context_items(this, params);
-  if (!context_items.length) {
-    this.env.events.emit('connections:send_to_context_empty', {
-      level: 'warning',
-      message: 'No connection results to send to context.',
-      event_source: 'connections_view_menu',
-    });
-    return false;
+  const event_source = params.event_source
+    || 'connections_list_send_to_context'
+  ;
+
+  if (this?.env?.event_logs?.settings?.native_notice_attention) {
+    this?.env?.events?.emit?.(
+      'connections:smart_context_link_unavailable',
+      {
+        level: 'attention',
+        message: 'Smart Context plugin is required.',
+        event_source,
+        link: SMART_CONTEXT_URL,
+        hide_mute_button: true,
+      },
+    );
+
+    return true;
   }
 
-  const smart_context = this.env.smart_contexts.new_context();
-  smart_context.add_items(context_items);
-  smart_context.emit_event('context_selector:open');
-  this.emit_event('connections:sent_to_context');
+  const open_url = globalThis.activeWindow?.open
+    || globalThis.window?.open
+    || globalThis.open
+  ;
+  if (typeof open_url !== 'function') return false;
+
+  open_url(SMART_CONTEXT_URL, '_external');
   return true;
 }
 
@@ -49,8 +45,7 @@ export const menus = {
     title: 'Send to Smart Context',
     icon: 'smart-context-builder',
     order: 20,
-    disabled() {
-      return !get_context_items(this.scope, this.params).length;
-    },
   },
 };
+
+export const version = '0.0.1';
