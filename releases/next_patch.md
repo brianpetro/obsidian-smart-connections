@@ -30,3 +30,6 @@ Added: drag-and-drop functionality for connections to update connections target 
 
 
 Enhance performance logging in get_results method and emit event with elapsed time
+
+
+Add footer connections list component configuration and remove show_graph setting in favor of component selection in settings
