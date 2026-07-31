@@ -110,10 +110,11 @@ export async function post_process(view, container, opts = {}) {
     const pause_button = container.querySelector('[data-action="toggle-pause"]');
     pause_button?.addEventListener('click', async () => {
       const state = container._connections_menu_state;
-      const action = state?.view?.env?.config?.actions
-        ?.connections_list_toggle_paused?.action;
+      const action = env.config?.actions?.connections_list_toggle_paused?.action;
       if (typeof action === 'function') {
-        await action.call(state.view, {});
+        await action.call(state.view, {
+          event_source: 'connections_view.toggle_pause',
+        });
       }
     });
 
@@ -132,7 +133,7 @@ export async function post_process(view, container, opts = {}) {
         'connections:list_menu',
         menu,
         state.connections_list,
-        get_connections_menu_params(state),
+        get_connections_list_menu_params(state),
       );
       menu.showAtMouseEvent(event);
     });
@@ -187,8 +188,7 @@ export async function post_process(view, container, opts = {}) {
       }
 
       const state = container._connections_menu_state;
-      const action = state?.view?.env?.config?.actions
-        ?.connections_list_select_target?.action;
+      const action = env.config?.actions?.connections_list_select_target?.action;
       if (typeof action !== 'function') return;
 
       await action.call(state.view, {
@@ -252,7 +252,7 @@ export async function post_process(view, container, opts = {}) {
   return container;
 }
 
-function get_connections_menu_params(state = {}) {
+function get_connections_list_menu_params(state = {}) {
   const raw_results = Array.isArray(state.connections_list?.results) ? state.connections_list.results : [];
   const connections_state = state.connections_list?.item?.data?.connections || {};
   const visible_results = filter_hidden_results(raw_results, connections_state);

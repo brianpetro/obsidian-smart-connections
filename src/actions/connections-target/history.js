@@ -1,7 +1,7 @@
 const HISTORY_LIMIT = 10;
 
 /**
- * Return selectable recent Connections targets.
+ * Return selectable recent Connections item-view targets.
  *
  * This synchronous query keeps one target-provider module independently
  * includable while child selection delegates to the shared semantic action.
@@ -64,8 +64,7 @@ function resolve_target_candidates(menu_ctx) {
 }
 
 async function run_select_target(menu_ctx, target_item) {
-  const action = menu_ctx.env.config.actions
-    ?.connections_list_select_target?.action;
+  const action = menu_ctx.env.config?.actions?.connections_list_select_target?.action;
   if (typeof action !== 'function') return false;
 
   return await action.call(menu_ctx.scope, {

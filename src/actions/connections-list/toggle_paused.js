@@ -1,9 +1,10 @@
 /**
- * Toggle Connections auto-refresh for the current item view.
+ * Toggle Connections auto-refresh for this item view.
  * When resuming, refresh the view target to the current active note.
  *
  * @this {import('../../views/connections_item_view.js').ConnectionsItemView}
  * @param {object} [params={}]
+ * @param {string} [params.event_source]
  * @returns {Promise<boolean>}
  */
 export async function connections_list_toggle_paused(params = {}) {

@@ -1,5 +1,5 @@
 /**
- * Select and render a Connections target in the current item view.
+ * Select and render a Connections target in this item view.
  *
  * @this {import('../../views/connections_item_view.js').ConnectionsItemView}
  * @param {object} [params={}]
@@ -9,7 +9,6 @@
  */
 export async function connections_list_select_target(params = {}) {
   const target_item = params.target_item;
-
   if (!target_item || !this?.select_target) return false;
 
   return await this.select_target(target_item, {
@@ -32,7 +31,11 @@ export const menus = {
         ;
 
         const submenu = item.setSubmenu();
-        this.env.build_menu?.('connections:target_menu', submenu, this.scope);
+        this.env.build_menu?.(
+          'connections:target_menu',
+          submenu,
+          this.scope,
+        );
         item.setDisabled?.(!(submenu.items?.length > 0));
       });
     },

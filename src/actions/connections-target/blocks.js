@@ -1,7 +1,7 @@
 import { get_block_display_name } from 'obsidian-smart-env/src/utils/get_block_display_name.js';
 
 /**
- * Return selectable blocks from the current Connections source.
+ * Return selectable blocks from the current Connections item-view target.
  *
  * This synchronous query keeps one target-provider module independently
  * includable while child selection delegates to the shared semantic action.
@@ -81,8 +81,7 @@ function get_block_title(block) {
 }
 
 async function run_select_target(menu_ctx, target_item) {
-  const action = menu_ctx.env.config.actions
-    ?.connections_list_select_target?.action;
+  const action = menu_ctx.env.config?.actions?.connections_list_select_target?.action;
   if (typeof action !== 'function') return false;
 
   return await action.call(menu_ctx.scope, {

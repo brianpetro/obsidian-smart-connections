@@ -1,5 +1,12 @@
 import test from 'ava';
-import { connections_list_select_target } from './select_target.js';
+import {
+  connections_list_select_target,
+  menus as select_target_menus,
+} from './select_target.js';
+import {
+  connections_list_toggle_paused,
+  menus as toggle_paused_menus,
+} from './toggle_paused.js';
 import {
   connections_target_blocks,
   menus as block_menus,
@@ -48,31 +55,74 @@ const create_menu = () => {
   };
 };
 
-test('select-target action uses the item view as its scope', async t => {
-  const selected = [];
+test('item-view lifecycle actions use the exact view scope', async t => {
+  const calls = [];
   const target_item = { key: 'Target.md' };
   const view = {
-    paused: false,
     async select_target(next_target, params) {
-      selected.push({ next_target, params });
+      calls.push({ action: 'select_target', next_target, params });
       return true;
+    },
+    async toggle_paused(params) {
+      calls.push({ action: 'toggle_paused', params });
+      return false;
     },
   };
 
+  t.true(await connections_list_toggle_paused.call(view, {
+    event_source: 'test:pause',
+  }));
   t.true(await connections_list_select_target.call(view, {
     target_item,
     event_source: 'test:target',
   }));
-  t.false(view.paused);
-  t.deepEqual(selected, [{
-    next_target: target_item,
-    params: {
-      event_source: 'test:target',
+  t.deepEqual(calls, [
+    {
+      action: 'toggle_paused',
+      params: {
+        event_source: 'test:pause',
+      },
     },
-  }]);
+    {
+      action: 'select_target',
+      next_target: target_item,
+      params: {
+        event_source: 'test:target',
+      },
+    },
+  ]);
 });
 
-test('target placement modules use the same item view scope', async t => {
+test('item-view menu uses the view scope for lifecycle and target placements', t => {
+  const menu = create_menu();
+  const calls = [];
+  const view = {
+    paused: true,
+  };
+  const env = {
+    build_menu(...args) {
+      calls.push(args);
+      return args[1];
+    },
+  };
+
+  const toggle_spec = toggle_paused_menus['connections:item_view_list_menu'];
+  t.is(toggle_spec.title.call({ scope: view }), 'Resume auto-refresh');
+  t.is(toggle_spec.icon.call({ scope: view }), 'play-circle');
+
+  select_target_menus['connections:item_view_list_menu'].build.call({
+    env,
+    menu,
+    scope: view,
+  });
+
+  t.is(menu.items.length, 1);
+  t.is(calls.length, 1);
+  t.is(calls[0][0], 'connections:target_menu');
+  t.is(calls[0][2], view);
+});
+
+test('target placements resolve candidates and select targets through the item view scope', async t => {
   const source = {
     key: 'Current.md',
     blocks: [
@@ -81,12 +131,15 @@ test('target placement modules use the same item view scope', async t => {
     ],
   };
   const history_source = { key: 'History.md' };
-  const selected = [];
+  const runs = [];
   const env = {
     config: {
       actions: {
         connections_list_select_target: {
-          action: connections_list_select_target,
+          action(params) {
+            runs.push({ scope: this, params });
+            return Promise.resolve(true);
+          },
         },
       },
     },
@@ -103,10 +156,6 @@ test('target placement modules use the same item view scope', async t => {
     env,
     current: source,
     connections_target_history: ['History.md'],
-    async select_target(target_item, params) {
-      selected.push({ target_item, params, scope: this });
-      return true;
-    },
   };
   const menu = create_menu();
 
@@ -140,24 +189,16 @@ test('target placement modules use the same item view scope', async t => {
   await menu.items[0].submenu.items[0].on_click();
   await menu.items[1].submenu.items[0].on_click();
 
-  t.is(selected.length, 2);
-  t.is(selected[0].scope, view);
-  t.is(selected[1].scope, view);
-  t.deepEqual(selected.map(({ target_item, params }) => ({
-    target_item,
-    params,
-  })), [
+  t.is(runs[0].scope, view);
+  t.is(runs[1].scope, view);
+  t.deepEqual(runs.map(run => run.params), [
     {
       target_item: history_source,
-      params: {
-        event_source: 'menu:connections:target_menu:connections_target_history',
-      },
+      event_source: 'menu:connections:target_menu:connections_target_history',
     },
     {
       target_item: source.blocks[1],
-      params: {
-        event_source: 'menu:connections:target_menu:connections_target_blocks',
-      },
+      event_source: 'menu:connections:target_menu:connections_target_blocks',
     },
   ]);
 });
