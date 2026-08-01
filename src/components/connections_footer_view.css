@@ -6,6 +6,25 @@
   position: relative;
 }
 
+.sc-footer-connections-icon {
+  --icon-size: var(--icon-s, 16px);
+  align-items: center;
+  align-self: center;
+  display: inline-flex;
+  flex: 0 0 var(--icon-size);
+  height: var(--icon-size);
+  justify-content: center;
+  line-height: 0;
+  margin-inline-end: var(--size-2-2, 4px);
+  width: var(--icon-size);
+
+  svg {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+}
+
 .connections-footer-view-shell {
   .connections-list-container.sc-footer-list-collapsed {
     display: none;

@@ -38,6 +38,9 @@ export async function build_html(view, opts = {}) {
   const html = `<div class="embedded-backlinks">
     <div class="backlink-pane sc-footer-backlink-pane">
       <div class="tree-item-self is-clickable" aria-label="Click to collapse">
+        <div class="sc-footer-connections-icon" aria-hidden="true">
+          ${this.get_icon_html('smart-connections')}
+        </div>
         <div class="tree-item-inner">Smart Connections</div>
       </div>
       <div class="search-result-container">
@@ -100,8 +103,8 @@ export async function post_process(view, container, opts = {}) {
 
   const connections_list = connections_item.connections || env.connections_lists.new_item(connections_item);
   const connections_list_component_key = opts.connections_list_component_key
-    || connections_list.connections_list_component_key
-    || 'connections_list_v4'
+    || env.connections_lists.settings.footer_connections_list_component_key
+    || 'connections_list_v3'
   ;
   const list = await env.smart_components.render_component(
     connections_list_component_key,
