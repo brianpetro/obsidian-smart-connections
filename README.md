@@ -18,9 +18,13 @@ More time for what matters most<br>
 
 ![](https://smartconnections.app/assets/connections-view-notes-2025-12-09.gif)
 
+![connections-list-mini-graph-ranked-results-editorial-hero-reviewed-1280x720-2026-07-29](images/connections-list-mini-graph-ranked-results-editorial-hero-reviewed-1280x720-2026-07-29.png)
+
 
 > [!NOTE] What Smart Connections does  
 > Smart Connections uses local embeddings and your Smart Environment to surface notes that are semantically related to what you are working on right now. Start with the [overview](https://smartconnections.app/smart-connections/?utm_source=connections-readme), then jump into the [Connections view guide](https://smartconnections.app/smart-connections/list-feature/?utm_source=connections-readme), [Lookup guide](https://smartconnections.app/smart-connections/lookup/?utm_source=connections-readme), and [settings guide](https://smartconnections.app/smart-connections/settings/?utm_source=connections-readme) as your workflow gets deeper.
+
+![connections-semantic-match-proof-editorial-hero-reviewed-1280x720-2026-07-29](images/connections-semantic-match-proof-editorial-hero-reviewed-1280x720-2026-07-29.png)
 
 ✔️ Zero-setup: ships with a local embedding model that just works  
 
@@ -138,13 +142,19 @@ Connections view results update automatically when you change notes. The name of
 
 ![](/assets/SC-OP-connections-view-mouse-annotations-2025-05-20.jpg)
 
+![connections-note-editor-related-result-link-insertion-preview-to-chosen-relationship-editorial-publication-srgb-c3618f706d9f-2026-07-29](images/connections-note-editor-related-result-link-insertion-preview-to-chosen-relationship-editorial-publication-srgb-c3618f706d9f-2026-07-29.png)
+
 #### Hiding and unhiding connections
 
 Right click a result to hide it from the list:  
 ![](/assets/SC-OP-Connections-view-right-click-to-hide-2025-07-01.png)
 
+![connections-result-item-menu-unpinned-core-crop-highlighted-desktop-2026-07-27](images/connections-result-item-menu-unpinned-core-crop-highlighted-desktop-2026-07-27.png)
+
 Right click any result and use **Unhide all** to bring hidden items back:  
 ![](/assets/SC-OP-Connections-view-right-click-to-unhide-2025-07-01.png)
+
+![connections-list-menu-opposite-predicates-core-crop-highlighted-desktop-2026-07-30](images/connections-list-menu-opposite-predicates-core-crop-highlighted-desktop-2026-07-30.png)
 </details><br>
 
 <details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Lookup view (semantic search)</span></summary>
@@ -184,6 +194,8 @@ Right-click the connections results to *copy all links* to clipboard. The [Conne
 
 <details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Copy all connections content (Context Engineering)</span></summary>
 Click the connections view menu button and "Send to Smart Context" (briefcase icon) option. This allows you to quickly copy *all content from the connections* to clipboard for use as context with any AI chat! The Smart Context view also lets you add or remove items before copying all to the clipboard in one-click. Pair this with the [Connections list feature guide](https://smartconnections.app/smart-connections/list-feature/?utm_source=connections-readme#send-to-context) and [Smart Context Builder](https://smartconnections.app/smart-context/builder/?utm_source=connections-readme) when you want a cleaner AI-ready bundle.
+
+![connections-results-transferred-context-builder-documentation-1280x720-desktop-2026-07-30](images/connections-results-transferred-context-builder-documentation-1280x720-desktop-2026-07-30.png)
 </details><br>
 
 <details><summary><span style="--font-weight: var(--h3-weight); font-variant: var(--h3-variant); letter-spacing: var(--h3-letter-spacing); line-height: var(--h3-line-height); font-size: var(--h3-size); color: var(--h3-color); font-weight: var(--font-weight); font-style: var(--h3-style); font-family: var(--h3-font); cursor: pointer;">Pinned connections</span></summary>
@@ -208,7 +220,13 @@ Examples of Pro features:
 - **Advanced filters and models**  
 	Extra Smart Environment controls for embeddings, collections, and include or exclude rules.  
 - **Early release experiments**  
-	New ideas launch in Early channels first so supporters can shape how they evolve.
+	New ideas launch in Pro channels first so supporters can shape how they evolve.
+
+![connections-inline-related-preview-editorial-hero-reviewed-1280x720-2026-07-29](images/connections-inline-related-preview-editorial-hero-reviewed-1280x720-2026-07-29.png)
+
+![connections-bases-score-column-base-reference-lens-editorial-publication-srgb-fff79fde9752-2026-07-29](images/connections-bases-score-column-base-reference-lens-editorial-publication-srgb-fff79fde9752-2026-07-29.png)
+
+![connections-pro-settings-ranking-algorithm-options-current-desktop-dark-publication-srgb-07dcf6889e0c-2026-07-29](images/connections-pro-settings-ranking-algorithm-options-current-desktop-dark-publication-srgb-07dcf6889e0c-2026-07-29.png)
 
 Connections Pro is part of the [Pro plugins](https://smartconnections.app/pro-plugins/?utm_source=connections-readme) family and is available to active project supporters. It is still built on the same source-available Smart Environment. Supporting Pro helps fund development of all Smart Plugins and the free core.
 </details><br>
@@ -367,7 +385,7 @@ Smart Connections works best with Obsidian Sync. If you use a third party sync t
 
 Smart Chat is no longer bundled inside Smart Connections, as planned in the last major release, it has been moved to its own dedicated plugin. You can now install **Smart Chat** directly from the [Obsidian Community plugins](https://obsidian.md/plugins?id=smart-chatgpt) or learn more [here](https://smartconnections.app/smart-chat/?utm_source=connections-readme).
 
-To keep the **Core Smart Connections plugin** simple and “just works,” all **API‑based model integrations (cloud and local)** have moved into **Smart Chat Pro**, the Pro version of the Smart Chat plugin. This lets advanced model routing and multi‑provider support be maintained sustainably, while the free Smart Plugins stay focused on essential core features that work with third-party interfaces like ChatGPT, Claude and Gemini.
+To keep the **Core Smart Connections plugin** simple and “just works,” all **API‑based model integrations (cloud and local)** have moved into **Smart Chat Pro**, the Pro version of the Smart Chat plugin. This lets advanced model routing and multi-provider support be maintained sustainably, while the free Smart Plugins stay focused on essential core features that work with third-party interfaces like ChatGPT, Claude and Gemini.
 
 For more about Pro plugins, read [Introducing Pro Plugins](https://smartconnections.app/introducing-pro-plugins/?utm_source=connections-readme).
 </details><br>
