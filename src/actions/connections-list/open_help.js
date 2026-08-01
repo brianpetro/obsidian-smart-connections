@@ -10,13 +10,11 @@ const COMMAND_HELP_URL = 'https://smartconnections.app/story/smart-connections-g
  * @this {import('../../items/connections_list.js').ConnectionsList}
  * @param {object} [params={}]
  * @param {object} [params.plugin]
- * @param {object} [params.view]
  * @param {string} [params.url]
  * @returns {boolean}
  */
 export function connections_list_open_help(params = {}) {
   const plugin = params.plugin
-    || params.view?.plugin
     || this.env?.smart_connections_plugin
     || this.env?.plugin
     || this.env?.main

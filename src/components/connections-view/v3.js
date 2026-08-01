@@ -129,11 +129,27 @@ export async function post_process(view, container, opts = {}) {
         state.view,
       );
       if (menu.items?.length) menu.addSeparator();
+      const raw_results = Array.isArray(state.connections_list?.results)
+        ? state.connections_list.results
+        : []
+      ;
+      const connections_state =
+        state.connections_list?.item?.data?.connections || {};
+      const visible_results = filter_hidden_results(
+        raw_results,
+        connections_state,
+      );
+
       env.build_menu?.(
         'connections:list_menu',
         menu,
         state.connections_list,
-        get_connections_list_menu_params(state),
+        {
+          container: state.container,
+          connections_settings: state.connections_settings,
+          visible_results,
+          render_connections: state.view.render_view.bind(state.view),
+        },
       );
       menu.showAtMouseEvent(event);
     });
@@ -209,8 +225,8 @@ export async function post_process(view, container, opts = {}) {
   ;
   const list = await env.smart_components.render_component(connections_list_component_key, connections_list, {
     ...opts,
-    view,
     container,
+    render_connections: view.render_view.bind(view),
   });
   this.empty(list_container);
   list_container.appendChild(list);
@@ -250,19 +266,6 @@ export async function post_process(view, container, opts = {}) {
   }
 
   return container;
-}
-
-function get_connections_list_menu_params(state = {}) {
-  const raw_results = Array.isArray(state.connections_list?.results) ? state.connections_list.results : [];
-  const connections_state = state.connections_list?.item?.data?.connections || {};
-  const visible_results = filter_hidden_results(raw_results, connections_state);
-
-  return {
-    view: state.view,
-    container: state.container,
-    connections_settings: state.connections_settings,
-    visible_results,
-  };
 }
 
 function record_connections_target_history(view, target_item) {

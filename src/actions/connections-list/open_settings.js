@@ -2,16 +2,9 @@
  * Open Smart Connections settings.
  *
  * @this {import('../../items/connections_list.js').ConnectionsList}
- * @param {object} [params={}]
- * @param {object} [params.view]
  * @returns {Promise<boolean>}
  */
-export async function connections_list_open_settings(params = {}) {
-  if (typeof params.view?.open_settings === 'function') {
-    await params.view.open_settings();
-    return true;
-  }
-
+export async function connections_list_open_settings() {
   const plugin = this.env?.smart_connections_plugin || this.env?.plugin || this.env?.main;
   const app = plugin?.app || this.env?.obsidian_app;
   if (!app?.setting) return false;

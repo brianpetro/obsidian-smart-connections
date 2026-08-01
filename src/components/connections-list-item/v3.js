@@ -165,7 +165,6 @@ export async function post_process(result_scope, container, params = {}) {
       prefixed_key,
       target_item: item,
       target_name,
-      view: params.view,
     });
 
     menu.addSeparator();
@@ -174,7 +173,7 @@ export async function post_process(result_scope, container, params = {}) {
       container: list_container,
       connections_settings,
       visible_results,
-      view: params.view,
+      render_connections: params.render_connections,
     });
 
     menu.showAtMouseEvent(event);

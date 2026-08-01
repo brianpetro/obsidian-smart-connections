@@ -8,7 +8,7 @@ import {
  *
  * @this {import('../../items/connections_list.js').ConnectionsList}
  * @param {object} [params={}]
- * @param {object} [params.view]
+ * @param {(params?: object) => Promise<void>|void} [params.render_connections]
  * @returns {boolean}
  */
 export function connections_list_unhide_all(params = {}) {
@@ -21,11 +21,10 @@ export function connections_list_unhide_all(params = {}) {
 
     if (source_item.data.hidden_connections) delete source_item.data.hidden_connections;
     source_item.queue_save();
-    if (typeof params.view?.render_view === 'function') {
-      params.view.render_view({ connections_item: source_item, force: true });
-    } else {
-      console.warn('connections_list_unhide_all: no view.render_view function provided');
-    }
+    params.render_connections?.({
+      connections_item: source_item,
+      force: true,
+    });
     source_item.collection.save();
     return true;
   } catch (err) {

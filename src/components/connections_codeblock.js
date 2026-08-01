@@ -96,7 +96,10 @@ export async function post_process(connections_list, container, opts = {}) {
     const list = await env.smart_components.render_component(
       connections_list_component_key,
       connections_list,
-      opts
+      {
+        ...opts,
+        render_connections: render_list,
+      }
     );
     this.empty(list_container);
     list_container.appendChild(list);
@@ -116,10 +119,10 @@ export async function post_process(connections_list, container, opts = {}) {
 
     const refresh_button = container.querySelector('[data-action="refresh-connections"]');
     refresh_button?.addEventListener('click', async () => {
-      const refreshed = await run_action('connections_list_refresh', {
+      await run_action('connections_list_refresh', {
         event_source: 'connections_codeblock.refresh_connections',
+        render_connections: render_list,
       });
-      if (refreshed) await render_list();
     });
 
     const expand_all_button = container.querySelector('[data-action="expand-all"]');
