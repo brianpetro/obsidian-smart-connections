@@ -107,6 +107,7 @@ export class ConnectionsItemView extends SmartItemView {
       if (this.paused) return;
       if (!is_visible(this.container)) return;
       const connections_item = this.env[event.collection_key || 'smart_sources']?.get(event.item_key || event.key);
+      if (connections_item.is_media && connections_item.should_embed === false) return;
       if (connections_item.key === this.current?.key) return;
       if (handle_current_source_debounce) window.clearTimeout(handle_current_source_debounce);
       handle_current_source_debounce = window.setTimeout(() => {
