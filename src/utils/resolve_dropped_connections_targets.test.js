@@ -38,6 +38,16 @@ function create_env() {
       collection_key: 'smart_sources',
       vec: null,
     },
+    'Archive/Unindexed.md': {
+      key: 'Archive/Unindexed.md',
+      collection_key: 'smart_sources',
+      vec: [1],
+    },
+    'Acme.md': {
+      key: 'Acme.md',
+      collection_key: 'smart_sources',
+      vec: [1],
+    },
   };
   const blocks = {
     'Projects/Alpha.md#Heading': {
@@ -65,6 +75,15 @@ function create_env() {
     },
     smart_sources: {
       items: sources,
+      fs: {
+        base_path: '/vault',
+        file_paths: Object.keys(sources),
+        folder_paths: [
+          'Projects',
+          'Archive',
+          'Acme',
+        ],
+      },
       get(key) { return sources[key]; },
     },
   };
@@ -108,7 +127,32 @@ test('resolve_dropped_connections_targets resolves a File Navigator file object'
   ]);
 });
 
-test('resolve_dropped_connections_targets retains several valid targets for caller rejection', (t) => {
+test('resolve_dropped_connections_targets resolves an exact native block', (t) => {
+  const env = create_env();
+  const data_transfer = create_data_transfer({
+    'text/plain': 'Projects/Alpha.md#Heading',
+  });
+
+  t.deepEqual(resolve_dropped_connections_targets(env, data_transfer), [
+    env.smart_blocks.get('Projects/Alpha.md#Heading'),
+  ]);
+});
+
+test('resolve_dropped_connections_targets deduplicates repeated native representations', (t) => {
+  const env = create_env();
+  const data_transfer = create_data_transfer({
+    'text/plain': 'Projects/Alpha.md',
+  });
+  data_transfer.files = [
+    { path: '/vault/Projects/Alpha.md' },
+  ];
+
+  t.deepEqual(resolve_dropped_connections_targets(env, data_transfer), [
+    env.smart_sources.get('Projects/Alpha.md'),
+  ]);
+});
+
+test('resolve_dropped_connections_targets retains several valid Smart targets for caller rejection', (t) => {
   const env = create_env();
   const data_transfer = create_data_transfer();
   write_smart_drag_data(data_transfer, [
@@ -174,15 +218,47 @@ test('resolve_dropped_connections_targets does not fall back for malformed Smart
   t.deepEqual(resolve_dropped_connections_targets(env, data_transfer), []);
 });
 
-test('resolve_dropped_connections_targets rejects unindexed and ambiguous native paths', (t) => {
+test('resolve_dropped_connections_targets makes exact unindexed native files terminal', (t) => {
   const env = create_env();
-  const unindexed = create_data_transfer({
+  const data_transfer = create_data_transfer({
     'text/plain': 'Unindexed.md',
   });
-  const ambiguous = create_data_transfer({
+
+  t.deepEqual(resolve_dropped_connections_targets(env, data_transfer), []);
+});
+
+test('resolve_dropped_connections_targets rejects ambiguous native paths', (t) => {
+  const env = create_env();
+  const data_transfer = create_data_transfer({
     'text/plain': 'Alpha.md',
   });
 
-  t.deepEqual(resolve_dropped_connections_targets(env, unindexed), []);
-  t.deepEqual(resolve_dropped_connections_targets(env, ambiguous), []);
+  t.deepEqual(resolve_dropped_connections_targets(env, data_transfer), []);
+});
+
+test('resolve_dropped_connections_targets rejects outside-vault absolute paths', (t) => {
+  const env = create_env();
+  const data_transfer = create_data_transfer({
+    'text/plain': '/outside/Projects/Alpha.md',
+  });
+
+  t.deepEqual(resolve_dropped_connections_targets(env, data_transfer), []);
+});
+
+test('resolve_dropped_connections_targets rejects inferred file and folder collisions', (t) => {
+  const env = create_env();
+  const data_transfer = create_data_transfer({
+    'text/plain': 'Acme',
+  });
+
+  t.deepEqual(resolve_dropped_connections_targets(env, data_transfer), []);
+});
+
+test('resolve_dropped_connections_targets rejects mixed native files and folders', (t) => {
+  const env = create_env();
+  const data_transfer = create_data_transfer({
+    'text/plain': 'Projects/Alpha.md\nProjects/',
+  });
+
+  t.deepEqual(resolve_dropped_connections_targets(env, data_transfer), []);
 });
