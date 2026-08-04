@@ -43,44 +43,44 @@ export const smart_env_config = {
     connections_lists
   },
   items: {
-    connections_list: { class: ConnectionsList, version: "2.4.6" }
+    connections_list: { class: ConnectionsList, version: "3.1.0" }
   },
   modules: {
 
   },
   components: {
-    connections_codeblock: { render: connections_codeblock_component, version: "2.4.6" },
-    connections_footer_view: { render: connections_footer_view_component, version: "2.4.6" },
-    connections_graph_v1: { render: connections_graph_v1_component, version: "2.4.6" },
-    connections_list_item_v3: { render: connections_list_item_v3_component, settings_config: connections_list_item_v3_component_settings_config, version: "2.4.6" },
-    connections_list_v3: { render: connections_list_v3_component, display_name: connections_list_v3_component_display_name, version: "2.4.6" },
-    connections_list_v4: { render: connections_list_v4_component, settings_config: connections_list_v4_component_settings_config, display_name: connections_list_v4_component_display_name, version: "2.4.6" },
-    connections_settings_header: { render: connections_settings_header_component, version: "2.4.6" },
-    connections_settings_lookup_callout: { render: connections_settings_lookup_callout_component, version: "2.4.6" },
-    connections_view_v3: { render: connections_view_v3_component, version: "2.4.6" }
+    connections_codeblock: { render: connections_codeblock_component, version: "3.1.0" },
+    connections_footer_view: { render: connections_footer_view_component, version: "3.1.0" },
+    connections_graph_v1: { render: connections_graph_v1_component, version: "3.1.0" },
+    connections_list_item_v3: { render: connections_list_item_v3_component, settings_config: connections_list_item_v3_component_settings_config, version: "3.1.0" },
+    connections_list_v3: { render: connections_list_v3_component, display_name: connections_list_v3_component_display_name, version: "3.1.0" },
+    connections_list_v4: { render: connections_list_v4_component, settings_config: connections_list_v4_component_settings_config, display_name: connections_list_v4_component_display_name, version: "3.1.0" },
+    connections_settings_header: { render: connections_settings_header_component, version: "3.1.0" },
+    connections_settings_lookup_callout: { render: connections_settings_lookup_callout_component, version: "3.1.0" },
+    connections_view_v3: { render: connections_view_v3_component, version: "3.1.0" }
   },
   actions: {
-    connections_list_copy_as_links: { action: connections_list_copy_as_links_action, menus: connections_list_copy_as_links_action_menus, version: "2.4.6" },
-    connections_list_get_results: { action: connections_list_get_results_action, display_name: connections_list_get_results_action_display_name, display_description: connections_list_get_results_action_display_description, action_scope: connections_list_get_results_action_action_scope, tool: connections_list_get_results_action_tool, input_schema: connections_list_get_results_action_input_schema, output_schema: connections_list_get_results_action_output_schema, version: "2.4.6" },
-    connections_list_item_hide: { action: connections_list_item_hide_action, menus: connections_list_item_hide_action_menus, version: "2.4.6" },
-    connections_list_item_toggle_pinned: { action: connections_list_item_toggle_pinned_action, menus: connections_list_item_toggle_pinned_action_menus, version: "2.4.6" },
-    connections_list_open_help: { action: connections_list_open_help_action, commands: connections_list_open_help_action_commands, menus: connections_list_open_help_action_menus, version: "2.4.6" },
-    connections_list_open_random_connection: { action: connections_list_open_random_connection_action, commands: connections_list_open_random_connection_action_commands, ribbon_icons: connections_list_open_random_connection_action_ribbon_icons, menus: connections_list_open_random_connection_action_menus, version: "2.4.6" },
-    connections_list_open_settings: { action: connections_list_open_settings_action, menus: connections_list_open_settings_action_menus, version: "2.4.6" },
-    connections_list_open_view: { action: connections_list_open_view_action, commands: connections_list_open_view_action_commands, ribbon_icons: connections_list_open_view_action_ribbon_icons, version: "2.4.6" },
-    connections_list_pre_process: { action: connections_list_pre_process_action, pre_process: connections_list_pre_process_action_pre_process, version: "2.4.6" },
-    connections_list_refresh: { action: connections_list_refresh_action, menus: connections_list_refresh_action_menus, version: "2.4.6" },
-    connections_list_select_target: { action: connections_list_select_target_action, display_name: connections_list_select_target_action_display_name, menus: connections_list_select_target_action_menus, version: "2.4.6" },
+    connections_list_copy_as_links: { action: connections_list_copy_as_links_action, menus: connections_list_copy_as_links_action_menus, version: "3.1.0" },
+    connections_list_get_results: { action: connections_list_get_results_action, display_name: connections_list_get_results_action_display_name, display_description: connections_list_get_results_action_display_description, action_scope: connections_list_get_results_action_action_scope, tool: connections_list_get_results_action_tool, input_schema: connections_list_get_results_action_input_schema, output_schema: connections_list_get_results_action_output_schema, version: "3.1.0" },
+    connections_list_item_hide: { action: connections_list_item_hide_action, menus: connections_list_item_hide_action_menus, version: "3.1.0" },
+    connections_list_item_toggle_pinned: { action: connections_list_item_toggle_pinned_action, menus: connections_list_item_toggle_pinned_action_menus, version: "3.1.0" },
+    connections_list_open_help: { action: connections_list_open_help_action, commands: connections_list_open_help_action_commands, menus: connections_list_open_help_action_menus, version: "3.1.0" },
+    connections_list_open_random_connection: { action: connections_list_open_random_connection_action, commands: connections_list_open_random_connection_action_commands, ribbon_icons: connections_list_open_random_connection_action_ribbon_icons, menus: connections_list_open_random_connection_action_menus, version: "3.1.0" },
+    connections_list_open_settings: { action: connections_list_open_settings_action, menus: connections_list_open_settings_action_menus, version: "3.1.0" },
+    connections_list_open_view: { action: connections_list_open_view_action, commands: connections_list_open_view_action_commands, ribbon_icons: connections_list_open_view_action_ribbon_icons, version: "3.1.0" },
+    connections_list_pre_process: { action: connections_list_pre_process_action, pre_process: connections_list_pre_process_action_pre_process, version: "3.1.0" },
+    connections_list_refresh: { action: connections_list_refresh_action, menus: connections_list_refresh_action_menus, version: "3.1.0" },
+    connections_list_select_target: { action: connections_list_select_target_action, display_name: connections_list_select_target_action_display_name, menus: connections_list_select_target_action_menus, version: "3.1.0" },
     connections_list_send_to_context: { action: connections_list_send_to_context_action, menus: connections_list_send_to_context_action_menus, version: connections_list_send_to_context_action_version },
     connections_list_send_to_smart_graph: { action: connections_list_send_to_smart_graph_action, menus: connections_list_send_to_smart_graph_action_menus, version: connections_list_send_to_smart_graph_action_version },
-    connections_list_toggle_expanded: { action: connections_list_toggle_expanded_action, menus: connections_list_toggle_expanded_action_menus, version: "2.4.6" },
-    connections_list_toggle_footer_connections: { action: connections_list_toggle_footer_connections_action, commands: connections_list_toggle_footer_connections_action_commands, ribbon_icons: connections_list_toggle_footer_connections_action_ribbon_icons, version: "2.4.6" },
-    connections_list_toggle_paused: { action: connections_list_toggle_paused_action, menus: connections_list_toggle_paused_action_menus, version: "2.4.6" },
-    connections_list_unhide_all: { action: connections_list_unhide_all_action, menus: connections_list_unhide_all_action_menus, version: "2.4.6" },
-    connections_list_unpin_all: { action: connections_list_unpin_all_action, menus: connections_list_unpin_all_action_menus, version: "2.4.6" },
-    connections_target_blocks: { action: connections_target_blocks_action, menus: connections_target_blocks_action_menus, version: "2.4.6" },
-    connections_target_history: { action: connections_target_history_action, menus: connections_target_history_action_menus, version: "2.4.6" },
-    env_insert_connections_codeblock: { action: env_insert_connections_codeblock_action, commands: env_insert_connections_codeblock_action_commands, version: "2.4.6" },
-    source_view_connections: { action: source_view_connections_action, menus: source_view_connections_action_menus, version: "2.4.6" }
+    connections_list_toggle_expanded: { action: connections_list_toggle_expanded_action, menus: connections_list_toggle_expanded_action_menus, version: "3.1.0" },
+    connections_list_toggle_footer_connections: { action: connections_list_toggle_footer_connections_action, commands: connections_list_toggle_footer_connections_action_commands, ribbon_icons: connections_list_toggle_footer_connections_action_ribbon_icons, version: "3.1.0" },
+    connections_list_toggle_paused: { action: connections_list_toggle_paused_action, menus: connections_list_toggle_paused_action_menus, version: "3.1.0" },
+    connections_list_unhide_all: { action: connections_list_unhide_all_action, menus: connections_list_unhide_all_action_menus, version: "3.1.0" },
+    connections_list_unpin_all: { action: connections_list_unpin_all_action, menus: connections_list_unpin_all_action_menus, version: "3.1.0" },
+    connections_target_blocks: { action: connections_target_blocks_action, menus: connections_target_blocks_action_menus, version: "3.1.0" },
+    connections_target_history: { action: connections_target_history_action, menus: connections_target_history_action_menus, version: "3.1.0" },
+    env_insert_connections_codeblock: { action: env_insert_connections_codeblock_action, commands: env_insert_connections_codeblock_action_commands, version: "3.1.0" },
+    source_view_connections: { action: source_view_connections_action, menus: source_view_connections_action_menus, version: "3.1.0" }
   }
 };
