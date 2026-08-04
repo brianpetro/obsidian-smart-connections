@@ -33,3 +33,6 @@ Enhance performance logging in get_results method and emit event with elapsed ti
 
 
 Add footer connections list component configuration and remove show_graph setting in favor of component selection in settings
+
+
+Updated: Smart Environment v3
