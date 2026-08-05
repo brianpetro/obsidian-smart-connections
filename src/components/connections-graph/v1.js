@@ -521,9 +521,8 @@ async function post_process(connections_list, container, params = {}) {
           node_sel.select('text.sc-node-label')
             .each(function (d) {
               if (d.isCenter) return;
-              const node = this;
-              const label_width = typeof node.getComputedTextLength === 'function'
-                ? node.getComputedTextLength()
+              const label_width = typeof this.getComputedTextLength === 'function'
+                ? this.getComputedTextLength()
                 : 0;
               const { anchor, offset } = label_anchor_offset(d.x, {
                 center_x,
@@ -532,7 +531,7 @@ async function post_process(connections_list, container, params = {}) {
                 radius: d.radius,
                 margin: LABEL_MARGIN,
               });
-              d3.select(node)
+              d3.select(this)
                 .attr('text-anchor', anchor)
                 .attr('x', offset);
             });
