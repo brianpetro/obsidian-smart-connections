@@ -4,14 +4,12 @@ import styles from './connections_footer_view.css';
 const FOOTER_FOLDED_STORAGE_KEY = 'sc_footer_connections_folded';
 const FOOTER_LIST_COLLAPSED_CLASS = 'sc-footer-list-collapsed';
 
-function get_footer_connections_folded() {
-  if (typeof localStorage === 'undefined') return false;
-  return localStorage.getItem(FOOTER_FOLDED_STORAGE_KEY) === 'true';
+function get_footer_connections_folded(app) {
+  return app.loadLocalStorage(FOOTER_FOLDED_STORAGE_KEY) === 'true';
 }
 
-function set_footer_connections_folded(folded) {
-  if (typeof localStorage === 'undefined') return;
-  localStorage.setItem(FOOTER_FOLDED_STORAGE_KEY, String(folded));
+function set_footer_connections_folded(app, folded) {
+  app.saveLocalStorage(FOOTER_FOLDED_STORAGE_KEY, String(folded));
 }
 
 function apply_footer_fold_state(header_container, list_container, folded) {
@@ -90,12 +88,12 @@ export async function post_process(view, container, opts = {}) {
   header_container?.addEventListener('click', (event) => {
     event.preventDefault();
     event.stopPropagation();
-    const next_folded = !get_footer_connections_folded();
-    set_footer_connections_folded(next_folded);
+    const next_folded = !get_footer_connections_folded(view.app);
+    set_footer_connections_folded(view.app, next_folded);
     apply_footer_fold_state(header_container, list_container, next_folded);
   });
 
-  apply_footer_fold_state(header_container, list_container, get_footer_connections_folded());
+  apply_footer_fold_state(header_container, list_container, get_footer_connections_folded(view.app));
 
   if (!connections_item) {
     return container;

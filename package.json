@@ -36,6 +36,8 @@
     "swagger-jsdoc": "^6.2.8"
   },
   "dependencies": {
+    "@codemirror/state": "6.5.0",
+    "@codemirror/view": "6.38.6",
     "js-tiktoken": "^1.0.19",
     "obsidian": "latest",
     "obsidian-smart-env": "file:../obsidian-smart-env",

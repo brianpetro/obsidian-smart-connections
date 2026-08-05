@@ -59,7 +59,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
   }
 
   onunload() {
-    console.log("Unloading Smart Connections plugin");
+    // console.log("Unloading Smart Connections plugin");
     this.connections_footer_view?.unload();
     this.notices?.unload();
     this.env?.unload_main?.(this);
@@ -143,7 +143,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
 
   async check_for_updates() {
     if (await this.is_new_plugin_version(this.manifest.version)) {
-      console.log("opening release notes modal");
+      // console.log("opening release notes modal");
       try {
         this.ReleaseNotesView.open(this.app.workspace, this.manifest.version);
       } catch (error) {
@@ -189,12 +189,12 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
   get_editor_view() {
     const file = this.app.workspace.getActiveFile();
     if (!file) {
-      console.log("Smart Connections: No active file found");
+      // console.log("Smart Connections: No active file found");
       return null;
     }
     const markdown_view = this.app.workspace.getActiveFileView();
     if (!markdown_view) {
-      console.log("Smart Connections: No active file view found");
+      // console.log("Smart Connections: No active file view found");
       return null;
     }
     return markdown_view.editor?.cm || null;
@@ -219,7 +219,7 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
     let gitignore_file = await this.app.vault.adapter.read(".gitignore");
     if (gitignore_file.indexOf(ignore) < 0) {
       await this.app.vault.adapter.append(".gitignore", `\n\n${message ? "# " + message + "\n" : ""}${ignore}`);
-      console.log("Added to .gitignore: " + ignore);
+      // console.log("Added to .gitignore: " + ignore);
     }
   }
 }

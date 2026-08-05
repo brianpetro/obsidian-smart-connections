@@ -24,7 +24,7 @@ function format_connection_item(item) {
   if (!link) return '';
   const lines = get_lines_label(item);
   if (!lines) return link;
-  return `${link.replace(/\#\{\d+\}/, '')} (${lines})`;
+  return `${link.replace(/#\{\d+\}/, '')} (${lines})`;
 }
 
 /**

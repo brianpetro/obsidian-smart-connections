@@ -226,7 +226,7 @@ export function process_for_rendering(content) {
   if (content.includes('```smart-context')) content = content.replace(/```smart-context/g, '```\\smart-context');
   if (content.includes('```smart-chatgpt')) content = content.replace(/```smart-chatgpt/g, '```\\smart-chatgpt');
   // prevent link embedding
-  if (content.includes('![[')) content = content.replace(/\!\[\[/g, '! [[');
+  if (content.includes('![[')) content = content.replace(/!\[\[/g, '! [[');
   return content;
 }
 
