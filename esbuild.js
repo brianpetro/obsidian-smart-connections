@@ -19,6 +19,7 @@ build_plugin({
   external: [
     '@codemirror/state',
     '@codemirror/view',
+    'https://cdn.jsdelivr.net/npm/d3@7/+esm',
     '@xenova/transformers',
     '@huggingface/transformers',
     'http',
