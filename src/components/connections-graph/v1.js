@@ -133,9 +133,8 @@ function validate_d3_instance(d3) {
 async function load_d3() {
   const g = typeof activeWindow !== 'undefined'
     ? activeWindow
-    : (typeof globalThis !== 'undefined'
-      ? globalThis
-      : (typeof window !== 'undefined' ? window : {}));
+    : (typeof window !== 'undefined' ? window : {})
+  ;
 
   if (g.d3) {
     validate_d3_instance(g.d3);

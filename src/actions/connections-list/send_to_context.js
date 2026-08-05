@@ -30,9 +30,9 @@ export function connections_list_send_to_context(params = {}) {
     return true;
   }
 
-  const open_url = globalThis.activeWindow?.open
-    || globalThis.window?.open
-    || globalThis.open
+  const open_url = activeWindow?.open
+    || window?.open
+    || open
   ;
   if (typeof open_url !== 'function') return false;
 

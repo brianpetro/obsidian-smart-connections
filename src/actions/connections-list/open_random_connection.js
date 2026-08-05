@@ -57,7 +57,7 @@ function get_app(env, params = {}) {
     || params.plugin?.app
     || env?.obsidian_app
     || env?.plugin?.app
-    || globalThis.app
+    || activeWindow.app
     || null
   ;
 }

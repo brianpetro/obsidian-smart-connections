@@ -14,7 +14,7 @@ export async function source_view_connections(params = {}) {
     || env?.obsidian_app?.workspace
     || env?.plugin?.app?.workspace
     || env?.smart_connections_plugin?.app?.workspace
-    || globalThis.app?.workspace
+    || activeWindow.app?.workspace
   ;
 
   if (!source_item?.key || !workspace) return false;
