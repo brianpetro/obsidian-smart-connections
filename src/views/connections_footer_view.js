@@ -92,8 +92,8 @@ export class ConnectionsFooterView {
     window.addEventListener('resize', on_resize);
 
     this._detach_visibility_guard = () => {
-      try { scroll_target.removeEventListener('scroll', on_scroll); } catch {}
-      try { window.removeEventListener('resize', on_resize); } catch {}
+      try { scroll_target.removeEventListener('scroll', on_scroll); } catch { /* Ignore cleanup failures. */ }
+      try { window.removeEventListener('resize', on_resize); } catch { /* Ignore cleanup failures. */ }
       this._detach_visibility_guard = null;
     };
   }
