@@ -3,7 +3,7 @@
   "name": "Smart Connections",
   "author": "Brian Petro",
   "description": "AI link discovery copilot. See related notes as you write. Lookup using semantic (vector) search across your vault. Zero-setup local model for embeddings, no API keys, private.",
-  "minAppVersion": "1.1.0",
+  "minAppVersion": "1.8.7",
   "authorUrl": "https://smartconnections.app",
   "isDesktopOnly": false,
   "version": "4.7.0"
