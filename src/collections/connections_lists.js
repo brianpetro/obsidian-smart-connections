@@ -106,15 +106,6 @@ export class ConnectionsLists extends Collection {
   }
 
   get connections_list_component_settings_config() {
-    // TEMP 2026-02-23 (migrating towards dynamic component settings)
-    if(!this.settings?.connections_list_component_key || (!this.env.is_pro && ['none', 'connections_list_v4_2', 'connections_list_v3'].includes(this.settings.connections_list_component_key))) {
-      this.settings.connections_list_component_key = 'connections_list_v4';
-    }
-    if(!this.settings?.components?.connections_list_v4) {
-      if(!this.settings.components) this.settings.components = {};
-      this.settings.components.connections_list_v4 = { ...this.constructor.default_settings.components.connections_list_v4 };
-    }
-    // END TEMP
     const component_key = this.settings.connections_list_component_key;
     if(!component_key || component_key === 'none') return null;
     const component_module = this.env.config.components?.[component_key];
@@ -169,6 +160,15 @@ export function settings_config(scope) {
           { value: 'left', name: 'Left sidebar' },
         ];
       }
+    },
+    "connections_list_component_key": {
+      group: 'Display',
+      name: "Connections List Component",
+      type: "dropdown",
+      description: "Select the component used to render the connections list.",
+      options_callback: (scope) => {
+        return scope.get_connections_list_component_options();
+      },
     },
     "inline_connections": {
       group: 'Inline connections',
