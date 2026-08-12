@@ -71,6 +71,7 @@ export class ConnectionsList extends CollectionItem {
     const collection = this.env[params.results_collection_key];
     const score_errors = [];
     const { results: raw_results } = Object.values(collection.items)
+      .filter(item => item.data.should_embed) // filter unembeddable items early
       .reduce((acc, target) => {
         const scored = target.filter_and_score(params);
         if(!Number.isFinite(scored?.score)){
