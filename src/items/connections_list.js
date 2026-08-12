@@ -69,31 +69,65 @@ export class ConnectionsList extends CollectionItem {
 
   filter_and_score (params = {}) {
     const collection = this.env[params.results_collection_key];
-    const score_errors = [];
-    const { results: raw_results } = Object.values(collection.items)
-      .filter(item => item.data.should_embed) // filter unembeddable items early
-      .reduce((acc, target) => {
-        const scored = target.filter_and_score(params);
-        if(!Number.isFinite(scored?.score)){
-          if(scored?.error) score_errors.push(scored.error);
-          return acc; // skip if errored/filtered out
+    if (!collection?.items) return [];
+
+    const source_item = params.to_item || this.item;
+    const desired_limit = normalize_limit(
+      params.limit,
+      normalize_limit(this.settings?.results_limit, 20)
+    );
+
+    // fast path: similarity scores in wasm, then apply JS-side filters to the ranked slice
+    if (
+      source_item?.vec?.length
+    ) {
+      const file_info = collection.embeddings?.get_active_file_info();
+      const file_name = file_info?.file;
+      const total_candidates = collection.embeddings._persisted_lengths_by_file[file_name]/collection.embeddings.dims;
+
+      if (total_candidates > 0) {
+        let requested_k = Math.min(
+          total_candidates,
+          Math.max(desired_limit * 4, desired_limit + 25, 50)
+        );
+
+        while (true) {
+          const top_k = collection.actions.top_k({
+            vec: source_item.vec,
+            k: requested_k,
+          });
+          
+          const results = [];
+          const score_errors = [];
+
+          top_k.forEach(({item, score}) => {
+            const target = item;
+            if (target === source_item) return;
+            if (target.key && source_item?.key && target.key === source_item.key) return;
+            if (target.filter(params.filter) === false) return;
+            if (params.score_algo_key !== 'similarity') {
+              const scored = target.score({ ...params, to_item_similarity: score });
+              if (!scored?.score) {
+                if (scored?.error) score_errors.push(scored);
+              }
+              results.push(scored);
+              return;
+            }
+            results.push({ score, item: target });
+          });
+
+          if (results.length >= desired_limit || requested_k >= total_candidates) {
+            if (score_errors.length) {
+              console.warn('Score errors:', score_errors);
+            }
+            return normalize_similarity_scores(results.sort(sort_by_score_descending).slice(0, desired_limit));
+          }
+
+          requested_k = Math.min(total_candidates, requested_k * 2);
         }
-        results_acc(acc, scored, params.limit); // update acc
-        return acc;
-      }, {
-        min: Number.POSITIVE_INFINITY,
-        minResult: null,
-        results: new Set(),
-      })
-    ;
-    const results = Array.from(raw_results).sort(sort_by_score_descending);
-    if(!results.length) return results;
-    // TODO: 2026-04-13 remove this normailization (only applies to custom algos anyway) 
-    if(!results.some(r => r.score > 0)) return results;
-    while(!results.some(r => r.score > 0.5)) {
-      results.forEach(r => r.score *= 2);
+      }
     }
-    return results;
+    return [];
   }
 
   async post_process (results, params = {}) {
@@ -128,4 +162,26 @@ export class ConnectionsList extends CollectionItem {
     return 'connections_list_v4'; // TEMP default
   }
 
+}
+
+function normalize_limit(limit, fallback = 20) {
+  const numeric_limit = Number(limit);
+  if (Number.isFinite(numeric_limit) && numeric_limit > 0) {
+    return Math.floor(numeric_limit);
+  }
+  return fallback;
+}
+// TODO: 2026-04-13 remove this normailization (only applies to custom algos anyway) 
+function normalize_similarity_scores(results = []) {
+  if (!results.length) return results;
+  if (results.some((result) => result.score > 0.5)) return results;
+  if (!results.some((result) => result.score > 0)) return results;
+
+  while (!results.some((result) => result.score > 0.5)) {
+    results.forEach((result) => {
+      result.score *= 2;
+    });
+  }
+
+  return results;
 }
