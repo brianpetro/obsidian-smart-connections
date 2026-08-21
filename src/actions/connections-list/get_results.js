@@ -25,6 +25,13 @@ export const action_scope = {
 export const tool = {
   name: 'smart_connections_list',
 
+  cli: {
+    command: 'smart:connections',
+    aliases: [
+      'connections:list',
+    ]
+  },
+
   when({ env }) {
     return Boolean(env.connections_lists && env.smart_sources);
   },
