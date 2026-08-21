@@ -44,6 +44,10 @@ export const tool = {
         minLength: 1,
         description: 'Source key or vault-relative path.',
       },
+      include_content: {
+        type: 'boolean',
+        description: 'Include the text content of each returned item.',
+      },
     },
     required: ['to'],
     additionalProperties: false,
@@ -73,6 +77,10 @@ export const tool = {
             key: { type: 'string' },
             collection_key: { type: 'string' },
             score: { type: ['number', 'null'] },
+            content: {
+              type: 'string',
+              description: 'Item text when include_content is true.',
+            },
           },
           required: ['key', 'collection_key', 'score'],
           additionalProperties: false,
@@ -91,7 +99,7 @@ export const tool = {
  * This is the source-backed list projector pattern to mirror for a future
  * DisconnectionsList tool action.
  *
- * @param {{to: string}} request
+ * @param {{to: string, include_content?: boolean}} request
  * @param {{env: object}} context
  * @returns {{scope: object, params: object}}
  */
@@ -123,10 +131,16 @@ export function project_connections_list_request(request, { env }) {
  * Convert native Connections List results into the shared public tool result.
  *
  * @param {Array<object>} raw_result
- * @param {{scope: object}} context
- * @returns {object}
+ * @param {{scope: object, request?: {include_content?: boolean}}} context
+ * @returns {Promise<object>}
  */
-export function project_connections_list_result(raw_result, { scope }) {
+export async function project_connections_list_result(
+  raw_result,
+  {
+    scope,
+    request,
+  },
+) {
   if (!Array.isArray(raw_result)) {
     throw new TypeError('Connections List results must be an array.');
   }
@@ -138,7 +152,14 @@ export function project_connections_list_result(raw_result, { scope }) {
     throw new TypeError('Connections List scope is missing its source key.');
   }
 
-  const results = raw_result.map(to_result);
+  const include_content = request?.include_content === true;
+  const results = await Promise.all(
+    raw_result.map((result, result_i) => {
+      return to_result(result, result_i, {
+        include_content,
+      });
+    }),
+  );
 
   return {
     ok: true,
@@ -148,7 +169,13 @@ export function project_connections_list_result(raw_result, { scope }) {
   };
 }
 
-function to_result(result, result_i) {
+async function to_result(
+  result,
+  result_i,
+  {
+    include_content = false,
+  } = {},
+) {
   const item = result?.item;
   const key = to_trimmed_string(item?.key)
     || to_trimmed_string(item?.data?.key)
@@ -169,11 +196,38 @@ function to_result(result, result_i) {
     );
   }
 
-  return {
+  const projected_result = {
     key,
     collection_key,
     score: Number.isFinite(result?.score) ? result.score : null,
   };
+
+  if (!include_content) {
+    return projected_result;
+  }
+
+  return {
+    ...projected_result,
+    content: await read_result_content(item, result_i),
+  };
+}
+
+async function read_result_content(item, result_i) {
+  if (typeof item?.read !== 'function') {
+    throw new TypeError(
+      `Connections List result ${result_i} cannot provide content.`,
+    );
+  }
+
+  const content = await item.read();
+  if (content === null || content === undefined) {
+    return '';
+  }
+
+  return typeof content === 'string'
+    ? content
+    : JSON.stringify(content, null, 2)
+  ;
 }
 
 function to_trimmed_string(value) {

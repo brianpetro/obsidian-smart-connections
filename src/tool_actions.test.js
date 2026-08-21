@@ -58,6 +58,7 @@ test('project_connections_list_request resolves the exact source-backed list', (
     project_connections_list_request(
       {
         to: `  ${source.key}  `,
+        include_content: true,
       },
       { env },
     ),
@@ -89,7 +90,7 @@ test('project_connections_list_request fails clearly for an unknown source', (t)
   );
 });
 
-test('project_connections_list_result returns the stable public payload', (t) => {
+test('project_connections_list_result returns the stable public payload', async (t) => {
   const source = {
     key: 'Notes/Alpha.md',
   };
@@ -107,7 +108,7 @@ test('project_connections_list_result returns the stable public payload', (t) =>
   ];
 
   t.deepEqual(
-    project_connections_list_result(raw_results, { scope }),
+    await project_connections_list_result(raw_results, { scope }),
     {
       ok: true,
       to: source.key,
@@ -124,11 +125,56 @@ test('project_connections_list_result returns the stable public payload', (t) =>
   t.is(raw_results[0].item.key, 'Notes/Beta.md');
 });
 
+test('project_connections_list_result includes item content when requested', async (t) => {
+  let read_count = 0;
+  const scope = {
+    item: {
+      key: 'Notes/Alpha.md',
+    },
+  };
+  const raw_results = [
+    {
+      item: {
+        key: 'Notes/Beta.md',
+        collection_key: 'smart_sources',
+        async read() {
+          read_count += 1;
+          return '# Beta\n\nConnection content.';
+        },
+      },
+      score: 0.75,
+    },
+  ];
+
+  const result = await project_connections_list_result(
+    raw_results,
+    {
+      scope,
+      request: {
+        include_content: true,
+      },
+    },
+  );
+
+  t.is(read_count, 1);
+  t.deepEqual(result.results[0], {
+    key: 'Notes/Beta.md',
+    collection_key: 'smart_sources',
+    score: 0.75,
+    content: '# Beta\n\nConnection content.',
+  });
+});
+
 test('connections tool metadata selects request and result projection', (t) => {
   t.is(output_schema, null);
   t.is(tool.project_request, project_connections_list_request);
   t.is(tool.project_result, project_connections_list_result);
   t.deepEqual(tool.input_schema.required, ['to']);
+  t.is(tool.input_schema.properties.include_content.type, 'boolean');
+  t.is(
+    tool.output_schema.properties.results.items.properties.content.type,
+    'string',
+  );
   t.deepEqual(tool.output_schema.required, [
     'ok',
     'to',
