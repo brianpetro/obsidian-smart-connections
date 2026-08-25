@@ -59,11 +59,15 @@ export class ConnectionsLists extends Collection {
     return settings_config(this);
   }
 
-  new_item(item) {
-    const connections_list = new this.item_type(this.env, {
+  new_connections_list(item) {
+    return new this.item_type(this.env, {
       collection_key: item.collection_key,
       item_key: item.key
     });
+  }
+
+  new_item(item) {
+    const connections_list = this.new_connections_list(item);
     this.set(connections_list);
     Object.defineProperty(item, 'connections', {
       get: () => connections_list,

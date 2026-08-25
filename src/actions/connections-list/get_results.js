@@ -114,12 +114,8 @@ export function project_connections_list_request(request, { env }) {
     throw new Error(`No Smart Source found for "${target_key}".`);
   }
 
-  const connections_list = source.connections
-    || env.connections_lists?.new_item?.(source)
-  ;
-  if (!connections_list) {
-    throw new Error('Unable to create Smart Connections list.');
-  }
+  const connections_list =
+    env.connections_lists.new_connections_list(source);
 
   return {
     scope: connections_list,

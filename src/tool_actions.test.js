@@ -6,6 +6,50 @@ import {
   project_connections_list_result,
   tool,
 } from './actions/connections-list/get_results.js';
+import { ConnectionsLists } from './collections/connections_lists.js';
+
+function create_connections_lists_fixture() {
+  class TestConnectionsList {
+    constructor(env, data) {
+      this.env = env;
+      this.data = data;
+    }
+
+    get key() {
+      return `${this.data.collection_key}:${this.data.item_key}`;
+    }
+
+    get item() {
+      return this.env[this.data.collection_key].items[this.data.item_key];
+    }
+  }
+
+  const source = {
+    key: 'Notes/Alpha.md',
+    collection_key: 'smart_sources',
+  };
+  const env = {
+    smart_sources: {
+      items: {
+        [source.key]: source,
+      },
+      get(key) {
+        return this.items[key];
+      },
+    },
+  };
+  const connections_lists = Object.create(ConnectionsLists.prototype);
+  connections_lists.env = env;
+  connections_lists.items = {};
+  connections_lists._item_type = TestConnectionsList;
+  env.connections_lists = connections_lists;
+
+  return {
+    connections_lists,
+    env,
+    source,
+  };
+}
 
 test('connections_list_get_results preserves the native list result', async (t) => {
   const expected_results = [
@@ -33,40 +77,45 @@ test('connections_list_get_results preserves the native list result', async (t) 
   t.is(results, expected_results);
 });
 
-test('project_connections_list_request resolves the exact source-backed list', (t) => {
-  const source = {
-    key: 'Notes/Alpha.md',
-  };
-  const connections_list = {
-    item: source,
-  };
-  const env = {
-    smart_sources: {
-      get(key) {
-        return key === source.key ? source : null;
-      },
-    },
-    connections_lists: {
-      new_item(next_source) {
-        t.is(next_source, source);
-        return connections_list;
-      },
-    },
-  };
+test('project_connections_list_request creates a fresh unregistered scope', (t) => {
+  const {
+    connections_lists,
+    env,
+    source,
+  } = create_connections_lists_fixture();
 
-  t.deepEqual(
-    project_connections_list_request(
-      {
-        to: `  ${source.key}  `,
-        include_content: true,
-      },
-      { env },
-    ),
+  const first = project_connections_list_request(
     {
-      scope: connections_list,
-      params: {},
+      to: `  ${source.key}  `,
+      include_content: true,
     },
+    { env },
   );
+  const second = project_connections_list_request(
+    {
+      to: source.key,
+    },
+    { env },
+  );
+
+  t.is(first.scope.item, source);
+  t.deepEqual(first.params, {});
+  t.not(first.scope, second.scope);
+  t.deepEqual(connections_lists.items, {});
+  t.false(Object.hasOwn(source, 'connections'));
+
+  const registered = connections_lists.new_item(source);
+  const registered_items = { ...connections_lists.items };
+  const third = project_connections_list_request(
+    {
+      to: source.key,
+    },
+    { env },
+  );
+
+  t.not(third.scope, registered);
+  t.deepEqual(connections_lists.items, registered_items);
+  t.is(source.connections, registered);
 });
 
 test('project_connections_list_request fails clearly for an unknown source', (t) => {
