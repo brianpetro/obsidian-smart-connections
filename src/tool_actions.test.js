@@ -7,6 +7,11 @@ import {
   tool,
 } from './actions/connections-list/get_results.js';
 import { ConnectionsLists } from './collections/connections_lists.js';
+import { ConnectionsList } from './items/connections_list.js';
+import {
+  migrate_hidden_connections,
+  migrate_hidden_connections_collection,
+} from '../migrations/migrate_hidden_connections.js';
 
 function create_connections_lists_fixture() {
   class TestConnectionsList {
@@ -75,6 +80,87 @@ test('connections_list_get_results preserves the native list result', async (t) 
   );
 
   t.is(results, expected_results);
+});
+
+test('Connections retrieval does not migrate source data', async (t) => {
+  const source = {
+    key: 'Notes/Alpha.md',
+    data: {
+      hidden_connections: {
+        'Notes/Beta.md': 1700000000000,
+      },
+    },
+  };
+  const connections_list = Object.create(ConnectionsList.prototype);
+  connections_list.env = {
+    smart_sources: {
+      items: {
+        [source.key]: source,
+      },
+    },
+    config: {
+      actions: {},
+    },
+  };
+  connections_list.data = {
+    collection_key: 'smart_sources',
+    item_key: source.key,
+  };
+  connections_list._actions = {};
+
+  await connections_list.pre_process({});
+
+  t.true(Object.hasOwn(source.data, 'hidden_connections'));
+  t.false(Object.hasOwn(source.data, 'connections'));
+});
+
+test('Connections migration removes equivalent legacy data', (t) => {
+  const source = {
+    data: {
+      connections: {
+        'smart_sources:Notes/Beta.md': {
+          hidden: 1700000000000,
+        },
+      },
+      hidden_connections: {
+        'Notes/Beta.md': 1700000000000,
+      },
+    },
+  };
+
+  t.true(migrate_hidden_connections(source));
+  t.false(Object.hasOwn(source.data, 'hidden_connections'));
+});
+
+test('Connections load migration queues only migrated sources', (t) => {
+  let queued_count = 0;
+  const migrated_source = {
+    data: {
+      hidden_connections: {
+        'Notes/Beta.md': 1700000000000,
+      },
+    },
+    queue_save() {
+      queued_count += 1;
+    },
+  };
+  const unchanged_source = {
+    data: {},
+    queue_save() {
+      t.fail('Unchanged sources must not be queued for save.');
+    },
+  };
+
+  t.is(
+    migrate_hidden_connections_collection({
+      items: {
+        migrated_source,
+        unchanged_source,
+      },
+    }),
+    1,
+  );
+  t.is(queued_count, 1);
 });
 
 test('project_connections_list_request creates a fresh unregistered scope', (t) => {

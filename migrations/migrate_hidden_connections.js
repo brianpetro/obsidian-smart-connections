@@ -30,23 +30,30 @@ export function migrate_hidden_connections(source) {
     source.data.connections = {};
   }
 
-  let migrated = false;
-
   hidden_entries.forEach(([key, timestamp]) => {
     const prefixed_key = ensure_prefixed_key(key);
     if (typeof prefixed_key !== 'string') return;
     const connection_state = source.data.connections[prefixed_key] || {};
     if (connection_state.hidden === undefined || connection_state.hidden === null) {
       connection_state.hidden = timestamp;
-      migrated = true;
     }
     source.data.connections[prefixed_key] = connection_state;
   });
 
-  if (migrated) {
-    delete source.data.hidden_connections;
-  }
-  return migrated || hidden_entries.length > 0;
+  delete source.data.hidden_connections;
+  return true;
+}
+
+export function migrate_hidden_connections_collection(smart_sources) {
+  let migrated_count = 0;
+
+  Object.values(smart_sources?.items || {}).forEach((source) => {
+    if (!migrate_hidden_connections(source)) return;
+    source.queue_save?.();
+    migrated_count += 1;
+  });
+
+  return migrated_count;
 }
 
 export default migrate_hidden_connections;

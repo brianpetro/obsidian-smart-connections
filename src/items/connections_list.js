@@ -2,7 +2,6 @@ import { CollectionItem } from 'smart-collections';
 import { results_acc } from 'smart-utils/results_acc.js';
 import { sort_by_score_descending } from 'smart-utils/sort_by_score.js';
 import { merge_pinned_results } from '../utils/merge_pinned_results.js';
-import { migrate_hidden_connections } from '../../migrations/migrate_hidden_connections.js';
 
 export class ConnectionsList extends CollectionItem {
   static key = 'connections_list';
@@ -15,7 +14,6 @@ export class ConnectionsList extends CollectionItem {
   }
 
   async pre_process (params) {
-    migrate_hidden_connections(this.item); // TEMP: migrate hidden connections if needed
     // default pre_process (via src/actions/connections-list/pre_process.js)
     if(typeof this.actions.connections_list_pre_process === 'function') {
       await this.actions.connections_list_pre_process(params);
