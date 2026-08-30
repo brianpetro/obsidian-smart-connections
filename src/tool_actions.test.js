@@ -204,24 +204,17 @@ test('project_connections_list_request creates a fresh unregistered scope', (t) 
   t.is(source.connections, registered);
 });
 
-test('project_connections_list_request fails clearly for an unknown source', (t) => {
-  const env = {
-    smart_sources: {
-      get() {
-        return null;
-      },
-    },
-    connections_lists: {},
-  };
+test('project_connections_list_request does not resolve an unmatched source key', (t) => {
+  const { env } = create_connections_lists_fixture();
 
   t.throws(
     () => project_connections_list_request(
       {
-        to: 'Missing.md',
+        to: 'Alpha.md',
       },
       { env },
     ),
-    { message: 'No Smart Source found for "Missing.md".' },
+    { message: 'Smart Source not found: "Alpha.md".' },
   );
 });
 

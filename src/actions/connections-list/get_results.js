@@ -25,13 +25,6 @@ export const action_scope = {
 export const tool = {
   name: 'smart_connections_list',
 
-  cli: {
-    command: 'smart:connections',
-    aliases: [
-      'connections:list',
-    ]
-  },
-
   when({ env }) {
     return Boolean(env.connections_lists && env.smart_sources);
   },
@@ -42,7 +35,7 @@ export const tool = {
       to: {
         type: 'string',
         minLength: 1,
-        description: 'Source key or vault-relative path.',
+        description: 'Exact Smart Source key.',
       },
       include_content: {
         type: 'boolean',
@@ -107,11 +100,9 @@ export function project_connections_list_request(request, { env }) {
   const target_key = to_trimmed_string(request.to);
   if (!target_key) throw new Error('Missing required argument: to');
 
-  const source = env.smart_sources?.get?.(target_key)
-    || env.smart_sources?.items?.[target_key]
-  ;
+  const source = env.smart_sources.get(target_key);
   if (!source) {
-    throw new Error(`No Smart Source found for "${target_key}".`);
+    throw new Error(`Smart Source not found: "${target_key}".`);
   }
 
   const connections_list =
