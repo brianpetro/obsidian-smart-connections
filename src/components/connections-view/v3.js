@@ -192,6 +192,7 @@ export async function post_process(view, container, opts = {}) {
       event.preventDefault();
       event.stopPropagation();
       set_target_drag_over(false);
+      view.plugin.app.dragManager.onDragEnd();
 
       const targets = resolve_dropped_connections_targets(env, event.dataTransfer);
       if (!targets.length) {
