@@ -38,6 +38,10 @@ export const action_scope = {
 };
 export const tool = {
   name: 'smart_connections_list',
+  description:
+    'Use to find semantically related notes or blocks anchored to one known Smart Source.'
+    + ' Returns one ranked connection list for the exact source key, with optional result content.'
+    + ' Do not use for free-form search or per-block analysis; use smart_lookup_query for a query and smart_connections_pro when each embedded block needs a separate connection list.',
 
   when({ env }) {
     return Boolean(env.connections_lists && env.smart_sources);
