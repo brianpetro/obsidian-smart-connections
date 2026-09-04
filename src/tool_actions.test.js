@@ -1,4 +1,5 @@
 import test from 'ava';
+import { collection_item_filter_schema } from 'obsidian-smart-env/src/utils/collection_item_filter_schema.js';
 import {
   connections_list_get_results,
   input_schema,
@@ -308,6 +309,7 @@ test('project_connections_list_result includes item content when requested', asy
 test('connections tool metadata selects request and result projection', (t) => {
   const filter_schema = input_schema.properties.filter;
 
+  t.is(filter_schema, collection_item_filter_schema);
   t.is(output_schema, null);
   t.is(input_schema.properties.limit.type, 'integer');
   t.is(input_schema.properties.limit.minimum, 1);
