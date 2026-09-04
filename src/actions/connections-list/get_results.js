@@ -13,7 +13,155 @@ export const display_name = 'List Smart Connections';
 export const display_description = 'Returns ranked Smart Connections for a source key.';
 export const input_schema = {
   type: 'object',
-  properties: {},
+  properties: {
+    limit: {
+      type: 'integer',
+      minimum: 1,
+      description: 'Requested maximum number of ranked results. Pinned items may be added separately.',
+    },
+    results_collection_key: {
+      type: 'string',
+      enum: ['smart_sources', 'smart_blocks'],
+      description: 'Candidate collection to search: smart_sources for note-level results or smart_blocks for block-level results. Uses the configured collection when omitted.',
+    },
+    filter: {
+      type: 'object',
+      description: 'Optional key filters for candidate result items. String comparisons are case-sensitive. Smart Sources and Smart Blocks also support frontmatter filters.',
+      properties: {
+        exclude_key: {
+          type: 'string',
+          minLength: 1,
+          description: 'Exclude the item with this exact key.',
+        },
+        exclude_keys: {
+          type: 'array',
+          description: 'Exclude items with any of these exact keys.',
+          items: {
+            type: 'string',
+            minLength: 1,
+          },
+        },
+        exclude_key_starts_with: {
+          type: 'string',
+          minLength: 1,
+          description: 'Exclude items whose keys start with this value.',
+        },
+        exclude_key_starts_with_any: {
+          type: 'array',
+          description: 'Exclude items whose keys start with any of these values.',
+          items: {
+            type: 'string',
+            minLength: 1,
+          },
+        },
+        exclude_key_includes: {
+          type: 'string',
+          minLength: 1,
+          description: 'Exclude items whose keys contain this value.',
+        },
+        exclude_key_includes_any: {
+          type: 'array',
+          description: 'Exclude items whose keys contain any of these values.',
+          items: {
+            type: 'string',
+            minLength: 1,
+          },
+        },
+        exclude_key_ends_with: {
+          type: 'string',
+          minLength: 1,
+          description: 'Exclude items whose keys end with this value.',
+        },
+        exclude_key_ends_with_any: {
+          type: 'array',
+          description: 'Exclude items whose keys end with any of these values.',
+          items: {
+            type: 'string',
+            minLength: 1,
+          },
+        },
+        key_ends_with: {
+          type: 'string',
+          minLength: 1,
+          description: 'Include only items whose keys end with this value.',
+        },
+        key_starts_with: {
+          type: 'string',
+          minLength: 1,
+          description: 'Include only items whose keys start with this value.',
+        },
+        key_starts_with_any: {
+          type: 'array',
+          description: 'Include only items whose keys start with any of these values.',
+          items: {
+            type: 'string',
+            minLength: 1,
+          },
+        },
+        key_includes: {
+          type: 'string',
+          minLength: 1,
+          description: 'Include only items whose keys contain this value.',
+        },
+        key_includes_any: {
+          type: 'array',
+          description: 'Include only items whose keys contain any of these values.',
+          items: {
+            type: 'string',
+            minLength: 1,
+          },
+        },
+        frontmatter: {
+          type: 'object',
+          description: 'Filter Smart Sources by their frontmatter, or Smart Blocks by their source frontmatter. Use lowercase key and value strings.',
+          properties: {
+            include: {
+              type: 'array',
+              description: 'Include only items matching at least one entry.',
+              items: {
+                type: 'object',
+                properties: {
+                  key: {
+                    type: 'string',
+                    minLength: 1,
+                    description: 'Lowercase frontmatter key to match.',
+                  },
+                  value: {
+                    type: ['string', 'null'],
+                    description: 'Optional lowercase exact value. Omit or use null to match any value for the key.',
+                  },
+                },
+                required: ['key'],
+                additionalProperties: false,
+              },
+            },
+            exclude: {
+              type: 'array',
+              description: 'Exclude items matching any entry.',
+              items: {
+                type: 'object',
+                properties: {
+                  key: {
+                    type: 'string',
+                    minLength: 1,
+                    description: 'Lowercase frontmatter key to match.',
+                  },
+                  value: {
+                    type: ['string', 'null'],
+                    description: 'Optional lowercase exact value. Omit or use null to match any value for the key.',
+                  },
+                },
+                required: ['key'],
+                additionalProperties: false,
+              },
+            },
+          },
+          additionalProperties: false,
+        },
+      },
+      additionalProperties: false,
+    },
+  },
   additionalProperties: false,
 };
 export const output_schema = null;
@@ -37,6 +185,9 @@ export const tool = {
         minLength: 1,
         description: 'Exact Smart Source key.',
       },
+      limit: input_schema.properties.limit,
+      results_collection_key: input_schema.properties.results_collection_key,
+      filter: input_schema.properties.filter,
       include_content: {
         type: 'boolean',
         description: 'Include the text content of each returned item.',
@@ -92,9 +243,9 @@ export const tool = {
  * This is the source-backed list projector pattern to mirror for a future
  * DisconnectionsList tool action.
  *
- * @param {{to: string, include_content?: boolean}} request
+ * @param {{to: string, limit?: number, results_collection_key?: string, filter?: object, include_content?: boolean}} request
  * @param {{env: object}} context
- * @returns {{scope: object, params: object}}
+ * @returns {{scope: object, params: {limit?: number, results_collection_key?: string, filter?: object}}}
  */
 export function project_connections_list_request(request, { env }) {
   const target_key = to_trimmed_string(request.to);
@@ -110,7 +261,13 @@ export function project_connections_list_request(request, { env }) {
 
   return {
     scope: connections_list,
-    params: {},
+    params: {
+      ...(request.limit ? { limit: request.limit } : {}),
+      ...(request.results_collection_key
+        ? { results_collection_key: request.results_collection_key }
+        : {}),
+      ...(request.filter ? { filter: request.filter } : {}),
+    },
   };
 }
 
