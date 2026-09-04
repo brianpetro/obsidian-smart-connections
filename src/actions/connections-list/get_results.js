@@ -1,4 +1,4 @@
-import { collection_item_filter_schema } from 'obsidian-smart-env/src/utils/collection_item_filter_schema.js';
+import { collection_tool_action_schemas } from 'obsidian-smart-env/src/utils/collection_tool_action_schemas.js';
 
 /**
  * Retrieve ranked results for the current Connections List.
@@ -15,19 +15,7 @@ export const display_name = 'List Smart Connections';
 export const display_description = 'Returns ranked Smart Connections for a source key.';
 export const input_schema = {
   type: 'object',
-  properties: {
-    limit: {
-      type: 'integer',
-      minimum: 1,
-      description: 'Requested maximum number of ranked results. Pinned items may be added separately.',
-    },
-    results_collection_key: {
-      type: 'string',
-      enum: ['smart_sources', 'smart_blocks'],
-      description: 'Candidate collection to search: smart_sources for note-level results or smart_blocks for block-level results. Uses the configured collection when omitted.',
-    },
-    filter: collection_item_filter_schema,
-  },
+  properties: collection_tool_action_schemas,
   additionalProperties: false,
 };
 export const output_schema = null;
@@ -55,9 +43,7 @@ export const tool = {
         minLength: 1,
         description: 'Exact Smart Source key.',
       },
-      limit: input_schema.properties.limit,
-      results_collection_key: input_schema.properties.results_collection_key,
-      filter: input_schema.properties.filter,
+      ...collection_tool_action_schemas,
       include_content: {
         type: 'boolean',
         description: 'Include the text content of each returned item.',

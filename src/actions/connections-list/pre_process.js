@@ -28,6 +28,9 @@ export function pre_process(params) {
   // Exclusions
   // exclude exact (faster than starts_with)
   const exclude_keys_set = new Set(params.filter.exclude_keys);
+  if (params.filter.exclude_key) {
+    exclude_keys_set.add(params.filter.exclude_key);
+  }
   exclude_keys_set.add(this.item.key); // always exclude self
   params.hidden_keys.forEach((key) => exclude_keys_set.add(key)); // always exclude hidden
   params.pinned_keys.forEach((key) => exclude_keys_set.add(key)); // always exclude pinned (always included in post_process)

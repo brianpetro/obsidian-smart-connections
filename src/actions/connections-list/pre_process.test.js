@@ -63,6 +63,20 @@ test('rebuilds pinned and hidden arrays on each pre_process call', (t) => {
   t.deepEqual(params.filter.exclude_keys, ['center', 'hidden', 'pinned']);
 });
 
+test('merges singular and plural exact-key exclusions', (t) => {
+  const connections_list = build_connections_list();
+  const params = {
+    filter: {
+      exclude_key: 'single',
+      exclude_keys: ['plural'],
+    },
+  };
+
+  pre_process.call(connections_list, params);
+
+  t.deepEqual(params.filter.exclude_keys, ['plural', 'single', 'center']);
+});
+
 test('treats hidden and pinned entries as pinned for scoring', (t) => {
   const connections_state = {
     'notes:dual': { hidden: true, pinned: true },
