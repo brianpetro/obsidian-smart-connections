@@ -4,6 +4,10 @@ Connections results are more responsive, and retrieval settings now stay with th
 
 Connected tools can set a result limit, search Sources or Blocks, and apply filters. The Connections interface and tool actions also share more of the same retrieval behavior, while drag-and-drop recognizes Smart items more reliably.
 
+![[connections-active-note-related-source-hero-editorial-16x9-dark-v4.8.1-r3.png]]
+
+*Preview a related note alongside the note you're working on.*
+
 ### Full release notes
 
 - Improved Connections-results performance.
