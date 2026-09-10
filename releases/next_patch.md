@@ -5,3 +5,6 @@ Enhance connections list input schema with limit, results collection key, and fi
 
 
 Add detailed description to smart_connections_list tool for clarity on usage
+
+
+Improved/refactored: better architecture for shared logic between UI and tool actions
