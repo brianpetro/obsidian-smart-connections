@@ -12,16 +12,50 @@ import {
   remove_pinned_state,
   is_connection_hidden,
   is_connection_pinned,
+  resolve_connection_feedback,
 } from './connections_list_item_state.js';
 
-test('build_prefixed_connection_key prefixes collection key when missing', t => {
+test('build_prefixed_connection_key builds collection-qualified identity', t => {
   const key = build_prefixed_connection_key('smart_sources', 'Folder/Note.md');
   t.is(key, 'smart_sources:Folder/Note.md');
 });
 
-test('build_prefixed_connection_key returns original when already prefixed', t => {
-  const key = build_prefixed_connection_key('smart_sources', 'smart_blocks:Folder/Note.md#^block');
-  t.is(key, 'smart_blocks:Folder/Note.md#^block');
+test('build_prefixed_connection_key prefixes raw source keys containing colons', t => {
+  const key = build_prefixed_connection_key(
+    'smart_sources',
+    'Notes/Meeting: Follow-up.md',
+  );
+  t.is(key, 'smart_sources:Notes/Meeting: Follow-up.md');
+});
+
+test('build_prefixed_connection_key prefixes raw block keys containing colons', t => {
+  const key = build_prefixed_connection_key(
+    'smart_blocks',
+    'Notes/Project.md#Decision: API',
+  );
+  t.is(key, 'smart_blocks:Notes/Project.md#Decision: API');
+});
+
+test('colon-containing feedback identity round-trips through mutation and resolution', t => {
+  const connections = {};
+  const candidate = {
+    key: 'Notes/Project.md#Decision: API',
+    collection_key: 'smart_blocks',
+  };
+  const prefixed_key = build_prefixed_connection_key(
+    candidate.collection_key,
+    candidate.key,
+  );
+
+  apply_pinned_state(connections, prefixed_key, 123);
+
+  t.deepEqual(connections, {
+    'smart_blocks:Notes/Project.md#Decision: API': { pinned: 123 },
+  });
+  t.deepEqual(
+    resolve_connection_feedback({ data: { connections } }, candidate),
+    { state: 'pinned' },
+  );
 });
 
 test('apply_hidden_state sets hidden timestamp without mutating pinned state', t => {

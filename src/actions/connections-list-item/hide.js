@@ -1,6 +1,7 @@
 import {
   apply_hidden_state,
   build_prefixed_connection_key,
+  resolve_connection_feedback,
 } from '../../utils/connections_list_item_state.js';
 
 const SC_RESULT_HIDDEN_CLASS = 'sc-result-hidden-by-feedback';
@@ -37,8 +38,13 @@ export function connections_list_item_hide(params = {}) {
     }
 
     source_item.queue_save();
-    params.container?.classList?.add(SC_RESULT_HIDDEN_CLASS);
-    if (params.container?.dataset) params.container.dataset.hidden = 'true';
+    const hidden = resolve_connection_feedback(source_item, target_item).state === 'hidden';
+    params.container?.classList?.toggle(SC_RESULT_HIDDEN_CLASS, hidden);
+    if (hidden) {
+      if (params.container?.dataset) params.container.dataset.hidden = 'true';
+    } else {
+      params.container?.removeAttribute?.('data-hidden');
+    }
     source_item.collection.save();
     source_item.emit_event('connections:hidden_item');
     return true;

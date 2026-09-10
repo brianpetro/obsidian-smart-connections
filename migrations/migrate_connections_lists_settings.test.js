@@ -27,7 +27,7 @@ test('migrate copies inline and footer settings to connections_lists', t => {
     inline_connections: false,
     inline_connections_score_threshold: '0.5',
     footer_connections: true,
-    rank_model: { adapter: 'cohere' }
+    actions: { rank_connections: { adapter: 'cohere' } }
   });
   t.is(env.settings.connections_pro.rank_query, 'keep me');
   t.false('inline_connections' in env.settings.connections_pro);

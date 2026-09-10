@@ -1,3 +1,4 @@
+import { get_graph_connections_results } from '../../utils/get_graph_connections_results.js';
 import styles_css from './v1.css';
 import { get_item_display_name } from 'obsidian-smart-env/src/utils/get_item_display_name.js';
 import { cos_sim } from 'smart-utils/cos_sim.js';
@@ -5,8 +6,7 @@ import { register_item_drag } from 'obsidian-smart-env/src/utils/register_item_d
 import { register_item_hover_popover } from 'obsidian-smart-env/src/utils/register_item_hover_popover.js';
 import {
   build_prefixed_connection_key,
-  is_connection_hidden,
-  is_connection_pinned,
+  resolve_connection_feedback,
 } from '../../utils/connections_list_item_state.js';
 import {
   hash_to_unit,
@@ -27,63 +27,6 @@ import {
 } from './v1.util.js';
 
 /**
- * Builds a Set of prefixed keys for the provided results.
- * @param {Array<{item?: {collection_key?: string, key?: string}}>} results
- * @returns {Set<string>}
- */
-export function build_prefixed_key_set(results = []) {
-  const prefixed_keys = new Set();
-  for (const result of results) {
-    const prefixed = prefixed_key_for_item(result?.item);
-    if (prefixed) prefixed_keys.add(prefixed);
-  }
-  return prefixed_keys;
-}
-
-/**
- * Computes the prefixed key for a result item.
- * @param {{collection_key?: string, key?: string}} item
- * @returns {string|undefined}
- */
-export function prefixed_key_for_item(item) {
-  if (!item) return undefined;
-  return build_prefixed_connection_key(item.collection_key, item.key);
-}
-
-/**
- * Collects hidden connection entries so they can be rendered as nodes.
- * @param {object} options
- * @param {Record<string, {hidden?: number, pinned?: number}>} [options.connections_state]
- * @param {Set<string>} [options.existing_keys]
- * @param {(collection_key: string, item_key: string) => any} options.resolve_item
- * @returns {Array<{item: any, score: null, is_hidden: true, prefixed_key: string}>}
- */
-export function collect_hidden_entries({
-  connections_state = {},
-  existing_keys = new Set(),
-  resolve_item,
-} = {}) {
-  if (typeof resolve_item !== 'function') return [];
-  const hidden_entries = [];
-  for (const [prefixed_key, state] of Object.entries(connections_state)) {
-    if (!state?.hidden || state?.pinned) continue;
-    if (existing_keys.has(prefixed_key)) continue;
-    const parsed = parse_prefixed_key(prefixed_key);
-    if (!parsed) continue;
-    const item = resolve_item(parsed.collection_key, parsed.item_key);
-    if (!item) continue;
-    existing_keys.add(prefixed_key);
-    hidden_entries.push({
-      item,
-      score: null,
-      is_hidden: true,
-      prefixed_key,
-    });
-  }
-  return hidden_entries;
-}
-
-/**
  * Builds className for a graph node based on state flags.
  * @param {{is_center?: boolean, is_hidden?: boolean, is_pinned?: boolean}} flags
  * @returns {string}
@@ -95,14 +38,6 @@ export function build_node_classname({ is_center = false, is_hidden = false, is_
   if (is_hidden) classes.push('sc-result-hidden');
   return classes.join(' ').trim();
 }
-
-function parse_prefixed_key(prefixed_key) {
-  if (typeof prefixed_key !== 'string' || !prefixed_key.includes(':')) return null;
-  const [collection_key, ...rest] = prefixed_key.split(':');
-  if (!collection_key || !rest.length) return null;
-  return { collection_key, item_key: rest.join(':') };
-}
-
 
 /**
  * D3 settings used by the graph component.
@@ -198,28 +133,18 @@ export async function render(connections_list, params = {}) {
 /* -------------------------------------------------------------------------- */
 
 async function post_process(connections_list, container, params = {}) {
-  const {
-    results = await connections_list.get_results(params),
-  } = params;
-
   try {
+    const result_entries = await get_graph_connections_results(
+      connections_list, params, params.results,
+    );
     const d3 = await load_d3();
 
     const to_item = params.to_item || connections_list?.item;
     if (!to_item) throw new Error('connections_graph: could not resolve center item.');
 
     const env = to_item.env;
-    const connection_state = to_item?.data?.connections || {};
     const event_key_domain = params.event_key_domain || 'connections';
     const drag_event_key = `${event_key_domain}:drag_result`;
-    const base_prefixed_keys = build_prefixed_key_set(results);
-    const hidden_entries = collect_hidden_entries({
-      connections_state: connection_state,
-      existing_keys: base_prefixed_keys,
-      resolve_item: (collection_key, item_key) => connections_list?.env?.[collection_key]?.get(item_key),
-    });
-    const result_entries = [...results, ...hidden_entries];
-
     const svg = container.querySelector('svg.sc-graph-svg');
     const viewport = svg.querySelector('g.sc-graph-viewport');
     const g_nodes = viewport.querySelector('g.nodes');
@@ -311,9 +236,10 @@ async function post_process(connections_list, container, params = {}) {
             : (center_vec && v ? cos_sim(center_vec, v) : null)
         ;
 
-        const prefixed_key = prefixed_key_for_item(r_item);
-        const isPinned = prefixed_key ? is_connection_pinned(connection_state, prefixed_key) : false;
-        const isHidden = Boolean(res?.is_hidden) || (prefixed_key ? is_connection_hidden(connection_state, prefixed_key) : false);
+        const prefixed_key = build_prefixed_connection_key(r_item.collection_key, r_item.key);
+        const feedback = res.feedback || resolve_connection_feedback(to_item, r_item);
+        const isPinned = feedback.state === 'pinned';
+        const isHidden = feedback.state === 'hidden';
 
         return {
           id: r_item.key,
@@ -586,7 +512,7 @@ function build_result_detail(node, center_item) {
   return {
     collection_key,
     item_key,
-    prefixed_key: node.prefixed_key || prefixed_key_for_item(node.item) || build_prefixed_connection_key(collection_key, item_key),
+    prefixed_key: node.prefixed_key || build_prefixed_connection_key(collection_key, item_key),
     score: typeof node.score === 'number' ? node.score : null,
     is_hidden: Boolean(node.isHidden),
     is_pinned: Boolean(node.isPinned),

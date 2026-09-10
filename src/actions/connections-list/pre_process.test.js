@@ -52,15 +52,17 @@ test('rebuilds pinned and hidden arrays on each pre_process call', (t) => {
 
   pre_process.call(connections_list, params);
 
-  t.deepEqual(params.pinned_keys, ['pinned']);
-  t.deepEqual(params.hidden_keys, ['hidden']);
-  t.deepEqual(params.filter.exclude_keys, ['center', 'hidden', 'pinned']);
+  t.deepEqual(params.pinned, [connections_list.env.notes.get('pinned')]);
+  t.deepEqual(params.hidden, [connections_list.env.notes.get('hidden')]);
+  t.deepEqual(params.filter.exclude_keys, ['center']);
+  t.false('hidden_keys' in params);
+  t.false('pinned_keys' in params);
 
   pre_process.call(connections_list, params);
 
-  t.deepEqual(params.pinned_keys, ['pinned']);
-  t.deepEqual(params.hidden_keys, ['hidden']);
-  t.deepEqual(params.filter.exclude_keys, ['center', 'hidden', 'pinned']);
+  t.deepEqual(params.pinned, [connections_list.env.notes.get('pinned')]);
+  t.deepEqual(params.hidden, [connections_list.env.notes.get('hidden')]);
+  t.deepEqual(params.filter.exclude_keys, ['center']);
 });
 
 test('merges singular and plural exact-key exclusions', (t) => {
@@ -86,9 +88,9 @@ test('treats hidden and pinned entries as pinned for scoring', (t) => {
 
   pre_process.call(connections_list, params);
 
-  t.deepEqual(params.pinned_keys, ['dual']);
-  t.deepEqual(params.hidden_keys, []);
-  t.deepEqual(params.filter.exclude_keys, ['center', 'dual']);
+  t.deepEqual(params.pinned, [connections_list.env.notes.get('dual')]);
+  t.deepEqual(params.hidden, []);
+  t.deepEqual(params.filter.exclude_keys, ['center']);
 });
 
 test('injects parsed frontmatter include/exclude filters from collection', (t) => {
@@ -101,4 +103,23 @@ test('injects parsed frontmatter include/exclude filters from collection', (t) =
 
   t.deepEqual(params.filter.frontmatter.include, [{ key: 'status', value: 'open' }]);
   t.deepEqual(params.filter.frontmatter.exclude, [{ key: 'type', value: 'draft' }]);
+});
+
+test('pre_process supplies only the owning Connections score settings', t => {
+  const list = build_connections_list();
+  const own_settings = Object.freeze({ key_weights: { 'Projects/': 2 } });
+  list.settings.actions = { default: own_settings };
+  list.env.settings = { lookup_lists: { actions: { default: { key_weights: { 'Projects/': 9 } } } } };
+  const params = {};
+  pre_process.call(list, params);
+  t.is(params.score_settings, own_settings);
+});
+
+test('pre_process preserves explicit empty score_settings', t => {
+  const list = build_connections_list();
+  list.settings.actions = { default: { key_weights: { 'Projects/': 2 } } };
+  const settings = Object.freeze({});
+  const params = { score_settings: settings };
+  pre_process.call(list, params);
+  t.is(params.score_settings, settings);
 });

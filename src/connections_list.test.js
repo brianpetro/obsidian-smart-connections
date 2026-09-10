@@ -11,7 +11,10 @@ function create_connections_list(
     scored_results.map(({ key, score }) => {
       const item = {
         key,
-        filter_and_score() {
+        collection_key: 'smart_sources',
+        vec: [1, 0],
+        filter() { return true; },
+        score() {
           const result = {
             item,
             score,
@@ -28,9 +31,20 @@ function create_connections_list(
     }),
   );
   const connections_list = Object.create(ConnectionsList.prototype);
+  connections_list.data = { collection_key: 'smart_sources', item_key: 'target' };
   connections_list.env = {
+    settings: { connections_lists: { results_limit: 20 } },
+    connections_lists: { results_collection_key: 'smart_sources' },
     smart_sources: {
-      items,
+      items: { target: { key: 'target', vec: [1, 0] }, ...items },
+      embeddings: {
+        dims: 2,
+        get_active_file_info() { return { file: 'fixture' }; },
+        _persisted_lengths_by_file: { fixture: scored_results.length * 2 },
+      },
+      actions: {
+        top_k() { return scored_results.map(({ key, score }) => ({ item: items[key], score })); },
+      },
     },
   };
 

@@ -9,7 +9,7 @@ import { format_connections_as_links } from '../../utils/format_connections_as_l
 function get_links_payload(connections_list, params = {}) {
   const results = Array.isArray(params.visible_results)
     ? params.visible_results
-    : connections_list?.results || []
+    : []
   ;
   return format_connections_as_links(results);
 }

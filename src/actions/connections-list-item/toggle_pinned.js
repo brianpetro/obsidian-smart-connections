@@ -3,6 +3,7 @@ import {
   build_prefixed_connection_key,
   is_connection_pinned,
   remove_pinned_state,
+  resolve_connection_feedback,
 } from '../../utils/connections_list_item_state.js';
 
 function get_menu_pinned_state(menu_ctx) {
@@ -49,6 +50,13 @@ export function connections_list_item_toggle_pinned(params = {}) {
       source_item.emit_event('connections:pinned_item');
     }
 
+    const hidden = resolve_connection_feedback(source_item, target_item).state === 'hidden';
+    params.container?.classList?.toggle('sc-result-hidden-by-feedback', hidden);
+    if (hidden) {
+      if (params.container?.dataset) params.container.dataset.hidden = 'true';
+    } else {
+      params.container?.removeAttribute?.('data-hidden');
+    }
     source_item.queue_save();
     source_item.collection.save();
     return true;

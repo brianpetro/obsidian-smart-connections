@@ -1,16 +1,15 @@
+import { filter_hidden_results } from '../../utils/filter_hidden_results.js';
 import { Menu } from 'obsidian';
 import styles_css from './v3.css';
 
 import {
   build_prefixed_connection_key,
-  is_connection_hidden,
-  is_connection_pinned,
+  resolve_connection_feedback,
 } from '../../utils/connections_list_item_state.js';
 import { DISPLAY_SEPARATOR, get_item_display_name } from 'obsidian-smart-env/src/utils/get_item_display_name.js';
 import { register_item_hover_popover } from 'obsidian-smart-env/src/utils/register_item_hover_popover.js';
 import { register_item_drag } from 'obsidian-smart-env/src/utils/register_item_drag.js';
 import { open_source } from "obsidian-smart-env/src/utils/open_source.js";
-import { filter_hidden_results } from '../../utils/filter_hidden_results.js';
 
 const SC_RESULT_HIDDEN_CLASS = 'sc-result-hidden-by-feedback';
 
@@ -94,12 +93,12 @@ export async function post_process(result_scope, container, params = {}) {
   const source_item = result_scope.connections_list?.item;
   const prefixed_key = build_prefixed_connection_key(item.collection_key, item.key);
   container.dataset.prefixedKey = prefixed_key;
-  const connection_state = source_item?.data?.connections;
-  if (is_connection_hidden(connection_state, prefixed_key)) {
+  const feedback = result_scope.feedback || resolve_connection_feedback(source_item, item);
+  if (feedback.state === 'hidden') {
     container.classList.add(SC_RESULT_HIDDEN_CLASS);
     container.dataset.hidden = 'true';
   }
-  if (is_connection_pinned(connection_state, prefixed_key)) {
+  if (feedback.state === 'pinned') {
     container.classList.add('sc-result-pinned');
     container.dataset.pinned = 'true';
   }
@@ -154,8 +153,7 @@ export async function post_process(result_scope, container, params = {}) {
     source_item.data.connections ||= {};
 
     const connections_list = result_scope.connections_list;
-    const raw_results = Array.isArray(connections_list?.results) ? connections_list.results : [];
-    const visible_results = filter_hidden_results(raw_results, source_item.data.connections);
+    const visible_results = filter_hidden_results(params.visible_results || [], source_item);
     const list_container = container.closest('.connections-list') || container;
     const target_name = get_item_display_name(item, component_settings) || item.key;
     const menu = new Menu(app);

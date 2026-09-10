@@ -60,8 +60,8 @@
     "files": [
       "*.test.js",
       "smart-chat/*.test.js",
-      "src/*.test.js",
-      "src/utils/*.test.js"
+      "src/**/*.test.js",
+      "migrations/**/*.test.js"
     ],
     "require": []
   },

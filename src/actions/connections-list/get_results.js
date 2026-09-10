@@ -1,3 +1,4 @@
+import { connection_feedback_schema } from '../../utils/connections_tool_schemas.js';
 import { collection_tool_action_schemas } from 'obsidian-smart-env/src/utils/collection_tool_action_schemas.js';
 
 /**
@@ -29,6 +30,7 @@ export const tool = {
   description:
     'Use to find semantically related notes or blocks anchored to one known Smart Source.'
     + ' Returns one ranked connection list for the exact source key, with optional result content.'
+    + ' Pinned or hidden rows include target-local feedback; omitted feedback means no recorded feedback for that target. Feedback is not a global preference, confidence, or access rule. Hidden and pinned rows retain their ranked slots within limit; pins outside that window are not appended.'
     + ' Do not use for free-form search or per-block analysis; use smart_lookup_query for a query and smart_connections_pro when each embedded block needs a separate connection list.',
 
   when({ env }) {
@@ -77,6 +79,7 @@ export const tool = {
             key: { type: 'string' },
             collection_key: { type: 'string' },
             score: { type: ['number', 'null'] },
+            feedback: connection_feedback_schema,
             content: {
               type: 'string',
               description: 'Item text when include_content is true.',
@@ -200,6 +203,9 @@ async function to_result(
     key,
     collection_key,
     score: Number.isFinite(result?.score) ? result.score : null,
+    ...(result.feedback && result.feedback.state !== 'default'
+      ? { feedback: result.feedback }
+      : {}),
   };
 
   if (!include_content) {

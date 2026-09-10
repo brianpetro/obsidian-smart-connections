@@ -1,3 +1,4 @@
+import { get_visible_connections_results } from '../../utils/get_visible_connections_results.js';
 /**
  * @returns {Promise<string>} A promise that resolves to the .sc-list HTML string.
  */
@@ -26,9 +27,12 @@ export async function post_process(connections_list, container, opts = {}) {
   const graph_container = container.querySelector('.connections-graph-container');
   const list_container = container.querySelector('.connections-list.sc-list');
   container.dataset.key = connections_list.item.key;
-  const results = await connections_list.get_results(opts);
+  opts.on_visible_results?.([]);
+  const query_params = { ...opts };
+  const ranked_results = await connections_list.get_results(query_params);
+  const results = await get_visible_connections_results(connections_list, query_params, ranked_results);
   try {
-    const graph = await env.smart_components.render_component('connections_graph_v1', connections_list, { ...opts, results });
+    const graph = await env.smart_components.render_component('connections_graph_v1', connections_list, { ...query_params, results: ranked_results });
     this.empty(graph_container);
     graph_container.appendChild(graph);
     register_graph_events(graph, list_container);
@@ -46,9 +50,10 @@ export async function post_process(connections_list, container, opts = {}) {
 
   const smart_components = connections_list.env.smart_components;
   const result_frags = await Promise.all(results.map(result => {
-    return smart_components.render_component('connections_list_item_v3', result, { ...opts });
+    return smart_components.render_component('connections_list_item_v3', result, { ...opts, visible_results: results });
   }));
   result_frags.forEach(result_frag => list_container.appendChild(result_frag));
+  opts.on_visible_results?.(results);
   return container;
 }
 

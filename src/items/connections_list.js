@@ -1,10 +1,13 @@
 import { CollectionItem } from 'smart-collections';
-import { results_acc } from 'smart-utils/results_acc.js';
 import { sort_by_score_descending } from 'smart-utils/sort_by_score.js';
-import { merge_pinned_results } from '../utils/merge_pinned_results.js';
+import { resolve_connection_feedback } from '../utils/connections_list_item_state.js';
+import { copy_connections_filter } from '../utils/copy_connections_filter.js';
 
 export class ConnectionsList extends CollectionItem {
   static key = 'connections_list';
+  // Pair each raw snapshot with its preparation, including coalesced callers.
+  // Weak keys avoid retaining results after their presenters release them.
+  _result_params = new WeakMap();
   static get defaults() {
     return { data: {} };
   }
@@ -32,16 +35,14 @@ export class ConnectionsList extends CollectionItem {
    * @returns {Promise<Array>}
    */
   async get_results (params = {}) {
-    // clear if promise is resolved (allows for re-fetching with different params)
-    if (this._results_promise) return this._results_promise; // cache promise to prevent duplicate calls
-    const p = this._get_results(params);
-    this._results_promise = p;
-    this._results_promise.finally(() => {
-      if (this._results_promise === p) {
-        this._results_promise = null; // clear promise once resolved/rejected
-      }
-    });
-    return this._results_promise;
+    if (this._results_promise) return this._results_promise;
+    const pending = this._get_results(params);
+    this._results_promise = pending;
+    try {
+      return await pending;
+    } finally {
+      if (this._results_promise === pending) this._results_promise = null;
+    }
   }
 
   async _get_results (params = {}) {
@@ -55,14 +56,61 @@ export class ConnectionsList extends CollectionItem {
     const end_ms = Date.now();
     // Post-process if needed
     results = await this.post_process(results, params);
-    results = merge_pinned_results(results, params);
+    // Ranking may reorder the window, but cannot widen eligibility or its limit.
+    results = results.filter(result => this.is_candidate_eligible(result.item, params))
+      .slice(0, normalize_limit(params.limit, normalize_limit(this.settings?.results_limit, 20)));
 
-    results = results.map(r => Object.assign(r, {connections_list: this}));
+    results = results.map(r => Object.assign(r, {
+      connections_list: this,
+      feedback: resolve_connection_feedback(this.item, r.item),
+    }));
+    this._result_params.set(results, {
+      ...params,
+      filter: copy_connections_filter(params.filter),
+    });
     this.results = results; // cache for access via this downstream
     this.emit_event('connections:get_results', {
       elapsed_ms: end_ms - start_ms,
     });
     return results;
+  }
+
+  /**
+   * Test hard eligibility using prepared retrieval params, never feedback state.
+   * @param {object} candidate_item
+   * @param {object} params
+   * @returns {boolean}
+   */
+  is_candidate_eligible(candidate_item, params = {}) {
+    if (!candidate_item?.vec?.length) return false;
+    const collection_key = params.results_collection_key || this.collection.results_collection_key;
+    if (candidate_item.collection_key !== collection_key) return false;
+    const target_item = params.to_item || this.item;
+    if (candidate_item.key === target_item.key) return false;
+    if (candidate_item.vec.length !== target_item.vec?.length) return false;
+    return candidate_item.filter(params.filter) !== false;
+  }
+
+  /**
+   * Resolve hard-eligible target feedback for presentation supplementation.
+   * Call after retrieval/preprocessing so configured and workflow filters apply.
+   * Does not score, order, or persist results.
+   * @param {object} params - Prepared retrieval params.
+   * @param {{states: Array<'pinned'|'hidden'>}} options
+   * @returns {Array<{item: object, feedback: {state: string}}>}
+   */
+  get_feedback_items(params, { states }) {
+    const items = [];
+    for (const key of Object.keys(this.item.data?.connections || {})) {
+      const separator = key.indexOf(':');
+      if (separator < 1) continue;
+      const collection_key = key.slice(0, separator);
+      const item = this.env[collection_key]?.get(key.slice(separator + 1));
+      if (!this.is_candidate_eligible(item, params)) continue;
+      const feedback = resolve_connection_feedback(this.item, item);
+      if (states.includes(feedback.state)) items.push({ item, feedback });
+    }
+    return items;
   }
 
   filter_and_score (params = {}) {
@@ -100,9 +148,7 @@ export class ConnectionsList extends CollectionItem {
 
           top_k.forEach(({item, score}) => {
             const target = item;
-            if (target === source_item) return;
-            if (target.key && source_item?.key && target.key === source_item.key) return;
-            if (target.filter(params.filter) === false) return;
+            if (!this.is_candidate_eligible(target, params)) return;
             if (params.score_algo_key !== 'similarity') {
               const scored = target.score({ ...params, to_item_similarity: score });
               if (!scored?.score) {

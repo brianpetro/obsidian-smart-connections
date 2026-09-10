@@ -2,7 +2,7 @@ import test from 'ava';
 import { build_connections_codeblock } from './build_connections_codeblock.js';
 
 test('builds empty connections codeblock', t => {
-  t.is(build_connections_codeblock(), '```smart-connections\n{}\n```\n');
+  t.is(build_connections_codeblock(), '```smart-connections\n\n```\n');
 });
 
 test('builds connections codeblock with settings', t => {

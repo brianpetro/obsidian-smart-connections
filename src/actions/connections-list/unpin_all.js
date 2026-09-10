@@ -1,5 +1,6 @@
 import {
   count_pinned_connections,
+  is_connection_hidden,
   remove_all_pinned_states,
 } from '../../utils/connections_list_item_state.js';
 
@@ -23,6 +24,10 @@ export function connections_list_unpin_all(params = {}) {
       .forEach((result_el) => {
         result_el.classList.remove('sc-result-pinned');
         result_el.removeAttribute('data-pinned');
+        const hidden = is_connection_hidden(source_item.data.connections, result_el.dataset.prefixedKey);
+        result_el.classList.toggle('sc-result-hidden-by-feedback', hidden);
+        if (hidden) result_el.dataset.hidden = 'true';
+        else result_el.removeAttribute('data-hidden');
       })
     ;
     source_item.queue_save();

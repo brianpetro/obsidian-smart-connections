@@ -1,3 +1,4 @@
+import { get_visible_connections_results } from './get_visible_connections_results.js';
 const DEFAULT_RESULTS_LIMIT = 20;
 
 /**
@@ -14,11 +15,11 @@ export async function get_random_connection(env, file_path, { rng = Math.random 
   if (!source?.should_embed) return null;
 
   const connections_list = source.connections || env.connections_lists?.new_item?.(source);
-  if (typeof connections_list?.get_results !== 'function') return null;
+  if (!connections_list?.get_results) return null;
 
   let connections = [];
   try {
-    connections = await connections_list.get_results({ limit: DEFAULT_RESULTS_LIMIT });
+    connections = await get_visible_connections_results(connections_list, { limit: DEFAULT_RESULTS_LIMIT });
   } catch (err) {
     console.error('get_random_connection: failed to get connections', err);
     return null;

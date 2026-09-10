@@ -66,6 +66,7 @@ test('connections_list_get_results preserves the native list result', async (t) 
         collection_key: 'smart_sources',
       },
       score: 0.75,
+      feedback: { state: 'default' },
     },
   ];
   const params = {};
@@ -245,6 +246,7 @@ test('project_connections_list_result returns the stable public payload', async 
         collection_key: 'smart_sources',
       },
       score: 0.75,
+      feedback: { state: 'default' },
     },
   ];
 
@@ -284,6 +286,7 @@ test('project_connections_list_result includes item content when requested', asy
         },
       },
       score: 0.75,
+      feedback: { state: 'default' },
     },
   ];
 
@@ -363,6 +366,11 @@ test('connections tool metadata selects request and result projection', (t) => {
   t.is(
     tool.output_schema.properties.results.items.properties.content.type,
     'string',
+  );
+  t.false(tool.output_schema.properties.results.items.required.includes('feedback'));
+  t.deepEqual(
+    tool.output_schema.properties.results.items.properties.feedback.properties.state.enum,
+    ['pinned', 'hidden'],
   );
   t.deepEqual(tool.output_schema.required, [
     'ok',

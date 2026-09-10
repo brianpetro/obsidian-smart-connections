@@ -1,5 +1,5 @@
-import styles from './connections_codeblock.css';
 import { filter_hidden_results } from '../utils/filter_hidden_results.js';
+import styles from './connections_codeblock.css';
 
 /**
  * Build a Smart Connections codeblock view toolbar + list container.
@@ -86,8 +86,12 @@ export async function render(connections_list, opts = {}) {
 export async function post_process(connections_list, container, opts = {}) {
   const list_container = container.querySelector('.connections-list-container');
   const env = connections_list.env;
+  let visible_results = [];
+  let render_id = 0;
 
   const render_list = async () => {
+    const current_render = ++render_id;
+    visible_results = [];
     // console.log('Rendering connections list in codeblock view');
     const connections_list_component_key = opts.connections_list_component_key
       || connections_list.connections_list_component_key
@@ -98,9 +102,13 @@ export async function post_process(connections_list, container, opts = {}) {
       connections_list,
       {
         ...opts,
+        on_visible_results(results) {
+          if (current_render === render_id) visible_results = results;
+        },
         render_connections: render_list,
       }
     );
+    if (current_render !== render_id) return;
     this.empty(list_container);
     list_container.appendChild(list);
   };
@@ -147,18 +155,16 @@ export async function post_process(connections_list, container, opts = {}) {
 
     const context_button = container.querySelector('[data-action="send-to-smart-context"]');
     context_button?.addEventListener('click', async () => {
-      const visible_results = await get_visible_results_fallback(connections_list, opts);
       await run_action('connections_list_send_to_context', {
-        visible_results,
+        visible_results: filter_hidden_results(visible_results, connections_list.item),
         event_source: 'connections_codeblock.send_to_smart_context',
       });
     });
 
     const copy_links_button = container.querySelector('[data-action="copy-as-links"]');
     copy_links_button?.addEventListener('click', async () => {
-      const visible_results = await get_visible_results_fallback(connections_list, opts);
       await run_action('connections_list_copy_as_links', {
-        visible_results,
+        visible_results: filter_hidden_results(visible_results, connections_list.item),
         event_source: 'connections_codeblock.copy_as_links',
       });
     });
@@ -182,21 +188,3 @@ export async function post_process(connections_list, container, opts = {}) {
   return container;
 }
 
-async function get_visible_results_fallback(connections_list, opts = {}) {
-  const raw_results = await get_results_fallback(connections_list, opts);
-  const connections_state = connections_list?.item?.data?.connections || {};
-  return filter_hidden_results(raw_results, connections_state);
-}
-
-async function get_results_fallback(connections_list, opts = {}) {
-  const cached = Array.isArray(connections_list?.results) ? connections_list.results : [];
-  if (cached.length) return cached;
-
-  try {
-    const results = await connections_list.get_results({ ...opts });
-    return Array.isArray(results) ? results : [];
-  } catch (err) {
-    console.error('Failed to fetch connections results', err);
-    return [];
-  }
-}

@@ -1,7 +1,7 @@
+import { filter_hidden_results } from '../../utils/filter_hidden_results.js';
 import styles from './v3.css';
 import { Menu, Notice } from 'obsidian';
 import { get_context_lines } from '../../utils/context_lines.js';
-import { filter_hidden_results } from '../../utils/filter_hidden_results.js';
 import { resolve_dropped_connections_targets } from '../../utils/resolve_dropped_connections_targets.js';
 
 const CONNECTIONS_TARGET_HISTORY_LIMIT = 10;
@@ -95,11 +95,12 @@ export async function post_process(view, container, opts = {}) {
   ;
 
   record_connections_target_history(view, connections_item);
-  container._connections_menu_state = {
+  const menu_state = container._connections_menu_state = {
     view,
     container,
     connections_list,
     connections_settings,
+    visible_results: [],
   };
 
   // register container-level listeners in render since post_process is called frequently
@@ -129,16 +130,6 @@ export async function post_process(view, container, opts = {}) {
         state.view,
       );
       if (menu.items?.length) menu.addSeparator();
-      const raw_results = Array.isArray(state.connections_list?.results)
-        ? state.connections_list.results
-        : []
-      ;
-      const connections_state =
-        state.connections_list?.item?.data?.connections || {};
-      const visible_results = filter_hidden_results(
-        raw_results,
-        connections_state,
-      );
 
       env.build_menu?.(
         'connections:list_menu',
@@ -147,7 +138,7 @@ export async function post_process(view, container, opts = {}) {
         {
           container: state.container,
           connections_settings: state.connections_settings,
-          visible_results,
+          visible_results: filter_hidden_results(state.visible_results, state.connections_list.item),
           render_connections: state.view.render_view.bind(state.view),
         },
       );
@@ -227,8 +218,12 @@ export async function post_process(view, container, opts = {}) {
   const list = await env.smart_components.render_component(connections_list_component_key, connections_list, {
     ...opts,
     container,
+    on_visible_results(results) {
+      if (container._connections_menu_state === menu_state) menu_state.visible_results = results;
+    },
     render_connections: view.render_view.bind(view),
   });
+  if (container._connections_menu_state !== menu_state) return container;
   this.empty(list_container);
   list_container.appendChild(list);
 

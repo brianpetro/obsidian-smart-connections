@@ -1,13 +1,10 @@
 /**
- * Builds a prefixed connection key when needed.
+ * Builds a collection-qualified connection key.
  * @param {string} collection_key
  * @param {string} item_key
  * @returns {string}
  */
 export function build_prefixed_connection_key(collection_key, item_key) {
-  if (typeof item_key !== 'string' || !item_key.length) return item_key;
-  if (item_key.includes(':')) return item_key;
-  if (typeof collection_key !== 'string' || !collection_key.length) return item_key;
   return `${collection_key}:${item_key}`;
 }
 
@@ -167,4 +164,23 @@ export function is_connection_hidden(connections, prefixed_key) {
   const state = connections[prefixed_key];
   if (!state || typeof state !== 'object') return false;
   return state.hidden !== undefined && state.hidden !== null;
+}
+
+/**
+ * Resolve target-local feedback without changing persisted state.
+ * Item keys may themselves contain colons; they are not prefixed identities.
+ * @param {object} target_item
+ * @param {object} candidate_item
+ * @returns {{state: 'default'|'pinned'|'hidden'}}
+ */
+export function resolve_connection_feedback(target_item, candidate_item) {
+  const collection_key = candidate_item?.collection_key;
+  const item_key = candidate_item?.key;
+  if (!collection_key || !item_key) return { state: 'default' };
+
+  const prefixed_key = `${collection_key}:${item_key}`;
+  const connections = target_item?.data?.connections;
+  if (is_connection_pinned(connections, prefixed_key)) return { state: 'pinned' };
+  if (is_connection_hidden(connections, prefixed_key)) return { state: 'hidden' };
+  return { state: 'default' };
 }

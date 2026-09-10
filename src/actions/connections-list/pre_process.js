@@ -1,10 +1,17 @@
+import { resolve_connection_feedback } from '../../utils/connections_list_item_state.js';
+import { copy_connections_filter } from '../../utils/copy_connections_filter.js';
+
 export function pre_process(params) {
   if (!params.limit) params.limit = this.settings?.results_limit ?? 20;
   if (!params.results_collection_key) {
     params.results_collection_key = this.collection.results_collection_key;
   }
-  if (!params.filter) params.filter = {};
+  params.filter = copy_connections_filter(params.filter);
   if (!params.score_algo_key) params.score_algo_key = this.collection.score_algo_key;
+  // Scoring settings belong to this retrieval, not to the candidate's collection.
+  if (params.score_settings == null) {
+    params.score_settings = this.settings?.actions?.[params.score_algo_key] || {};
+  }
 
   // Always treat this.item as the scoring target.
   // NOTE: This mutates params intentionally.
@@ -32,32 +39,30 @@ export function pre_process(params) {
     exclude_keys_set.add(params.filter.exclude_key);
   }
   exclude_keys_set.add(this.item.key); // always exclude self
-  params.hidden_keys.forEach((key) => exclude_keys_set.add(key)); // always exclude hidden
-  params.pinned_keys.forEach((key) => exclude_keys_set.add(key)); // always exclude pinned (always included in post_process)
   params.filter.exclude_keys = Array.from(exclude_keys_set);
 
   // lower-level exclusions (only applies to blocks since may be nested)
   if (params.results_collection_key === 'smart_blocks') {
-    // also exclude self and feedback ranges from block-level matches
+    // also exclude self from block-level matches
     const exclude_starts_set = new Set(params.filter.exclude_key_starts_with_any);
     exclude_starts_set.add(this.item.key);
-    params.hidden_keys.forEach((key) => exclude_starts_set.add(key));
-    params.pinned_keys.forEach((key) => exclude_starts_set.add(key));
     params.filter.exclude_key_starts_with_any = Array.from(exclude_starts_set);
     // handle frontmatter block exclusion
     if (this.collection.settings.exclude_frontmatter_blocks) {
       if(!params.filter.exclude_key_ends_with_any || !Array.isArray(params.filter.exclude_key_ends_with_any)) {
         params.filter.exclude_key_ends_with_any = [];
       }
-      params.filter.exclude_key_ends_with_any.push('---frontmatter---');
+      if (!params.filter.exclude_key_ends_with_any.includes('---frontmatter---')) {
+        params.filter.exclude_key_ends_with_any.push('---frontmatter---');
+      }
     }
   }
 
 }
 
 /**
- * Populate params.hidden / params.pinned and their key lists for downstream
- * scoring and post-processing.
+ * Populate params.hidden / params.pinned for downstream
+ * scoring only; feedback does not change candidate eligibility.
  *
  * Arrays are rebuilt on every call so repeated get_results invocations with
  * the same params object do not accumulate duplicates.
@@ -72,9 +77,7 @@ export function pre_process(params) {
 function get_connections_feedback_items(connections_list, params) {
   // Always rebuild derived arrays to avoid duplicates.
   params.hidden = [];
-  params.hidden_keys = [];
   params.pinned = [];
-  params.pinned_keys = [];
 
   const connections_state = connections_list.item.data?.connections || {};
 
@@ -91,16 +94,15 @@ function get_connections_feedback_items(connections_list, params) {
     const item = collection.get(item_key);
     if (!item) return;
 
+    const feedback = resolve_connection_feedback(connections_list.item, item);
     // Hidden-only: participate as "hidden" but not "pinned".
-    if (state.hidden && !state.pinned) {
+    if (feedback.state === 'hidden') {
       params.hidden.push(item);
-      params.hidden_keys.push(item_key);
     }
 
     // Any pinned (pinned-only or hidden+pinned) participates as "pinned".
-    if (state.pinned) {
+    if (feedback.state === 'pinned') {
       params.pinned.push(item);
-      params.pinned_keys.push(item_key);
     }
   });
 }
