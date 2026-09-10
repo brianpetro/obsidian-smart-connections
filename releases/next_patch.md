@@ -1,8 +1,10 @@
-### More consistent Connections across views and tools
+### Faster, more predictable Connections
 
-Connections results are more responsive, and retrieval settings now stay with the Connections request that uses them. Ranking configuration no longer falls back to unrelated Lookup settings when both products use the same scoring method.
+Connections results are more responsive, and Connections now keeps its own scoring configuration instead of falling back to Lookup settings when both products use the same scoring method.
 
-Connected tools can set a result limit, search Sources or Blocks, and apply filters. The Connections interface and tool actions also share more of the same retrieval behavior, while drag-and-drop recognizes Smart items more reliably.
+Connected tools can choose Sources or Blocks, cap the number of results, and apply filters. Those requests now follow the same Connections behavior as the interface, making results more consistent wherever you request them.
+
+Dragging Smart items into Connections is also more reliable.
 
 ### Full release notes
 
