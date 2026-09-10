@@ -222,6 +222,26 @@ test('ranking cannot widen hard eligibility or the final raw limit', async t => 
   t.deepEqual(result_keys(results), ['Hidden.md']);
 });
 
+
+
+test('post_process uses invocation-local ranking selection', async t => {
+  const { list, env, collection, first, second } = create_feedback_fixture();
+  collection.settings.connections_post_process = 'none';
+  env.config.actions.local_rank = {
+    action(results) {
+      return [...results].reverse();
+    },
+  };
+  const results = [
+    { item: first, score: 0.9 },
+    { item: second, score: 0.8 },
+  ];
+  const ranked = await list.post_process(results, {
+    connections_post_process: 'local_rank',
+  });
+  t.deepEqual(result_keys(ranked), ['Second.md', 'First.md']);
+});
+
 test('legacy null filter still means no caller filter', async t => {
   const { list } = create_feedback_fixture();
   t.deepEqual(result_keys(await list.get_results({ filter: null })), ['Hidden.md', 'First.md']);

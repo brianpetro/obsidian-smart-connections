@@ -93,6 +93,44 @@ test('codeblock copy and Context actions receive its exact rendered set, not raw
   }
 });
 
+test('codeblock translates local filter settings into semantic filter once', async t => {
+  const fixture = create_feedback_fixture();
+  fixture.target.data.connections = {};
+  let received;
+  fixture.list.get_results = async params => {
+    received = params;
+    const results = [];
+    fixture.list._result_params.set(results, params);
+    return results;
+  };
+  install_components(fixture, { connections_list_v3: list_v3 });
+  const root = create_node();
+  root.appendChild(create_node(['connections-list-container']));
+  const { post_process } = load_component(new URL('../components/connections_codeblock.js', import.meta.url));
+  await post_process.call(presenter, fixture.list, root, {
+    connections_list_component_key: 'connections_list_v3',
+    connections_settings: {
+      include_filter: 'Projects/, Notes/',
+      exclude_filter: 'Archive/',
+      frontmatter_filter_include: 'status:open',
+      frontmatter_filter_exclude: 'type:draft',
+    },
+  });
+  await new Promise(resolve => setImmediate(resolve));
+  t.deepEqual(Array.from(received.filter.key_includes_any), ['Projects/', 'Notes/']);
+  t.deepEqual(Array.from(received.filter.exclude_key_includes_any), ['Archive/']);
+  t.deepEqual(JSON.parse(JSON.stringify(received.filter.frontmatter.include)), [{ key: 'status', value: 'open' }]);
+  t.deepEqual(JSON.parse(JSON.stringify(received.filter.frontmatter.exclude)), [{ key: 'type', value: 'draft' }]);
+  for (const key of [
+    'include_filter',
+    'exclude_filter',
+    'frontmatter_filter_include',
+    'frontmatter_filter_exclude',
+  ]) {
+    t.false(key in received);
+  }
+});
+
 test('footer retains configured list presentation without a second projection', async t => {
   const fixture = create_feedback_fixture();
   const calls = install_components(fixture, { connections_list_v3: list_v3 });
@@ -284,4 +322,96 @@ test('Unpin All hides only rows with retained hidden feedback', t => {
   t.false(rows[1].classList.contains('sc-result-hidden-by-feedback'));
   t.true(rows.every(row => !row.classList.contains('sc-result-pinned')));
   t.deepEqual(result_keys(filter_hidden_results([{ item: pinned }, { item: first }], target)), [first.key]);
+});
+
+
+for (const [key, processor] of [['connections_list_v3', list_v3], ['connections_list_v4', list_v4]]) {
+  test(`${key} maps local settings to semantic retrieval params only`, async t => {
+    const fixture = create_feedback_fixture();
+    fixture.target.data.connections = {};
+    let received;
+    fixture.list.get_results = async params => {
+      received = params;
+      const results = [];
+      fixture.list._result_params.set(results, params);
+      return results;
+    };
+    install_components(fixture, { [key]: processor });
+    const score_settings = { key_weights: { 'Projects/': 2 } };
+    const filter = {
+      key_includes_any: ['Projects/'],
+      exclude_key_includes_any: ['Archive/'],
+      frontmatter: {
+        include: [{ key: 'status', value: 'open' }],
+        exclude: [{ key: 'type', value: 'draft' }],
+      },
+    };
+    await fixture.env.smart_components.render_component(key, fixture.list, {
+      connections_settings: {
+        results_limit: 5,
+        results_collection_key: 'smart_blocks',
+        score_algo_key: 'weighted',
+        actions: { weighted: score_settings },
+        connections_post_process: 'recency_rank',
+        exclude_inlinks: true,
+        exclude_outlinks: false,
+        exclude_frontmatter_blocks: false,
+      },
+      filter,
+      on_visible_results() {},
+      render_connections() {},
+      container: create_node(),
+    });
+    t.is(received.limit, 5);
+    t.is(received.results_collection_key, 'smart_blocks');
+    t.is(received.score_algo_key, 'weighted');
+    t.is(received.score_settings, score_settings);
+    t.is(received.connections_post_process, 'recency_rank');
+    t.is(received.filter, filter);
+    t.true(received.exclude_inlinks);
+    t.false(received.exclude_outlinks);
+    t.false(received.exclude_frontmatter_blocks);
+    t.false('connections_settings' in received);
+    t.false('on_visible_results' in received);
+    t.false('render_connections' in received);
+    t.false('container' in received);
+  });
+}
+
+test('Core list explicit retrieval params override local settings', async t => {
+  const fixture = create_feedback_fixture();
+  fixture.target.data.connections = {};
+  let received;
+  fixture.list.get_results = async params => {
+    received = params;
+    const results = [];
+    fixture.list._result_params.set(results, params);
+    return results;
+  };
+  install_components(fixture, { connections_list_v3: list_v3 });
+  const score_settings = { explicit: true };
+  await fixture.env.smart_components.render_component('connections_list_v3', fixture.list, {
+    connections_settings: {
+      results_limit: 5,
+      results_collection_key: 'smart_blocks',
+      score_algo_key: 'local_score',
+      actions: { local_score: { local: true } },
+      connections_post_process: 'local_rank',
+      exclude_inlinks: false,
+    },
+    limit: 2,
+    results_collection_key: 'smart_sources',
+    score_algo_key: 'explicit_score',
+    score_settings,
+    connections_post_process: 'explicit_rank',
+    filter: { key_includes_any: ['Explicit/'] },
+    exclude_inlinks: true,
+  });
+  t.is(received.limit, 2);
+  t.is(received.results_collection_key, 'smart_sources');
+  t.is(received.score_algo_key, 'explicit_score');
+  t.is(received.score_settings, score_settings);
+  t.is(received.connections_post_process, 'explicit_rank');
+  t.deepEqual(received.filter.key_includes_any, ['Explicit/']);
+  t.true(received.exclude_inlinks);
 });

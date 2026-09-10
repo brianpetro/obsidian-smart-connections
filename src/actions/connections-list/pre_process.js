@@ -23,10 +23,10 @@ export function pre_process(params) {
   }
 
   if (!params.filter.frontmatter) params.filter.frontmatter = {};
-  if (!params.filter.frontmatter.include) {
+  if (params.filter.frontmatter.include === undefined) {
     params.filter.frontmatter.include = this.collection.frontmatter_inclusions;
   }
-  if (!params.filter.frontmatter.exclude) {
+  if (params.filter.frontmatter.exclude === undefined) {
     params.filter.frontmatter.exclude = this.collection.frontmatter_exclusions;
   }
 
@@ -48,7 +48,7 @@ export function pre_process(params) {
     exclude_starts_set.add(this.item.key);
     params.filter.exclude_key_starts_with_any = Array.from(exclude_starts_set);
     // handle frontmatter block exclusion
-    if (this.collection.settings.exclude_frontmatter_blocks) {
+    if (params.exclude_frontmatter_blocks ?? this.collection.settings.exclude_frontmatter_blocks) {
       if(!params.filter.exclude_key_ends_with_any || !Array.isArray(params.filter.exclude_key_ends_with_any)) {
         params.filter.exclude_key_ends_with_any = [];
       }

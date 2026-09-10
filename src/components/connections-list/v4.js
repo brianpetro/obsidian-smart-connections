@@ -28,11 +28,26 @@ export async function post_process(connections_list, container, opts = {}) {
   const list_container = container.querySelector('.connections-list.sc-list');
   container.dataset.key = connections_list.item.key;
   opts.on_visible_results?.([]);
-  const query_params = { ...opts };
+  const connections_settings = opts.connections_settings ?? connections_list.settings ?? {};
+  const score_algo_key = opts.score_algo_key ?? connections_settings.score_algo_key;
+  const query_params = {
+    limit: opts.limit ?? connections_settings.results_limit,
+    results_collection_key: opts.results_collection_key ?? connections_settings.results_collection_key,
+    score_algo_key,
+    score_settings: opts.score_settings !== undefined
+      ? opts.score_settings
+      : connections_settings.actions?.[score_algo_key],
+    connections_post_process: opts.connections_post_process ?? connections_settings.connections_post_process,
+    filter: opts.filter,
+    exclude_inlinks: opts.exclude_inlinks ?? connections_settings.exclude_inlinks,
+    exclude_outlinks: opts.exclude_outlinks ?? connections_settings.exclude_outlinks,
+    exclude_frontmatter_blocks: opts.exclude_frontmatter_blocks ?? connections_settings.exclude_frontmatter_blocks,
+    rank_query: opts.rank_query,
+  };
   const ranked_results = await connections_list.get_results(query_params);
   const results = await get_visible_connections_results(connections_list, query_params, ranked_results);
   try {
-    const graph = await env.smart_components.render_component('connections_graph_v1', connections_list, { ...query_params, results: ranked_results });
+    const graph = await env.smart_components.render_component('connections_graph_v1', connections_list, { ...query_params, connections_settings, results: ranked_results });
     this.empty(graph_container);
     graph_container.appendChild(graph);
     register_graph_events(graph, list_container);

@@ -37,7 +37,7 @@ export async function register_smart_connections_codeblock(plugin) {
           'connections_codeblock',
           connections_list,
           {
-            ...cb_config, // FUTURE: handling codeblock config options
+            connections_settings: cb_config,
           }
         );
         container.empty();

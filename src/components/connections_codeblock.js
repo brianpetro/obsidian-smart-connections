@@ -1,4 +1,6 @@
 import { filter_hidden_results } from '../utils/filter_hidden_results.js';
+import { copy_connections_filter } from '../utils/copy_connections_filter.js';
+import { parse_frontmatter_filter_lines } from 'smart-entities/utils/frontmatter_filter.js';
 import styles from './connections_codeblock.css';
 
 /**
@@ -97,11 +99,32 @@ export async function post_process(connections_list, container, opts = {}) {
       || connections_list.connections_list_component_key
       || 'connections_list_v4'
     ;
+    const connections_settings = opts.connections_settings ?? {};
+    const filter = copy_connections_filter(opts.filter);
+    if (filter.key_includes_any === undefined && connections_settings.include_filter !== undefined) {
+      filter.key_includes_any = parse_csv(connections_settings.include_filter);
+    }
+    if (filter.exclude_key_includes_any === undefined && connections_settings.exclude_filter !== undefined) {
+      filter.exclude_key_includes_any = parse_csv(connections_settings.exclude_filter);
+    }
+    if (
+      connections_settings.frontmatter_filter_include !== undefined
+      || connections_settings.frontmatter_filter_exclude !== undefined
+    ) {
+      filter.frontmatter ||= {};
+      if (filter.frontmatter.include === undefined && connections_settings.frontmatter_filter_include !== undefined) {
+        filter.frontmatter.include = parse_frontmatter_filter_lines(connections_settings.frontmatter_filter_include);
+      }
+      if (filter.frontmatter.exclude === undefined && connections_settings.frontmatter_filter_exclude !== undefined) {
+        filter.frontmatter.exclude = parse_frontmatter_filter_lines(connections_settings.frontmatter_filter_exclude);
+      }
+    }
     const list = await env.smart_components.render_component(
       connections_list_component_key,
       connections_list,
       {
         ...opts,
+        filter,
         on_visible_results(results) {
           if (current_render === render_id) visible_results = results;
         },
@@ -186,5 +209,13 @@ export async function post_process(connections_list, container, opts = {}) {
 
   render_list();
   return container;
+}
+
+function parse_csv(value = '') {
+  return String(value || '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+  ;
 }
 

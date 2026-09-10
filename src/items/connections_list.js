@@ -179,7 +179,7 @@ export class ConnectionsList extends CollectionItem {
       console.warn('No results to post-process, received:', results);
       return [];
     }
-    const action_key = this.settings.connections_post_process;
+    const action_key = params.connections_post_process ?? this.settings.connections_post_process;
     const post_process_action = this.actions[action_key];
     let processed_results = results;
     if (typeof post_process_action === 'function') {

@@ -3,6 +3,8 @@ import vm from 'node:vm';
 import { get_graph_connections_results } from '../../src/utils/get_graph_connections_results.js';
 import { filter_hidden_results } from '../../src/utils/filter_hidden_results.js';
 import { get_context_lines } from '../../src/utils/context_lines.js';
+import { copy_connections_filter } from '../../src/utils/copy_connections_filter.js';
+import { parse_frontmatter_filter_lines } from 'smart-entities/utils/frontmatter_filter.js';
 
 /** Execute the actual component body with explicit simulated host capabilities. */
 export function load_component(url, export_names = ['post_process'], globals = {}) {
@@ -12,6 +14,7 @@ export function load_component(url, export_names = ['post_process'], globals = {
     module: { exports: {} }, console, setTimeout, clearTimeout,
     get_graph_connections_results,
     filter_hidden_results, get_context_lines,
+    copy_connections_filter, parse_frontmatter_filter_lines,
     Menu: class {
       constructor() { this.items = []; }
       addSeparator() { this.items.push({ separator: true }); }

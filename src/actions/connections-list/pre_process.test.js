@@ -123,3 +123,24 @@ test('pre_process preserves explicit empty score_settings', t => {
   pre_process.call(list, params);
   t.is(params.score_settings, settings);
 });
+
+
+test('pre_process preserves explicit semantic frontmatter and frontmatter-block settings', t => {
+  const list = build_connections_list({ results_collection_key: 'smart_blocks' });
+  list.collection.frontmatter_inclusions = [{ key: 'global', value: 'include' }];
+  list.collection.frontmatter_exclusions = [{ key: 'global', value: 'exclude' }];
+  list.collection.settings = { exclude_frontmatter_blocks: true };
+  const params = {
+    filter: {
+      frontmatter: {
+        include: [{ key: 'status', value: 'open' }],
+        exclude: [{ key: 'type', value: 'draft' }],
+      },
+    },
+    exclude_frontmatter_blocks: false,
+  };
+  pre_process.call(list, params);
+  t.deepEqual(params.filter.frontmatter.include, [{ key: 'status', value: 'open' }]);
+  t.deepEqual(params.filter.frontmatter.exclude, [{ key: 'type', value: 'draft' }]);
+  t.false(params.filter.exclude_key_ends_with_any?.includes('---frontmatter---') === true);
+});
