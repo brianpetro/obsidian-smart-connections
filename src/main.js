@@ -24,6 +24,7 @@ import { connections_footer_plugin } from './views/connections_footer_deco.js';
 import { ConnectionsFooterView } from './views/connections_footer_view.js';
 import { register_smart_connections_codeblock } from "./views/connections_codeblock.js";
 import { migrate_hidden_connections_collection } from '../migrations/migrate_hidden_connections.js';
+import { migrate_connections_display_settings } from '../migrations/migrate_connections_display_settings.js';
 
 export default class SmartConnectionsPlugin extends SmartPlugin {
   SmartEnv = SmartEnv;
@@ -85,6 +86,10 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
       this.add_to_gitignore("\n\n# Ignore Smart Environment folder\n.smart-env");
     });
     await this.SmartEnv.wait_for({ loaded: true });
+    migrate_connections_display_settings(
+      this.env.connections_lists.settings,
+      this.env.config.components.connections_list_item_v4 ? 'connections_list_item_v4' : undefined,
+    );
     migrate_hidden_connections_collection(this.env.smart_sources);
     this.register_command_actions();
     this.wrap_connections_view_open();

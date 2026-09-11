@@ -235,6 +235,9 @@ function toggle_result(event) {
   _result_elm.classList.toggle('sc-collapsed');
 };
 
+export const display_name = 'Classic';
+export const description = 'Compact results using the original Connections layout.';
+
 export const settings_config = {
   "show_full_path": {
     name: "Show full path",
@@ -244,9 +247,9 @@ export const settings_config = {
     group: "Connections list item"
   },
   "render_markdown": {
-    name: "Render markdown",
+    name: "Show formatted text",
     type: "toggle",
-    description: "Turn off to prevent rendering markdown and display connection results as plain text.",
+    description: "Show links, headings, bold text, and other formatting in connection results. Turn off to show plain text.",
     // default: true,
     group: "Connections list item"
   },

@@ -47,6 +47,7 @@ export async function register_smart_connections_codeblock(plugin) {
         container._has_listeners = true;
         const disposers = [];
         disposers.push(env.events.on('settings:changed', (event) => {
+          if (event.path_string === 'connections_lists.components.connections_graph_v1.render_links') return;
           // console.log('connections codeblock view detected settings change', event);
           if(event.path?.includes('connections_lists')){
             render_codeblock();

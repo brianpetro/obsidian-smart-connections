@@ -47,6 +47,7 @@ export function connections_list_item_hide(params = {}) {
     }
     source_item.collection.save();
     source_item.emit_event('connections:hidden_item');
+    source_item.emit_event('connections:feedback_changed');
     return true;
   } catch (err) {
     env?.events?.emit?.('connections:hide_failed', {

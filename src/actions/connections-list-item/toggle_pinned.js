@@ -59,6 +59,7 @@ export function connections_list_item_toggle_pinned(params = {}) {
     }
     source_item.queue_save();
     source_item.collection.save();
+    source_item.emit_event('connections:feedback_changed');
     return true;
   } catch (err) {
     const title_prefix = is_connection_pinned(source_item?.data?.connections, prefixed_key) ? 'Unpin' : 'Pin';

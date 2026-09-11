@@ -40,13 +40,11 @@ export class ConnectionsLists extends Collection {
       results_limit: 20,
       connections_view_location: 'right',
       exclude_frontmatter_blocks: true,
-      connections_list_component_key: 'connections_list_v4',
-      footer_connections_list_component_key: 'connections_list_v3',
-      connections_list_item_component_key: 'connections_list_item_v3',
       frontmatter_filter_include: '',
       frontmatter_filter_exclude: '',
+      // Graph and result-style defaults are applied by the plugin after migration.
       components: {
-        connections_list_v4: {},
+        connections_list: {},
         connections_list_item_v3: {
           render_markdown: true,
           show_full_path: false,
@@ -76,17 +74,17 @@ export class ConnectionsLists extends Collection {
     return connections_list;
   }
 
-  get_connections_list_component_options() {
+  get_connections_graph_component_options() {
     return Object.entries(this.env.config.components || {})
-      .filter(([key]) => key.startsWith('connections_list_') && !key.startsWith('connections_list_item_'))
-      .map(([value, component]) => ({ value, name: component.display_name || value, description: component.display_description }))
+      .filter(([key]) => key.startsWith('connections_graph_'))
+      .map(([value, component]) => ({ value, name: component.display_name || value, description: component.description }))
     ;
   }
 
   get_connections_list_item_options() {
     return Object.entries(this.env.config.components || {})
       .filter(([key, fn]) => key.startsWith('connections_list_item_'))
-      .map(([value, fn]) => ({ value, name: fn.display_name || value, description: fn.display_description }))
+      .map(([value, fn]) => ({ value, name: fn.display_name || value, description: fn.description }))
     ;
   }
 
@@ -109,9 +107,20 @@ export class ConnectionsLists extends Collection {
     return parse_frontmatter_filter_lines(this.settings.frontmatter_filter_exclude);
   }
 
+  get_connections_graph_component_settings_config(component_key) {
+    const component_module = this.env.config.components?.[component_key];
+    const config = typeof component_module?.settings_config === 'function'
+      ? component_module.settings_config(this)
+      : component_module?.settings_config
+    ;
+    if (!config) return null;
+    return Object.fromEntries(
+      Object.entries(config).map(([key, value]) => [`components.${component_key}.${key}`, value])
+    );
+  }
+
   get connections_list_component_settings_config() {
-    const component_key = this.settings.connections_list_component_key;
-    if(!component_key || component_key === 'none') return null;
+    const component_key = 'connections_list';
     const component_module = this.env.config.components?.[component_key];
     const config = typeof component_module?.settings_config === 'function'
       ? component_module.settings_config(this)
@@ -165,14 +174,18 @@ export function settings_config(scope) {
         ];
       }
     },
-    "connections_list_component_key": {
+    "show_connections_graph": {
       group: 'Display',
-      name: "Connections List Component",
+      name: "Show connections graph",
+      type: "toggle",
+      description: "Show a graph above connection results in the Connections view and code blocks.",
+    },
+    "connections_graph_component_key": {
+      group: 'Display',
+      name: "Graph style",
       type: "dropdown",
-      description: "Select the component used to render the connections list.",
-      options_callback: (scope) => {
-        return scope.get_connections_list_component_options();
-      },
+      description: "Choose the graph visualization.",
+      options_callback: (scope) => scope.get_connections_graph_component_options(),
     },
     "inline_connections": {
       group: 'Inline connections',
@@ -187,12 +200,18 @@ export function settings_config(scope) {
       type: "toggle",
       description: "Show connections at the bottom of each note.",
     },
-    "footer_connections_list_component_key": {
+    "footer_show_connections_graph": {
       group: 'Footer connections',
-      name: "Footer connections list component",
+      name: "Show graph",
+      type: "toggle",
+      description: "Show a graph above footer connection results.",
+    },
+    "footer_connections_graph_component_key": {
+      group: 'Footer connections',
+      name: "Graph style",
       type: "dropdown",
-      description: "Select the component used to render the connections list in note footers.",
-      options_callback: (scope) => scope.get_connections_list_component_options(),
+      description: "Choose the graph visualization for footer connections.",
+      options_callback: (scope) => scope.get_connections_graph_component_options(),
     },
     filters_helper: {
       group: 'Connections filters',
@@ -264,8 +283,29 @@ export function settings_config(scope) {
   }
 
   if(scope.connections_list_component_settings_config) {
-    config = insert_settings_after('results_limit', config, scope.connections_list_component_settings_config);
+    config = insert_settings_after('connections_graph_component_key', config, scope.connections_list_component_settings_config);
   }
+
+  const configured_graphs = new Set();
+  for (const [show_key, graph_key, group] of [
+    ['show_connections_graph', 'connections_graph_component_key', 'Display'],
+    ['footer_show_connections_graph', 'footer_connections_graph_component_key', 'Footer connections'],
+  ]) {
+    const requested_graph_key = scope.settings[graph_key] ?? 'connections_graph_v1';
+    const component_key = scope.env.config.components?.[requested_graph_key]
+      ? requested_graph_key
+      : 'connections_graph_v1';
+    if (!scope.settings[show_key] || configured_graphs.has(component_key)) continue;
+    const graph_settings = scope.get_connections_graph_component_settings_config(component_key);
+    if (!graph_settings) continue;
+    configured_graphs.add(component_key);
+    config = insert_settings_after(graph_key, config, Object.fromEntries(
+      Object.entries(graph_settings).map(([key, value]) => [key, { ...value, group }])
+    ));
+  }
+
+  if (!scope.settings.show_connections_graph) delete config.connections_graph_component_key;
+  if (!scope.settings.footer_show_connections_graph) delete config.footer_connections_graph_component_key;
 
   return config;
 };

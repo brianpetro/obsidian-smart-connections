@@ -32,6 +32,7 @@ export function connections_list_unpin_all(params = {}) {
     ;
     source_item.queue_save();
     source_item.collection.save();
+    source_item.emit_event('connections:feedback_changed');
     return true;
   } catch (err) {
     this.env?.events?.emit?.('connections:unpin_failed', {

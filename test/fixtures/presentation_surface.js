@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
+import { post_process as results_presenter } from '../../src/components/connections_results.js';
+import { post_process as base_list } from '../../src/components/connections_list.js';
 import { get_graph_connections_results } from '../../src/utils/get_graph_connections_results.js';
 import { filter_hidden_results } from '../../src/utils/filter_hidden_results.js';
 import { get_context_lines } from '../../src/utils/context_lines.js';
@@ -9,7 +11,7 @@ import { parse_frontmatter_filter_lines } from 'smart-entities/utils/frontmatter
 /** Execute the actual component body with explicit simulated host capabilities. */
 export function load_component(url, export_names = ['post_process'], globals = {}) {
   const source = fs.readFileSync(url, 'utf8').replaceAll('\r\n', '\n')
-    .replace(/^import[\s\S]*?;\n/gm, '').replace(/^export /gm, '');
+    .replace(/^import[\s\S]*?;\n/gm, '').replace(/^export default /gm, '').replace(/^export /gm, '');
   const context = vm.createContext({
     module: { exports: {} }, console, setTimeout, clearTimeout,
     get_graph_connections_results,
@@ -55,6 +57,12 @@ export function create_node(classes = []) {
       }
       return null;
     },
+    querySelectorAll(selector) {
+      return this.children.flatMap(child => [
+        ...(child.matches?.(selector) ? [child] : []),
+        ...(child.querySelectorAll?.(selector) || []),
+      ]);
+    },
     closest(selector) { return this.matches(selector) ? this : this.parent?.closest(selector); },
     remove() {},
     scrollIntoView() {},
@@ -64,31 +72,43 @@ export function create_node(classes = []) {
 
 export const presenter = {
   empty(node) { node.children = []; },
-  create_doc_fragment() { return create_node(); },
+  create_doc_fragment(html = '') { const fragment = create_node(); fragment.innerHTML = html; return fragment; },
   safe_inner_html() {},
   get_icon_html() { return ''; },
 };
 
-export function install_components(fixture, processors) {
+export function install_components(fixture, processors = {}) {
   const calls = [];
-  fixture.env.config.components = {};
+  const component_processors = {
+    connections_results: results_presenter,
+    connections_list: base_list,
+    ...processors,
+  };
+  fixture.env.config.components = {
+    connections_graph_v1: {},
+    ...fixture.env.config.components,
+  };
   fixture.env.smart_components = {
     async render_component(key, scope, options) {
       calls.push({ key, scope, options });
-      if (processors[key]) {
+      if (component_processors[key]) {
         const root = create_node();
-        if (key === 'connections_list_v3') {
-          root.classList.add('connections-list', 'sc-list');
-        } else {
+        if (key === 'connections_results') {
           root.appendChild(create_node(['connections-graph-container']));
-          root.appendChild(create_node(['connections-list', 'sc-list']));
+          root.appendChild(create_node(['connections-results-list']));
+        } else {
+          root.classList.add('connections-list', 'sc-list');
         }
-        await processors[key].call(presenter, scope, root, options);
+        await component_processors[key].call(presenter, scope, root, options);
         return root;
       }
       const node = create_node();
       if (key.startsWith('connections_graph_')) {
         node.entries = await get_graph_connections_results(scope, options, options.results);
+      } else if (scope.item) {
+        node.classList.add('sc-result');
+        node.dataset.collection = scope.item.collection_key;
+        node.dataset.key = scope.item.key;
       }
       return node;
     },

@@ -1,3 +1,4 @@
+import { Menu } from 'obsidian';
 import { get_graph_connections_results } from '../../utils/get_graph_connections_results.js';
 import styles_css from './v1.css';
 import { get_item_display_name } from 'obsidian-smart-env/src/utils/get_item_display_name.js';
@@ -124,6 +125,14 @@ export async function render(connections_list, params = {}) {
   const html = await build_html.call(this, connections_list, params);
   const frag = this.create_doc_fragment(html);
   const container = frag.querySelector('.connections-graph');
+  container.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const env = connections_list.env;
+    const menu = new Menu(env.obsidian_app);
+    env.build_menu?.('connections:graph_menu', menu, connections_list, { container });
+    if (menu.items?.length) menu.showAtMouseEvent(event);
+  });
   post_process.call(this, connections_list, container, params); // not awaited
   return container;
 }
@@ -133,11 +142,23 @@ export async function render(connections_list, params = {}) {
 /* -------------------------------------------------------------------------- */
 
 async function post_process(connections_list, container, params = {}) {
+  let disposed = false;
+  let sim = null;
+  let ro = null;
+  const disposers = [];
+  this.attach_disposer(container, () => {
+    disposed = true;
+    ro?.disconnect();
+    sim?.stop();
+    disposers.forEach(dispose => dispose());
+  });
   try {
     const result_entries = await get_graph_connections_results(
       connections_list, params, params.results,
     );
+    if (disposed) return container;
     const d3 = await load_d3();
+    if (disposed) return container;
 
     const to_item = params.to_item || connections_list?.item;
     if (!to_item) throw new Error('connections_graph: could not resolve center item.');
@@ -155,7 +176,6 @@ async function post_process(connections_list, container, params = {}) {
     const PADDING = 24;
     const LABEL_MARGIN = 10;
 
-    let sim = null;
     let node_sel = null;
 
     const build_label_text = (item) => {
@@ -237,7 +257,7 @@ async function post_process(connections_list, container, params = {}) {
         ;
 
         const prefixed_key = build_prefixed_connection_key(r_item.collection_key, r_item.key);
-        const feedback = res.feedback || resolve_connection_feedback(to_item, r_item);
+        const feedback = resolve_connection_feedback(to_item, r_item);
         const isPinned = feedback.state === 'pinned';
         const isHidden = feedback.state === 'hidden';
 
@@ -475,11 +495,34 @@ async function post_process(connections_list, container, params = {}) {
 
     };
 
+    // Feedback is live state; keep the ranked snapshot and layout unchanged.
+    disposers.push(env.events.on('connections:feedback_changed', (event) => {
+      if (event.collection_key !== to_item.collection_key || event.item_key !== to_item.key) return;
+      node_sel.each(function (node) {
+        if (node.isCenter) return;
+        const feedback = resolve_connection_feedback(to_item, node.item);
+        node.isPinned = feedback.state === 'pinned';
+        node.isHidden = feedback.state === 'hidden';
+        d3.select(this)
+          .classed('sc-result-pinned', node.isPinned)
+          .classed('sc-result-hidden', node.isHidden)
+          .attr('data-pinned', node.isPinned ? 'true' : null)
+          .attr('data-hidden', node.isHidden ? 'true' : null);
+      });
+    }));
+
     layout();
-    const ro = new ResizeObserver(() => layout());
+    ro = new ResizeObserver(() => {
+      if (!disposed) layout();
+    });
     ro.observe(container);
 
   } catch (err) {
+    ro?.disconnect();
+    sim?.stop();
+    disposers.forEach(dispose => dispose());
+    disposers.length = 0;
+    if (disposed) return container;
     console.error('[connections_graph] post_process error:', err);
     const fallback = activeDocument.createElement('p');
     fallback.className = 'sc-no-results';
@@ -521,3 +564,5 @@ function build_result_detail(node, center_item) {
   };
 }
 
+export const display_name = '2D similarity map';
+export const description = 'Arrange related results in a 2D map by semantic similarity.';

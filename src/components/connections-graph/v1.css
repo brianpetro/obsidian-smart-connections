@@ -80,16 +80,17 @@
 
 /* Pinned state */
 .sc-graph-node.sc-result-pinned .sc-graph-node-dot {
-  fill: color-mix(in srgb, var(--interactive-accent) 12%, var(--background-primary));
+  fill: var(--interactive-accent);
   stroke: var(--interactive-accent);
   stroke-width: 2px;
   filter: drop-shadow(0 0 0.25rem color-mix(in srgb, var(--interactive-accent) 50%, transparent));
 }
 
 .sc-graph-node.sc-result-hidden .sc-graph-node-dot {
-  fill: color-mix(in srgb, var(--background-modifier-border) 40%, transparent);
+  fill: transparent;
   stroke: color-mix(in srgb, var(--text-muted) 65%, transparent);
   stroke-width: 1px;
+  stroke-dasharray: 2 2;
   opacity: 0.6;
 }
 

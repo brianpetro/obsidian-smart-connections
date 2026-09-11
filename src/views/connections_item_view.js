@@ -115,6 +115,7 @@ export class ConnectionsItemView extends SmartItemView {
       }, 250); // debounce interval (ms)
     });
     register_env_event_listener(this, 'settings:changed', (event) => {
+      if (event.path_string === 'connections_lists.components.connections_graph_v1.render_links') return;
       if(event.path?.includes('expanded_view')) return;
       if(event.path?.includes('connections_lists') && is_visible(this.container)){
         this.render_target();

@@ -6,10 +6,10 @@ import { ConnectionsList } from './src/items/connections_list.js';
 
 import { render as connections_codeblock_component } from './src/components/connections_codeblock.js';
 import { render as connections_footer_view_component } from './src/components/connections_footer_view.js';
-import { render as connections_graph_v1_component } from './src/components/connections-graph/v1.js';
-import { render as connections_list_item_v3_component, settings_config as connections_list_item_v3_component_settings_config } from './src/components/connections-list-item/v3.js';
-import { render as connections_list_v3_component, display_name as connections_list_v3_component_display_name } from './src/components/connections-list/v3.js';
-import { render as connections_list_v4_component, settings_config as connections_list_v4_component_settings_config, display_name as connections_list_v4_component_display_name } from './src/components/connections-list/v4.js';
+import { render as connections_graph_v1_component, display_name as connections_graph_v1_component_display_name, description as connections_graph_v1_component_description } from './src/components/connections-graph/v1.js';
+import { render as connections_list_component, display_name as connections_list_component_display_name } from './src/components/connections_list.js';
+import { render as connections_list_item_v3_component, settings_config as connections_list_item_v3_component_settings_config, display_name as connections_list_item_v3_component_display_name, description as connections_list_item_v3_component_description } from './src/components/connections-list-item/v3.js';
+import { render as connections_results_component } from './src/components/connections_results.js';
 import { render as connections_settings_header_component } from './src/components/connections-settings/header.js';
 import { render as connections_settings_lookup_callout_component } from './src/components/connections-settings/lookup_callout.js';
 import { render as connections_view_v3_component } from './src/components/connections-view/v3.js';
@@ -51,10 +51,10 @@ export const smart_env_config = {
   components: {
     connections_codeblock: { render: connections_codeblock_component, version: "3.1.2" },
     connections_footer_view: { render: connections_footer_view_component, version: "3.1.2" },
-    connections_graph_v1: { render: connections_graph_v1_component, version: "3.1.2" },
-    connections_list_item_v3: { render: connections_list_item_v3_component, settings_config: connections_list_item_v3_component_settings_config, version: "3.1.2" },
-    connections_list_v3: { render: connections_list_v3_component, display_name: connections_list_v3_component_display_name, version: "3.1.2" },
-    connections_list_v4: { render: connections_list_v4_component, settings_config: connections_list_v4_component_settings_config, display_name: connections_list_v4_component_display_name, version: "3.1.2" },
+    connections_graph_v1: { render: connections_graph_v1_component, display_name: connections_graph_v1_component_display_name, description: connections_graph_v1_component_description, version: "3.1.2" },
+    connections_list: { render: connections_list_component, display_name: connections_list_component_display_name, version: "3.1.2" },
+    connections_list_item_v3: { render: connections_list_item_v3_component, settings_config: connections_list_item_v3_component_settings_config, display_name: connections_list_item_v3_component_display_name, description: connections_list_item_v3_component_description, version: "3.1.2" },
+    connections_results: { render: connections_results_component, version: "3.1.2" },
     connections_settings_header: { render: connections_settings_header_component, version: "3.1.2" },
     connections_settings_lookup_callout: { render: connections_settings_lookup_callout_component, version: "3.1.2" },
     connections_view_v3: { render: connections_view_v3_component, version: "3.1.2" }

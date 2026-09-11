@@ -9,29 +9,23 @@ import { create_feedback_fixture, result_keys } from '../../test/fixtures/connec
 import { create_node, load_component, presenter, install_components } from '../../test/fixtures/presentation_surface.js';
 import { connections_list_copy_as_links } from '../actions/connections-list/copy_as_links.js';
 import { resolve_connection_feedback, build_prefixed_connection_key } from './connections_list_item_state.js';
-import { post_process as list_v3 } from '../components/connections-list/v3.js';
-import { post_process as list_v4 } from '../components/connections-list/v4.js';
+import { post_process as list_v3 } from '../components/connections_list.js';
 
-for (const [key, processor] of [['connections_list_v3', list_v3], ['connections_list_v4', list_v4]]) {
-  test(`${key} publishes the exact visible rows and keeps native graph input separate`, async t => {
+for (const [key, processor] of [['connections_list', list_v3]]) {
+  test(`${key} publishes the exact visible rows without owning a graph`, async t => {
     const fixture = create_feedback_fixture();
     const calls = install_components(fixture, { [key]: processor });
     let visible_results;
     const container = await fixture.env.smart_components.render_component(key, fixture.list, {
       on_visible_results(results) { visible_results = results; },
     });
-    const list = key.endsWith('v3') ? container : container.querySelector('.connections-list');
+    const list = container;
     t.deepEqual(result_keys(visible_results), ['Pinned.md', 'First.md']);
     t.false('_connections_visible_results' in list);
     const rows = calls.filter(call => call.key === 'connections_list_item_v3');
     t.deepEqual(rows.map(call => call.scope.item.key), result_keys(visible_results));
     t.true(rows.every(call => call.options.visible_results === visible_results));
-    if (key.endsWith('v4')) {
-      const graph = calls.find(call => call.key === 'connections_graph_v1');
-      t.is(graph.options.results, fixture.list.results);
-      t.not(graph.options.results, visible_results);
-      t.true(graph.options.filter.exclude_keys.includes('Target.md'));
-    }
+    t.false(calls.some(call => call.key.startsWith('connections_graph_')));
   });
 }
 
@@ -49,7 +43,7 @@ test('failed row rendering does not publish an unrendered handoff set', async t 
 
 test('dedicated-view menu reads rendered rows even after another caller replaces raw cache', async t => {
   const fixture = create_feedback_fixture();
-  install_components(fixture, { connections_list_v3: list_v3 });
+  install_components(fixture, { connections_list: list_v3 });
   const menu_calls = [];
   fixture.env.build_menu = (key, menu, scope, params) => { menu_calls.push({ key, scope, params }); };
   const root = create_node();
@@ -70,7 +64,7 @@ test('dedicated-view menu reads rendered rows even after another caller replaces
 
 test('codeblock copy and Context actions receive its exact rendered set, not raw cache', async t => {
   const fixture = create_feedback_fixture();
-  install_components(fixture, { connections_list_v3: list_v3 });
+  install_components(fixture, { connections_list: list_v3 });
   const calls = [];
   for (const key of ['connections_list_copy_as_links', 'connections_list_send_to_context']) {
     fixture.env.config.actions[key] = { action(params) { calls.push({ key, params, scope: this }); return true; } };
@@ -103,7 +97,7 @@ test('codeblock translates local filter settings into semantic filter once', asy
     fixture.list._result_params.set(results, params);
     return results;
   };
-  install_components(fixture, { connections_list_v3: list_v3 });
+  install_components(fixture, { connections_list: list_v3 });
   const root = create_node();
   root.appendChild(create_node(['connections-list-container']));
   const { post_process } = load_component(new URL('../components/connections_codeblock.js', import.meta.url));
@@ -131,16 +125,16 @@ test('codeblock translates local filter settings into semantic filter once', asy
   }
 });
 
-test('footer retains configured list presentation without a second projection', async t => {
+test('footer uses the canonical list presentation without a second projection', async t => {
   const fixture = create_feedback_fixture();
-  const calls = install_components(fixture, { connections_list_v3: list_v3 });
+  const calls = install_components(fixture, { connections_list: list_v3 });
   const root = create_node();
   const slot = root.appendChild(create_node(['connections-list-container']));
   const view = { env: fixture.env, app: { loadLocalStorage() {} }, render_view() {} };
   const { post_process } = load_component(new URL('../components/connections_footer_view.js', import.meta.url));
   await post_process.call(presenter, view, root, { connections_item: fixture.target, connections_list_component_key: 'connections_list_v3' });
   t.deepEqual(calls.filter(call => call.key === 'connections_list_item_v3').map(call => call.scope.item.key), ['Pinned.md', 'First.md']);
-  t.is(calls.filter(call => call.key === 'connections_list_v3').length, 1);
+  t.is(calls.filter(call => call.key === 'connections_list').length, 1);
 });
 
 test('Core row uses normalized pinned precedence and keeps selected-result menu scope', async t => {
@@ -242,7 +236,7 @@ test('codeblock ignores old callbacks and excludes a newly hidden row from hando
 });
 
 
-for (const [key, processor] of [['connections_list_v3', list_v3], ['connections_list_v4', list_v4]]) {
+for (const [key, processor] of [['connections_list', list_v3]]) {
   test(`${key} coalesced renders share prepared scoring and one raw retrieval`, async t => {
     const fixture = create_feedback_fixture();
     fixture.pinned.actions = { similarity() { return { score: 0.2 }; } };
@@ -325,7 +319,7 @@ test('Unpin All hides only rows with retained hidden feedback', t => {
 });
 
 
-for (const [key, processor] of [['connections_list_v3', list_v3], ['connections_list_v4', list_v4]]) {
+for (const [key, processor] of [['connections_list', list_v3]]) {
   test(`${key} maps local settings to semantic retrieval params only`, async t => {
     const fixture = create_feedback_fixture();
     fixture.target.data.connections = {};
@@ -388,9 +382,9 @@ test('Core list explicit retrieval params override local settings', async t => {
     fixture.list._result_params.set(results, params);
     return results;
   };
-  install_components(fixture, { connections_list_v3: list_v3 });
+  install_components(fixture, { connections_list: list_v3 });
   const score_settings = { explicit: true };
-  await fixture.env.smart_components.render_component('connections_list_v3', fixture.list, {
+  await fixture.env.smart_components.render_component('connections_list', fixture.list, {
     connections_settings: {
       results_limit: 5,
       results_collection_key: 'smart_blocks',

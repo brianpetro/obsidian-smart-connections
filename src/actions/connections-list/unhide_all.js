@@ -26,6 +26,7 @@ export function connections_list_unhide_all(params = {}) {
       force: true,
     });
     source_item.collection.save();
+    source_item.emit_event('connections:feedback_changed');
     return true;
   } catch (err) {
     this.env?.events?.emit?.('connections:unhide_failed', {

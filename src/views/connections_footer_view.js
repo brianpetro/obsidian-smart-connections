@@ -186,6 +186,7 @@ export class ConnectionsFooterView {
       }, 250);
     });
     this.register_env_listener('settings:changed', (event) => {
+      if (event.path_string === 'connections_lists.components.connections_graph_v1.render_links') return;
       if(event.path?.includes('connections_lists')) {
         this.render_view({ force: true });
       }

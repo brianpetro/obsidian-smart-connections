@@ -198,13 +198,6 @@ export class ConnectionsList extends CollectionItem {
   get item () {
     return this.env[this.data.collection_key]?.items[this.data.item_key];
   }
-  get connections_list_component_key () {
-    const stored_key = this.data.connections_list_component_key
-      || this.settings?.connections_list_component_key
-    ;
-    if(this.env.config.components[stored_key]) return stored_key;
-    return 'connections_list_v4'; // TEMP default
-  }
 
 }
 

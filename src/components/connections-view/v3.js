@@ -211,11 +211,7 @@ export async function post_process(view, container, opts = {}) {
     container.addEventListener('drop', on_target_drop);
   }
 
-  const connections_list_component_key = opts.connections_list_component_key
-    || connections_list.connections_list_component_key
-    || 'connections_list_v4'
-  ;
-  const list = await env.smart_components.render_component(connections_list_component_key, connections_list, {
+  const list = await env.smart_components.render_component('connections_results', connections_list, {
     ...opts,
     container,
     on_visible_results(results) {

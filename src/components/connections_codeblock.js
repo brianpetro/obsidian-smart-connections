@@ -95,10 +95,6 @@ export async function post_process(connections_list, container, opts = {}) {
     const current_render = ++render_id;
     visible_results = [];
     // console.log('Rendering connections list in codeblock view');
-    const connections_list_component_key = opts.connections_list_component_key
-      || connections_list.connections_list_component_key
-      || 'connections_list_v4'
-    ;
     const connections_settings = opts.connections_settings ?? {};
     const filter = copy_connections_filter(opts.filter);
     if (filter.key_includes_any === undefined && connections_settings.include_filter !== undefined) {
@@ -120,7 +116,7 @@ export async function post_process(connections_list, container, opts = {}) {
       }
     }
     const list = await env.smart_components.render_component(
-      connections_list_component_key,
+      'connections_results',
       connections_list,
       {
         ...opts,
