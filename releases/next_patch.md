@@ -14,3 +14,12 @@ Dragging Smart items into Connections is also more reliable.
 - Connections now applies its own scoring settings to each request, so Lookup settings do not change Connections ranking when both products use the same scoring method.
 - Improved consistency between Connections shown in the interface and Connections requested through connected tools by sharing more of the same retrieval logic.
 - Clarified when and how to use the `smart_connections_list` tool.
+
+
+#### Improved Connections display
+
+- Connections graphs can now be shown or hidden independently from connection results.
+- Renamed the existing graph to "2D similarity map" in preparation for additional graph styles.
+- Improved graph styling so pinned and hidden connections are easier to distinguish.
+- Simplified Connections display settings and clarified the "Show formatted text" option.
+- Improved the underlying Connections display architecture for more consistent behavior across views, code blocks, and note footers.
