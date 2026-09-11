@@ -1,4 +1,4 @@
-### Faster, more predictable Connections
+#### Faster, more predictable Connections
 
 Connections results are more responsive, and Connections now keeps its own scoring configuration instead of falling back to Lookup settings when both products use the same scoring method.
 
@@ -6,7 +6,7 @@ Connected tools can choose Sources or Blocks, cap the number of results, and app
 
 Dragging Smart items into Connections is also more reliable.
 
-### Full release notes
+#### Full release notes
 
 - Improved Connections-results performance.
 - Improved drag-and-drop recognition of Smart items and their identities, including the Connections drag issue reported in #1367.
@@ -23,3 +23,5 @@ Dragging Smart items into Connections is also more reliable.
 - Improved graph styling so pinned and hidden connections are easier to distinguish.
 - Simplified Connections display settings and clarified the "Show formatted text" option.
 - Improved the underlying Connections display architecture for more consistent behavior across views, code blocks, and note footers.
+
+---
