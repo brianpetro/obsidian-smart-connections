@@ -25,3 +25,7 @@ Dragging Smart items into Connections is also more reliable.
 - Improved the underlying Connections display architecture for more consistent behavior across views, code blocks, and note footers.
 
 ---
+
+#### Connections tool selector
+
+- The `smart_connections_list` tool now requires `key` instead of `to` and returns its root identity as `key`. Update saved requests and clients; the legacy selector is no longer accepted. Ranked retrieval, filters, feedback, and optional content are unchanged.

@@ -40,7 +40,7 @@ export const tool = {
   input_schema: {
     type: 'object',
     properties: {
-      to: {
+      key: {
         type: 'string',
         minLength: 1,
         description: 'Exact Smart Source key.',
@@ -51,7 +51,7 @@ export const tool = {
         description: 'Include the text content of each returned item.',
       },
     },
-    required: ['to'],
+    required: ['key'],
     additionalProperties: false,
   },
 
@@ -69,7 +69,7 @@ export const tool = {
     type: 'object',
     properties: {
       ok: { type: 'boolean' },
-      to: { type: 'string' },
+      key: { type: 'string' },
       total: { type: 'integer' },
       results: {
         type: 'array',
@@ -90,7 +90,7 @@ export const tool = {
         },
       },
     },
-    required: ['ok', 'to', 'total', 'results'],
+    required: ['ok', 'key', 'total', 'results'],
     additionalProperties: false,
   },
 };
@@ -102,13 +102,13 @@ export const tool = {
  * This is the source-backed list projector pattern to mirror for a future
  * DisconnectionsList tool action.
  *
- * @param {{to: string, limit?: number, results_collection_key?: string, filter?: object, include_content?: boolean}} request
+ * @param {{key: string, limit?: number, results_collection_key?: string, filter?: object, include_content?: boolean}} request
  * @param {{env: object}} context
  * @returns {{scope: object, params: {limit?: number, results_collection_key?: string, filter?: object}}}
  */
 export function project_connections_list_request(request, { env }) {
-  const target_key = to_trimmed_string(request.to);
-  if (!target_key) throw new Error('Missing required argument: to');
+  const target_key = to_trimmed_string(request.key);
+  if (!target_key) throw new Error('Missing required argument: key');
 
   const source = env.smart_sources.get(target_key);
   if (!source) {
@@ -166,7 +166,7 @@ export async function project_connections_list_result(
 
   return {
     ok: true,
-    to: target_key,
+    key: target_key,
     total: results.length,
     results,
   };

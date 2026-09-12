@@ -179,7 +179,7 @@ test('project_connections_list_request creates a fresh unregistered scope', (t) 
   };
   const first = project_connections_list_request(
     {
-      to: `  ${source.key}  `,
+      key: `  ${source.key}  `,
       limit: 8,
       results_collection_key: 'smart_blocks',
       filter,
@@ -189,7 +189,7 @@ test('project_connections_list_request creates a fresh unregistered scope', (t) 
   );
   const second = project_connections_list_request(
     {
-      to: source.key,
+      key: source.key,
     },
     { env },
   );
@@ -208,7 +208,7 @@ test('project_connections_list_request creates a fresh unregistered scope', (t) 
   const registered_items = { ...connections_lists.items };
   const third = project_connections_list_request(
     {
-      to: source.key,
+      key: source.key,
     },
     { env },
   );
@@ -224,7 +224,7 @@ test('project_connections_list_request does not resolve an unmatched source key'
   t.throws(
     () => project_connections_list_request(
       {
-        to: 'Alpha.md',
+        key: 'Alpha.md',
       },
       { env },
     ),
@@ -254,7 +254,7 @@ test('project_connections_list_result returns the stable public payload', async 
     await project_connections_list_result(raw_results, { scope }),
     {
       ok: true,
-      to: source.key,
+      key: source.key,
       total: 1,
       results: [
         {
@@ -355,7 +355,7 @@ test('connections tool metadata selects request and result projection', (t) => {
   );
   t.is(tool.project_request, project_connections_list_request);
   t.is(tool.project_result, project_connections_list_result);
-  t.deepEqual(tool.input_schema.required, ['to']);
+  t.deepEqual(tool.input_schema.required, ['key']);
   t.is(tool.input_schema.properties.limit, input_schema.properties.limit);
   t.is(
     tool.input_schema.properties.results_collection_key,
@@ -374,8 +374,19 @@ test('connections tool metadata selects request and result projection', (t) => {
   );
   t.deepEqual(tool.output_schema.required, [
     'ok',
-    'to',
+    'key',
     'total',
     'results',
   ]);
+});
+
+test('Connections public routing uses key, with no legacy to schema alias', (t) => {
+  const { env } = create_connections_lists_fixture();
+  t.truthy(tool.input_schema.properties.key);
+  t.is(tool.input_schema.properties.to, undefined);
+  t.truthy(tool.output_schema.properties.key);
+  t.is(tool.output_schema.properties.to, undefined);
+  t.throws(() => project_connections_list_request({ to: 'Notes/Alpha.md' }, { env }), {
+    message: 'Missing required argument: key',
+  });
 });
