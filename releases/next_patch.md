@@ -29,3 +29,7 @@ Dragging Smart items into Connections is also more reliable.
 #### Connections tool selector
 
 - The `smart_connections_list` tool now requires `key` instead of `to` and returns its root identity as `key`. Update saved requests and clients; the legacy selector is no longer accepted. Ranked retrieval, filters, feedback, and optional content are unchanged.
+
+
+Added: graph component selection as menu action
+Improved: connections/settings menu organization
