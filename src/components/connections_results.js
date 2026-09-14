@@ -74,7 +74,7 @@ export async function post_process(connections_list, container, opts = {}) {
       : 'connections_graph_v1';
     try {
       const graph = await env.smart_components.render_component(graph_component_key, connections_list, {
-        ...query_params, connections_settings, results: ranked_results,
+        ...opts, ...query_params, connections_settings, results: ranked_results,
       });
       graph_container.appendChild(graph);
       register_graph_events(graph, list_container);

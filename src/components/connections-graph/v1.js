@@ -130,7 +130,7 @@ export async function render(connections_list, params = {}) {
     event.stopPropagation();
     const env = connections_list.env;
     const menu = new Menu(env.obsidian_app);
-    env.build_menu?.('connections:graph_menu', menu, connections_list, { container });
+    env.build_menu?.('connections:graph_menu', menu, connections_list, { ...params, container });
     if (menu.items?.length) menu.showAtMouseEvent(event);
   });
   post_process.call(this, connections_list, container, params); // not awaited

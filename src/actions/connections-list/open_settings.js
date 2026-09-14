@@ -16,7 +16,26 @@ export async function connections_list_open_settings() {
 
 export const menus = {
   'connections:list_menu': {
-    title: 'Connections settings',
+    title: 'Settings',
+    icon: 'settings',
+    order: 90,
+    build() {
+      this.menu.addItem((item) => {
+        item
+          .setTitle('Settings')
+          .setIcon('settings')
+        ;
+        this.env.build_menu(
+          'connections:settings_menu',
+          item.setSubmenu(),
+          this.scope,
+          this.params,
+        );
+      });
+    },
+  },
+  'connections:settings_menu': {
+    title: 'All Connections settings',
     icon: 'settings',
     order: 90,
   },

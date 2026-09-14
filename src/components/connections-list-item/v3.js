@@ -169,6 +169,7 @@ export async function post_process(result_scope, container, params = {}) {
 
     env.build_menu?.('connections:list_menu', menu, connections_list, {
       container: list_container,
+      footer: params.footer,
       connections_settings,
       visible_results,
       render_connections: params.render_connections,
