@@ -76,21 +76,19 @@ test('list markup has no graph slot; the shared presenter owns sibling slots', a
 
 test('local graph visibility overrides the persisted display preference', async t => {
   const fixture = create_feedback_fixture();
-  fixture.collection.settings.show_connections_graph = true;
+  fixture.collection.settings.connections_graph_component_key = 'connections_graph_v1';
   const calls = install_components(fixture);
   const local_settings = Object.freeze({ show_connections_graph: false });
   await fixture.env.smart_components.render_component('connections_results', fixture.list, { connections_settings: local_settings });
   t.false(calls.some(call => call.key.startsWith('connections_graph_')));
-  t.true(fixture.collection.settings.show_connections_graph);
+  t.is(fixture.collection.settings.connections_graph_component_key, 'connections_graph_v1');
   t.is(calls.find(call => call.key === 'connections_list').options.connections_settings, local_settings);
 });
 
 test('footer graph settings are independent from view settings', async t => {
   const fixture = create_feedback_fixture();
   Object.assign(fixture.collection.settings, {
-    show_connections_graph: false,
-    connections_graph_component_key: 'connections_graph_v1',
-    footer_show_connections_graph: true,
+    connections_graph_component_key: 'none',
     footer_connections_graph_component_key: 'connections_graph_v1',
   });
   const calls = install_components(fixture);
@@ -153,7 +151,7 @@ for (const [surface, relative_path] of [
   test(`${surface} delegates graph and list composition to the shared presenter`, async t => {
     const fixture = create_feedback_fixture();
     fixture.target.connections = fixture.list;
-    fixture.collection.settings.footer_show_connections_graph = true;
+    fixture.collection.settings.footer_connections_graph_component_key = 'connections_graph_v1';
     const calls = install_components(fixture);
     const root = create_node();
     root.appendChild(create_node(['connections-list-container']));
@@ -170,7 +168,7 @@ for (const [surface, relative_path] of [
   });
 }
 
-test('graph toggle events refresh settings so conditional graph selectors update immediately', t => {
+test('graph component events refresh settings so conditional graph controls update immediately', t => {
   const { ScEarlySettingsTab } = load_component(new URL('../views/settings_tab.js', import.meta.url), ['ScEarlySettingsTab'], {
     SmartPluginSettingsTab: class {},
   });
@@ -186,12 +184,12 @@ test('graph toggle events refresh settings so conditional graph selectors update
   tab.register_env_events();
   handle_change({ path: ['connections_lists', 'show_connections_graph'] });
   handle_change({ path: ['connections_lists', 'footer_show_connections_graph'] });
-  t.is(rerenders, 2);
+  t.is(rerenders, 0);
   handle_change({ path: ['connections_lists', 'connections_graph_component_key'] });
   handle_change({ path: ['connections_lists', 'footer_connections_graph_component_key'] });
-  t.is(rerenders, 4);
+  t.is(rerenders, 2);
   handle_change({ path: ['connections_lists', 'results_limit'] });
-  t.is(rerenders, 4);
+  t.is(rerenders, 2);
 });
 
 test('an installed future graph receives the same snapshot as the canonical list', async t => {
@@ -210,7 +208,7 @@ test('local query settings are not merged with global query settings', async t =
   fixture.target.data.connections = {};
   Object.assign(fixture.collection.settings, {
     results_limit: 7, score_algo_key: 'global_score', exclude_inlinks: true,
-    show_connections_graph: false,
+    connections_graph_component_key: 'none',
   });
   let received;
   fixture.list.get_results = async params => { received = params; return []; };
@@ -228,7 +226,6 @@ test('a codeblock inherits only display preferences when its query settings are 
   const fixture = create_feedback_fixture();
   fixture.env.config.components = { connections_graph_future: {} };
   Object.assign(fixture.collection.settings, {
-    show_connections_graph: true,
     connections_graph_component_key: 'connections_graph_future',
   });
   const calls = install_components(fixture);
@@ -346,4 +343,64 @@ test('link-only settings changes do not rebuild Connections views or footers', t
   for (const callback of callbacks) callback({ path: ['connections_lists', 'results_limit'], path_string: 'connections_lists.results_limit' });
   t.is(view_renders, 1);
   t.is(footer_renders, 1);
+});
+
+for (const footer of [false, true]) {
+  test(`None omits the ${footer ? 'footer' : 'sidebar'} graph without falling back or skipping the list`, async t => {
+    const fixture = create_feedback_fixture();
+    const graph_key = footer ? 'footer_connections_graph_component_key' : 'connections_graph_component_key';
+    fixture.collection.settings[graph_key] = 'none';
+    const calls = install_components(fixture);
+    const root = await fixture.env.smart_components.render_component('connections_results', fixture.list, { footer });
+    t.false(calls.some(call => call.key.startsWith('connections_graph_') || call.key === 'none'));
+    t.is(calls.filter(call => call.key === 'connections_list').length, 1);
+    t.is(fixture.queries.length, 1);
+    t.deepEqual(root.querySelector('.connections-graph-container').children, []);
+  });
+}
+
+test('footer defaults to None without changing the default sidebar graph', async t => {
+  const fixture = create_feedback_fixture();
+  const calls = install_components(fixture);
+  await fixture.env.smart_components.render_component('connections_results', fixture.list, { footer: true });
+  t.false(calls.some(call => call.key.startsWith('connections_graph_')));
+  await fixture.env.smart_components.render_component('connections_results', fixture.list, {});
+  t.is(calls.filter(call => call.key === 'connections_graph_v1').length, 1);
+});
+
+for (const connections_settings of [{ connections_graph_component_key: 'none' }, { show_connections_graph: false }]) {
+  test(`codeblock ${JSON.stringify(connections_settings)} hides its graph without changing the sidebar preference`, async t => {
+    const fixture = create_feedback_fixture();
+    fixture.collection.settings.connections_graph_component_key = 'connections_graph_v1';
+    const calls = install_components(fixture);
+    await fixture.env.smart_components.render_component('connections_results', fixture.list, { connections_settings: Object.freeze(connections_settings) });
+    t.false(calls.some(call => call.key.startsWith('connections_graph_') || call.key === 'none'));
+    t.is(fixture.collection.settings.connections_graph_component_key, 'connections_graph_v1');
+  });
+}
+
+for (const opts of [
+  { connections_graph_component_key: 'connections_graph_v1' },
+  { show_connections_graph: true },
+  { connections_settings: { connections_graph_component_key: 'connections_graph_v1' } },
+  { connections_settings: { show_connections_graph: true } },
+]) {
+  test(`local ${JSON.stringify(opts)} can show a graph while the saved preference is None`, async t => {
+    const fixture = create_feedback_fixture();
+    fixture.collection.settings.connections_graph_component_key = 'none';
+    const calls = install_components(fixture);
+    await fixture.env.smart_components.render_component('connections_results', fixture.list, opts);
+    t.is(calls.filter(call => call.key === 'connections_graph_v1').length, 1);
+    t.is(fixture.collection.settings.connections_graph_component_key, 'none');
+    t.false('show_connections_graph' in fixture.collection.settings);
+  });
+}
+
+test('an explicit None component overrides a visible saved preference', async t => {
+  const fixture = create_feedback_fixture();
+  fixture.collection.settings.connections_graph_component_key = 'connections_graph_v1';
+  const calls = install_components(fixture);
+  await fixture.env.smart_components.render_component('connections_results', fixture.list, { connections_graph_component_key: 'none' });
+  t.false(calls.some(call => call.key.startsWith('connections_graph_') || call.key === 'none'));
+  t.is(fixture.collection.settings.connections_graph_component_key, 'connections_graph_v1');
 });

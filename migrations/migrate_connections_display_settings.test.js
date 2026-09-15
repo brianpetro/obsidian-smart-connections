@@ -12,10 +12,10 @@ for (const [legacy_key, show_graph, item_key] of [
       footer_connections_list_component_key: legacy_key,
     };
     migrate_connections_display_settings(settings, 'connections_list_item_v4');
-    t.is(settings.show_connections_graph, show_graph);
-    t.is(settings.footer_show_connections_graph, show_graph);
-    t.is(settings.connections_graph_component_key, 'connections_graph_v1');
-    t.is(settings.footer_connections_graph_component_key, 'connections_graph_v1');
+    t.false('show_connections_graph' in settings);
+    t.false('footer_show_connections_graph' in settings);
+    t.is(settings.connections_graph_component_key, show_graph ? 'connections_graph_v1' : 'none');
+    t.is(settings.footer_connections_graph_component_key, show_graph ? 'connections_graph_v1' : 'none');
     t.is(settings.components.connections_list.connections_list_item_component_key, item_key);
     t.false('connections_list_component_key' in settings);
     t.false('footer_connections_list_component_key' in settings);
@@ -45,8 +45,8 @@ for (const main_key of ['connections_list_v3', 'connections_list_v4', 'connectio
         footer_connections_list_component_key: footer_key,
       };
       migrate_connections_display_settings(settings);
-      t.is(settings.show_connections_graph, main_key !== 'connections_list_v3');
-      t.is(settings.footer_show_connections_graph, footer_key !== 'connections_list_v3');
+      t.is(settings.connections_graph_component_key, main_key === 'connections_list_v3' ? 'none' : 'connections_graph_v1');
+      t.is(settings.footer_connections_graph_component_key, footer_key === 'connections_list_v3' ? 'none' : 'connections_graph_v1');
       t.is(settings.components.connections_list.connections_list_item_component_key,
         main_key === 'connections_list_v4_2' ? 'connections_list_item_v4' : 'connections_list_item_v3');
     });
@@ -63,9 +63,9 @@ test('new graph preferences take precedence over legacy layouts and removed grap
     footer_connections_graph_component_key: 'connections_graph_v2',
   };
   migrate_connections_display_settings(settings);
-  t.false(settings.show_connections_graph);
-  t.true(settings.footer_show_connections_graph);
-  t.is(settings.connections_graph_component_key, 'custom_graph');
+  t.false('show_connections_graph' in settings);
+  t.false('footer_show_connections_graph' in settings);
+  t.is(settings.connections_graph_component_key, 'none');
   t.is(settings.footer_connections_graph_component_key, 'connections_graph_v1');
   t.is(settings.components.connections_list.connections_list_item_component_key, 'connections_list_item_v3');
 });
@@ -74,10 +74,10 @@ test('fresh settings receive graph defaults and only Pro supplies a result defau
   for (const default_item_key of [undefined, 'connections_list_item_v4']) {
     const settings = { results_limit: 5 };
     migrate_connections_display_settings(settings, default_item_key);
-    t.true(settings.show_connections_graph);
-    t.false(settings.footer_show_connections_graph);
+    t.false('show_connections_graph' in settings);
+    t.is(settings.footer_connections_graph_component_key, 'none');
     t.is(settings.connections_graph_component_key, 'connections_graph_v1');
-    t.is(settings.footer_connections_graph_component_key, 'connections_graph_v1');
+    t.false('footer_show_connections_graph' in settings);
     t.is(settings.components?.connections_list?.connections_list_item_component_key, default_item_key);
     t.is(settings.results_limit, 5);
   }
@@ -151,9 +151,7 @@ test('v2 graph selections normalize without changing explicit visibility', t => 
   };
   migrate_connections_display_settings(settings);
   t.deepEqual(settings, {
-    show_connections_graph: false,
-    footer_show_connections_graph: true,
-    connections_graph_component_key: 'connections_graph_v1',
+    connections_graph_component_key: 'none',
     footer_connections_graph_component_key: 'connections_graph_v1',
   });
 });
@@ -161,6 +159,46 @@ test('v2 graph selections normalize without changing explicit visibility', t => 
 test('a footer-only legacy selection does not set the shared result style', t => {
   const settings = { footer_connections_list_component_key: 'connections_list_v3' };
   migrate_connections_display_settings(settings, 'connections_list_item_v4');
-  t.false(settings.footer_show_connections_graph);
+  t.is(settings.footer_connections_graph_component_key, 'none');
   t.is(settings.components.connections_list.connections_list_item_component_key, 'connections_list_item_v4');
+});
+
+for (const footer of [false, true]) {
+  test(`saved visibility migrates once into the ${footer ? 'footer' : 'sidebar'} component key`, t => {
+    const graph_key = footer ? 'footer_connections_graph_component_key' : 'connections_graph_component_key';
+    const show_key = footer ? 'footer_show_connections_graph' : 'show_connections_graph';
+    for (const enabled of [false, true]) {
+      const settings = { [graph_key]: 'connections_graph_future', [show_key]: enabled };
+      migrate_connections_display_settings(settings);
+      t.is(settings[graph_key], enabled ? 'connections_graph_future' : 'none');
+      t.false(show_key in settings);
+      const saved = structuredClone(settings);
+      migrate_connections_display_settings(settings);
+      t.deepEqual(settings, saved);
+    }
+  });
+}
+
+test('canonical None and graph selections survive defaults, stale legacy layouts, and reloads', t => {
+  for (const graph_key of ['none', 'connections_graph_future']) {
+    const settings = {
+      connections_graph_component_key: graph_key,
+      footer_connections_graph_component_key: graph_key,
+      connections_list_component_key: 'connections_list_v3',
+      footer_connections_list_component_key: 'connections_list_v4',
+    };
+    migrate_connections_display_settings(settings);
+    t.is(settings.connections_graph_component_key, graph_key);
+    t.is(settings.footer_connections_graph_component_key, graph_key);
+    const saved = structuredClone(settings);
+    migrate_connections_display_settings(settings);
+    t.deepEqual(settings, saved);
+  }
+});
+
+test('explicit None is not overwritten by an old enabled toggle', t => {
+  const settings = { connections_graph_component_key: 'none', show_connections_graph: true };
+  migrate_connections_display_settings(settings);
+  t.is(settings.connections_graph_component_key, 'none');
+  t.false('show_connections_graph' in settings);
 });

@@ -29,7 +29,7 @@ test('display migration waits for SmartEnv and runs once before registering Conn
   release_env();
   await initializing;
   t.deepEqual(calls, ['display_migration', 'hidden_migration', 'commands', 'view', 'codeblock', 'footer']);
-  t.false(env.connections_lists.settings.show_connections_graph);
+  t.is(env.connections_lists.settings.connections_graph_component_key, 'none');
   t.is(env.connections_lists.settings.components.connections_list.connections_list_item_component_key, 'connections_list_item_v3');
   t.false('connections_list_component_key' in env.connections_lists.settings);
 });
@@ -43,8 +43,8 @@ test('collection construction does not migrate or prefill display defaults over 
   t.is(env.connections_lists.settings.footer_show_connections_graph, undefined);
   t.deepEqual(env.connections_lists.settings.components.connections_list, {});
   await create_plugin_fixture(env).plugin.initialize();
-  t.false(env.connections_lists.settings.show_connections_graph);
-  t.true(env.connections_lists.settings.footer_show_connections_graph);
+  t.is(env.connections_lists.settings.connections_graph_component_key, 'none');
+  t.is(env.connections_lists.settings.footer_connections_graph_component_key, 'connections_graph_v1');
 });
 
 test('plugin initialization retains explicit new preferences over legacy choices', async t => {
@@ -57,8 +57,8 @@ test('plugin initialization retains explicit new preferences over legacy choices
     components: { connections_list: { connections_list_item_component_key: 'chosen_row' } },
   });
   await create_plugin_fixture(env).plugin.initialize();
-  t.true(env.connections_lists.settings.show_connections_graph);
-  t.false(env.connections_lists.settings.footer_show_connections_graph);
+  t.false('show_connections_graph' in env.connections_lists.settings);
+  t.is(env.connections_lists.settings.footer_connections_graph_component_key, 'none');
   t.is(env.connections_lists.settings.connections_graph_component_key, 'connections_graph_future');
   t.is(env.connections_lists.settings.components.connections_list.connections_list_item_component_key, 'chosen_row');
 });

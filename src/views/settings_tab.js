@@ -132,8 +132,6 @@ export class ScEarlySettingsTab extends SmartPluginSettingsTab {
         || event.path?.includes('connections_list_item')
         || event.path?.includes('connections_graph_component_key')
         || event.path?.includes('footer_connections_graph_component_key')
-        || event.path?.includes('show_connections_graph')
-        || event.path?.includes('footer_show_connections_graph')
       ) {
         this.render_plugin_settings(this.plugin_container);
       }

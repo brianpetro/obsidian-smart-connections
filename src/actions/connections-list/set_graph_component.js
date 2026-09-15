@@ -1,9 +1,9 @@
 /**
- * Select the graph component for Connections views or footer connections.
+ * Select a graph component, or none, for Connections views or footer connections.
  *
  * @this {import('../../items/connections_list.js').ConnectionsList}
  * @param {object} [params={}]
- * @param {string} [params.graph_component_key]
+ * @param {string} [params.graph_component_key] - Registered component key or 'none'.
  * @param {boolean} [params.footer=false]
  * @param {(params?: object) => Promise<void>|void} [params.render_connections]
  * @param {string} [params.event_source]
@@ -41,7 +41,7 @@ const graph_menu = {
     const collection = this.scope.collection;
     const options = collection.get_connections_graph_component_options();
     const setting_key = this.params.footer ? 'footer_connections_graph_component_key' : 'connections_graph_component_key';
-    const requested_key = collection.settings[setting_key];
+    const requested_key = collection.settings[setting_key] ?? (this.params.footer ? 'none' : 'connections_graph_v1');
     const current_key = options.some((option) => option.value === requested_key)
       ? requested_key
       : 'connections_graph_v1';
@@ -50,7 +50,6 @@ const graph_menu = {
       item
         .setTitle('Graph style')
         .setIcon('network')
-        .setDisabled(!options.length)
       ;
       const submenu = item.setSubmenu();
       options.forEach((option) => {

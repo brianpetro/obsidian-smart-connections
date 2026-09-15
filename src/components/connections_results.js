@@ -60,15 +60,15 @@ export async function post_process(connections_list, container, opts = {}) {
 
   const show_key = opts.footer ? 'footer_show_connections_graph' : 'show_connections_graph';
   const graph_key = opts.footer ? 'footer_connections_graph_component_key' : 'connections_graph_component_key';
-  const show_connections_graph = opts.show_connections_graph
-    ?? connections_settings[show_key]
-    ?? connections_list.settings?.[show_key]
-    ?? !opts.footer;
-  if (show_connections_graph) {
-    const requested_graph_key = opts.connections_graph_component_key
-      ?? connections_settings[graph_key]
-      ?? connections_list.settings?.[graph_key]
-      ?? 'connections_graph_v1';
+  let requested_graph_key = opts.connections_graph_component_key
+    ?? connections_settings[graph_key]
+    ?? connections_list.settings?.[graph_key]
+    ?? (opts.footer ? 'none' : 'connections_graph_v1');
+  // Keep legacy code-block visibility overrides local; saved visibility uses 'none'.
+  const show_connections_graph = opts.show_connections_graph ?? connections_settings[show_key];
+  if (show_connections_graph === false) requested_graph_key = 'none';
+  else if (show_connections_graph === true && requested_graph_key === 'none') requested_graph_key = 'connections_graph_v1';
+  if (requested_graph_key !== 'none') {
     const graph_component_key = env.config.components?.[requested_graph_key]
       ? requested_graph_key
       : 'connections_graph_v1';

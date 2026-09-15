@@ -1,5 +1,5 @@
 /**
- * Replace legacy layout selections with independent graph and result settings.
+ * Replace legacy layouts and graph visibility toggles with graph and result settings.
  * Run once from plugin initialization after SmartEnv loads. New settings win.
  * Apply display defaults here: SmartEnv merges collection defaults before plugin
  * initialization, which would otherwise mask saved legacy choices.
@@ -22,10 +22,13 @@ export function migrate_connections_display_settings(settings, default_item_key)
     ['footer_connections_list_component_key', 'footer_show_connections_graph', 'footer_connections_graph_component_key', false],
   ]) {
     const legacy_key = settings[list_key];
-    settings[show_key] ??= legacy_key ? legacy_key !== 'connections_list_v3' : default_show_graph;
-    settings[graph_key] ??= 'connections_graph_v1';
+    const show_graph = settings[show_key] ?? (legacy_key ? legacy_key !== 'connections_list_v3' : default_show_graph);
+    // A saved visibility toggle wins when migrating the former two-setting model.
+    if (settings[show_key] === false) settings[graph_key] = 'none';
+    settings[graph_key] ??= show_graph ? 'connections_graph_v1' : 'none';
     if (settings[graph_key] === 'connections_graph_v2') settings[graph_key] = 'connections_graph_v1';
     delete settings[list_key];
+    delete settings[show_key];
   }
 
   const item_key = legacy_item_key ?? default_item_key;

@@ -75,10 +75,12 @@ export class ConnectionsLists extends Collection {
   }
 
   get_connections_graph_component_options() {
-    return Object.entries(this.env.config.components || {})
-      .filter(([key]) => key.startsWith('connections_graph_'))
-      .map(([value, component]) => ({ value, name: component.display_name || value, description: component.description }))
-    ;
+    return [
+      { value: 'none', name: 'None' },
+      ...Object.entries(this.env.config.components || {})
+        .filter(([key]) => key.startsWith('connections_graph_'))
+        .map(([value, component]) => ({ value, name: component.display_name || value, description: component.description })),
+    ];
   }
 
   get_connections_list_item_options() {
@@ -174,17 +176,11 @@ export function settings_config(scope) {
         ];
       }
     },
-    "show_connections_graph": {
-      group: 'Display',
-      name: "Show connections graph",
-      type: "toggle",
-      description: "Show a graph above connection results in the Connections view and code blocks.",
-    },
     "connections_graph_component_key": {
       group: 'Display',
       name: "Graph style",
       type: "dropdown",
-      description: "Choose the graph visualization.",
+      description: "Choose the graph visualization for the Connections view and code blocks, or None to hide it.",
       options_callback: (scope) => scope.get_connections_graph_component_options(),
     },
     "inline_connections": {
@@ -200,17 +196,11 @@ export function settings_config(scope) {
       type: "toggle",
       description: "Show connections at the bottom of each note.",
     },
-    "footer_show_connections_graph": {
-      group: 'Footer connections',
-      name: "Show graph",
-      type: "toggle",
-      description: "Show a graph above footer connection results.",
-    },
     "footer_connections_graph_component_key": {
       group: 'Footer connections',
       name: "Graph style",
       type: "dropdown",
-      description: "Choose the graph visualization for footer connections.",
+      description: "Choose the graph visualization for footer connections, or None to hide it.",
       options_callback: (scope) => scope.get_connections_graph_component_options(),
     },
     filters_helper: {
@@ -287,15 +277,16 @@ export function settings_config(scope) {
   }
 
   const configured_graphs = new Set();
-  for (const [show_key, graph_key, group] of [
-    ['show_connections_graph', 'connections_graph_component_key', 'Display'],
-    ['footer_show_connections_graph', 'footer_connections_graph_component_key', 'Footer connections'],
+  for (const [graph_key, group, default_graph_key] of [
+    ['connections_graph_component_key', 'Display', 'connections_graph_v1'],
+    ['footer_connections_graph_component_key', 'Footer connections', 'none'],
   ]) {
-    const requested_graph_key = scope.settings[graph_key] ?? 'connections_graph_v1';
+    const requested_graph_key = scope.settings[graph_key] ?? default_graph_key;
+    if (requested_graph_key === 'none') continue;
     const component_key = scope.env.config.components?.[requested_graph_key]
       ? requested_graph_key
       : 'connections_graph_v1';
-    if (!scope.settings[show_key] || configured_graphs.has(component_key)) continue;
+    if (configured_graphs.has(component_key)) continue;
     const graph_settings = scope.get_connections_graph_component_settings_config(component_key);
     if (!graph_settings) continue;
     configured_graphs.add(component_key);
@@ -303,9 +294,6 @@ export function settings_config(scope) {
       Object.entries(graph_settings).map(([key, value]) => [key, { ...value, group }])
     ));
   }
-
-  if (!scope.settings.show_connections_graph) delete config.connections_graph_component_key;
-  if (!scope.settings.footer_show_connections_graph) delete config.footer_connections_graph_component_key;
 
   return config;
 };
