@@ -1,6 +1,7 @@
 import { filter_hidden_results } from '../../utils/filter_hidden_results.js';
 import styles from './v3.css';
 import { Menu, Notice } from 'obsidian';
+import { run_action_entry } from 'smart-environment';
 import { get_context_lines } from '../../utils/context_lines.js';
 import { resolve_dropped_connections_targets } from '../../utils/resolve_dropped_connections_targets.js';
 
@@ -35,7 +36,8 @@ export async function build_html(view, opts = {}) {
     </button>
   `).join('');
 
-  const html = `<div><div class="connections-view connections-item-view sc-connections-view connections-view-early">
+  const empty_state_class = opts.connections_item ? '' : ' sc-connections-view-empty';
+  const html = `<div class="sc-connections-view-wrapper${empty_state_class}"><div class="connections-view connections-item-view sc-connections-view connections-view-early">
     <div class="sc-top-bar connections-top-bar">
       <div class="connections-actions">
         ${top_bar_buttons}
@@ -85,11 +87,11 @@ export async function post_process(view, container, opts = {}) {
   const sc_top_bar_context = container.querySelector('.sc-top-bar .sc-context');
   const env = view.env;
   let connections_item = opts.connections_item;
-  if (!connections_item) {
-    list_container.textContent = 'No source item detected for current active view.';
-    return container;
-  }
-  let connections_list = connections_item.connections || env.connections_lists.new_item(connections_item);
+  let connections_list = connections_item
+    ? connections_item.connections || env.connections_lists.new_item(connections_item)
+    : null
+  ;
+  container.classList.remove('is-drag-over');
   const connections_settings = opts.connections_settings
     ?? connections_list?.settings
   ;
@@ -103,13 +105,13 @@ export async function post_process(view, container, opts = {}) {
     visible_results: [],
   };
 
-  // register container-level listeners in render since post_process is called frequently
-  // (to refresh) while these listeners remain attached
+  // Keep one listener set per container, including when no target is selected.
+  // post_process refreshes the state above without accumulating listeners.
   if (!container._has_listeners) {
     container._has_listeners = true;
 
     const pause_button = container.querySelector('[data-action="toggle-pause"]');
-    pause_button?.addEventListener('click', async () => {
+    const on_toggle_pause = async () => {
       const state = container._connections_menu_state;
       const action = env.config?.actions?.connections_list_toggle_paused?.action;
       if (typeof action === 'function') {
@@ -117,10 +119,11 @@ export async function post_process(view, container, opts = {}) {
           event_source: 'connections_view.toggle_pause',
         });
       }
-    });
+    };
+    pause_button?.addEventListener('click', on_toggle_pause);
 
     const menu_button = container.querySelector('[data-action="open-menu"]');
-    menu_button?.addEventListener('click', (event) => {
+    const on_open_menu = (event) => {
       const menu = new Menu(view.plugin.app);
       const state = container._connections_menu_state;
 
@@ -131,19 +134,22 @@ export async function post_process(view, container, opts = {}) {
       );
       if (menu.items?.length) menu.addSeparator();
 
-      env.build_menu?.(
-        'connections:list_menu',
-        menu,
-        state.connections_list,
-        {
-          container: state.container,
-          connections_settings: state.connections_settings,
-          visible_results: filter_hidden_results(state.visible_results, state.connections_list.item),
-          render_connections: state.view.render_view.bind(state.view),
-        },
-      );
+      if (state.connections_list) {
+        env.build_menu?.(
+          'connections:list_menu',
+          menu,
+          state.connections_list,
+          {
+            container: state.container,
+            connections_settings: state.connections_settings,
+            visible_results: filter_hidden_results(state.visible_results, state.connections_list.item),
+            render_connections: state.view.render_view.bind(state.view),
+          },
+        );
+      }
       menu.showAtMouseEvent(event);
-    });
+    };
+    menu_button?.addEventListener('click', on_open_menu);
 
     const open_target_menu = (event) => {
       event.preventDefault();
@@ -158,14 +164,16 @@ export async function post_process(view, container, opts = {}) {
     };
 
     sc_top_bar_context?.addEventListener('click', open_target_menu);
-    sc_top_bar_context?.addEventListener('keydown', (event) => {
+    const on_target_keydown = (event) => {
       if (event.key !== 'Enter' && event.key !== ' ') return;
       open_target_menu(event);
-    });
+    };
+    sc_top_bar_context?.addEventListener('keydown', on_target_keydown);
 
     const set_target_drag_over = (active) => {
       container.classList.toggle('is-drag-over', Boolean(active));
     };
+    const clear_target_drag_over = () => set_target_drag_over(false);
     const on_target_dragenter = (event) => {
       event.preventDefault();
       set_target_drag_over(true);
@@ -196,10 +204,7 @@ export async function post_process(view, container, opts = {}) {
       }
 
       const state = container._connections_menu_state;
-      const action = env.config?.actions?.connections_list_select_target?.action;
-      if (typeof action !== 'function') return;
-
-      await action.call(state.view, {
+      await run_action_entry(state.view, 'connections_list_select_target', {
         target_item: targets[0],
         event_source: 'connections_view.drop_target',
       });
@@ -209,6 +214,32 @@ export async function post_process(view, container, opts = {}) {
     container.addEventListener('dragover', on_target_dragover);
     container.addEventListener('dragleave', on_target_dragleave);
     container.addEventListener('drop', on_target_drop);
+    const owner_document = container.ownerDocument;
+    owner_document.addEventListener('dragend', clear_target_drag_over);
+    owner_document.defaultView?.addEventListener('blur', clear_target_drag_over);
+
+    this.attach_disposer(container, () => {
+      pause_button?.removeEventListener('click', on_toggle_pause);
+      menu_button?.removeEventListener('click', on_open_menu);
+      sc_top_bar_context?.removeEventListener('click', open_target_menu);
+      sc_top_bar_context?.removeEventListener('keydown', on_target_keydown);
+      container.removeEventListener('dragenter', on_target_dragenter);
+      container.removeEventListener('dragover', on_target_dragover);
+      container.removeEventListener('dragleave', on_target_dragleave);
+      container.removeEventListener('drop', on_target_drop);
+      owner_document.removeEventListener('dragend', clear_target_drag_over);
+      owner_document.defaultView?.removeEventListener('blur', clear_target_drag_over);
+      clear_target_drag_over();
+      container._has_listeners = false;
+      container._connections_menu_state = null;
+    });
+  }
+
+  if (!connections_item) {
+    list_container.textContent = 'No source item detected for current active view.';
+    sc_top_bar_context.textContent = 'No target selected';
+    sc_top_bar_context.dataset.key = '';
+    return container;
   }
 
   const list = await env.smart_components.render_component('connections_results', connections_list, {

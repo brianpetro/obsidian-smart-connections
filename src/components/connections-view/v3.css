@@ -1,3 +1,11 @@
+.sc-connections-view-wrapper.sc-connections-view-empty {
+  height: 100%;
+
+  > .connections-view-early {
+    height: 100%;
+  }
+}
+
 .connections-view-early {
   &.is-drag-over {
     border-radius: var(--radius-s);
