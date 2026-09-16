@@ -33,3 +33,6 @@ Dragging Smart items into Connections is also more reliable.
 
 Added: graph component selection as menu action
 Improved: connections/settings menu organization
+
+
+Improved: drag-and-drop handling in connections view
