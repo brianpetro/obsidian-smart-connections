@@ -1,3 +1,5 @@
+import { build_connections_query_params } from '../../src/utils/build_connections_query_params.js';
+import { process_for_rendering } from '../../src/utils/process_for_rendering.js';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { post_process as results_presenter } from '../../src/components/connections_results.js';
@@ -16,7 +18,7 @@ export function load_component(url, export_names = ['post_process'], globals = {
     module: { exports: {} }, console, setTimeout, clearTimeout,
     get_graph_connections_results,
     filter_hidden_results, get_context_lines,
-    copy_connections_filter, parse_frontmatter_filter_lines,
+    copy_connections_filter, parse_frontmatter_filter_lines, build_connections_query_params, process_for_rendering,
     Menu: class {
       constructor() { this.items = []; }
       addSeparator() { this.items.push({ separator: true }); }
@@ -41,7 +43,7 @@ export function create_node(classes = []) {
       contains(value) { return names.has(value); },
       toggle(value, enabled = !names.has(value)) { if (enabled) names.add(value); else names.delete(value); return enabled; },
     },
-    ownerDocument: { createElement() { return create_node(); } },
+    ownerDocument: { createElement() { return create_node(); }, addEventListener() {}, removeEventListener() {} },
     addEventListener(name, callback) { this.listeners[name] = callback; },
     appendChild(child) { child.parent = this; this.children.push(child); return child; },
     setAttribute(key, value) { attributes[key] = value; },
@@ -74,6 +76,7 @@ export const presenter = {
   empty(node) { node.children = []; },
   create_doc_fragment(html = '') { const fragment = create_node(); fragment.innerHTML = html; return fragment; },
   safe_inner_html() {},
+  attach_disposer() {},
   get_icon_html() { return ''; },
 };
 

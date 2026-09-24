@@ -10,6 +10,47 @@ import { create_node, load_component, presenter, install_components } from '../.
 import { connections_list_copy_as_links } from '../actions/connections-list/copy_as_links.js';
 import { resolve_connection_feedback, build_prefixed_connection_key } from './connections_list_item_state.js';
 import { post_process as list_v3 } from '../components/connections_list.js';
+import { process_for_rendering } from './process_for_rendering.js';
+
+test('Core result previews neutralize nested Smart Connections codeblocks', t => {
+  const rendered = process_for_rendering('Before\n```smart-connections\n{}\n```\nAfter');
+  t.true(rendered.includes('```\\smart-connections'));
+  t.false(rendered.includes('```smart-connections'));
+});
+
+test.serial('Core lazy result previews own detached render failures', async t => {
+  const fixture = create_feedback_fixture();
+  const observers = [];
+  const errors = [];
+  fixture.env.smart_connections_plugin = { app: {}, registerDomEvent() {} };
+  fixture.first.read = async () => { throw new Error('preview failed'); };
+  const row = create_node(['sc-collapsed']);
+  row.dataset.collection = 'smart_sources';
+  row.dataset.path = fixture.first.path;
+  row.selectors['li'] = create_node();
+  row.selectors['.header .svg-icon.right-triangle'] = create_node();
+  const { post_process } = load_component(new URL('../components/connections-list-item/v3.js', import.meta.url), ['post_process'], {
+    resolve_connection_feedback, build_prefixed_connection_key,
+    get_item_display_name: item => item.key,
+    register_item_drag() {}, register_item_hover_popover() {}, open_source() {},
+    MutationObserver: class {
+      constructor(callback) { this.callback = callback; }
+      observe() { observers.push(this.callback); }
+    },
+  });
+  const previous_error = console.error;
+  console.error = (...args) => errors.push(args);
+  try {
+    await post_process.call(presenter, { item: fixture.first, connections_list: fixture.list }, row);
+    row.classList.remove('sc-collapsed');
+    observers[0]([{ attributeName: 'class', oldValue: 'sc-collapsed', target: row }]);
+    await new Promise(resolve => setImmediate(resolve));
+    t.is(errors.length, 1);
+    t.is(errors[0][0], '[Smart Connections] Result preview render failed');
+  } finally {
+    console.error = previous_error;
+  }
+});
 
 for (const [key, processor] of [['connections_list', list_v3]]) {
   test(`${key} publishes the exact visible rows without owning a graph`, async t => {
@@ -361,7 +402,8 @@ for (const [key, processor] of [['connections_list', list_v3]]) {
     t.is(received.score_algo_key, 'weighted');
     t.is(received.score_settings, score_settings);
     t.is(received.connections_post_process, 'recency_rank');
-    t.is(received.filter, filter);
+    t.not(received.filter, filter);
+    t.deepEqual(received.filter, filter);
     t.true(received.exclude_inlinks);
     t.false(received.exclude_outlinks);
     t.false(received.exclude_frontmatter_blocks);
@@ -408,4 +450,60 @@ test('Core list explicit retrieval params override local settings', async t => {
   t.is(received.connections_post_process, 'explicit_rank');
   t.deepEqual(received.filter.key_includes_any, ['Explicit/']);
   t.true(received.exclude_inlinks);
+});
+
+
+test('Core rows inherit saved expansion without overriding explicit local flags', async t => {
+  const fixture = create_feedback_fixture();
+  const { build_html } = load_component(new URL('../components/connections-list-item/v3.js', import.meta.url), ['build_html'], {
+    DISPLAY_SEPARATOR: ' > ', get_item_display_name: item => item.key,
+  });
+  for (const saved_expanded of [true, false]) {
+    fixture.collection.settings.expanded_view = saved_expanded;
+    for (const local_settings of [undefined, {}, { results_limit: 1 }, { expanded_view: false }, { expanded_view: true }]) {
+      const html = await build_html.call(presenter, { item: fixture.first, score: 0.9 }, { connections_settings: local_settings });
+      t.is(html.includes('sc-collapsed'), !(local_settings?.expanded_view ?? saved_expanded));
+    }
+  }
+});
+
+test('Core row display settings inherit per component while menus retain the local write target', async t => {
+  const fixture = create_feedback_fixture();
+  const saved_component_settings = Object.freeze({ show_full_path: true, render_markdown: false });
+  fixture.collection.settings.components = { connections_list_item_v3: saved_component_settings };
+  fixture.env.smart_connections_plugin = { app: {}, registerDomEvent(node, name, callback) { node.listeners[name] = callback; } };
+  const menu_calls = [];
+  const display_settings = [];
+  fixture.env.build_menu = (key, menu, scope, params) => { menu_calls.push({ key, scope, params }); };
+  const { build_html, post_process } = load_component(new URL('../components/connections-list-item/v3.js', import.meta.url), ['build_html', 'post_process'], {
+    resolve_connection_feedback, build_prefixed_connection_key,
+    DISPLAY_SEPARATOR: ' > ',
+    get_item_display_name(item, settings) { display_settings.push(settings); return item.key; },
+    register_item_drag() {}, register_item_hover_popover() {}, open_source() {},
+    MutationObserver: class { observe() {} },
+  });
+  const result = { item: fixture.first, score: 0.9, connections_list: fixture.list };
+  for (const local_settings of [
+    {},
+    { results_limit: 1 },
+    { components: { connections_list_item_v3: { render_markdown: true } } },
+    { components: { connections_list_item_v3: { show_full_path: false } } },
+  ]) {
+    const before = JSON.stringify(local_settings);
+    const params = { connections_settings: local_settings, visible_results: [result] };
+    await build_html.call(presenter, result, params);
+    const expected = { ...saved_component_settings, ...local_settings.components?.connections_list_item_v3 };
+    t.is(display_settings.at(-1).show_full_path, expected.show_full_path);
+    t.is(display_settings.at(-1).render_markdown, expected.render_markdown);
+    const row = create_node(['sc-collapsed']);
+    row.selectors['.header .svg-icon.right-triangle'] = create_node();
+    await post_process.call(presenter, result, row, params);
+    t.is(row.classList.contains('sc-result-plaintext'), !expected.render_markdown);
+    row.listeners.contextmenu({ preventDefault() {}, stopPropagation() {} });
+    t.is(display_settings.at(-1).show_full_path, expected.show_full_path);
+    t.is(menu_calls.at(-1).key, 'connections:list_menu');
+    t.is(menu_calls.at(-1).params.connections_settings, local_settings);
+    t.is(JSON.stringify(local_settings), before);
+  }
+  t.deepEqual(saved_component_settings, { show_full_path: true, render_markdown: false });
 });

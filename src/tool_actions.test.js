@@ -1,5 +1,6 @@
 import test from 'ava';
 import { collection_tool_action_schemas } from 'obsidian-smart-env/src/utils/collection_tool_action_schemas.js';
+import { connections_tool_action_schemas } from './utils/connections_tool_schemas.js';
 import {
   connections_list_get_results,
   input_schema,
@@ -312,8 +313,14 @@ test('project_connections_list_result includes item content when requested', asy
 test('connections tool metadata selects request and result projection', (t) => {
   const filter_schema = input_schema.properties.filter;
 
-  t.is(input_schema.properties, collection_tool_action_schemas);
-  t.is(filter_schema, collection_tool_action_schemas.filter);
+  t.is(input_schema.properties, connections_tool_action_schemas);
+  t.is(filter_schema, connections_tool_action_schemas.filter);
+  t.not(filter_schema, collection_tool_action_schemas.filter);
+  for (const key of ['exclude_key', 'exclude_key_starts_with', 'exclude_key_includes', 'exclude_key_ends_with']) {
+    t.false(key in filter_schema.properties);
+    t.true(key in collection_tool_action_schemas.filter.properties);
+  }
+  t.is(tool.input_schema.properties.filter, filter_schema);
   t.is(output_schema, null);
   t.is(
     input_schema.properties.limit,
@@ -332,13 +339,9 @@ test('connections tool metadata selects request and result projection', (t) => {
   t.is(filter_schema.type, 'object');
   t.false(filter_schema.additionalProperties);
   t.deepEqual(Object.keys(filter_schema.properties), [
-    'exclude_key',
     'exclude_keys',
-    'exclude_key_starts_with',
     'exclude_key_starts_with_any',
-    'exclude_key_includes',
     'exclude_key_includes_any',
-    'exclude_key_ends_with',
     'exclude_key_ends_with_any',
     'key_ends_with',
     'key_starts_with',

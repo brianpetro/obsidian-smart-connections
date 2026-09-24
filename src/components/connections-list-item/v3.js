@@ -10,6 +10,7 @@ import { DISPLAY_SEPARATOR, get_item_display_name } from 'obsidian-smart-env/src
 import { register_item_hover_popover } from 'obsidian-smart-env/src/utils/register_item_hover_popover.js';
 import { register_item_drag } from 'obsidian-smart-env/src/utils/register_item_drag.js';
 import { open_source } from "obsidian-smart-env/src/utils/open_source.js";
+import { process_for_rendering } from '../../utils/process_for_rendering.js';
 
 const SC_RESULT_HIDDEN_CLASS = 'sc-result-hidden-by-feedback';
 
@@ -28,9 +29,12 @@ export async function build_html(result, params = {}) {
   const connections_settings = params.connections_settings
     ?? env.connections_lists.settings
   ;
-  const component_settings = connections_settings.components?.connections_list_item_v3 || {};
+  const component_settings = {
+    ...env.connections_lists.settings.components?.connections_list_item_v3,
+    ...connections_settings.components?.connections_list_item_v3,
+  };
   const header_html = get_result_header_html(score_display, item, component_settings);
-  const all_expanded = connections_settings.expanded_view;
+  const all_expanded = connections_settings.expanded_view ?? env.connections_lists.settings.expanded_view;
   
   return `<div class="temp-container">
     <div
@@ -86,7 +90,10 @@ export async function post_process(result_scope, container, params = {}) {
   const connections_settings = params.connections_settings
     ?? env.connections_lists.settings
   ;
-  const component_settings = connections_settings.components?.connections_list_item_v3 || {};
+  const component_settings = {
+    ...env.connections_lists.settings.components?.connections_list_item_v3,
+    ...connections_settings.components?.connections_list_item_v3,
+  };
   const should_render_markdown = component_settings?.render_markdown ?? true;
   if (!should_render_markdown) container.classList.add('sc-result-plaintext');
 
@@ -137,7 +144,9 @@ export async function post_process(result_scope, container, params = {}) {
     });
 
     if (has_expansion_change && !mutations[0].target.classList.contains('sc-collapsed')) {
-      render_result(mutations[0].target);
+      render_result(mutations[0].target).catch((err) => {
+        console.error('[Smart Connections] Result preview render failed', err);
+      });
     }
   });
   observer.observe(container, {
@@ -179,7 +188,9 @@ export async function post_process(result_scope, container, params = {}) {
   });
 
   if(!container.classList.contains('sc-collapsed')) {
-    render_result(container);
+    render_result(container).catch((err) => {
+      console.error('[Smart Connections] Result preview render failed', err);
+    });
   }
 
   return container;
@@ -217,16 +228,6 @@ export function should_render_embed(entity) {
   if (!entity) return false;
   if (entity.is_media) return true;
   return false;
-}
-
-export function process_for_rendering(content) {
-  // prevent dataview rendering
-  if (content.includes('```dataview')) content = content.replace(/```dataview/g, '```\\dataview');
-  if (content.includes('```smart-context')) content = content.replace(/```smart-context/g, '```\\smart-context');
-  if (content.includes('```smart-chatgpt')) content = content.replace(/```smart-chatgpt/g, '```\\smart-chatgpt');
-  // prevent link embedding
-  if (content.includes('![[')) content = content.replace(/!\[\[/g, '! [[');
-  return content;
 }
 
 function toggle_result(event) {

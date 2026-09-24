@@ -41,8 +41,6 @@ function create_connections_list(
         dims: 2,
         get_active_file_info() { return { file: 'fixture' }; },
         _persisted_lengths_by_file: { fixture: scored_results.length * 2 },
-      },
-      actions: {
         top_k() { return scored_results.map(({ key, score }) => ({ item: items[key], score })); },
       },
     },
@@ -116,4 +114,26 @@ test('filter_and_score retains zero scores when no score is positive', (t) => {
     results.map((result) => result.score),
     [0, -0.1],
   );
+});
+
+test('filter_and_score delegates to Embeddings without a top_k action', (t) => {
+  const connections_list = create_connections_list([{ key: 'best', score: 0.9 }]);
+  const collection = connections_list.env.smart_sources;
+  const embeddings = collection.embeddings;
+  const top_k = embeddings.top_k;
+  let received_this = null;
+  embeddings.top_k = function(params) {
+    received_this = this;
+    return top_k.call(this, params);
+  };
+  collection.actions = {};
+
+  const results = connections_list.filter_and_score({
+    results_collection_key: 'smart_sources',
+    score_algo_key: 'similarity',
+    limit: 1,
+  });
+
+  t.is(received_this, embeddings);
+  t.deepEqual(results.map(({ item }) => item.key), ['best']);
 });

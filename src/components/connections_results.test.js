@@ -285,6 +285,30 @@ for (const [component_key, render] of [
   });
 }
 
+test('connections results handles retrieval failures without awaiting post-process', async t => {
+  const fixture = create_feedback_fixture();
+  const root = create_node();
+  root.appendChild(create_node(['connections-graph-container']));
+  root.appendChild(create_node(['connections-results-list']));
+  const original_error = console.error;
+  console.error = () => {};
+  t.teardown(() => { console.error = original_error; });
+  const view = {
+    ...presenter,
+    create_doc_fragment(html = '') {
+      if (html.includes('connections-results')) return { firstElementChild: root };
+      const fragment = create_node();
+      fragment.innerHTML = html;
+      return fragment;
+    },
+  };
+  fixture.list.get_results = async () => { throw new Error('retrieval failed'); };
+  const rendered = await render_results.call(view, fixture.list, { show_connections_graph: false });
+  t.is(rendered, root);
+  await new Promise(resolve => setImmediate(resolve));
+  t.true(root.innerHTML.includes('Unable to load connections: retrieval failed'));
+});
+
 for (const lifecycle of ['render', 'post_process']) {
   test(`codeblock ${lifecycle} does not await its initial child rendering`, async t => {
     const fixture = create_feedback_fixture();
@@ -403,4 +427,47 @@ test('an explicit None component overrides a visible saved preference', async t 
   await fixture.env.smart_components.render_component('connections_results', fixture.list, { connections_graph_component_key: 'none' });
   t.false(calls.some(call => call.key.startsWith('connections_graph_') || call.key === 'none'));
   t.is(fixture.collection.settings.connections_graph_component_key, 'connections_graph_v1');
+});
+
+
+for (const [component_key, post_process] of [
+  ['connections_results', null],
+  ['connections_list', base_list],
+]) {
+  test(`${component_key} submits sparse overrides instead of copied saved query defaults`, async t => {
+    const fixture = create_feedback_fixture();
+    fixture.target.data.connections = {};
+    fixture.collection.settings.connections_graph_component_key = 'none';
+    const requests = [];
+    fixture.list.get_results = async params => { requests.push({ ...params }); return []; };
+    install_components(fixture);
+    if (post_process) await post_process.call(presenter, fixture.list, create_node(), {});
+    else await fixture.env.smart_components.render_component(component_key, fixture.list, {});
+    t.deepEqual(requests, [{}]);
+  });
+}
+
+test('codeblock expansion changes only its local display settings', async t => {
+  const fixture = create_feedback_fixture();
+  fixture.collection.settings.expanded_view = false;
+  const local_settings = {};
+  const root = create_node();
+  root.appendChild(create_node(['connections-list-container']));
+  const expand = root.selectors['[data-action="expand-all"]'] = create_node();
+  const collapse = root.selectors['[data-action="collapse-all"]'] = create_node();
+  const captured = [];
+  fixture.list.actions.connections_list_toggle_expanded = params => {
+    captured.push(params.connections_settings);
+    params.connections_settings.expanded_view = params.expanded;
+  };
+  install_components(fixture);
+  const { post_process } = load_component(new URL('./connections_codeblock.js', import.meta.url));
+  await post_process.call(presenter, fixture.list, root, { connections_settings: local_settings });
+  await expand.listeners.click();
+  t.true(local_settings.expanded_view);
+  t.false(fixture.collection.settings.expanded_view);
+  await collapse.listeners.click();
+  t.false(local_settings.expanded_view);
+  t.true(captured.every(settings => settings === local_settings));
+  await new Promise(resolve => setImmediate(resolve));
 });

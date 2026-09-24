@@ -22,27 +22,38 @@ export async function register_smart_connections_codeblock(plugin) {
         return;
       }
       const render_codeblock = async () => {
-        const connections_list = entity.connections;
-        if(!connections_list?.env) {
+        if(!env.connections_lists?.new_connections_list) {
           container.empty();
           container.createEl('p', { text: 'Loading connections environment...' });
           // retry button
           const retry_button = container.createEl('button', { text: 'Retry' });
           retry_button.addEventListener('click', () => {
-            render_codeblock();
+            container._render_connections_codeblock?.();
           });
           return;
         }
-        const connections_container = await plugin.env.smart_components.render_component(
-          'connections_codeblock',
-          connections_list,
-          {
-            connections_settings: cb_config,
-          }
-        );
-        container.empty();
-        container.appendChild(connections_container);
+        try {
+          // Local settings must not share the sidebar's or another codeblock's
+          // in-flight retrieval. A fresh, unregistered list also isolates rerenders.
+          const connections_list = env.connections_lists.new_connections_list(entity);
+          const connections_container = await plugin.env.smart_components.render_component(
+            'connections_codeblock',
+            connections_list,
+            {
+              connections_settings: cb_config,
+            }
+          );
+          container.empty();
+          container.appendChild(connections_container);
+        } catch (err) {
+          console.error(err);
+          container.empty();
+          container.createEl('p', {
+            text: `Unable to load connections: ${err?.message || 'Unknown error'}`,
+          });
+        }
       };
+      container._render_connections_codeblock = render_codeblock;
       if(!container._has_listeners) {
         container._has_listeners = true;
         const disposers = [];
@@ -50,7 +61,7 @@ export async function register_smart_connections_codeblock(plugin) {
           if (event.path_string === 'connections_lists.components.connections_graph_v1.render_links') return;
           // console.log('connections codeblock view detected settings change', event);
           if(event.path?.includes('connections_lists')){
-            render_codeblock();
+            container._render_connections_codeblock?.();
           }
         }));
         smart_view.attach_disposer(container, disposers);

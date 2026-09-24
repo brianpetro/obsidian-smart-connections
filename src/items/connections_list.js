@@ -123,7 +123,7 @@ export class ConnectionsList extends CollectionItem {
       normalize_limit(this.settings?.results_limit, 20)
     );
 
-    // fast path: similarity scores in wasm, then apply JS-side filters to the ranked slice
+    // fast path: similarity scores from embeddings, then apply JS-side filters to the ranked slice
     if (
       source_item?.vec?.length
     ) {
@@ -138,7 +138,7 @@ export class ConnectionsList extends CollectionItem {
         );
 
         while (true) {
-          const top_k = collection.actions.top_k({
+          const top_k = collection.embeddings.top_k({
             vec: source_item.vec,
             k: requested_k,
           });
@@ -175,10 +175,7 @@ export class ConnectionsList extends CollectionItem {
   }
 
   async post_process (results, params = {}) {
-    if(!results?.length) {
-      console.warn('No results to post-process, received:', results);
-      return [];
-    }
+    if(!results?.length) return [];
     const action_key = params.connections_post_process ?? this.settings.connections_post_process;
     const post_process_action = this.actions[action_key];
     let processed_results = results;

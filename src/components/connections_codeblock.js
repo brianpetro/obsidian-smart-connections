@@ -1,6 +1,4 @@
 import { filter_hidden_results } from '../utils/filter_hidden_results.js';
-import { copy_connections_filter } from '../utils/copy_connections_filter.js';
-import { parse_frontmatter_filter_lines } from 'smart-entities/utils/frontmatter_filter.js';
 import styles from './connections_codeblock.css';
 
 /**
@@ -74,7 +72,9 @@ export async function render(connections_list, opts = {}) {
   const frag = this.create_doc_fragment(html);
   this.apply_style_sheet(styles);
   const container = frag.firstElementChild;
-  post_process.call(this, connections_list, container, opts);
+  post_process.call(this, connections_list, container, opts).catch((err) => {
+    console.error(err);
+  });
   return frag;
 }
 
@@ -88,6 +88,7 @@ export async function render(connections_list, opts = {}) {
 export async function post_process(connections_list, container, opts = {}) {
   const list_container = container.querySelector('.connections-list-container');
   const env = connections_list.env;
+  const connections_settings = opts.connections_settings ?? {};
   let visible_results = [];
   let render_id = 0;
 
@@ -95,32 +96,12 @@ export async function post_process(connections_list, container, opts = {}) {
     const current_render = ++render_id;
     visible_results = [];
     // console.log('Rendering connections list in codeblock view');
-    const connections_settings = opts.connections_settings ?? {};
-    const filter = copy_connections_filter(opts.filter);
-    if (filter.key_includes_any === undefined && connections_settings.include_filter !== undefined) {
-      filter.key_includes_any = parse_csv(connections_settings.include_filter);
-    }
-    if (filter.exclude_key_includes_any === undefined && connections_settings.exclude_filter !== undefined) {
-      filter.exclude_key_includes_any = parse_csv(connections_settings.exclude_filter);
-    }
-    if (
-      connections_settings.frontmatter_filter_include !== undefined
-      || connections_settings.frontmatter_filter_exclude !== undefined
-    ) {
-      filter.frontmatter ||= {};
-      if (filter.frontmatter.include === undefined && connections_settings.frontmatter_filter_include !== undefined) {
-        filter.frontmatter.include = parse_frontmatter_filter_lines(connections_settings.frontmatter_filter_include);
-      }
-      if (filter.frontmatter.exclude === undefined && connections_settings.frontmatter_filter_exclude !== undefined) {
-        filter.frontmatter.exclude = parse_frontmatter_filter_lines(connections_settings.frontmatter_filter_exclude);
-      }
-    }
     const list = await env.smart_components.render_component(
       'connections_results',
       connections_list,
       {
         ...opts,
-        filter,
+        connections_settings,
         on_visible_results(results) {
           if (current_render === render_id) visible_results = results;
         },
@@ -155,7 +136,7 @@ export async function post_process(connections_list, container, opts = {}) {
     const expand_all_button = container.querySelector('[data-action="expand-all"]');
     expand_all_button?.addEventListener('click', async () => {
       await run_action('connections_list_toggle_expanded', {
-        connections_settings: connections_list.settings,
+        connections_settings,
         container,
         expanded: true,
         event_source: 'connections_codeblock.expand_all',
@@ -165,7 +146,7 @@ export async function post_process(connections_list, container, opts = {}) {
     const collapse_all_button = container.querySelector('[data-action="collapse-all"]');
     collapse_all_button?.addEventListener('click', async () => {
       await run_action('connections_list_toggle_expanded', {
-        connections_settings: connections_list.settings,
+        connections_settings,
         container,
         expanded: false,
         event_source: 'connections_codeblock.collapse_all',
@@ -203,15 +184,10 @@ export async function post_process(connections_list, container, opts = {}) {
     });
   }
 
-  render_list();
+  render_list().catch((err) => {
+    console.error(err);
+    list_container.innerHTML = `<p class="sc-connections-error">Unable to load connections: ${typeof err?.message === 'string' ? err.message : 'Unknown error'}</p>`;
+  });
   return container;
-}
-
-function parse_csv(value = '') {
-  return String(value || '')
-    .split(',')
-    .map((part) => part.trim())
-    .filter(Boolean)
-  ;
 }
 

@@ -1,5 +1,4 @@
-import { connection_feedback_schema } from '../../utils/connections_tool_schemas.js';
-import { collection_tool_action_schemas } from 'obsidian-smart-env/src/utils/collection_tool_action_schemas.js';
+import { connection_feedback_schema, connections_tool_action_schemas } from '../../utils/connections_tool_schemas.js';
 
 /**
  * Retrieve ranked results for the current Connections List.
@@ -16,7 +15,7 @@ export const display_name = 'List Smart Connections';
 export const display_description = 'Returns ranked Smart Connections for a source key.';
 export const input_schema = {
   type: 'object',
-  properties: collection_tool_action_schemas,
+  properties: connections_tool_action_schemas,
   additionalProperties: false,
 };
 export const output_schema = null;
@@ -45,7 +44,7 @@ export const tool = {
         minLength: 1,
         description: 'Exact Smart Source key.',
       },
-      ...collection_tool_action_schemas,
+      ...connections_tool_action_schemas,
       include_content: {
         type: 'boolean',
         description: 'Include the text content of each returned item.',

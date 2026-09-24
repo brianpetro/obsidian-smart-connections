@@ -22,8 +22,6 @@ export function create_feedback_fixture({ limit = 2, target_key = 'Target.md', r
         get _vectors_by_file() { return { fixture: new Float32Array(Object.values(collection.items).flatMap(item => item.vec)) }; },
         get_item_embedding_ref(item) { return { file: 'fixture', file_i: Object.values(collection.items).indexOf(item), read_hash: 'fixture' }; },
         get _persisted_lengths_by_file() { return { fixture: Object.keys(collection.items).length * 2 }; },
-      },
-      actions: {
         top_k({ k }) {
           queries.push(k);
           return Object.values(collection.items)

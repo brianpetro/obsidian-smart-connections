@@ -65,19 +65,35 @@ test('rebuilds pinned and hidden arrays on each pre_process call', (t) => {
   t.deepEqual(params.filter.exclude_keys, ['center']);
 });
 
-test('merges singular and plural exact-key exclusions', (t) => {
+test('preserves canonical negative operands without mutating the caller filter', (t) => {
   const connections_list = build_connections_list();
-  const params = {
-    filter: {
-      exclude_key: 'single',
-      exclude_keys: ['plural'],
-    },
-  };
+  const filter = Object.freeze({
+    exclude_keys: Object.freeze(['plural', 'plural']),
+    exclude_key_starts_with_any: Object.freeze(['Folder/']),
+    exclude_key_includes_any: Object.freeze(['fragment']),
+    exclude_key_ends_with_any: Object.freeze(['.suffix']),
+  });
+  const params = { filter };
 
   pre_process.call(connections_list, params);
 
-  t.deepEqual(params.filter.exclude_keys, ['plural', 'single', 'center']);
+  t.deepEqual(params.filter.exclude_keys, ['plural', 'center']);
+  t.deepEqual(params.filter.exclude_key_starts_with_any, ['Folder/']);
+  t.deepEqual(params.filter.exclude_key_includes_any, ['fragment']);
+  t.deepEqual(params.filter.exclude_key_ends_with_any, ['.suffix']);
+  t.deepEqual(filter.exclude_keys, ['plural', 'plural']);
+  t.not(params.filter, filter);
 });
+
+for (const key of ['exclude_key', 'exclude_key_starts_with', 'exclude_key_includes', 'exclude_key_ends_with', 'first_n']) {
+  test(`rejects unsupported Connections operand ${key} instead of silently dropping it`, (t) => {
+    const connections_list = build_connections_list();
+    t.throws(() => pre_process.call(connections_list, { filter: { [key]: 'value' } }), {
+      instanceOf: TypeError,
+      message: new RegExp(key),
+    });
+  });
+}
 
 test('treats hidden and pinned entries as pinned for scoring', (t) => {
   const connections_state = {

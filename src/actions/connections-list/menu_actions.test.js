@@ -6,6 +6,7 @@ import { create_node, install_components, load_component, presenter } from '../.
 import { get_visible_connections_results } from '../../utils/get_visible_connections_results.js';
 import * as feedback_utils from '../../utils/connections_list_item_state.js';
 import { ConnectionsLists } from '../../collections/connections_lists.js';
+import { connections_list_toggle_expanded, menus as expanded_menus } from './toggle_expanded.js';
 import {
   connections_list_open_settings,
   menus as settings_menus,
@@ -332,3 +333,43 @@ for (const footer of [false, true]) {
     t.is(root.querySelector('.connections-graph-container').children.length, 1);
   });
 }
+
+
+for (const [label, local_settings, initial_expanded] of [
+  ['empty local settings', {}, true],
+  ['query-only local settings', { results_limit: 1 }, true],
+  ['explicit local false', { expanded_view: false }, false],
+  ['explicit local true', { expanded_view: true }, true],
+]) {
+  test(`expansion menu and action honor ${label} and write locally`, t => {
+    const fixture = create_feedback_fixture();
+    fixture.collection.settings.expanded_view = true;
+    const connections_settings = { ...local_settings };
+    const container = create_node();
+    const row = container.appendChild(create_node(['sc-result']));
+    const params = { connections_settings, container };
+    const menu_context = { scope: fixture.list, params };
+    const menu = expanded_menus['connections:list_menu'];
+    t.is(menu.title.call(menu_context), initial_expanded ? 'Collapse all results' : 'Expand all results');
+    t.is(menu.icon.call(menu_context), initial_expanded ? 'fold-vertical' : 'unfold-vertical');
+    t.true(connections_list_toggle_expanded.call(fixture.list, params));
+    t.is(connections_settings.expanded_view, !initial_expanded);
+    t.is(row.classList.contains('sc-collapsed'), initial_expanded);
+    t.is(fixture.collection.settings.expanded_view, true);
+    t.is(menu.title.call(menu_context), initial_expanded ? 'Expand all results' : 'Collapse all results');
+    t.is(menu.icon.call(menu_context), initial_expanded ? 'unfold-vertical' : 'fold-vertical');
+    connections_list_toggle_expanded.call(fixture.list, { ...params, expanded: false });
+    t.false(connections_settings.expanded_view);
+    t.true(row.classList.contains('sc-collapsed'));
+    t.true(fixture.collection.settings.expanded_view);
+  });
+}
+
+test('expansion without local settings still updates the saved sidebar preference', t => {
+  const fixture = create_feedback_fixture();
+  fixture.collection.settings.expanded_view = true;
+  connections_list_toggle_expanded.call(fixture.list);
+  t.false(fixture.collection.settings.expanded_view);
+  connections_list_toggle_expanded.call(fixture.list);
+  t.true(fixture.collection.settings.expanded_view);
+});
