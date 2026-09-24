@@ -66,7 +66,7 @@ test('hard filters exclude pinned and hidden candidates in both raw and visible 
 test('feedback supplementation uses prepared hard eligibility without scoring', async t => {
   const { list, pinned, hidden, first, target } = create_feedback_fixture();
   const params = { filter: { exclude_keys: ['Pinned.md'] } };
-  await list.pre_process(params);
+  await list.actions.connections_list_pre_process(params);
   t.false(list.is_candidate_eligible(pinned, params));
   t.true(list.is_candidate_eligible(hidden, params));
   t.true(list.is_candidate_eligible(first, params));
@@ -85,7 +85,7 @@ test('feedback supplementation enforces collection, source exclusions, and vecto
   const params = { results_collection_key: 'smart_sources', filter: {
     exclude_keys: ['Target.md'], exclude_key_starts_with_any: ['Target.md#'],
   } };
-  await list.pre_process(params);
+  await list.actions.connections_list_pre_process(params);
   t.deepEqual(result_keys(list.get_feedback_items(params, { states: ['pinned'] })), ['Pinned.md']);
   pinned.vec = [];
   t.deepEqual(list.get_feedback_items(params, { states: ['pinned'] }), []);
@@ -99,12 +99,12 @@ test('preprocessing owns mutable nested filters and leaves frozen caller state u
     frontmatter: Object.freeze({ include: Object.freeze([{ key: 'status', value: 'open' }]) }),
   });
   const params = { results_collection_key: 'smart_blocks', filter };
-  await list.pre_process(params);
+  await list.actions.connections_list_pre_process(params);
   t.not(params.filter, filter);
   t.not(params.filter.frontmatter, filter.frontmatter);
   t.deepEqual(filter.exclude_key_ends_with_any, ['secret']);
   t.deepEqual(params.filter.exclude_key_ends_with_any, ['secret', '---frontmatter---']);
-  await list.pre_process(params);
+  await list.actions.connections_list_pre_process(params);
   t.deepEqual(params.filter.exclude_key_ends_with_any, ['secret', '---frontmatter---']);
 });
 
@@ -149,7 +149,7 @@ test('visible helper does not mutate request or re-preprocess a supplied snapsho
   t.deepEqual(request, before);
   const params = { limit: 2 };
   const raw = await list.get_results(params);
-  list.pre_process = () => { throw new Error('unexpected preprocessing'); };
+  list.actions.connections_list_pre_process = () => { throw new Error('unexpected preprocessing'); };
   t.deepEqual(result_keys(await get_visible_connections_results(list, params, raw)), ['Pinned.md', 'First.md']);
   t.deepEqual(result_keys(await get_graph_connections_results(list, params, raw)), ['Hidden.md', 'First.md', 'Pinned.md']);
 });
@@ -300,7 +300,7 @@ test('scoring exemplars use the same zero-timestamp and pinned-over-hidden inter
   target.data.connections['smart_sources:Pinned.md'] = { pinned: 0, hidden: 3 };
   target.data.connections['smart_sources:Hidden.md'] = { hidden: 0 };
   const params = {};
-  await list.pre_process(params);
+  await list.actions.connections_list_pre_process(params);
   t.deepEqual(params.pinned, [pinned]);
   t.deepEqual(params.hidden, [hidden]);
   t.deepEqual(params.filter.exclude_keys, [target.key]);
@@ -312,8 +312,8 @@ test('coalesced visible callers use one prepared scoring context', async t => {
   pinned.actions = { similarity() { return { score: 0.2 }; } };
   pinned.score = CollectionItem.prototype.score;
   let preparations = 0;
-  const pre_process = list.pre_process.bind(list);
-  list.pre_process = async params => { preparations++; await pre_process(params); };
+  const pre_process = list.actions.connections_list_pre_process;
+  list.actions.connections_list_pre_process = async params => { preparations++; await pre_process(params); };
   const first_request = { limit: 2 };
   const second_request = { limit: 2 };
   const [first, second] = await Promise.all([
@@ -386,10 +386,10 @@ test('coalesced presentation failures reject together and the next retrieval rec
   const { list, pinned, queries } = create_feedback_fixture();
   pinned.actions = { similarity() { return { score: 0.2 }; } };
   pinned.score = CollectionItem.prototype.score;
-  const pre_process = list.pre_process.bind(list);
+  const pre_process = list.actions.connections_list_pre_process;
   const failure = new Error('retrieval failed');
   let preparations = 0;
-  list.pre_process = async params => {
+  list.actions.connections_list_pre_process = async params => {
     if (++preparations === 1) throw failure;
     await pre_process(params);
   };
@@ -457,4 +457,44 @@ test('visible live feedback cannot reintroduce an excluded pin or backfill a hid
   t.deepEqual(result_keys(await get_visible_connections_results(list, params, raw)), ['Pinned.md']);
   t.deepEqual(result_keys(raw), ['Hidden.md', 'First.md']);
   t.is(queries.length, 1);
+});
+
+test('retrieval awaits the registered preparation with list scope and the original params', async t => {
+  const { list, env, target, queries } = create_feedback_fixture();
+  const prepare = env.config.actions.connections_list_pre_process.action;
+  const params = { limit: 2 };
+  let release;
+  const ready = new Promise(resolve => { release = resolve; });
+  let preparations = 0;
+  env.config.actions.connections_list_pre_process.action = async function(next_params) {
+    t.is(this, list);
+    t.is(next_params, params);
+    preparations++;
+    await ready;
+    prepare.call(this, next_params);
+  };
+
+  const pending = list.get_results(params);
+  t.is(preparations, 1);
+  t.is(queries.length, 0);
+  t.is(params.to_item, undefined);
+  release();
+  const results = await pending;
+
+  t.deepEqual(result_keys(results), ['Hidden.md', 'First.md']);
+  t.is(params.to_item, target);
+  t.is(list._result_params.get(results).to_item, target);
+  t.is(preparations, 1);
+  t.false('pre_process' in list);
+});
+
+test('retrieval no longer invokes a selected score action pre_process hook', async t => {
+  const { list, env, collection } = create_feedback_fixture();
+  collection.score_algo_key = 'custom';
+  env.config.actions.custom = {
+    action() { return { score: 0.9 }; },
+    pre_process() { throw new Error('score-specific preparation must not run'); },
+  };
+
+  t.deepEqual(result_keys(await list.get_results()), ['Hidden.md', 'First.md']);
 });

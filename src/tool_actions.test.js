@@ -105,6 +105,7 @@ test('Connections retrieval does not migrate source data', async (t) => {
     config: {
       actions: {},
     },
+    settings: {},
   };
   connections_list.data = {
     collection_key: 'smart_sources',
@@ -112,7 +113,11 @@ test('Connections retrieval does not migrate source data', async (t) => {
   };
   connections_list._actions = {};
 
-  await connections_list.pre_process({});
+  connections_list._result_params = new WeakMap();
+  connections_list.filter_and_score = () => [];
+  connections_list.emit_event = () => {};
+
+  t.deepEqual(await connections_list.get_results(), []);
 
   t.true(Object.hasOwn(source.data, 'hidden_connections'));
   t.false(Object.hasOwn(source.data, 'connections'));

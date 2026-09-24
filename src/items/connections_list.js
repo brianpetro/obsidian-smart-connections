@@ -16,18 +16,6 @@ export class ConnectionsList extends CollectionItem {
     return `${this.data.collection_key}:${this.data.item_key}`;
   }
 
-  async pre_process (params) {
-    // default pre_process (via src/actions/connections-list/pre_process.js)
-    if(typeof this.actions.connections_list_pre_process === 'function') {
-      await this.actions.connections_list_pre_process(params);
-    }
-    // if score algo exports pre_process, call it
-    if(typeof this.env.config?.actions?.[params.score_algo_key]?.pre_process === 'function') {
-      await this.env.config.actions[params.score_algo_key].pre_process.call(this.item, params);
-    }
-    // console.log('ConnectionsList.pre_process params:', params);
-  }
-
   /**
    * Produce ranked connections for the current source item.
    * @param {object} params
@@ -47,7 +35,9 @@ export class ConnectionsList extends CollectionItem {
 
   async _get_results (params = {}) {
     // Pre-process params
-    await this.pre_process(params);
+    if (typeof this.actions.connections_list_pre_process === 'function') {
+      await this.actions.connections_list_pre_process(params);
+    }
     
     // Main filtering and scoring
     // Measure only filter_and_score so WASM and JS retrieval paths are comparable.
