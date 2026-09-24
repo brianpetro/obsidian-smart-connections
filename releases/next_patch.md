@@ -36,3 +36,8 @@ Improved: connections/settings menu organization
 
 
 Improved: drag-and-drop handling in connections view
+
+
+Improved:  connections list handling and improve query parameter building (remove legacy parameters, merge redundant and canonicalize respective logic)
+Improved: debounce settings for include and exclude filters to prevent excessive render triggers
+Improved: Simplified codeblock by removing redundant filter handling and ensuring local settings are isolated and separate retrieval contexts for sidebar and inline codeblocks.
