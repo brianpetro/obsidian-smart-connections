@@ -62,3 +62,45 @@ test('plugin initialization retains explicit new preferences over legacy choices
   t.is(env.connections_lists.settings.connections_graph_component_key, 'connections_graph_future');
   t.is(env.connections_lists.settings.components.connections_list.connections_list_item_component_key, 'chosen_row');
 });
+
+for (const layout_ready of [false, true]) {
+  test(`ribbons register during onload when the layout is ${layout_ready ? 'already ready' : 'not yet restored'}`, (t) => {
+    const { plugin, calls } = create_plugin_fixture(create_env());
+    let layout_callback;
+    plugin._smart_env_config = { actions: {} };
+    plugin.env = undefined;
+    plugin.SmartEnv.create = (received_plugin, config) => {
+      t.is(received_plugin, plugin);
+      t.is(config, plugin.smart_env_config);
+      plugin.env = { state: 'init' };
+      calls.push('env');
+    };
+    plugin.addSettingTab = () => calls.push('settings');
+    plugin.register_item_views = () => calls.push('views');
+    plugin.register_ribbon_actions = () => {
+      t.is(plugin.env.state, 'init');
+      calls.push('ribbons');
+    };
+    plugin.initialize = () => {
+      t.is(plugin.env.state, 'init');
+      t.true(calls.includes('ribbons'));
+      calls.push('initialize');
+    };
+    plugin.app = {
+      workspace: {
+        onLayoutReady(callback) {
+          calls.push('layout');
+          layout_callback = callback;
+          if (layout_ready) callback();
+        },
+      },
+    };
+
+    plugin.onload();
+
+    const startup_calls = ['env', 'settings', 'icons', 'views', 'ribbons', 'layout'];
+    t.deepEqual(calls, layout_ready ? [...startup_calls, 'initialize'] : startup_calls);
+    if (!layout_ready) layout_callback();
+    t.deepEqual(calls, [...startup_calls, 'initialize']);
+  });
+}

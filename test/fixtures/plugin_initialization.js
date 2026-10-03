@@ -13,6 +13,7 @@ export function create_plugin_fixture(env, wait_for = async () => {}) {
     ScEarlySettingsTab: class {},
     ConnectionsFooterView: class {},
     connections_footer_plugin: {},
+    add_smart_dice_icon() { calls.push('icons'); },
     register_smart_connections_codeblock() { calls.push('codeblock'); },
     migrate_connections_display_settings(...args) {
       calls.push('display_migration');

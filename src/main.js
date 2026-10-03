@@ -53,11 +53,13 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
   get api() { return this._api; }
 
   onload() {
-    this.app.workspace.onLayoutReady(this.initialize.bind(this));
     this.SmartEnv.create(this, this.smart_env_config);
     this.addSettingTab(new this.ConnectionsSettingsTab(this.app, this));
     add_smart_dice_icon();
     this.register_item_views({skip_command_registration: true});
+    // Register ribbons before Obsidian restores their saved positions.
+    this.register_ribbon_actions();
+    this.app.workspace.onLayoutReady(this.initialize.bind(this));
   }
 
   onunload() {
@@ -68,7 +70,6 @@ export default class SmartConnectionsPlugin extends SmartPlugin {
   }
 
   async initialize() {
-    this.register_ribbon_actions();
     this.smart_connections_view = null;
     this.is_new_user().then(async (is_new) => {
       if (!is_new) return;
