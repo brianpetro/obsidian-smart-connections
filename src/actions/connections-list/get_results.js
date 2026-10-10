@@ -60,6 +60,7 @@ export const tool = {
     read_only: true,
     destructive: false,
     idempotent: true,
+    open_world: false,
   },
 
   project_result: project_connections_list_result,
@@ -238,3 +239,5 @@ async function read_result_content(item, result_i) {
 function to_trimmed_string(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
+
+export const version = '3.1.4';
