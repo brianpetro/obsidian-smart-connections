@@ -44,3 +44,6 @@ Improved: Simplified codeblock by removing redundant filter handling and ensurin
 
 
 Improved: register ribbon actions during onload and added tests for layout readiness (resolved: preserve ribbon icon ordering)
+
+
+Improved: empty state handling for Connections results view
