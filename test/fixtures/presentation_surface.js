@@ -75,6 +75,12 @@ export function create_node(classes = []) {
 export const presenter = {
   empty(node) { node.children = []; },
   create_doc_fragment(html = '') { const fragment = create_node(); fragment.innerHTML = html; return fragment; },
+  async render_markdown(markdown, scope) {
+    const fragment = create_node();
+    fragment.markdown = markdown;
+    fragment.markdown_scope = scope;
+    return fragment;
+  },
   safe_inner_html() {},
   attach_disposer() {},
   get_icon_html() { return ''; },

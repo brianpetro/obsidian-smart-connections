@@ -1,5 +1,6 @@
 import { build_connections_query_params } from '../utils/build_connections_query_params.js';
 import { get_visible_connections_results } from '../utils/get_visible_connections_results.js';
+import { get_connections_empty_state_markdown } from '../utils/get_connections_empty_state_markdown.js';
 // Base list-only renderer used by the canonical Connections list.
 /**
  * @returns {Promise<string>} A promise that resolves to the .sc-list HTML string.
@@ -31,7 +32,7 @@ export async function post_process(connections_list, container, opts = {}) {
   const ranked_results = opts.results ?? await connections_list.get_results(query_params);
   const results = await get_visible_connections_results(connections_list, query_params, ranked_results);
   if(!results || !Array.isArray(results) || results.length === 0) {
-    const no_results = this.create_doc_fragment(`<p class="sc-no-results">No results found.<br><em>Try using the refresh button. If that doesn't work, try running "Clear sources data" and then "Reload sources" in the Smart Environment settings.</em></p>`);
+    const no_results = await this.render_markdown(get_connections_empty_state_markdown(connections_list.item), connections_list.item);
     container.appendChild(no_results);
     return container;
   }
