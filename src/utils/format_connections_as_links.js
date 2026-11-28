@@ -43,8 +43,9 @@ function get_wikilink(item) {
   if (!item?.key) return '';
   const [source_key, ...block_parts] = item.key.split('#');
   const filename = source_key.split('/').pop().replace(/\.md$/i, '');
-  if (block_parts.length) {
-    const block_ref = block_parts.pop();
+  const non_empty_block_parts = block_parts.filter(Boolean);
+  if (non_empty_block_parts.length) {
+    const block_ref = non_empty_block_parts.pop();
     return `- [[${filename}#${block_ref}]]`;
   }
   return `- [[${filename}]]`;

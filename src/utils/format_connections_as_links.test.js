@@ -49,3 +49,17 @@ test('format_connections_as_links includes line info when available', t => {
 
   t.is(formatted, '- [[Block]] (Lines: 3-7)');
 });
+
+test('format_connections_as_links strips empty trailing block references', t => {
+  const results = [
+    {item: {key: 'Folder/Manning26coffeeTeaDementia.md#'}},
+    {item: {key: 'Folder/Block.md#heading1#'}},
+  ];
+
+  const formatted = format_connections_as_links(results);
+
+  t.is(
+    formatted,
+    ['- [[Manning26coffeeTeaDementia]]', '- [[Block#heading1]]'].join('\n')
+  );
+});
